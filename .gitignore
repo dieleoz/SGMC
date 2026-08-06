@@ -1,0 +1,19 @@
+# Git Ignore for SGMC Project
+
+# Legacy directory (Excluded from git tracking)
+legacy/
+legacy/*
+
+# Temporary python & scratch files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+scratch/
+
+# IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
