@@ -266,3 +266,73 @@ debe rehacerse sobre una estimación de estas dos tareas, que solo tú o el líd
 
 La evidencia de este dictamen se reproduce leyendo `BD/Modelo de Datos (2).xlsx` con `openpyxl`.
 Cualquier revisor puede rehacer las verificaciones de la sección 2 sin depender de este documento.
+
+---
+
+## 9. Adenda del 6 de agosto de 2026: los dos modelos no coinciden
+
+**Alcance de esta adenda.** Las secciones 1 a 8 se elaboraron leyendo únicamente
+`BD/Modelo de Datos (2).xlsx`. Ese mismo día se accedió por primera vez al backend de producción
+en Google Sheets. Los dos no son el mismo modelo.
+
+**Método.** Lectura del documento `1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc` mediante el
+conector de Google Drive, y contraste tabla por tabla contra el Excel local.
+
+### 9.1 Divergencias verificadas
+
+| Tabla | Excel local | Producción |
+|---|---|---|
+| `TIP_TiposActivo.FormularioID` | Vacío en los 18 tipos | Poblado en los 18 |
+| `MAN_Mantenimientos` | 24 columnas, con `Coordenadas_Cierre` y `Precision_GPS` | 25 columnas, sin ninguna de las dos. Incluye `Diagnostico`, `Trabajo_Realizado`, `Duracion_Minutos`, `Repuestos_Utilizados`, `Requiere_Repuesto` |
+| `CHK_Checklists` | 9 columnas, 1 fila | 21 columnas, 3 filas |
+| `CHD_ChecklistDetalle` | 6 columnas, pregunta en texto libre | 21 columnas, con `PreguntaID` |
+| `CHK.OTID` del registro `d02d8a3d` | `'1'`, huérfano | `'OT-0001'`, válido |
+
+Ninguno de los dos modelos es superconjunto del otro. El Excel tiene las columnas de GPS pero no
+el mapeo de formularios; producción tiene el mapeo pero no las columnas de GPS.
+
+### 9.2 Efecto sobre los hallazgos de la sección 3
+
+| Hallazgo | Estado tras leer producción |
+|---|---|
+| B-01 coordenada única en Bogotá | **Confirmado.** Los 34 activos comparten `4.728512, -74.114531` |
+| B-02 `FormularioID` sin mapear | **Resuelto en producción.** Pendiente solo en el Excel local |
+| B-03 sedes disjuntas | **Confirmado.** Usuarios en sede 1, activos en sedes 7 a 10 |
+| B-04 un solo banco de preguntas | **Confirmado.** Solo `FRM_SOS`, con 15 preguntas |
+| B-05 checklist huérfano | **Resuelto en producción** |
+| B-06 evidencias duplicadas | **Confirmado** |
+| B-07 cuatro tablas vacías | **Confirmado.** `MAN`, `FOT`, `FIR` y `GPS` sin registros |
+| B-08 detalle sin trazabilidad | **Resuelto en producción.** `CHD` referencia `PreguntaID` |
+
+### 9.3 Hallazgos nuevos
+
+**B-09. Producción no tiene las columnas de GPS.** `MAN_Mantenimientos` carece de
+`Coordenadas_Cierre` y `Precision_GPS`. La consecuencia es más grave que B-01: la regla de
+geofencing no está mal configurada, es que **no puede configurarse**, porque el campo sobre el que
+se evalúa no existe en el backend que corre la aplicación. RF-011 y RF-012 no tienen soporte.
+
+**B-10. El backend es propiedad de una cuenta personal.** El documento de producción pertenece a
+`valentinwebdeveloper@gmail.com`, una cuenta de Gmail ajena al dominio corporativo. La Concesión
+no controla el activo del que depende todo el sistema. Entra en la decisión D-14.
+
+**B-11. Datos de prueba sin limpiar.** `CHK_Checklists` contiene un registro `CHK001` con
+`TecnicoID = "Santiago Moreno"` en lugar de un identificador, `ActivoID = "SOS001"` en lugar del
+identificador numérico, y `FechaInicio = "NOW()"` almacenado como texto literal.
+
+**B-12. Edición paralela sin control.** Que ambos modelos hayan evolucionado por separado implica
+que no hay una regla de quién edita qué. Mientras eso siga así, cualquier corrección puede
+perderse o duplicarse.
+
+### 9.4 Corrección a la sección 7 de este dictamen
+
+La recomendación 3 afirmaba que la sección 3.1 de `bd.md` describía un `MAN_Mantenimientos`
+inexistente. Era una conclusión correcta contra el Excel local e incorrecta en general:
+**`bd.md` estaba describiendo producción**, y su conteo de 21 columnas para `CHK` y `CHD` también
+corresponde a producción. Lo que procede no es reescribir `bd.md`, sino declarar en él contra cuál
+de los dos modelos está escrito.
+
+### 9.5 Consecuencia para el plan
+
+Se incorpora una **Fase 0.5 de reconciliación de modelos**, bloqueante y previa a cualquier
+configuración. Su detalle está en [ROADMAP.md](ROADMAP.md). Configurar sobre dos modelos que
+divergen es trabajar sobre un blanco móvil.

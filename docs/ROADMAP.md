@@ -3,11 +3,15 @@
 **Proyecto:** Sistema de Gestión de Mantenimiento en Campo
 **Cliente:** Concesión Transversal del Sisga S.A.S.
 **Actualizado:** 6 de agosto de 2026 | **Versión:** 3.0
-**Estado actual:** Sprint 0 — Definición funcional en validación
+**Estado actual:** Sprint 0 enviado, a la espera de respuesta del líder funcional. Frente técnico activo: Fase 0.5
 
 > Esta versión corrige la anterior, que declaraba completadas al 100 % la Fase 0 y la Fase 1.
 > La auditoría del 6 de agosto de 2026 verificó contra el archivo que esa declaración era falsa.
 > Ver [AUDITORIA_PLAN_Y_ROADMAP.md](AUDITORIA_PLAN_Y_ROADMAP.md).
+>
+> **Actualización del mismo día:** al leer por primera vez el backend de producción se descubrió
+> que el Excel local y el Google Sheets son modelos distintos. Se incorpora la Fase 0.5 de
+> reconciliación, y los hallazgos se reexpresan contra producción.
 
 ---
 
@@ -25,8 +29,9 @@ completadas fases que dejaron cuatro tablas vacías y el control GPS inoperante.
 
 | Fase | Estado | Criterio de cierre |
 |---|---|---|
-| Sprint 0. Definición funcional | **En curso** | Acta de mesa firmada con las 14 decisiones resueltas o con supuesto declarado |
-| Fase 1. Datos maestros | Bloqueada por Sprint 0 | Coordenadas reales cargadas, formularios mapeados por tipo, sedes realineadas, bancos priorizados construidos |
+| Sprint 0. Definición funcional | **Enviado, esperando respuesta** | Respuesta del líder funcional a las 14 decisiones, o supuesto declarado por vencimiento |
+| Fase 0.5. Reconciliación de modelos | **En curso, bloqueante** | Un solo modelo declarado como válido, y el otro retirado o alineado por decisión explícita |
+| Fase 1. Datos maestros | Bloqueada por Sprint 0 y Fase 0.5 | Coordenadas reales cargadas, columnas de GPS presentes en producción, sedes realineadas, bancos priorizados construidos |
 | Fase 2. Configuración | Bloqueada por Fase 1 | Reglas, filtro, formularios, bots y reportes configurados y verificados en la app |
 | Fase 3. Prueba controlada | Bloqueada por Fase 2 | Registros reales en `MAN_Mantenimientos` y en las tablas de evidencia, verificados leyendo el archivo |
 | Fase 4. Piloto de campo | Bloqueada por Fase 3 | 10 técnicos operando una semana, con registros sincronizados desde el corredor |
@@ -43,8 +48,10 @@ fijan en el acta de la mesa de trabajo, no antes.
 
 Verificado el 6 de agosto de 2026 leyendo `BD/Modelo de Datos (2).xlsx` con `openpyxl`.
 
-- Modelo relacional de 24 tablas, con `Coordenadas_Cierre` y `Precision_GPS` en
-  `MAN_Mantenimientos` y sin la columna `Observaciones` duplicada.
+- Modelo relacional de 24 tablas en ambos entornos. Nota: `Coordenadas_Cierre` y `Precision_GPS`
+  existen solo en el Excel local; en producción no están. Ver Fase 0.5.
+- En producción, el mapeo de cada tipo de activo a su formulario está completo en los 18 tipos, y
+  el detalle de checklist es relacional mediante `PreguntaID`.
 - Catálogos poblados: 34 activos con código QR, 18 tipos de activo, 10 sedes, 4 roles,
   11 usuarios, y catálogos viales de calzada, sentido, estado y frecuencia.
 - 6 órdenes de trabajo registradas y 1 checklist de inspección SOS con su detalle.
@@ -54,19 +61,46 @@ Verificado el 6 de agosto de 2026 leyendo `BD/Modelo de Datos (2).xlsx` con `ope
 
 ---
 
-## 4. Sprint 0 — Definición funcional (en curso)
+## 4. Sprint 0 — Definición funcional (enviado, esperando respuesta)
 
-Frente activo. El entregable es
-[DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md) y su versión
-Word con casillas de respuesta en `entregables/`.
+El documento y su correo ya salieron al líder funcional. **No se reenvía ninguna versión
+posterior:** volver a escribir sobre lo mismo confunde y resta credibilidad a la petición. Las
+correcciones y afinamientos posteriores se acumulan para un Sprint 2 con el funcional.
 
-- [ ] Enviar el documento al líder funcional
-- [ ] Primera sesión: validar actores, alcance y los 6 casos de uso
-- [ ] Segunda sesión: resolver las 14 decisiones
-- [ ] Acta firmada con responsables y fechas de D-01 y D-09
+- [x] Enviar el documento al líder funcional
+- [ ] Recibir respuesta a las 14 decisiones
+- [ ] Consolidar las respuestas en un acta de decisiones
+- [ ] Sprint 2 con el funcional: lo que quede abierto, más lo aprendido entretanto
 
-**Cierra cuando:** existe acta firmada. Toda decisión no resuelta queda con su supuesto declarado,
-y ese supuesto se vuelve vinculante.
+**Cierra cuando:** hay respuesta escrita. Toda decisión no resuelta queda con el supuesto que el
+documento declaró marcado, y ese supuesto es vinculante.
+
+**Mientras tanto no se está bloqueado.** La Fase 0.5 es trabajo técnico que no depende del líder
+funcional y puede avanzar en paralelo.
+
+---
+
+## 4.5 Fase 0.5 — Reconciliación de modelos (nueva, bloqueante)
+
+El 6 de agosto de 2026, al leer por primera vez el backend de producción, se encontró que **el
+Excel local y el Google Sheets no son el mismo modelo**. Ninguno de los dos es superconjunto del
+otro: el Excel tiene las columnas de GPS pero no el mapeo de formularios; producción tiene el
+mapeo pero no las columnas de GPS. Alguien ha estado editando ambos por separado.
+
+Mientras esto no se resuelva, cualquier trabajo de configuración se hace sobre un blanco móvil.
+
+- [ ] Decidir cuál de los dos modelos es el válido, y dejarlo por escrito
+- [ ] Agregar `Coordenadas_Cierre` y `Precision_GPS` a `MAN_Mantenimientos` en producción, sin lo
+      cual RF-011 y RF-012 no existen
+- [ ] Resolver qué hacer con las columnas que solo tiene producción (`Diagnostico`,
+      `Trabajo_Realizado`, `Duracion_Minutos`, `Repuestos_Utilizados`, `Requiere_Repuesto`)
+- [ ] Retirar el modelo perdedor o dejarlo marcado como histórico, para que nadie lo siga editando
+- [ ] Limpiar los datos de prueba de `CHK_Checklists` (`CHK001` con nombre en vez de identificador
+      y `NOW()` como texto)
+- [ ] Definir quién puede editar el backend y desde qué cuenta
+
+**Cierra cuando:** existe un solo modelo declarado válido, con las columnas de GPS presentes, y una
+regla escrita de quién lo edita.
 
 ---
 

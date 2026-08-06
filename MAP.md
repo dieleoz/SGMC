@@ -14,7 +14,7 @@
 | Entender qué es el proyecto | [README.md](README.md) |
 | Saber el estado real y qué está bloqueado | [docs/AUDITORIA_PLAN_Y_ROADMAP.md](docs/AUDITORIA_PLAN_Y_ROADMAP.md) |
 | Enviar la definición funcional al cliente | [entregables/CORREO_ENVIO_MESA_DE_TRABAJO.md](entregables/CORREO_ENVIO_MESA_DE_TRABAJO.md) y el .docx adjunto |
-| Trabajar sobre el repositorio como agente | [CLAUDE.md](CLAUDE.md) |
+| Trabajar sobre el repositorio como agente | [CLAUDE.md](CLAUDE.md) y las skills de `.claude/skills/` |
 | Consultar la estructura de datos | [docs/bd.md](docs/bd.md) y `BD/Modelo de Datos (2).xlsx` |
 
 ---
@@ -55,6 +55,10 @@ D:\@Proyect\Sisga\
 │   ├── CORREO_ENVIO_MESA_DE_TRABAJO.md
 │   ├── Especificaciones_Tecnicas_SGMC_AsBuilt.docx
 │   └── Modelo_Datos_SGMC_AsBuilt.xlsx
+│
+├── .claude/skills/               Skills del proyecto
+│   ├── auditar-modelo/           Verificar producción vs Excel antes de afirmar nada
+│   └── generar-entregables/      Regenerar figuras y documentos Word
 │
 ├── scripts/                      Generadores
 │   ├── _helpers_docx.py

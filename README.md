@@ -9,10 +9,12 @@ sesión con su cuenta corporativa.
 
 > **Estado del proyecto: Sprint 0 — definición funcional en validación.**
 > El modelo de datos y la app existen y están operativos como prototipo, pero la Fase 0 no está
-> cerrada: hay 8 bloqueantes verificados y la definición funcional aún no ha sido validada con el
-> líder funcional. Ver [Estado real](#estado-real-verificado) y
+> cerrada, la definición funcional no ha sido validada con el líder funcional, y el 6 de agosto de
+> 2026 se detectó que **el Excel local y el backend de producción son modelos distintos**. Ver [Estado real](#estado-real-verificado) y
 > [AUDITORIA_PLAN_Y_ROADMAP.md](docs/AUDITORIA_PLAN_Y_ROADMAP.md).
-> No desplegar a campo hasta cerrar la mesa de trabajo de
+> Las 14 decisiones ya se enviaron al líder funcional y se espera su respuesta; lo que quede
+> abierto se retoma en un Sprint 2. Entretanto avanza la reconciliación de modelos.
+> No desplegar a campo hasta cerrar
 > [DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md).
 
 ---
@@ -149,18 +151,30 @@ Verificado el 6 de agosto de 2026 leyendo el Excel maestro directamente en disco
 - Banco de preguntas del formulario de postes SOS (15 preguntas)
 - App AppSheet publicada, con vistas móviles y web
 
-**Abierto y bloqueante**
+**Divergencia entre los dos modelos**
+
+El Excel local y el Google Sheets de producción no coinciden. Ninguno es superconjunto del otro.
+Lo que corre la app es el Sheets.
+
+| Tabla | Excel local | Producción |
+|---|---|---|
+| `TIP_TiposActivo.FormularioID` | Vacío en los 18 tipos | Poblado en los 18 |
+| `MAN_Mantenimientos` | 24 columnas, con las de GPS | 25 columnas, **sin las de GPS** |
+| `CHK_Checklists` | 9 columnas | 21 columnas |
+| `CHD_ChecklistDetalle` | Pregunta en texto libre | Relacional, con `PreguntaID` |
+
+**Abierto y bloqueante** (verificado en producción)
 
 | # | Hallazgo |
 |---|---|
 | B-01 | Los 34 activos comparten una sola coordenada, situada en Bogotá y no en el corredor. El geofencing es inoperante hasta levantar las coordenadas reales |
-| B-02 | `TIP_TiposActivo.FormularioID` está vacío en los 18 tipos: la asignación automática de checklist no tiene mapeo |
+| B-02 | `MAN_Mantenimientos` en producción no tiene `Coordenadas_Cierre` ni `Precision_GPS`: la regla de geofencing no puede ni configurarse |
 | B-03 | Todos los usuarios están en la sede 1 y todos los activos en las sedes 7 a 10. El Security Filter dejaría a cada técnico sin activos |
 | B-04 | Solo 1 de 18 formularios tiene banco de preguntas |
-| B-05 | El único checklist existente referencia una OT que no existe |
+| B-05 | El backend de producción es propiedad de una cuenta personal de Gmail, no del dominio corporativo |
 | B-06 | Fotografías, firmas y GPS están modelados dos veces: campos en `MAN_Mantenimientos` y tablas hijas vacías |
 | B-07 | `MAN_Mantenimientos` está vacía: ningún mantenimiento se ha ejecutado nunca de extremo a extremo |
-| B-08 | El detalle de checklist guarda las preguntas como texto libre, sin trazabilidad al banco de preguntas |
+| B-08 | Datos de prueba sin limpiar en `CHK_Checklists`: un registro trae el nombre del técnico en lugar de su identificador y `NOW()` como texto literal |
 
 Detalle, evidencia y plan de remediación en [AUDITORIA_PLAN_Y_ROADMAP.md](docs/AUDITORIA_PLAN_Y_ROADMAP.md).
 
@@ -191,6 +205,7 @@ docs/prompts/  Directivas para agentes de auditoría
 Manuales/      Manuales de usuario y sus imágenes
 entregables/   Documentos Word y Excel listos para enviar al cliente
 scripts/       Generadores de figuras y documentos
+.claude/skills/ Skills: auditar-modelo y generar-entregables
 archivo/       Material de origen, no versionado
 ```
 
