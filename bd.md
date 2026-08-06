@@ -1,198 +1,89 @@
-# 🗄️ ESPECIFICACIÓN TÉCNICA DE BASE DE DATOS (bd.md)
+# 🗄️ DICCIONARIO DE DATOS Y MODELO DE PRODUCCIÓN (bd.md)
 
 **Proyecto:** Sistema de Gestión de Mantenimiento en Campo (SGMC)  
 **Cliente:** Concesión Transversal del Sisga S.A.S.  
-**Motor de Base de Datos:** Microsoft 365 / Excel Relacional + AppSheet Data Engine  
-**Archivo Físico Backend:** `Modelo_Datos_SGMC_AsBuilt.xlsx`  
-**Aplicación:** [SGMC en AppSheet](https://www.appsheet.com/start/060b99df-2037-4049-b94d-03c1eefc3219?platform=desktop#appName=SGMC-886843353&vss=H4sIAAAAAAAAA6XOvQ7CIBQF4Hc5M0_AahyM0cWfRTpguU2ILTQF1Ibw7t6qjbM6csh37sm4Wrrtoq4vkKf8ea1phERW2I89KUiFhXdx8K2CUNjq7hUeQtKD9UGhoFRi9pECZP6Oy_-uC1hDLtrG0jB1TZI73o6_J8XBbFAEuhT1uaXnYDalcNb4OgUyR57yw4Swcst7r53ZeMOVjW4DlQcPF0XqZQEAAA==&view=Usuarios)  
+**Plataforma Cloud:** Google AppSheet + Google Sheets (Producción en la Web)  
+**URL de la Base de Datos en Producción (Google Sheets):** [Google Sheets Backend Producción SGMC](https://docs.google.com/spreadsheets/d/1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc/edit?gid=1353886072#gid=1353886072)  
+**Archivo Maestro Local de Respaldo:** `d:\@Proyect\Sisga\BD\Modelo de Datos (2).xlsx`  
+**Aplicación en Vivo en AppSheet:** [SGMC AppSheet](https://www.appsheet.com/start/060b99df-2037-4049-b94d-03c1eefc3219?platform=desktop#appName=SGMC-886843353&vss=H4sIAAAAAAAAA6XOvQ7CIBQF4Hc5M0_AahyM0cWfRTpguU2ILTQF1Ibw7t6qjbM6csh37sm4Wrrtoq4vkKf8ea1phERW2I89KUiFhXdx8K2CUNjq7hUeQtKD9UGhoFRi9pECZP6Oy_-uC1hDLtrG0jB1TZI73o6_J8XBbFAEuhT1uaXnYDalcNb4OgUyR57yw4Swcst7r53ZeMOVjW4DlQcPF0XqZQEAAA==&view=Usuarios)  
+**Fecha de Actualización:** Agosto de 2026 | **Versión:** 2.0 (24 Hojas Producción)  
 
 ---
 
-## 1. 📌 Visión General del Modelo de Datos (17 Tablas)
+## 📌 1. Visión General de la Arquitectura de Datos
 
-El modelo de datos implementado en AppSheet se compone de **17 tablas relacionales** organizadas en tres capas de persistencia para garantizar la integridad referencial y el rendimiento en dispositivos móviles.
+La base de datos de producción del SGMC opera como un backend relacional en **Google Sheets** conectado en tiempo real a la aplicación móvil AppSheet. Consta de **24 Hojas / Tablas** organizadas en 4 capas operacionales:
 
----
-
-## 2. 📐 Diagrama Entidad-Relación (ER As-Built)
-
-```
-+----------------+       +----------------+       +------------------+
-|   SED_Sedes    |1----* |  USR_Usuarios  | *---1 |    ROL_Roles     |
-+----------------+       +----------------+       +------------------+
-                                 | 1
-                                 |
-                                 *
-                         +----------------+
-                         |OT_OrdenesTrabajo|
-                         +----------------+
-                                 | 1
-                                 |
-                                 *
-                         +----------------+
-                         |MAN_Mantenimientos|
-                         +----------------+
-                          /      |       \
-                         /       |        \
-                        *        *         *
-             +------------+ +----------+ +-----+
-             |FOT_Fotografias| |FIR_Firmas| | GPS |
-             +------------+ +----------+ +-----+
+```mermaid
+erDiagram
+    USR_Usuarios ||--o{ OT_OrdenesTrabajo : "Técnico Asignado"
+    SED_Sedes ||--o{ USR_Usuarios : "Filtro por SedeID"
+    SED_Sedes ||--o{ ACT_Activos : "Ubicación de Activo"
+    TIP_TiposActivo ||--o{ ACT_Activos : "Clasificación"
+    TIP_TiposActivo ||--o{ FRM_Formularios : "Formulario Inspección"
+    
+    ACT_Activos ||--o{ OT_OrdenesTrabajo : "Objeto de OT"
+    OT_OrdenesTrabajo ||--o{ MAN_Mantenimientos : "Registro de Intervención"
+    
+    MAN_Mantenimientos ||--o{ FOT_Fotografias : "Evidencias Fotos (IsPartOf)"
+    MAN_Mantenimientos ||--o{ FIR_Firmas : "Firmas Manuscritas (IsPartOf)"
+    MAN_Mantenimientos ||--o{ GPS : "Auditoría Posición GPS"
+    
+    OT_OrdenesTrabajo ||--o{ CHK_Checklists : "Encabezado Inspección"
+    CHK_Checklists ||--o{ CHD_ChecklistDetalle : "Detalle Ítems Inspeccionados"
 ```
 
 ---
 
-## 3. 📋 Diccionario de Datos Detallado (17 Tablas)
+## 📋 2. Catálogo Completo de las 24 Hojas de Producción
 
-### Capa A: Soporte y Catálogos (9 Tablas)
-
-#### 1. `USR_Usuarios` (Seguridad & RBAC)
-- `usuarioID` (Numeric/Key, PK)
-- `Nombres` (Text)
-- `Apellidos` (Text)
-- `Correo` (Email - Llave de autenticación `USEREMAIL()`)
-- `Cargo` (Text)
-- `Iniciales` (Text)
-- `RolID` (Ref `ROL_Roles`)
-- `SedeID` (Ref `SED_Sedes`)
-- `Activo` (TRUE/FALSE)
-- `Telefono` (Phone)
-- `FechaIngreso` (Date)
-- `UltimaSincronizacion` (DateTime)
-
-#### 2. `ROL_Roles`
-- `RolID` (Numeric, PK): 1=Administrador, 2=Supervisor, 3=Técnico, 4=Consulta.
-- `Nombre` (Text)
-- `Descripción` (LongText)
-- `Activo` (TRUE/FALSE)
-
-#### 3. `SED_Sedes` (Unidades Funcionales / Zonas)
-- `SedeID` (Numeric, PK): CCO Sutatenza, Peaje Machetá, Peaje SLG, Báscula Machetá, Báscula SLG, UF1, UF2, UF3, UF4.
-- `Nombre` (Text)
-- `Ciudad` (Text)
-- `Activo` (TRUE/FALSE)
-
-#### 4. `TIP_TiposActivo`
-- `TipoActivoID` (Numeric, PK): SOS, CCTV, PMVF, PMVM, SGM, SGE, SSA, GENERADOR, BASCULA, FO, VW, SWITCH, ROUTER, FIREWALL, UPS, SERVIDOR, NAS, SUBESTACIÓN.
-- `Nombre` (Text)
-- `Categoria` (Text: ITS, Eléctrico, TI, Comunicaciones)
-- `Activo` (TRUE/FALSE)
-- `TieneQR` (TRUE/FALSE)
-- `RequiereGPS` (TRUE/FALSE)
-- `FormularioID` (Ref `FRM_Formularios`)
-
-#### 5. `FRM_Formularios`
-- `FormularioID` (Text, PK): `FRM_SOS` a `FRM_SUBE` (18 plantillas dinámicas).
-- `Nombre` (Text)
-- `Descripción` (Text)
-- `Orden` (Numeric)
-- `Versión` (Numeric)
-- `Activo` (TRUE/FALSE)
-
-#### 6. `EST_Activo`
-- `EstadoID` (Numeric, PK): 1=Operativo, 2=En mantenimiento, 3=Fuera de servicio, 4=Retirado.
-- `Nombre` (Text)
-
-#### 7. `FRE_Frecuencias`
-- `FrecuenciaID` (Numeric, PK)
-- `Nombre` (Text: Mensual, Trimestral, Semestral, Anual)
-- `Dias` (Numeric)
-- `Activo` (TRUE/FALSE)
-
-#### 8. `CAL_Calzadas`
-- `CalzadaID` (Numeric, PK)
-- `Nombre` (Text: Calzada Principal, Calzada Secundaria)
-
-#### 9. `SEN_Sentidos`
-- `SentidoID` (Numeric, PK)
-- `Nombre` (Text: Bogotá - Sutatenza, Sutatenza - Bogotá)
+| Capa / Grupo | Hoja en Google Sheets | Cant. Columnas | Propósito y Función en Producción |
+|---|---|---|---|
+| **A. Soporte y Catálogos** | `USR_Usuarios` | 11 | Usuarios, credenciales M365/Google, roles y SedeID obligatoria |
+| | `ROL_Roles` | 4 | Perfiles RBAC (Admin, Supervisor, Técnico, Consulta) |
+| | `SED_Sedes` | 4 | Sedes y sectores del corredor vial (Sutatenza, Machetá, SLG) |
+| | `TIP_TiposActivo` | 7 | Tipos de activos (SOS, CCTV, PMVF, PMVM, Sensores, Báscula) |
+| | `FRM_Formularios` | 6 | Registro maestro de formularios dinámicos |
+| | `EST_Activo` | 2 | Estados físicos del activo (Operativo, Fuera de Servicio) |
+| | `FRE_Frecuencias` | 4 | Frecuencias de mantenimiento (Mensual, Trimestral, Anual) |
+| | `CAL_Calzadas` | 2 | Calzadas viales (Calzada Principal, Calzada Secundaría) |
+| | `SEN_Sentidos` | 2 | Sentidos de circulación (Bogotá-Sutatenza, Sisga-Guateque) |
+| **B. Maestras y Checklists** | `ACT_Activos` | 14 | Catálogo de activos viales, PR, Coordenadas GPS y QR |
+| | `CHK_Checklists` | 21 | Encabezados de inspecciones en campo realizadas |
+| | `CHD_ChecklistDetalle` | 21 | Detalle ítem por ítem del resultado de las inspecciones |
+| **C. Transaccionales y Evidencias** | `OT_OrdenesTrabajo` | 12 | Órdenes de trabajo programadas por el CCO |
+| | `MAN_Mantenimientos` | 25 | Registro de mantenimientos ejecutados con `Coordenadas_Cierre` y `Precision_GPS` |
+| | `FOT_Fotografias` | 5 | Evidencias fotográficas comprimidas (600px, `IsPartOf`) |
+| | `FIR_Firmas` | 4 | Firmas digitales táctiles del técnico y supervisor (`IsPartOf`) |
+| | `GPS` | 8 | Log histórico de coordenadas y auditoría satelital |
+| **D. Formularios Dinámicos** | `FRM_Preguntas` | 17 | Repositorio unificado de preguntas de inspección |
+| | `TPR_TiposRespuesta` | 2 | Tipos de respuesta (Conforme/No Conforme, Texto, Número) |
+| | `FRM_SOS` | 11 | Plantilla de preguntas específicas para Postes SOS |
+| | `FRM_CCTV` | 11 | Plantilla de preguntas específicas para Cámaras CCTV |
+| | `FRM_PMVF` | 11 | Plantilla de preguntas para Paneles de Mensaje Variable |
+| | `FRM_Secciones` | 4 | Secciones de los formularios (Estructura, Solar, Red, etc.) |
+| | `LST_ValoresLista` | 5 | Opciones de listas desplegables para respuestas |
 
 ---
 
-### Capa B: Maestras y Checklists (3 Tablas)
+## 🔍 3. Estructura Detallada de Hojas Críticas
 
-#### 10. `ACT_Activos` (Inventario Maestro - RF-005)
-- `ActivoID` (Numeric, PK)
-- `CodigoActivo` (Text)
-- `Nombre` (Text)
-- `TipoActivoID` (Ref `TIP_TiposActivo`)
-- `SedeID` (Ref `SED_Sedes`)
-- `PR` (Text - Punto de Referencia)
-- `CalzadaID` (Ref `CAL_Calzadas`)
-- `Latitud` (Decimal / LatLong)
-- `Longitud` (Decimal / LatLong)
-- `EstadoID` (Ref `EST_Activo`)
-- `CodigoQR` (Text - Searchable & Scan)
-- `Sentido` (Ref `SEN_Sentidos`)
-- `Activo` (TRUE/FALSE)
-- `FrecuenciaID` (Ref `FRE_Frecuencias`)
-- `Observaciones` (LongText)
+### 3.1 Hoja `MAN_Mantenimientos` (25 Columnas - Backend Producción)
+Encargada de almacenar los datos de cierre del técnico en campo, incluyendo la georreferenciación GPS:
 
-#### 11. `CHK_Checklists` & 12. `CHD_ChecklistDetalle`
-- Modelo Padre-Hijo (`IsPartOf = True`) que almacena las secciones e ítems de inspección dinámicos por tipo de activo.
+`MttoID`, `OTID`, `Tecnico_Asignado`, `Fecha`, `Fecha_Hora_Inicio`, `Fecha_Hora_Fin`, `Duracion_Minutos`, `Tipo`, `Diagnostico`, `Trabajo_Realizado`, `Repuestos_Utilizados`, `Requiere_Repuesto`, `Requiere_Segunda_Visita`, `Motivo_Pendiente`, `Estado_Intervencion`, `Localizacion`, `Imagen_Inicio`, `Imagen_Final`, `Observaciones`, `Firma_Tecnico`, `Firma_Supervisor`, `Aprobado_Supervisor`, `Usuario_Registro`, `Fecha_Hora_Registro`, `Activo`, **`Coordenadas_Cierre`**, **`Precision_GPS`**.
+
+### 3.2 Hoja `ACT_Activos` (14 Columnas)
+Catálogo oficial de activos del corredor vial:
+`ActivoID`, `CodigoActivo`, `Nombre`, `TipoActivoID`, `SedeID`, `PR`, `CalzadaID`, `Ubicacion`, `EstadoID`, `CodigoQR`, `SentidoID`, `Activo`, `FrecuenciaID`, `Observaciones`.
 
 ---
 
-### Capa C: Transaccionales y Evidencias (5 Tablas)
+## 🌐 4. Edición Directa en Producción (Google Sheets)
 
-#### 13. `OT_OrdenesTrabajo` (Nivel 1 Padre)
-- `OTID` (Numeric, PK)
-- `Número OT` (Text)
-- `Activo` (Ref `ACT_Activos`)
-- `Técnico` (Ref `USR_Usuarios`)
-- `Fecha Programada` (Date)
-- `Estado` (Enum: Pendiente, En Proceso, Cerrada, Vencida)
-
-#### 14. `MAN_Mantenimientos` (Nivel 2 Hijo)
-- `MantenimientoID` (Numeric, PK)
-- `OTID` (Ref `OT_OrdenesTrabajo`)
-- `ActivoID` (Ref `ACT_Activos`)
-- `TécnicoID` (Ref `USR_Usuarios`)
-- `Fecha` (Date)
-- `Hora Inicio` (Time)
-- `Hora Fin` (Time)
-- `Tipo` (Enum: Preventivo, Correctivo)
-- `Estado Final` (Enum: Operativo, Fuera de servicio)
-- `Coordenadas_Cierre` (LatLong - Expresión `HERE()`)
-- `Precision_GPS` (Decimal - Expresión `USERLOCATIONACCURACY()`)
-- `Observaciones` (LongText)
-
-#### 15. `FOT_Fotografias` (Nivel 3 Nieto)
-- `FotoID` (Numeric, PK)
-- `MantenimientoID` (Ref `MAN_Mantenimientos` - `IsPartOf = True`)
-- `Archivo` (Image - Compresión Low 600px)
-- `Fecha` (DateTime)
-- `Usuario` (Ref `USR_Usuarios`)
-
-#### 16. `FIR_Firmas` (Nivel 3 Nieto)
-- `FirmaID` (Numeric, PK)
-- `MantenimientoID` (Ref `MAN_Mantenimientos` - `IsPartOf = True`)
-- `TipoFirma` (Enum: Técnico, Supervisor, Interventor)
-- `Imagen` (Signature)
-
-#### 17. `GPS` (Nivel 3 Nieto - Auditoría)
-- `GPSID` (Numeric, PK)
-- `MantenimientoID` (Ref `MAN_Mantenimientos`)
-- `Latitud` (Decimal)
-- `Longitud` (Decimal)
-- `Precisión` (Decimal)
-- `Altitud` (Decimal)
-- `Proveedor` (Text)
-- `FechaHora` (DateTime)
+> **⚠️ PROCEDIMIENTO DE EDICIÓN TRAS APROBACIÓN DEL PLAN DE TRABAJO:**  
+> Una vez aprobado el `plan_de_trabajo.md`, las modificaciones de la **Fase 0** (verificación e inserción de encabezados `Coordenadas_Cierre` y `Precision_GPS` en `MAN_Mantenimientos`) se realizan directamente en la URL de producción:  
+> 🔗 [https://docs.google.com/spreadsheets/d/1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc/edit?gid=1353886072#gid=1353886072](https://docs.google.com/spreadsheets/d/1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc/edit?gid=1353886072#gid=1353886072)
 
 ---
-
-## 4. 🔗 Relaciones e Integridad Referencial (Foreign Keys)
-
-| Tabla Origen | Columna FK | Tabla Destino | Regla AppSheet | Comportamiento en AppSheet |
-|---|---|---|---|---|
-| `USR_Usuarios` | `RolID` | `ROL_Roles` | `Ref` | Menú desplegable Enum |
-| `USR_Usuarios` | `SedeID` | `SED_Sedes` | `Ref` | Menú desplegable Enum / Security Filter |
-| `ACT_Activos` | `TipoActivoID` | `TIP_TiposActivo` | `Ref` | Dispara el checklist dinámico |
-| `ACT_Activos` | `SedeID` | `SED_Sedes` | `Ref` | Aplica Security Filter por zona |
-| `MAN_Mantenimientos` | `OTID` | `OT_OrdenesTrabajo` | `Ref` | Relación Padre-Hijo Nivel 1 a Nivel 2 |
-| `FOT_Fotografias` | `MantenimientoID` | `MAN_Mantenimientos` | `Ref (IsPartOf = True)` | Múltiples fotos embebidas en formulario |
-| `FIR_Firmas` | `MantenimientoID` | `MAN_Mantenimientos` | `Ref (IsPartOf = True)` | Firmas digitales manuscritas embebidas |
-
----
-*Referencias Cruzadas:* [README.md](./README.md) | [especificaciones.md](./especificaciones.md) | [ROADMAP.md](./ROADMAP.md) | [MAP.md](./MAP.md)
+*Referencias Cruzadas:* [README.md](./README.md) | [plan_de_trabajo.md](./plan_de_trabajo.md) | [MAP.md](./MAP.md) | [especificaciones.md](./especificaciones.md)

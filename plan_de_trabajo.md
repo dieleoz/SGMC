@@ -43,6 +43,11 @@ gantt
 
 ---
 
+
+> **🌐 ENTORNO DE EDICIÓN EN PRODUCCIÓN:**  
+> Una vez aprobado este plan, la ejecución de las tareas de la **Fase 0 (T-00.1 a T-00.5)** se realizará directamente en el backend de producción en Google Sheets:  
+> 🔗 [https://docs.google.com/spreadsheets/d/1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc/edit?gid=1353886072#gid=1353886072](https://docs.google.com/spreadsheets/d/1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc/edit?gid=1353886072#gid=1353886072)
+
 ## 🛠️ 3. Matriz Detallada de Tareas por Agente y Fase
 
 ### 🛑 FASE 0 — SUBSANACIÓN ESTRUCTURAL BLOQUEANTE (INICIO OBLIGATORIO)
