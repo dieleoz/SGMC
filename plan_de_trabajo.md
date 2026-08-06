@@ -1,100 +1,85 @@
-# 📅 PLAN DE TRABAJO Y HOJA DE RUTA OPERATIVA (SGMC)
+# 📅 PLAN DE TRABAJO: AUDITORÍA PREVIA, SUBSANACIÓN Y PILOTO (SGMC)
 
 **Proyecto:** Sistema de Gestión de Mantenimiento en Campo (SGMC)  
 **Cliente:** Concesión Transversal del Sisga S.A.S.  
-**Plataforma:** Google AppSheet (`SGMC-886843353`) + Microsoft 365  
-**URL de la Aplicación:** [SGMC en AppSheet](https://www.appsheet.com/start/060b99df-2037-4049-b94d-03c1eefc3219?platform=desktop#appName=SGMC-886843353&vss=H4sIAAAAAAAAA6XOvQ7CIBQF4Hc5M0_AahyM0cWfRTpguU2ILTQF1Ibw7t6qjbM6csh37sm4Wrrtoq4vkKf8ea1phERW2I89KUiFhXdx8K2CUNjq7hUeQtKD9UGhoFRi9pECZP6Oy_-uC1hDLtrG0jB1TZI73o6_J8XBbFAEuhT1uaXnYDalcNb4OgUyR57yw4Swcst7r53ZeMOVjW4DlQcPF0XqZQEAAA==&view=Usuarios)  
-**Estado de la Solución:** Re-auditado | **Fase Inicial Obligatoria:** Fase 0 Bloqueante  
-**Fecha:** Agosto de 2026 | **Versión:** 2.0 (Con Fase 0 de Subsanación Estructural)  
+**Plataforma de Producción:** Google AppSheet + Google Sheets Backend  
+**URL Google Sheets Producción:** [Backend Google Sheets SGMC](https://docs.google.com/spreadsheets/d/1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc/edit?gid=1353886072#gid=1353886072)  
+**Base de Datos Maestra Local:** `d:\@Proyect\Sisga\BD\Modelo de Datos (2).xlsx` (24 Hojas)  
+**Metodología de Ejecución:** **AUDITAR PRIMERO ➡️ SUBSANAR DESPUÉS ➡️ DESPLEGAR PILOTO**  
+**Fecha:** Agosto de 2026 | **Versión:** 3.0 Audit-First Protocol  
 
 ---
 
-## 🛑 1. Principio de Arranque: Fase 0 Bloqueante Primero
+## 🛑 1. Directiva de Ejecución para el Agente (Audit-First)
 
-> **[!CRITICAL] REGLA DE ARRANQUE INMOCIONABLE PARA EL AGENTE:**  
-> El agente **NO DEBE iniciar** por la Fase A (Piloto). Debe iniciar **OBLIGATORIAMENTE** por la **Fase 0 — Subsanación Estructural Bloqueante (Tareas T-00.1 a T-00.5)**.  
-> Si se arranca el piloto sin verificar las columnas físicas de GPS y Checklists en Excel, las tareas T-03 (Geofencing) y Q-05 (Checklist y firmas) fallarán en campo por falta de almacenamiento de destino.
+> **[!IMPORTANT] PROTOCOLO DE AUDITORÍA PREVIA BLOQUEANTE:**  
+> El agente que reciba este plan **NO MODIFICARÁ NINGÚN ARCHIVO NI HOJA DE CÁLCULO DE INICIALMENTE**.  
+> **Paso 1 Obligatorio:** El agente debe auditar la BD de producción en Google Sheets y el Excel local (`BD/Modelo de Datos (2).xlsx`), inspeccionar la presencia real de cada columna y emitir un **Dictamen de Diagnóstico**.  
+> **Paso 2:** Solo si el dictamen identifica columnas faltantes, procederá a aplicar los ajustes de la **Fase 0.B**.
 
 ---
 
-## 🗓️ 2. Cronograma de Trabajo Integrado (Gantt Mermaid)
+## 🗓️ 2. Cronograma de Trabajo Secuencial (Mermaid Gantt)
 
 ```mermaid
 gantt
-    title Plan de Trabajo SGMC: Subsanación Bloqueante, Piloto y Producción
+    title Plan de Trabajo SGMC: Auditoría Previa, Subsanación y Piloto
     dateFormat  YYYY-MM-DD
-    section FASE 0: Subsanación Estructural (Bloqueante)
-    T-00.1: Columnas GPS (Coordenadas_Cierre / Precision_GPS) :crit, active, f0_1, 2026-08-07, 2026-08-08
-    T-00.2: Estructurar CHK_Checklists y CHD_ChecklistDetalle :crit, f0_2, 2026-08-08, 2026-08-09
-    T-00.3: Nomenclatura FRM_Formularios en Hoja Tablas    :f0_3, 2026-08-09, 2026-08-09
-    T-00.4: Aplicar DEF-FUNC-01 y DEF-FUNC-02 (Mensaje GPS)  :f0_4, 2026-08-09, 2026-08-10
-    T-00.5: Ajuste Enlaces MAP.md y Catálogo Estados OT   :f0_5, 2026-08-10, 2026-08-10
-    section FASE A: Preparación & Despliegue Móvil
-    Instalación AppSheet App en Dispositivos               :a1, 2026-08-11, 2026-08-12
-    Asignación de Roles & Sedes M365 (Security Filter)     :a2, 2026-08-12, 2026-08-13
-    section FASE B: Piloto de Campo (Corredor Vial)
-    Prueba de Carga Inicial Offline en Vía (Túneles)      :b1, 2026-08-14, 2026-08-16
-    Ejecución Mantenimientos SOS, CCTV & Básculas         :b2, 2026-08-16, 2026-08-19
-    Validación de Alertas Email Automation (PDF)           :b3, 2026-08-18, 2026-08-20
-    section FASE C: Estabilización & Salida a Producción
-    Ajustes de Caché & Calibración GPS Final              :c1, 2026-08-21, 2026-08-22
-    Salida a Producción 100% Concesión Transversal Sisga  :c2, 2026-08-23, 2026-08-28
+    section FASE 0.A: Auditoría Previa & Diagnóstico
+    Audit-01: Inspección de Hojas y Columna Coordenadas_Cierre :crit, active, a1, 2026-08-07, 2026-08-08
+    Audit-02: Diagnóstico de CHK_Checklists y CHD_ChecklistDetalle :crit, a2, 2026-08-08, 2026-08-08
+    Audit-03: Verificación Rótulo FRM_Formularios & Catálogo OT   :a3, 2026-08-08, 2026-08-09
+    section FASE 0.B: Ajuste de BD (Google Sheets / Excel)
+    T-00.1: Adición física Coordenadas_Cierre y Precision_GPS     :f0_1, 2026-08-09, 2026-08-10
+    T-00.2: Definir columnas relacionales CHK y CHD (21 cols)      :f0_2, 2026-08-10, 2026-08-10
+    T-00.3: Unificar FRM_Formularios y Valid_If GPS en AppSheet    :f0_3, 2026-08-10, 2026-08-11
+    section FASE 1: Despliegue Móvil & Piloto de Campo
+    Instalación AppSheet en 10 Celulares & Login M365             :p1, 2026-08-12, 2026-08-14
+    Pruebas Offline en Vía (Túneles, Fotos 600px, Firmas)         :p2, 2026-08-15, 2026-08-18
+    Alertas CCO Email PDF & Salida a Producción                   :p3, 2026-08-19, 2026-08-25
 ```
 
 ---
 
+## 📋 3. Matriz de Tareas Detallada por Fases
 
-> **🌐 ENTORNO DE EDICIÓN EN PRODUCCIÓN:**  
-> Una vez aprobado este plan, la ejecución de las tareas de la **Fase 0 (T-00.1 a T-00.5)** se realizará directamente en el backend de producción en Google Sheets:  
-> 🔗 [https://docs.google.com/spreadsheets/d/1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc/edit?gid=1353886072#gid=1353886072](https://docs.google.com/spreadsheets/d/1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc/edit?gid=1353886072#gid=1353886072)
-
-## 🛠️ 3. Matriz Detallada de Tareas por Agente y Fase
-
-### 🛑 FASE 0 — SUBSANACIÓN ESTRUCTURAL BLOQUEANTE (INICIO OBLIGATORIO)
-- [ ] **Tarea T-00.1 [BLOQUEANTE CRÍTICO]:** Verificar en `Modelo_Datos_SGMC_AsBuilt.xlsx` que la hoja `MAN_Mantenimientos` posea físicamente las columnas 11 y 12: `Coordenadas_Cierre` (`LatLong`, captura `HERE()`) y `Precision_GPS` (`Decimal`, `USERLOCATIONACCURACY()`).
-- [ ] **Tarea T-00.2 [BLOQUEANTE CRÍTICO]:** Verificar en `Modelo_Datos_SGMC_AsBuilt.xlsx` que las hojas `CHK_Checklists` (9 columnas) y `CHD_ChecklistDetalle` (6 columnas) tengan sus esquemas de datos completos y el registro de prueba `d02d8a3d`.
-- [ ] **Tarea T-00.3 [BLOQUEANTE]:** Confirmar que la hoja índice `Tablas` rotule `FRM_Formularios` en reemplazo de `CAF_Formularios`.
-- [ ] **Tarea T-00.4 [BLOQUEANTE]:** Configurar en AppSheet las reglas `DEF-FUNC-01` (`Valid_If: ISNOTBLANK([Coordenadas_Cierre])`) y `DEF-FUNC-02` (Mensaje de error GPS personalizado: *"Debe activar el GPS de su celular y ubicarse a menos de 1.0 km del activo"*).
-- [ ] **Tarea T-00.5 [BLOQUEANTE]:** Verificar hipervínculos en `MAP.md` y unificar el catálogo de estados de OT (`Programada`, `En Proceso`, `Finalizada`, `Cancelada`).
+### 🔍 FASE 0.A — AUDITORÍA PREVIA Y DIAGNÓSTICO FÍSICO (LEER Y DIAGNOSTICAR)
+- [ ] **Tarea AUDIT-01:** Abrir la base de datos de producción ([Google Sheets](https://docs.google.com/spreadsheets/d/1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc/edit?gid=1353886072#gid=1353886072)) y el archivo local `BD/Modelo de Datos (2).xlsx`. Contar las columnas de la hoja `MAN_Mantenimientos` y verificar si existen las columnas `Coordenadas_Cierre` y `Precision_GPS`.
+- [ ] **Tarea AUDIT-02:** Inspeccionar las hojas `CHK_Checklists` y `CHD_ChecklistDetalle`. Verificar si poseen los encabezados de inspección relacionales o si son placeholders.
+- [ ] **Tarea AUDIT-03:** Revisar la hoja índice `Tablas` y confirmar si rotula `FRM_Formularios` o `CAF_Formularios`.
+- [ ] **Tarea AUDIT-04:** Generar un documento de **Dictamen de Diagnóstico Previo** indicando la lista exacta de vacíos encontrados antes de realizar cualquier edición.
 
 ---
 
-### 🛠️ FASE A — PREPARACIÓN Y CONFIGURACIÓN DE ENTORNO
-- [ ] **Tarea T-01:** Conectar el Excel `Modelo_Datos_SGMC_AsBuilt.xlsx` verificado a AppSheet como Data Source principal.
-- [ ] **Tarea T-02:** Marcar `SedeID` como `Required` en la tabla `USR_Usuarios` para garantizar el filtrado por sede (`Security Filter`).
-- [ ] **Tarea T-03:** Validar la regla de Geofencing en AppSheet:
-  `DISTANCE([Coordenadas_Cierre], LATLONG([ActivoID].[Latitud], [ActivoID].[Longitud])) <= 1.0`
-- [ ] **Tarea T-04:** Configurar compresión de imágenes en calidad `Low` (600px) en `FOT_Fotografias`.
-- [ ] **Tarea T-05:** Configurar el Bot de Automatización de alertas por correo con informe PDF adjunto ante activos *Fuera de servicio*.
+### 🛠️ FASE 0.B — SUBSANACIÓN Y AJUSTE DE BASE DE DATOS (SOLO TRAS DIAGNÓSTICO)
+- [ ] **Tarea T-00.1 [SUBSANACIÓN GPS]:** En la hoja `MAN_Mantenimientos` del Google Sheet de producción y del Excel local, agregar físicamente las columnas `Coordenadas_Cierre` (`LatLong`, `HERE()`) y `Precision_GPS` (`Decimal`, `USERLOCATIONACCURACY()`).
+- [ ] **Tarea T-00.2 [SUBSANACIÓN CHECKLISTS]:** Asegurar los encabezados relacionales en `CHK_Checklists` (21 columnas) y `CHD_ChecklistDetalle` (21 columnas) para dar soporte a los 18 formularios dinámicos.
+- [ ] **Tarea T-00.3 [NOMENCLATURA]:** Unificar la rotulación a `FRM_Formularios` en la hoja índice `Tablas`.
+- [ ] **Tarea T-00.4 [REGLAS APPSHEET]:** En el editor web de AppSheet, configurar el campo `Valid_If` de `Coordenadas_Cierre`:  
+  `DISTANCE([Coordenadas_Cierre], LATLONG([ActivoID].[Latitud], [ActivoID].[Longitud])) <= 1.0`  
+  Y establecer el texto de error en español: *"⚠️ Ubicación fuera de rango: Debe estar a menos de 1.0 km del activo y tener el GPS activo"*.
+- [ ] **Tarea T-00.5 [RE-AUDITORÍA]:** Re-ejecutar la prueba de verificación física y certificar que la BD de producción quedó 100% Conforme.
 
 ---
 
-### 📱 FASE B — PILOTO DE CAMPO Y PRUEBAS QA
-- [ ] **Tarea Q-01:** Instalar AppSheet en los 10 móviles del grupo piloto.
-- [ ] **Tarea Q-02:** Autenticación M365 (`USEREMAIL()`) y prueba de descarga por zona.
-- [ ] **Tarea Q-03:** Prueba de escáner QR sobre 5 activos en vía.
-- [ ] **Tarea Q-04:** Prueba de bloqueo por rango GPS (> 1.0 km).
-- [ ] **Tarea Q-05:** Prueba Offline en Modo Avión (checklist + 3 fotos + firma + Sync al recuperar red).
+### 📱 FASE 1 — DESPLIEGUE MÓVIL Y PILOTO EN VÍA
+- [ ] **Tarea T-01 / Q-01:** Instalar la app gratuita AppSheet en los 10 celulares del grupo piloto e iniciar sesión con cuentas M365 corporativas (`USEREMAIL()`).
+- [ ] **Tarea T-02 / Q-02:** Confirmar que `Security Filter` restrinja el payload por `SedeID` (`Sutatenza`, `Peaje Machetá`, `Peaje SLG`).
+- [ ] **Tarea Q-05:** Ejecutar prueba de mantenimiento en Modo Avión (sin señal celular) en túneles: registrar checklist, adjuntar 6 fotos comprimidas a 600px, capturar firma táctil y verificar sincronización al detectar red.
+- [ ] **Tarea T-05 / S-03:** Probar el Automation Bot de correo electrónico con informe PDF adjunto cuando un activo se reporte como *Fuera de servicio*.
 
 ---
 
-### 👤 FASE C — SUPERVISIÓN CCO Y PRODUCCIÓN 100%
-- [ ] **Tarea S-01:** Asignación de OTs desde la interfaz Web ([#view=Usuarios](https://www.appsheet.com/start/060b99df-2037-4049-b94d-03c1eefc3219?platform=desktop#appName=SGMC-886843353&vss=H4sIAAAAAAAAA6XOvQ7CIBQF4Hc5M0_AahyM0cWfRTpguU2ILTQF1Ibw7t6qjbM6csh37sm4Wrrtoq4vkKf8ea1phERW2I89KUiFhXdx8K2CUNjq7hUeQtKD9UGhoFRi9pECZP6Oy_-uC1hDLtrG0jB1TZI73o6_J8XBbFAEuhT1uaXnYDalcNb4OgUyR57yw4Swcst7r53ZeMOVjW4DlQcPF0XqZQEAAA==&view=Usuarios)).
-- [ ] **Tarea S-02:** Monitoreo del Tablero KPI de indicadores.
-- [ ] **Tarea S-03:** Cierre de Acta de Aceptación Final por la Concesión Transversal del Sisga S.A.S.
+## 🎯 4. Hitos de Entrega
 
----
-
-## 🎯 4. Hitos de Entrega y Criterios de Aceptación
-
-| Hito | Descripción | Criterio de Aceptación | Estado |
+| Hito | Nombre del Hito | Criterio de Aceptación | Estado |
 |---|---|---|---|
-| **HITO-00** | Subsanación Estructural Verificada | Hojas `MAN_Mantenimientos`, `CHK_Checklists` y `CHD_ChecklistDetalle` con columnas físicas comprobadas en Excel | 🔲 **BLOQUEANTE (Paso 1)** |
-| **HITO-01** | Despliegue Móvil | 100% de técnicos autenticados con SSO M365 y filtro por sede | 🔲 Pendiente |
-| **HITO-02** | Registro Offline Exitoso | Checklist guardado sin señal celular y sincronizado a Excel | 🔲 Pendiente |
-| **HITO-03** | Calibración GPS Validada | Geofencing (1.0 km) y Bypass en túneles operativos en vía | 🔲 Pendiente |
-| **HITO-04** | Alerta CCO Operativa | Email con informe PDF recibido en el CCO tras falla en activo | 🔲 Pendiente |
+| **HITO-00.A** | Diagnóstico Previo Emitido | Informe emitido indicando el estado real de columnas antes de editar | 🔲 **Paso 1 (Auditoría)** |
+| **HITO-00.B** | Subsanación de BD Certificada | Google Sheets y Excel actualizados con columnas GPS y Checklists | 🔲 **Paso 2 (Ajuste)** |
+| **HITO-01** | Despliegue Móvil Piloto | 10 técnicos autenticados con SSO M365 y filtro por sede operativo | 🔲 Pendiente |
+| **HITO-02** | Registro Offline en Túneles | Mantenimiento guardado offline sin red y sincronizado en segundo plano | 🔲 Pendiente |
+| **HITO-03** | Alerta CCO PDF Operativa | Email con informe PDF recibido en CCO ante fallas de activos | 🔲 Pendiente |
 
 ---
-*Plan de trabajo actualizado con Fase 0 Bloqueante.*  
-*Referencias Cruzadas:* [README.md](./README.md) | [MAP.md](./MAP.md) | [especificaciones.md](./especificaciones.md) | [DICTAMEN_AUDITORIA_LOCAL_SGMC.md](./DICTAMEN_AUDITORIA_LOCAL_SGMC.md) | [Manuales/MANUAL_DE_USUARIO.md](./Manuales/MANUAL_DE_USUARIO.md)
+*Plan de trabajo protocolo Audit-First listo para asignación.*  
+*Referencias Cruzadas:* [README.md](./README.md) | [bd.md](./bd.md) | [MAP.md](./MAP.md) | [DICTAMEN_AUDITORIA_LOCAL_SGMC.md](./DICTAMEN_AUDITORIA_LOCAL_SGMC.md)

@@ -22,6 +22,7 @@ d:\@Proyect\Sisga\
 ├── INFORME_QA_ISTQB_Y_AUDITORIA_ARQUITECTO.md <- Informe ISTQB, simulación de flujo, guardado y hallazgos
 ├── DICTAMEN_AUDITORIA_LOCAL_SGMC.md           <- Dictamen oficial de auditoría local 100% Conforme
 ├── PROMPT_VALIDACION_IA_EXTERNA.md            <- Prompt maestro listo para enviar a otra IA para auditar
+├── PROMPT_PARA_AGENTE_AUDITOR_Y_SUBSANADOR.md <- Directiva Audit-First para que el agente audite primero y subsane después            <- Prompt maestro listo para enviar a otra IA para auditar
 ├── Modelo_Datos_SGMC_AsBuilt.xlsx             <- Base de datos Excel construida y subsanada (17 Hojas)
 ├── Especificaciones_Tecnicas_SGMC_AsBuilt.docx <- Documento formal en Word
 ├── 📁 Manuales/                               <- Carpeta oficial de manuales de usuario y operación
