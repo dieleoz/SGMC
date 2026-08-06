@@ -26,14 +26,15 @@ sobre "el modelo" es ambigua hasta que declares cuál de los dos leíste.
 | Tabla | `BD/Modelo de Datos (2).xlsx` (local) | Google Sheets (producción) |
 |---|---|---|
 | `TIP_TiposActivo.FormularioID` | Vacío en los 18 tipos | **Poblado en los 18** |
-| `MAN_Mantenimientos` | 24 col, **con** `Coordenadas_Cierre` y `Precision_GPS` | 25 col, **sin** esas dos. Tiene `Diagnostico`, `Trabajo_Realizado`, `Duracion_Minutos`, `Repuestos_Utilizados`, `Requiere_Repuesto` |
+| `MAN_Mantenimientos` | 24 col, con `Coordenadas_Cierre` y `Precision_GPS` | 27 col. Las dos de GPS **se agregaron el 2026-08-06** en `Z1` y `AA1`. Ademas tiene `Diagnostico`, `Trabajo_Realizado`, `Duracion_Minutos`, `Repuestos_Utilizados`, `Requiere_Repuesto` |
 | `CHK_Checklists` | 9 col, 1 fila | 21 col, 3 filas |
 | `CHD_ChecklistDetalle` | 6 col, pregunta en texto libre | 21 col, **con `PreguntaID`** |
 | `CHK.OTID` del registro `d02d8a3d` | `'1'`, huérfano | `'OT-0001'`, válido |
 
-Consecuencia que manda sobre todo lo demás: **en producción no existen las columnas de GPS**, así
-que la regla de geofencing no está mal configurada, es que no se puede configurar. El campo sobre
-el que se evalúa no existe en el backend que corre la app.
+Hasta el 2026-08-06 en producción no existían las columnas de GPS, de modo que la regla de
+geofencing ni siquiera podía configurarse. **Ya se agregaron al Sheets**, pero eso resuelve solo el
+lado del dato: siguen pendientes el *Regenerate Structure* en el editor de AppSheet, el tipado de
+las columnas y las reglas. Ver `docs/ROADMAP.md` sección 4.5.1.
 
 Reglas mientras esto no se reconcilie:
 - El **Sheets es el que corre la app**. El Excel es un registro paralelo que alguien ha estado
@@ -46,11 +47,15 @@ Reglas mientras esto no se reconcilie:
 - `entregables/Modelo_Datos_SGMC_AsBuilt.xlsx` es copia byte a byte del Excel local
   (sha256 verificado). Artefacto de publicación, no una tercera fuente.
 
-## 2.1 Gobierno del backend
+## 2.1 Propiedad y edición del backend
 
-El Sheets de producción es propiedad de `valentinwebdeveloper@gmail.com`, una cuenta personal de
-Gmail, no del dominio corporativo. La Concesión no controla su propio backend. Es un riesgo que
-entra en la decisión D-14 y que conviene resolver antes de la salida a producción.
+El Sheets de producción es propiedad de `valentinwebdeveloper@gmail.com`. Valentín es el
+desarrollador y product owner, y **hay una entrega planificada** a la Concesión una vez recibido el
+sistema. No es una falla de gobierno: es un paso de transición con responsable.
+
+Nota de método: `get_file_permissions` devuelve únicamente al propietario, pero eso **no** implica
+que no haya otros editores. Comprobado en la práctica: la cuenta del cliente sí tiene permiso de
+edición. No infieras el nivel de acceso desde esa API.
 
 ## 3. Regla de verificación (no negociable)
 
@@ -113,8 +118,10 @@ La Fase 0 **no está cerrada**. `docs/ROADMAP.md` ya fue corregido; `docs/DICTAM
 
 1. Los 34 activos de `ACT_Activos` comparten una sola coordenada, `4.728512, -74.114531`, que está
    en Bogotá y no en el corredor.
-2. `MAN_Mantenimientos` **no tiene `Coordenadas_Cierre` ni `Precision_GPS`**: el geofencing
-   (RF-012) y la captura de precisión (RF-011) no pueden ni configurarse.
+2. `MAN_Mantenimientos` ya tiene `Coordenadas_Cierre` y `Precision_GPS` en el Sheets, agregadas
+   el 2026-08-06. **La aplicación todavía no las ve**: falta *Regenerate Structure*, tipar como
+   `LatLong` y `Number`, y configurar `Valid_If` e `Initial value`. No des RF-011 ni RF-012 por
+   resueltos hasta ver una fila escrita desde la app.
 3. Solo `FRM_SOS` tiene banco de preguntas en `FRM_Preguntas` (15). Faltan 17 de 18.
 4. Todos los usuarios están en `SedeID = 1`; todos los activos en `SedeID` 7 a 10. El Security
    Filter dejaría a cada técnico con cero activos.

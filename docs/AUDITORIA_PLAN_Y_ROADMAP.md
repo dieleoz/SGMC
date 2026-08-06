@@ -306,14 +306,30 @@ el mapeo de formularios; producción tiene el mapeo pero no las columnas de GPS.
 
 ### 9.3 Hallazgos nuevos
 
-**B-09. Producción no tiene las columnas de GPS.** `MAN_Mantenimientos` carece de
-`Coordenadas_Cierre` y `Precision_GPS`. La consecuencia es más grave que B-01: la regla de
-geofencing no está mal configurada, es que **no puede configurarse**, porque el campo sobre el que
-se evalúa no existe en el backend que corre la aplicación. RF-011 y RF-012 no tienen soporte.
+**B-09. Producción no tenía las columnas de GPS. SUBSANADO PARCIALMENTE el 2026-08-06.**
+`MAN_Mantenimientos` carecía de `Coordenadas_Cierre` y `Precision_GPS`, de modo que la regla de
+geofencing no podía siquiera configurarse.
 
-**B-10. El backend es propiedad de una cuenta personal.** El documento de producción pertenece a
-`valentinwebdeveloper@gmail.com`, una cuenta de Gmail ajena al dominio corporativo. La Concesión
-no controla el activo del que depende todo el sistema. Entra en la decisión D-14.
+Remediación aplicada el mismo día, con aprobación del cliente: se agregaron ambas columnas al
+Sheets de producción, en `Z1` y `AA1` de la hoja `MAN_Mantenimientos`, a continuación de `Activo`.
+Verificado leyendo cada celda en la barra de fórmulas, y por el cambio de `modifiedTime` del
+documento a las 23:25:59 UTC.
+
+**Queda pendiente y no debe darse por cerrado:** el *Regenerate Structure* en el editor de
+AppSheet, sin el cual la aplicación no ve las columnas nuevas; el tipado de `Coordenadas_Cierre`
+como `LatLong` y de `Precision_GPS` como `Number`; y la configuración de `Initial value` y
+`Valid_If`. El criterio de cierre es una fila escrita desde la aplicación con valor en ambas.
+
+**B-10. Entrega del backend pendiente.** El documento de producción pertenece a
+`valentinwebdeveloper@gmail.com`. Consultado el cliente, Valentín es el desarrollador y product
+owner del sistema, y existe una entrega planificada a la Concesión una vez recibido. El hallazgo se
+reclasifica: no es una falla de gobierno sino **un paso de transición con responsable**, que debe
+quedar con fecha en el acta.
+
+Corrección de método: de que `get_file_permissions` devolviera únicamente al propietario se dedujo
+que no había editores alternos. La deducción era incorrecta — la cuenta del cliente sí tiene
+permiso de edición, comprobado al escribir en el documento. Esa API no es evidencia del nivel de
+acceso de terceros.
 
 **B-11. Datos de prueba sin limpiar.** `CHK_Checklists` contiene un registro `CHK001` con
 `TecnicoID = "Santiago Moreno"` en lugar de un identificador, `ActivoID = "SOS001"` en lugar del

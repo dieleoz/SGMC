@@ -159,7 +159,7 @@ Lo que corre la app es el Sheets.
 | Tabla | Excel local | Producción |
 |---|---|---|
 | `TIP_TiposActivo.FormularioID` | Vacío en los 18 tipos | Poblado en los 18 |
-| `MAN_Mantenimientos` | 24 columnas, con las de GPS | 25 columnas, **sin las de GPS** |
+| `MAN_Mantenimientos` | 24 columnas | 27 columnas. Las de GPS se agregaron el 6 de agosto de 2026 |
 | `CHK_Checklists` | 9 columnas | 21 columnas |
 | `CHD_ChecklistDetalle` | Pregunta en texto libre | Relacional, con `PreguntaID` |
 
@@ -168,10 +168,10 @@ Lo que corre la app es el Sheets.
 | # | Hallazgo |
 |---|---|
 | B-01 | Los 34 activos comparten una sola coordenada, situada en Bogotá y no en el corredor. El geofencing es inoperante hasta levantar las coordenadas reales |
-| B-02 | `MAN_Mantenimientos` en producción no tiene `Coordenadas_Cierre` ni `Precision_GPS`: la regla de geofencing no puede ni configurarse |
+| B-02 | Las columnas de GPS ya existen en el Sheets, pero la aplicación todavía no las ve: falta regenerar la estructura, tipar y configurar las reglas |
 | B-03 | Todos los usuarios están en la sede 1 y todos los activos en las sedes 7 a 10. El Security Filter dejaría a cada técnico sin activos |
 | B-04 | Solo 1 de 18 formularios tiene banco de preguntas |
-| B-05 | El backend de producción es propiedad de una cuenta personal de Gmail, no del dominio corporativo |
+| B-05 | La entrega del backend de Valentín a la Concesión está pendiente de fecha |
 | B-06 | Fotografías, firmas y GPS están modelados dos veces: campos en `MAN_Mantenimientos` y tablas hijas vacías |
 | B-07 | `MAN_Mantenimientos` está vacía: ningún mantenimiento se ha ejecutado nunca de extremo a extremo |
 | B-08 | Datos de prueba sin limpiar en `CHK_Checklists`: un registro trae el nombre del técnico en lugar de su identificador y `NOW()` como texto literal |

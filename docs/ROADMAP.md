@@ -48,8 +48,9 @@ fijan en el acta de la mesa de trabajo, no antes.
 
 Verificado el 6 de agosto de 2026 leyendo `BD/Modelo de Datos (2).xlsx` con `openpyxl`.
 
-- Modelo relacional de 24 tablas en ambos entornos. Nota: `Coordenadas_Cierre` y `Precision_GPS`
-  existen solo en el Excel local; en producción no están. Ver Fase 0.5.
+- Modelo relacional de 24 tablas en ambos entornos. `Coordenadas_Cierre` y `Precision_GPS` ya
+  están en los dos: en producción se agregaron el 6 de agosto de 2026, pendientes de que la
+  aplicación las reconozca. Ver Fase 0.5.
 - En producción, el mapeo de cada tipo de activo a su formulario está completo en los 18 tipos, y
   el detalle de checklist es relacional mediante `PreguntaID`.
 - Catálogos poblados: 34 activos con código QR, 18 tipos de activo, 10 sedes, 4 roles,
@@ -83,24 +84,70 @@ funcional y puede avanzar en paralelo.
 ## 4.5 Fase 0.5 — Reconciliación de modelos (nueva, bloqueante)
 
 El 6 de agosto de 2026, al leer por primera vez el backend de producción, se encontró que **el
-Excel local y el Google Sheets no son el mismo modelo**. Ninguno de los dos es superconjunto del
-otro: el Excel tiene las columnas de GPS pero no el mapeo de formularios; producción tiene el
-mapeo pero no las columnas de GPS. Alguien ha estado editando ambos por separado.
+Excel local y el Google Sheets no son el mismo modelo**. El Excel tiene las columnas de GPS pero
+no el mapeo de formularios; producción tenía el mapeo y no las columnas, hasta que estas se
+agregaron ese mismo día. Difieren además en `CHK_Checklists` y `CHD_ChecklistDetalle`. Alguien ha
+estado editando ambos por separado.
 
 Mientras esto no se resuelva, cualquier trabajo de configuración se hace sobre un blanco móvil.
 
 - [ ] Decidir cuál de los dos modelos es el válido, y dejarlo por escrito
-- [ ] Agregar `Coordenadas_Cierre` y `Precision_GPS` a `MAN_Mantenimientos` en producción, sin lo
-      cual RF-011 y RF-012 no existen
+- [x] **Crear las dos columnas de GPS en el Sheets de producción.** Hecho el 6 de agosto de 2026
+      en `Z1` y `AA1` de `MAN_Mantenimientos`, verificado celda por celda
+- [ ] **Hacerlas visibles y operativas en la aplicación:** *Regenerate Structure*, tipado y reglas.
+      Ver 4.5.1. Sin esto las columnas existen y la aplicación no las ve
 - [ ] Resolver qué hacer con las columnas que solo tiene producción (`Diagnostico`,
       `Trabajo_Realizado`, `Duracion_Minutos`, `Repuestos_Utilizados`, `Requiere_Repuesto`)
 - [ ] Retirar el modelo perdedor o dejarlo marcado como histórico, para que nadie lo siga editando
 - [ ] Limpiar los datos de prueba de `CHK_Checklists` (`CHK001` con nombre en vez de identificador
       y `NOW()` como texto)
-- [ ] Definir quién puede editar el backend y desde qué cuenta
+- [ ] Dejar por escrito quién puede editar el Sheets de producción y bajo qué autorización
 
-**Cierra cuando:** existe un solo modelo declarado válido, con las columnas de GPS presentes, y una
-regla escrita de quién lo edita.
+**Cierra cuando:** existe un solo modelo declarado válido, con las columnas de GPS presentes **y
+visibles en la aplicación**, y una regla escrita de quién lo edita.
+
+### 4.5.1 Especificación del cambio en `MAN_Mantenimientos`
+
+Ejecuta quien tenga permiso de edición sobre el Sheets. El documento es propiedad de
+`valentinwebdeveloper@gmail.com`, y la cuenta del cliente también tiene permiso de escritura.
+El paso 1 ya está aplicado; los pasos 2 a 4 requieren el editor de AppSheet.
+
+**Paso 1. En el Google Sheets** — **HECHO el 2026-08-06.** Se agregaron dos columnas al final de
+la hoja `MAN_Mantenimientos`, que terminaba en `Activo` (columna Y):
+
+| Celda | Encabezado exacto | Contenido |
+|---|---|---|
+| `Z1` | `Coordenadas_Cierre` | Vacío. Lo llena la aplicación al cerrar |
+| `AA1` | `Precision_GPS` | Vacío. Lo llena la aplicación al cerrar |
+
+Verificado leyendo cada celda en la barra de fórmulas. Las mayúsculas y el guion bajo importan:
+AppSheet resuelve las columnas por nombre exacto.
+
+**Paso 2. En el editor de AppSheet**, en `Data` sobre la tabla `MAN_Mantenimientos`, ejecutar
+**Regenerate Structure**. Sin este paso las columnas existen en la hoja pero la aplicación no las
+ve, y todo lo demás falla en silencio.
+
+**Paso 3. Tipar las columnas:** `Coordenadas_Cierre` como `LatLong` y `Precision_GPS` como
+`Number`. Si quedan como `Text`, la función de distancia no opera.
+
+**Paso 4. Configurar las reglas** sobre `Coordenadas_Cierre`:
+
+```
+Initial value:  HERE()
+Valid_If:       DISTANCE([Coordenadas_Cierre], [ActivoID].[Ubicacion]) <= 1.0
+Invalid text:   Ubicación fuera de rango: debe estar a menos de 1.0 km del activo.
+```
+
+Y sobre `Precision_GPS`, valor inicial `USERLOCATIONACCURACY()`.
+
+**Advertencia sobre el alcance de este cambio.** Deja RF-011 con soporte y RF-012 configurable,
+pero **no hace funcionar el geofencing**: los 34 activos siguen compartiendo una coordenada en
+Bogotá (D-01) y el radio está sin confirmar (D-02). Con las columnas agregadas, la regla pasa de
+"imposible" a "activa pero siempre en falso". No dar por cerrado RF-012 hasta que existan
+coordenadas reales.
+
+**Criterio de cierre de este punto:** una fila de prueba escrita en `MAN_Mantenimientos` desde la
+aplicación, con valor en las dos columnas nuevas, verificada leyendo el Sheets.
 
 ---
 
