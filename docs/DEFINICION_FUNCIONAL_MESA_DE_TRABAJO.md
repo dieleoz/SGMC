@@ -16,8 +16,8 @@ Está organizado en tres partes:
 
 - **Parte I y II** describen cómo entendemos hoy que debe funcionar el sistema, expresado como
   flujos de uso verificables. Léelas para confirmar o corregir.
-- **Parte III** es el cuestionario. Cada punto sigue el mismo molde: *qué encontramos*, *por qué
-  importa*, *qué proponemos*, *qué necesitamos que respondas*. Hay un espacio de respuesta.
+- **Parte III** es el cuestionario. Cada decisión llega con nuestra propuesta ya marcada `[X]`:
+  si estás de acuerdo no escribes nada, y si no, marcas otra opción.
 - **Parte IV** muestra cómo cada respuesta se convierte en trabajo y en fecha. El roadmap no
   existe todavía porque depende de lo que respondas aquí.
 
@@ -247,382 +247,483 @@ Ninguno tiene fórmula, periodicidad, destinatario ni formato acordado. Ver **D-
 
 ---
 
-# PARTE III — Decisiones que necesitamos
+# PARTE III — Las catorce decisiones
 
-Catorce decisiones, agrupadas en cinco bloques. Cada una bloquea trabajo concreto.
+Cada decisión llega con nuestra propuesta ya marcada `[X]`. El líder funcional confirma no
+escribiendo nada, o corrige marcando otra opción. Solo se pide redacción libre donde no cabe
+una opción: nombres, fechas y listas propias.
 
----
-
-## Bloque A — Datos maestros
-
-### D-01. Coordenadas reales de los activos
-
-**Qué encontramos.** Los 34 activos del inventario tienen exactamente la misma coordenada:
-`4.728512, -74.114531`. Ese punto está en Bogotá, no en el corredor.
-
-**Por qué importa.** Toda la promesa de evidencia verificable del sistema descansa en el
-geofencing, y el geofencing compara la posición del técnico contra esa coordenada. Con el dato
-actual, un técnico parado frente a un poste SOS en Machetá no podrá cerrar nunca su
-mantenimiento, y en cambio cualquiera en ese punto de Bogotá validaría los 34 activos. La regla
-está bien programada; el dato la vuelve inútil.
-
-**Para qué sirve responder.** Es el prerrequisito absoluto de la salida a campo. Sin coordenadas
-reales no hay piloto posible.
-
-**Proponemos.** Levantar la coordenada de los 34 activos en un recorrido de corredor, capturando
-con el mismo celular que usará el técnico, y cargarlas al inventario. Aprovechar el recorrido
-para verificar que el código QR físico esté instalado y legible.
-
-**Necesitamos que respondas**
-- ¿Quién hace el recorrido y en qué fecha?
-- ¿Existe ya un levantamiento topográfico o un inventario georreferenciado del que podamos tomar
-  las coordenadas sin salir a campo?
-- ¿Los 34 activos del sistema son todo el inventario, o falta cargar más?
-
-**Respuesta:**
-
-**Desbloquea:** el geofencing, el piloto de campo y los criterios CA-01.3 y CA-01.4.
+Las cuatro marcadas como **ruta crítica** son las que fijan el cronograma.
 
 ---
 
-### D-02. Radio de tolerancia del geofencing
+## Bloque A. Datos maestros
 
-**Qué encontramos.** El radio definido es 1,0 km, heredado de la ERS original.
+### D-01. Coordenadas reales de los activos  **RUTA CRÍTICA**
 
-**Por qué importa.** Un kilómetro es mucho para un poste SOS en vía abierta, donde 100 metros
-bastarían para probar presencia. Y puede ser poco para un activo lineal como un tramo de fibra
-óptica, donde el técnico puede intervenir legítimamente a varios kilómetros del punto registrado.
-Un radio único para 18 tipos de activo muy distintos es una simplificación que conviene revisar.
+**Qué encontramos.** Los 34 activos del inventario tienen exactamente la misma coordenada: 4.728512, -74.114531. Ese punto está en Bogotá, no en el corredor.
 
-**Proponemos.** Radio por tipo de activo: 200 m para activos puntuales (SOS, CCTV, PMV, básculas),
-y un tratamiento distinto para fibra óptica y activos lineales.
+**Por qué importa.** Toda la promesa de evidencia verificable del sistema descansa en el control GPS, y ese control compara la posición del técnico contra esa coordenada. Con el dato actual, un técnico parado frente a un poste SOS en Machetá no podrá cerrar nunca su mantenimiento, y en cambio cualquiera ubicado en ese punto de Bogotá validaría los 34 activos. La regla está bien programada; el dato la vuelve inútil.
 
-**Necesitamos que respondas**
-- ¿1 km es una exigencia contractual o de interventoría, o es un valor elegido por el equipo?
-- ¿Aceptas radio diferenciado por tipo de activo?
+**Nuestra propuesta. Confirme o corrija.**
 
-**Respuesta:**
+*¿De dónde tomamos las coordenadas reales?*
 
-**Desbloquea:** la configuración definitiva de la regla de validación.
+- `[X]` Recorrido de campo, capturando con el mismo celular que usará el técnico
+- `[ ]` De un levantamiento topográfico o inventario georreferenciado que ya existe
+- `[ ]` Otra fuente
+
+*¿Los 34 activos cargados son todo el inventario?*
+
+- `[X]` Sí, son todos los activos que gestionará el sistema
+- `[ ]` No, faltan activos por cargar
+
+- Responsable del levantamiento: `______________________________`
+- Fecha comprometida: `______________________________`
+- Si existe inventario georreferenciado, ¿dónde está?: `______________________________`
+- Si faltan activos, ¿cuántos y de qué tipo?: `______________________________`
+
+> Si desea matizar o agregar algo (opcional):
+>
+
+**Desbloquea:** El control GPS, el piloto de campo y los criterios de aceptación CA-01.3 y CA-01.4.
+
+### D-02. Radio de tolerancia del control GPS
+
+**Qué encontramos.** El radio definido es 1,0 km, heredado de la especificación original.
+
+**Por qué importa.** Un kilómetro es mucho para un poste SOS en vía abierta, donde 100 metros bastarían para probar presencia. Y puede ser poco para un activo lineal como un tramo de fibra óptica, donde el técnico puede intervenir legítimamente a varios kilómetros del punto registrado. Un radio único para 18 tipos de activo muy distintos es una simplificación que conviene revisar.
+
+**Nuestra propuesta. Confirme o corrija.**
+
+*¿Qué radio aplicamos?*
+
+- `[X]` Diferenciado: 200 m en activos puntuales (SOS, CCTV, paneles, básculas) y tratamiento aparte para fibra óptica
+- `[ ]` Único de 1,0 km para todos los tipos, como está hoy
+- `[ ]` Otro esquema
+
+*¿El kilómetro viene de alguna obligación?*
+
+- `[ ]` Sí, está en el contrato o lo exige interventoría
+- `[X]` No, fue un valor elegido por el equipo y se puede cambiar
+
+- Si es otro esquema, ¿cuál?: `______________________________`
+- Si es contractual, ¿qué cláusula o documento?: `______________________________`
+
+> Si desea matizar o agregar algo (opcional):
+>
+
+**Desbloquea:** La configuración definitiva de la regla de validación.
+
+### D-03. Qué significa la sede de un activo  **RUTA CRÍTICA**
+
+**Qué encontramos.** Los 11 usuarios están registrados en la sede 1, que es el CCO. Los 34 activos están repartidos entre las sedes 7 a 10, que son las unidades funcionales UF1 a UF4. La intersección es vacía.
+
+**Por qué importa.** El filtro de seguridad descarga al celular del técnico solo los activos de su sede. Con los datos actuales, cada técnico descargaría cero activos y la aplicación quedaría vacía en sus manos el primer día de piloto. El problema de fondo es que la misma columna se usa con dos significados: para los usuarios es el sitio físico donde trabajan (CCO, peaje, báscula) y para los activos es el tramo del corredor donde están (UF1 a UF4).
+
+**Nuestra propuesta. Confirme o corrija.**
+
+*¿Qué activos debe descargar un técnico en su celular?*
+
+- `[X]` Los de las unidades funcionales que tenga asignadas, y puede tener varias
+- `[ ]` Los de una sola unidad funcional
+- `[ ]` Todos los del corredor, sin filtro
+
+*¿Qué debe ver un supervisor?*
+
+- `[X]` Todo el corredor
+- `[ ]` Solo su zona
+
+*¿Un técnico del CCO puede intervenir activos de cualquier unidad funcional?*
+
+- `[X]` Sí
+- `[ ]` No
+
+- Si aplica, ¿qué unidades funcionales atiende cada técnico?: `______________________________`
+
+> Si desea matizar o agregar algo (opcional):
+>
+
+**Desbloquea:** El filtro de seguridad y, con él, la descarga de datos al celular. Sin esto el piloto no arranca.
 
 ---
 
-### D-03. Qué significa la sede de un activo
-
-**Qué encontramos.** Los 11 usuarios están registrados en la sede 1, que es el CCO. Los 34
-activos están repartidos entre las sedes 7 a 10, que son las unidades funcionales UF1 a UF4. La
-intersección es vacía.
-
-**Por qué importa.** El filtro de seguridad descarga al celular del técnico solo los activos de
-su sede. Con los datos actuales, cada técnico descargaría **cero activos** y la app quedaría
-vacía en sus manos el primer día de piloto. El problema de fondo es que la misma columna se está
-usando con dos significados distintos: para los usuarios significa el sitio físico donde trabajan
-(CCO, peaje, báscula) y para los activos significa el tramo del corredor donde están (UF1 a UF4).
-
-**Proponemos.** Separar los dos conceptos: la unidad funcional es un atributo del activo, y la
-zona de trabajo es un atributo del usuario. Un técnico puede tener asignada más de una unidad
-funcional.
-
-**Necesitamos que respondas**
-- ¿Un técnico atiende una unidad funcional completa, un tramo, o todo el corredor?
-- ¿Un técnico del CCO puede intervenir activos de cualquier UF?
-- ¿Qué debe ver un supervisor: su zona o todo?
-
-**Respuesta:**
-
-**Desbloquea:** el filtro de seguridad, y con él la descarga de datos al celular. Sin esto el
-piloto no arranca.
-
----
-
-## Bloque B — Operación en campo
+## Bloque B. Operación en campo
 
 ### D-04. Qué hacer cuando el GPS falla
 
-**Qué encontramos.** El sistema captura la precisión del GPS pero no define qué hacer cuando es
-mala. El plan original ya señalaba el riesgo de falsos negativos y proponía un mecanismo de
-excepción supervisada, que nunca se especificó.
+**Qué encontramos.** El sistema captura la precisión del GPS pero no define qué hacer cuando esa precisión es mala. El plan original ya señalaba el riesgo de falsos negativos y proponía un mecanismo de excepción supervisada, que nunca se especificó.
 
-**Por qué importa.** En túnel, en cañón o bajo copa densa, el celular puede reportar una posición
-con error de cientos de metros o no fijar nada. Si el sistema bloquea sin salida, el técnico
-pierde el trabajo de una hora y el sistema pierde su confianza el primer día. Si el sistema deja
-pasar todo, el geofencing no sirve para nada. Este es el punto donde el control se gana o se
-pierde.
+**Por qué importa.** En túnel, en cañón o bajo copa densa, el celular puede reportar una posición con error de cientos de metros o no fijar nada. Si el sistema bloquea sin salida, el técnico pierde el trabajo de una hora y el sistema pierde su confianza el primer día. Si el sistema deja pasar todo, el control no sirve para nada. Este es el punto donde el control se gana o se pierde.
 
-**Proponemos.** Permitir el cierre con excepción cuando la precisión reportada sea peor que un
-umbral, exigiendo al técnico un motivo escrito y una fotografía del activo, marcando el registro
-como cerrado con excepción y notificando al supervisor para revisión. La excepción no se oculta:
-queda visible en el reporte.
+**Nuestra propuesta. Confirme o corrija.**
 
-**Necesitamos que respondas**
-- ¿Aceptas el cierre con excepción, o prefieres bloqueo estricto y que el técnico regrese?
-- Si lo aceptas, ¿quién autoriza: se marca solo y el supervisor revisa después, o requiere
-  autorización previa por llamada al CCO?
-- ¿Qué porcentaje de excepciones sería aceptable antes de que se considere un problema?
+*¿Qué hace el sistema cuando la precisión del GPS es insuficiente?*
 
-**Respuesta:**
+- `[X]` Permite cerrar con excepción: exige motivo escrito y fotografía, marca el registro y avisa al supervisor
+- `[ ]` Bloquea siempre: el técnico debe regresar cuando haya señal
+- `[ ]` Permite cerrar solo con autorización previa por llamada al CCO
 
-**Desbloquea:** la excepción E-02 de CU-01 y buena parte de la aceptación del sistema por los
-técnicos.
+*¿A partir de qué error del GPS se activa la excepción?*
 
----
+- `[X]` Cuando la precisión reportada es peor que 50 metros
+- `[ ]` Otro umbral
+
+*¿Las excepciones se reportan al supervisor?*
+
+- `[X]` Sí, en un reporte semanal de excepciones
+- `[ ]` No, basta con que queden registradas
+
+- Si es otro umbral, ¿cuál?: `______________________________`
+- ¿Qué porcentaje de excepciones consideraría un problema?: `______________________________`
+
+> Si desea matizar o agregar algo (opcional):
+>
+
+**Desbloquea:** La excepción E-02 del flujo de campo y buena parte de la aceptación del sistema por los técnicos.
 
 ### D-05. Interrupción a mitad de formulario
 
-**Qué encontramos.** No hay definición de qué ocurre si el técnico cierra la app, se le agota la
-batería o lo interrumpen a mitad del checklist.
+**Qué encontramos.** No hay definición de qué ocurre si el técnico cierra la aplicación, se le agota la batería o lo interrumpen a mitad del checklist.
 
-**Por qué importa.** Una inspección de poste SOS son 15 preguntas más fotografías. Perder eso por
-una llamada entrante es la clase de fricción que hace que un técnico vuelva al papel.
+**Por qué importa.** Una inspección de poste SOS son 15 preguntas más fotografías. Perder eso por una llamada entrante es la clase de fricción que hace que un técnico vuelva al papel.
 
-**Proponemos.** Guardado del borrador local, con la inspección visible como "en curso" hasta que
-se cierre formalmente.
+**Nuestra propuesta. Confirme o corrija.**
 
-**Necesitamos que respondas**
-- ¿Un mantenimiento puede quedar abierto de un día para otro, o debe cerrarse en la jornada?
-- ¿Un mantenimiento iniciado y no cerrado cuenta como incumplimiento?
+*¿Se conserva el trabajo a medio hacer?*
 
-**Respuesta:**
+- `[X]` Sí, queda como borrador local y la inspección aparece en curso hasta cerrarse
+- `[ ]` No, se descarta y el técnico reinicia
 
-**Desbloquea:** la excepción E-03 y la definición del indicador de cumplimiento.
+*¿Hasta cuándo puede quedar abierta una inspección?*
 
----
+- `[X]` Debe cerrarse dentro de la misma jornada
+- `[ ]` Puede quedar abierta de un día para otro
+- `[ ]` Otro plazo
+
+*¿Una inspección iniciada y no cerrada cuenta como incumplimiento?*
+
+- `[ ]` Sí, cuenta como incumplida
+- `[X]` No, pero se reporta aparte para seguimiento
+
+- Si es otro plazo, ¿cuál?: `______________________________`
+
+> Si desea matizar o agregar algo (opcional):
+>
+
+**Desbloquea:** La excepción E-03 y la definición del indicador de cumplimiento.
 
 ### D-06. Ciclo de vida de la orden de trabajo
 
-**Qué encontramos.** Las órdenes registradas tienen estados Asignada, Cerrada y Suspendida, pero
-no hay regla que diga quién cambia cada estado ni bajo qué condición. Además, el único checklist
-existente apunta a una orden que no existe, señal de que hoy se puede registrar trabajo sin
-orden válida.
+**Qué encontramos.** Las órdenes registradas tienen estados Asignada, Cerrada y Suspendida, pero no hay regla que diga quién cambia cada estado ni bajo qué condición. Además, el único checklist existente apunta a una orden que no existe, señal de que hoy se puede registrar trabajo sin orden válida.
 
-**Por qué importa.** Sin ciclo de vida definido no hay indicador de cumplimiento confiable: no se
-puede medir "ejecutado contra programado" si no está claro cuándo una orden cuenta como vencida,
-quién la suspende y si un trabajo puede existir sin orden.
+**Por qué importa.** Sin ciclo de vida definido no hay indicador de cumplimiento confiable: no se puede medir ejecutado contra programado si no está claro cuándo una orden cuenta como vencida, quién la suspende y si un trabajo puede existir sin orden.
 
-**Proponemos.** Estados: Programada, Asignada, En ejecución, En revisión, Cerrada, Suspendida y
-Vencida. El técnico mueve hasta En revisión; solo el supervisor cierra o suspende; el sistema
-marca Vencida por fecha.
+**Nuestra propuesta. Confirme o corrija.**
 
-**Necesitamos que respondas**
-- ¿Un técnico puede ejecutar un mantenimiento sin orden previa? Es el caso típico del correctivo
-  detectado en ruta.
-- ¿Cuándo una orden se considera vencida: al día siguiente de la fecha programada, al cierre de
-  semana, al cierre de mes?
-- ¿Quién puede suspender una orden y qué motivos son válidos?
-- ¿Se permite reasignar una orden a otro técnico y queda traza?
+*¿Adoptamos los siete estados de la figura 4?*
 
-**Respuesta:**
+- `[X]` Sí: Programada, Asignada, En ejecución, En revisión, Cerrada, Suspendida y Vencida
+- `[ ]` No, preferimos otro conjunto de estados
 
-**Desbloquea:** el indicador de cumplimiento, el flujo CU-02 y la excepción E-06.
+*¿Un técnico puede ejecutar un mantenimiento sin orden previa?*
 
----
+- `[X]` Sí, lo levanta como novedad y el supervisor la convierte en orden
+- `[ ]` No, siempre debe existir una orden asignada antes
+
+*¿Cuándo se considera vencida una orden?*
+
+- `[X]` Al día siguiente de la fecha programada
+- `[ ]` Al cierre de la semana
+- `[ ]` Al cierre del mes
+
+*¿Se permite reasignar una orden a otro técnico?*
+
+- `[X]` Sí, y queda traza de quién la reasignó
+- `[ ]` No
+
+- Si prefiere otros estados, ¿cuáles?: `______________________________`
+- ¿Quién puede suspender una orden?: `______________________________`
+- Motivos válidos de suspensión: `______________________________`
+
+> Si desea matizar o agregar algo (opcional):
+>
+
+**Desbloquea:** El indicador de cumplimiento, el flujo de asignación y la excepción E-06.
 
 ### D-07. Trabajo incompleto, segunda visita y devoluciones
 
-**Qué encontramos.** El modelo prevé marcar que se requiere una segunda visita con su motivo, y
-la aprobación del supervisor, pero ninguno de los dos flujos está definido.
+**Qué encontramos.** El modelo prevé marcar que se requiere una segunda visita con su motivo, y la aprobación del supervisor, pero ninguno de los dos flujos está definido.
 
-**Por qué importa.** El caso real más común no es el mantenimiento perfecto: es el técnico que
-llega y no puede terminar por falta de repuesto, por lluvia o por acceso cerrado. Si el sistema
-no modela ese caso, el técnico va a forzar un cierre falso o no va a registrar nada.
+**Por qué importa.** El caso real más común no es el mantenimiento perfecto: es el técnico que llega y no puede terminar por falta de repuesto, por lluvia o por acceso cerrado. Si el sistema no modela ese caso, el técnico va a forzar un cierre falso o no va a registrar nada.
 
-**Proponemos.** Cierre parcial con motivo tipificado, que genera automáticamente una orden de
-seguimiento asociada a la original. Y devolución del supervisor con observación, que reabre el
-mantenimiento al mismo técnico conservando la traza del rechazo.
+**Nuestra propuesta. Confirme o corrija.**
 
-**Necesitamos que respondas**
-- ¿Qué motivos de trabajo incompleto son válidos? Necesitamos la lista para el desplegable.
-- ¿La segunda visita es una orden nueva o la misma orden reabierta?
-- Cuando el supervisor devuelve, ¿el técnico corrige el registro original o crea uno nuevo?
-- ¿El rechazo debe notificar por correo?
+*¿Qué pasa cuando el técnico no puede terminar?*
 
-**Respuesta:**
+- `[X]` Cierre parcial con motivo tipificado, que genera una orden de seguimiento asociada a la original
+- `[ ]` Se deja la orden abierta sin registrar nada
+- `[ ]` Se suspende la orden y el supervisor decide
 
-**Desbloquea:** las excepciones E-04, el flujo CU-03 y el cálculo real de cumplimiento.
+*Motivos de trabajo incompleto que debe ofrecer el desplegable (marque los que apliquen)*
 
----
+- `[X]` Falta de repuesto o material
+- `[X]` Condiciones climáticas
+- `[X]` Acceso restringido o activo inaccesible
+- `[X]` Riesgo para la seguridad del técnico
+- `[X]` Requiere personal o equipo especializado
+
+*Cuando el supervisor devuelve un mantenimiento, ¿qué ocurre?*
+
+- `[X]` Se reabre el mismo registro al técnico, conservando la traza del rechazo
+- `[ ]` El técnico crea un registro nuevo
+
+*¿La devolución notifica por correo al técnico?*
+
+- `[X]` Sí
+- `[ ]` No
+
+- Otros motivos a incluir: `______________________________`
+
+> Si desea matizar o agregar algo (opcional):
+>
+
+**Desbloquea:** La excepción E-04, el flujo de aprobación y el cálculo real de cumplimiento.
 
 ### D-08. Activos no inventariados y correctivo desde campo
 
-**Qué encontramos.** No hay ruta para un activo que el técnico encuentra en vía y que no está en
-el sistema, ni para una falla detectada fuera de programación.
+**Qué encontramos.** No hay ruta para un activo que el técnico encuentra en vía y que no está en el sistema, ni para una falla detectada fuera de programación.
 
-**Proponemos.** Permitir al técnico levantar un reporte de novedad con foto, coordenada y
-descripción, que llega al supervisor como solicitud de alta de activo o de orden correctiva, sin
-que el técnico pueda crear activos directamente.
+**Por qué importa.** Sin esa ruta, los hallazgos de campo se pierden o se gestionan por WhatsApp, que es exactamente lo que el sistema viene a reemplazar.
 
-**Necesitamos que respondas**
-- ¿Los técnicos deben poder reportar novedades de activos no inventariados?
-- Un activo que queda fuera de servicio, ¿debe generar automáticamente una orden correctiva o el
-  correctivo se gestiona por fuera del sistema?
+**Nuestra propuesta. Confirme o corrija.**
 
-**Respuesta:**
+*¿Puede el técnico reportar un activo que no está en el inventario?*
 
-**Desbloquea:** la excepción E-05 y el alcance de CU-04.
+- `[X]` Sí, levanta una novedad con foto y coordenada; el supervisor decide si lo da de alta
+- `[ ]` No, el inventario solo lo modifica el administrador
 
----
+*Cuando un activo queda fuera de servicio, ¿qué debe pasar?*
 
-## Bloque C — Alcance de los formularios
+- `[X]` El sistema genera automáticamente una orden correctiva
+- `[ ]` El supervisor la crea manualmente si lo considera
+- `[ ]` El correctivo se gestiona por fuera del sistema
 
-### D-09. Cuántos tipos de activo entran al primer sprint
+> Si desea matizar o agregar algo (opcional):
+>
 
-**Qué encontramos.** Hay 18 tipos de activo y 18 formularios declarados, pero solo el de postes
-SOS tiene sus preguntas construidas: 15 preguntas. Los otros 17 están vacíos. Además la columna
-que conecta cada tipo de activo con su formulario está vacía en los 18 tipos, de modo que hoy la
-app no sabría qué checklist abrir ni siquiera para el SOS.
-
-**Por qué importa.** Construir los 17 bancos restantes son del orden de 250 preguntas que alguien
-con criterio técnico debe redactar, con sus rangos, unidades y obligatoriedad. Es la tarea más
-grande que queda y es trabajo tuyo y de tu equipo técnico, no de configuración. Intentar
-construir los 18 a la vez es lo que hará que el proyecto se estanque otro mes.
-
-**Proponemos.** Arrancar con tres tipos que cubran la mayor cantidad de activos y de casuística
-— postes SOS, CCTV y paneles de mensaje variable — validar el ciclo completo en campo con ellos,
-y luego incorporar el resto en tandas quincenales según criticidad.
-
-**Necesitamos que respondas**
-- ¿Cuáles tres tipos priorizamos? ¿Coincides con SOS, CCTV y PMV?
-- ¿Quién redacta y valida técnicamente las preguntas de cada tipo, y con qué disponibilidad?
-- ¿Existen formatos de inspección en papel vigentes que podamos transcribir en lugar de redactar
-  desde cero? Sería la vía más rápida y la que mejor refleja la práctica real.
-- ¿Hay un requisito contractual o de interventoría sobre qué debe contener una inspección?
-
-**Respuesta:**
-
-**Desbloquea:** el alcance real del primer sprint y su fecha. Es la decisión que más mueve el
-cronograma.
+**Desbloquea:** La excepción E-05 y el alcance de la alerta automática.
 
 ---
+
+## Bloque C. Alcance de los formularios
+
+### D-09. Cuántos tipos de activo entran al primer sprint  **RUTA CRÍTICA**
+
+**Qué encontramos.** Hay 18 tipos de activo y 18 formularios declarados, pero solo el de postes SOS tiene sus preguntas construidas: 15 preguntas. Los otros 17 están vacíos. Además, la columna que conecta cada tipo de activo con su formulario está vacía en los 18 tipos, de modo que hoy la aplicación no sabría qué checklist abrir ni siquiera para el SOS.
+
+**Por qué importa.** Construir los 17 bancos restantes son del orden de 250 preguntas que alguien con criterio técnico debe redactar, con sus rangos, unidades y obligatoriedad. Es la tarea más grande que queda y es trabajo del equipo de la Concesión, no de configuración. Intentar construir los 18 a la vez es lo que hará que el proyecto se estanque otro mes.
+
+**Nuestra propuesta. Confirme o corrija.**
+
+*¿Con qué tipos de activo arrancamos?*
+
+- `[X]` Tres tipos: postes SOS, CCTV y paneles de mensaje variable
+- `[ ]` Otros tres tipos
+- `[ ]` Los 18 tipos a la vez
+
+*¿De dónde salen las preguntas de cada checklist?*
+
+- `[X]` Se transcriben los formatos de inspección en papel que ya se usan
+- `[ ]` Se redactan desde cero con el equipo técnico
+
+*¿Hay una exigencia contractual sobre qué debe contener una inspección?*
+
+- `[ ]` Sí, existe un requisito de interventoría o del contrato
+- `[X]` No, el contenido lo define el criterio técnico de la Concesión
+
+- Si son otros tres tipos, ¿cuáles?: `______________________________`
+- Quién redacta y valida las preguntas: `______________________________`
+- Disponibilidad semanal de esa persona: `______________________________`
+- Si es contractual, ¿qué documento lo exige?: `______________________________`
+
+> Si desea matizar o agregar algo (opcional):
+>
+
+**Desbloquea:** El alcance real del primer sprint y su fecha. Es la decisión que más mueve el cronograma.
 
 ### D-10. Evidencia fotográfica y firmas
 
-**Qué encontramos.** El requerimiento habla de hasta 6 fotografías. El modelo de datos las
-soporta de dos maneras a la vez, incompatibles entre sí: dos campos fijos dentro del registro de
-mantenimiento (imagen de inicio e imagen final) y una tabla separada sin límite. Lo mismo ocurre
-con las firmas. Las tablas separadas están vacías.
+**Qué encontramos.** El requerimiento habla de hasta 6 fotografías. El modelo de datos las soporta de dos maneras a la vez, incompatibles entre sí: dos campos fijos dentro del registro de mantenimiento y una tabla separada sin límite. Lo mismo ocurre con las firmas. Las tablas separadas están vacías.
 
-**Por qué importa.** Si no se decide, el técnico terminará firmando dos veces y adjuntando fotos
-en dos lugares distintos, o peor, la evidencia quedará repartida y los reportes no la
-encontrarán completa.
+**Por qué importa.** Si no se decide, el técnico terminará firmando dos veces y adjuntando fotos en dos lugares distintos, o peor, la evidencia quedará repartida y los reportes no la encontrarán completa.
 
-**Proponemos.** Si se mantienen las 6 fotografías, la única vía viable es la tabla separada, y
-hay que retirar los campos fijos del registro de mantenimiento. Firma del técnico siempre;
-firma del supervisor solo si efectivamente firma en campo.
+**Nuestra propuesta. Confirme o corrija.**
 
-**Necesitamos que respondas**
-- ¿Cuántas fotografías exige realmente una inspección: un mínimo obligatorio y un máximo?
-- ¿Deben ser fotografías tipificadas, es decir "antes", "después", "novedad", o libres?
-- ¿El supervisor firma en campo junto al técnico, o su validación es la aprobación en el portal?
-- ¿La firma tiene valor contractual frente a interventoría o es control interno?
+*¿Cuántas fotografías exige una inspección?*
 
-**Respuesta:**
+- `[X]` Mínimo 3 obligatorias y hasta 6 en total
+- `[ ]` Solo 2: una de inicio y una final
+- `[ ]` Otra cantidad
 
-**Desbloquea:** el diseño definitivo del formulario y el cumplimiento verificable de RF-010 y
-RF-013.
+*¿Las fotografías son tipificadas o libres?*
 
----
+- `[X]` Tipificadas: antes, después y novedad
+- `[ ]` Libres, el técnico decide qué fotografía
+
+*¿Quién firma y dónde?*
+
+- `[X]` El técnico firma en campo; el supervisor valida aprobando en el portal, sin firmar
+- `[ ]` Firman ambos en campo, uno junto al otro
+
+*¿Qué valor tiene la firma?*
+
+- `[ ]` Contractual: es soporte frente a interventoría
+- `[X]` Control interno de la Concesión
+
+- Si es otra cantidad, ¿cuál?: `______________________________`
+
+> Si desea matizar o agregar algo (opcional):
+>
+
+**Desbloquea:** El diseño definitivo del formulario y el cumplimiento verificable de los requerimientos de evidencia.
 
 ### D-11. Trazabilidad histórica de las respuestas
 
-**Qué encontramos.** El detalle de las inspecciones guarda el texto de la pregunta, no su
-identificador. Si alguien reformula una pregunta, los registros anteriores dejan de ser
-comparables con los nuevos.
+**Qué encontramos.** El detalle de las inspecciones guarda el texto de la pregunta, no su identificador. Si alguien reformula una pregunta, los registros anteriores dejan de ser comparables con los nuevos.
 
-**Por qué importa.** Si el sistema debe mostrar la evolución de un activo en el tiempo, o
-demostrar ante interventoría que se aplicó el mismo criterio durante un periodo, esta trazabilidad
-es indispensable. Si el sistema solo debe dejar constancia de cada visita por separado, no lo es.
+**Por qué importa.** Si el sistema debe mostrar la evolución de un activo en el tiempo, o demostrar ante interventoría que se aplicó el mismo criterio durante un periodo, esta trazabilidad es indispensable. Si el sistema solo debe dejar constancia de cada visita por separado, no lo es.
 
-**Proponemos.** Guardar el identificador de la pregunta junto al texto, y versionar el formulario
-cuando cambie.
+**Nuestra propuesta. Confirme o corrija.**
 
-**Necesitamos que respondas**
-- ¿Necesitas comparar la misma pregunta a lo largo del tiempo para un activo?
-- ¿El sistema debe poder reconstruir cómo era un formulario en una fecha pasada?
+*¿Necesita comparar la misma pregunta a lo largo del tiempo para un activo?*
 
-**Respuesta:**
+- `[X]` Sí, es necesario ver la evolución del activo
+- `[ ]` No, basta la constancia de cada visita por separado
 
-**Desbloquea:** el criterio CA-05.2 y los reportes históricos.
+*¿El sistema debe poder reconstruir cómo era un formulario en una fecha pasada?*
 
----
+- `[X]` Sí, se versionan los formularios al cambiarlos
+- `[ ]` No hace falta
 
-## Bloque D — Reportes
+> Si desea matizar o agregar algo (opcional):
+>
 
-### D-12. Qué debe entregar el sistema
-
-**Qué encontramos.** Ningún reporte está definido. Se mencionan indicadores en documentos previos
-pero ninguno tiene fórmula, periodicidad ni destinatario.
-
-**Por qué importa.** Este es el vacío más costoso del proyecto. Todo lo que el técnico captura en
-campo existe para producir algo, y ese algo nunca se especificó. Definir el reporte al final
-obliga casi siempre a volver atrás y capturar datos que no se pidieron. Definirlo ahora es lo que
-garantiza que el formulario pida lo correcto.
-
-**Necesitamos que respondas**, para cada reporte que necesites:
-- ¿Qué debe mostrar y para tomar qué decisión?
-- ¿Quién lo recibe y con qué periodicidad: diario, semanal, mensual?
-- ¿En qué formato: pantalla, PDF por correo, Excel exportable?
-- ¿Alguno se entrega a un tercero, interventoría o ANI, con formato obligatorio?
-
-Reportes candidatos que proponemos, para que confirmes, descartes o completes:
-
-| Reporte | Propósito | Destinatario | Periodicidad |
-|---|---|---|---|
-| Cumplimiento del plan de mantenimiento | Ejecutado contra programado por zona y por técnico | Supervisor, Dirección | Mensual |
-| Activos fuera de servicio | Qué está caído, desde cuándo y quién lo atiende | CCO | Diario |
-| Hoja de vida del activo | Historial completo de intervenciones de un equipo | Supervisor, Interventoría | A demanda |
-| Certificado de mantenimiento | Constancia de una intervención con evidencia y firma | Interventoría | Por intervención |
-| Productividad del técnico | Mantenimientos ejecutados y tiempo promedio | Supervisor | Semanal |
-| Excepciones de geofencing | Cierres con GPS fuera de rango o de baja precisión | Supervisor | Semanal |
-
-**Respuesta:**
-
-**Desbloquea:** CU-06 completo y, hacia atrás, la validación de que los formularios capturan lo
-necesario.
+**Desbloquea:** La comparabilidad histórica y los reportes de evolución.
 
 ---
+
+## Bloque D. Reportes
+
+### D-12. Qué reportes debe entregar el sistema  **RUTA CRÍTICA**
+
+**Qué encontramos.** Ningún reporte está definido. Se mencionan indicadores en documentos previos pero ninguno tiene fórmula, periodicidad ni destinatario.
+
+**Por qué importa.** Este es el vacío más costoso del proyecto. Todo lo que el técnico captura en campo existe para producir algo, y ese algo nunca se especificó. Definir el reporte al final obliga casi siempre a volver atrás y capturar datos que no se pidieron. Definirlo ahora es lo que garantiza que el formulario pida lo correcto.
+
+**Nuestra propuesta. Confirme o corrija.**
+
+*Marque los reportes que el sistema debe entregar. Los marcados son nuestra propuesta.*
+
+- `[X]` Cumplimiento del plan de mantenimiento — mensual, a Supervisión y Dirección
+- `[X]` Activos fuera de servicio — diario, al CCO
+- `[X]` Hoja de vida del activo — a demanda, a Supervisión e Interventoría
+- `[X]` Certificado de mantenimiento por intervención — a Interventoría
+- `[ ]` Productividad del técnico — semanal, a Supervisión
+- `[X]` Excepciones de GPS — semanal, a Supervisión
+
+*¿En qué formato deben entregarse?*
+
+- `[X]` En pantalla, con exportación a Excel y PDF cuando se necesite enviar
+- `[ ]` Solo en pantalla
+- `[ ]` PDF automático por correo
+
+*¿Alguno se entrega a un tercero con formato obligatorio?*
+
+- `[ ]` Sí, hay un formato exigido por interventoría o la ANI
+- `[X]` No, el formato lo definimos nosotros
+
+- Otros reportes que necesite: `______________________________`
+- Si hay formato obligatorio, ¿cuál y quién lo exige?: `______________________________`
+
+> Si desea matizar o agregar algo (opcional):
+>
+
+**Desbloquea:** El tablero y los entregables, y hacia atrás, la validación de que los formularios capturan lo necesario.
 
 ### D-13. Definición de los indicadores
 
-**Qué encontramos.** Se habla de cumplimiento, disponibilidad y tiempo de atención sin fórmula.
+**Qué encontramos.** Se habla de cumplimiento, disponibilidad y tiempo de atención sin fórmula acordada.
 
-**Por qué importa.** "Disponibilidad de activos" puede significar tres cosas distintas según se
-mida por tiempo, por cantidad o ponderado por criticidad, y cada una da un número diferente ante
-la misma realidad. Si ese número va a un informe de interventoría, la definición debe estar
-acordada antes y no después.
+**Por qué importa.** La disponibilidad de activos puede significar tres cosas distintas según se mida por tiempo, por cantidad o ponderada por criticidad, y cada una da un número diferente ante la misma realidad. Si ese número va a un informe de interventoría, la definición debe estar acordada antes y no después.
 
-**Necesitamos que respondas**
-- Cumplimiento: ¿se calcula sobre órdenes cerradas en fecha, o basta con que se hayan ejecutado?
-  ¿Una orden cerrada con excepción de GPS cuenta como cumplida?
-- Disponibilidad: ¿por tiempo fuera de servicio, por cantidad de activos, ponderada por
-  criticidad?
-- ¿Existe una meta contractual de disponibilidad o de tiempo de atención frente a la ANI, que el
-  sistema deba reportar?
+**Nuestra propuesta. Confirme o corrija.**
 
-**Respuesta:**
+*¿Cómo se calcula el cumplimiento?*
 
-**Desbloquea:** el tablero y cualquier reporte a terceros.
+- `[X]` Órdenes cerradas dentro de la fecha programada, sobre órdenes programadas
+- `[ ]` Órdenes ejecutadas sobre programadas, sin importar la fecha
+
+*Una orden cerrada con excepción de GPS, ¿cuenta como cumplida?*
+
+- `[X]` Sí, pero se reporta aparte en el informe de excepciones
+- `[ ]` No cuenta como cumplida
+
+*¿Cómo se mide la disponibilidad de activos?*
+
+- `[X]` Por tiempo: horas fuera de servicio sobre horas totales del periodo
+- `[ ]` Por cantidad: activos operativos sobre activos totales
+- `[ ]` Ponderada por criticidad del activo
+
+*¿Existe una meta contractual frente a la ANI que el sistema deba reportar?*
+
+- `[ ]` Sí, hay meta de disponibilidad o de tiempo de atención
+- `[ ]` No
+- `[X]` Por confirmar con el área contractual
+
+- Si existe meta contractual, ¿cuál es y de qué documento sale?: `______________________________`
+
+> Si desea matizar o agregar algo (opcional):
+>
+
+**Desbloquea:** El tablero de indicadores y cualquier reporte a terceros.
 
 ---
 
-## Bloque E — Gobierno
+## Bloque E. Gobierno
 
 ### D-14. Usuarios, licenciamiento y gobierno del cambio
 
-**Qué encontramos.** Hay 11 usuarios registrados, dos de ellos inactivos. El presupuesto
-declarado en el plan original fue de 100 USD mensuales, y AppSheet se cobra por usuario activo.
-No hay definición de quién puede modificar la aplicación en producción.
+**Qué encontramos.** Hay 11 usuarios registrados, dos de ellos inactivos. El presupuesto declarado en el plan original fue de 100 USD mensuales, y la plataforma se cobra por usuario activo. No hay definición de quién puede modificar la aplicación en producción.
 
-**Necesitamos que respondas**
-- ¿Cuántos técnicos usarán el sistema en régimen, más allá de los 10 del piloto?
-- ¿El personal de interventoría o de la ANI tendrá acceso, aunque sea de consulta?
-- ¿Quién es el responsable funcional que autoriza cambios en producción?
-- ¿Cuánto tiempo debe conservarse la evidencia fotográfica y dónde se respalda?
+**Por qué importa.** El costo escala con el número de usuarios, y sin un responsable de cambios cualquiera puede alterar un formulario en producción y romper la comparabilidad de los datos.
 
-**Respuesta:**
+**Nuestra propuesta. Confirme o corrija.**
 
-**Desbloquea:** el dimensionamiento de licencias y el procedimiento de cambios.
+*¿Interventoría o la ANI tendrán acceso al sistema?*
 
----
+- `[ ]` Sí, con perfil de consulta
+- `[X]` No, solo reciben reportes exportados
+
+*¿Quién puede modificar formularios y reglas en producción?*
+
+- `[X]` Solo el administrador, con autorización escrita del responsable funcional
+- `[ ]` El administrador, sin autorización previa
+
+*¿Cuánto tiempo se conserva la evidencia fotográfica?*
+
+- `[X]` Cinco años
+- `[ ]` Lo que dure la concesión
+- `[ ]` Otro plazo
+
+- Número de técnicos que usarán el sistema en régimen: `______________________________`
+- Responsable funcional que autoriza cambios: `______________________________`
+- Si es otro plazo de retención, ¿cuál?: `______________________________`
+
+> Si desea matizar o agregar algo (opcional):
+>
+
+**Desbloquea:** El dimensionamiento de licencias y el procedimiento de control de cambios.
 
 # PARTE IV — De las respuestas al roadmap
 

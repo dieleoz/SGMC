@@ -13,7 +13,7 @@
 |---|---|
 | Entender qué es el proyecto | [README.md](README.md) |
 | Saber el estado real y qué está bloqueado | [docs/AUDITORIA_PLAN_Y_ROADMAP.md](docs/AUDITORIA_PLAN_Y_ROADMAP.md) |
-| Llevar algo a la mesa con el líder funcional | [entregables/Definicion_Funcional_SGMC_Mesa_de_Trabajo.docx](entregables/) |
+| Enviar la definición funcional al cliente | [entregables/CORREO_ENVIO_MESA_DE_TRABAJO.md](entregables/CORREO_ENVIO_MESA_DE_TRABAJO.md) y el .docx adjunto |
 | Trabajar sobre el repositorio como agente | [CLAUDE.md](CLAUDE.md) |
 | Consultar la estructura de datos | [docs/bd.md](docs/bd.md) y `BD/Modelo de Datos (2).xlsx` |
 
@@ -52,10 +52,12 @@ D:\@Proyect\Sisga\
 │
 ├── entregables/                  Listos para enviar al cliente
 │   ├── Definicion_Funcional_SGMC_Mesa_de_Trabajo.docx
+│   ├── CORREO_ENVIO_MESA_DE_TRABAJO.md
 │   ├── Especificaciones_Tecnicas_SGMC_AsBuilt.docx
 │   └── Modelo_Datos_SGMC_AsBuilt.xlsx
 │
 ├── scripts/                      Generadores
+│   ├── _helpers_docx.py
 │   ├── generate_figuras.py
 │   ├── generate_mesa_trabajo_docx.py
 │   └── generate_user_manual_docx.py

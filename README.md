@@ -213,7 +213,8 @@ archivo/       Material de origen, no versionado
 
 | Archivo | Estado |
 |---|---|
-| `entregables/Definicion_Funcional_SGMC_Mesa_de_Trabajo.docx` | Para enviar. Incluye 14 casillas de respuesta y 5 esquemas |
+| `entregables/Definicion_Funcional_SGMC_Mesa_de_Trabajo.docx` | Para enviar. 14 decisiones con propuesta marcada y 5 esquemas |
+| `entregables/CORREO_ENVIO_MESA_DE_TRABAJO.md` | Texto del correo de envío, listo para copiar |
 | `entregables/Especificaciones_Tecnicas_SGMC_AsBuilt.docx` | Enviado previamente. Pendiente de actualizar al modelo de 24 tablas |
 | `entregables/Modelo_Datos_SGMC_AsBuilt.xlsx` | Copia publicada del maestro. No editar: se edita `BD/` y se replica |
 | `Manuales/Manual_de_Usuario_SGMC_Con_Diagramas.docx` | Enviado previamente. Sus imágenes tienen las tildes corruptas y deben regenerarse |
