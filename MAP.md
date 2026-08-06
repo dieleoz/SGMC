@@ -41,7 +41,7 @@ D:\@Proyect\Sisga\
 │   ├── GUIA_SVG_BOTONES_DINAMICOS_APPSHEET.md
 │   ├── INFORME_QA_ISTQB_Y_AUDITORIA_ARQUITECTO.md
 │   ├── DICTAMEN_AUDITORIA_LOCAL_SGMC.md
-│   ├── images/                   fig_01 a fig_05, figuras de la mesa de trabajo
+│   ├── images/                   fig_01 a fig_07, figuras de los documentos
 │   └── prompts/                  Directivas para agentes de auditoría
 │
 ├── Manuales/                     Manuales de usuario
@@ -59,6 +59,7 @@ D:\@Proyect\Sisga\
 ├── scripts/                      Generadores
 │   ├── _helpers_docx.py
 │   ├── generate_figuras.py
+│   ├── generate_especificaciones_docx.py
 │   ├── generate_mesa_trabajo_docx.py
 │   └── generate_user_manual_docx.py
 │
@@ -101,7 +102,7 @@ D:\@Proyect\Sisga\
 |---|---|
 | [Manuales/MANUAL_DE_USUARIO.md](Manuales/MANUAL_DE_USUARIO.md) | Guías por rol: técnico, supervisor, administrador |
 | [Manuales/MANUAL_DE_USUARIO_ILUSTRADO.md](Manuales/MANUAL_DE_USUARIO_ILUSTRADO.md) | Versión con maquetas de pantalla |
-| [Manuales/Manual_de_Usuario_SGMC_Con_Diagramas.docx](Manuales/Manual_de_Usuario_SGMC_Con_Diagramas.docx) | Word entregado al líder funcional |
+| [Manuales/Manual_de_Usuario_SGMC_Con_Diagramas.docx](Manuales/Manual_de_Usuario_SGMC_Con_Diagramas.docx) | Word. No es entregable ahora: aplica cuando la app esté lista para usarse |
 
 ### Prompts de auditoría
 

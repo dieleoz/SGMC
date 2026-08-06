@@ -330,6 +330,153 @@ def fig_ruta_critica():
     L.guardar("fig_05_ruta_critica.png")
 
 
+# ---------------------------------------------------------------- FIGURA 6
+def fig_arquitectura():
+    L = Lienzo(1000, 700)
+    L.titulo("Figura 6. Arquitectura de la solución",
+             "Componentes gestionados, sin servidores propios ni compilación de aplicación")
+
+    capas = [
+        ("CAPA 1 — CLIENTE", AZUL, AZUL_S, [
+            ("App móvil AppSheet", ["Android y iOS. Guarda en el",
+                                    "celular para operar sin señal"]),
+            ("Portal web", ["Navegador. Supervisión,",
+                            "administración y tablero"]),
+        ]),
+        ("CAPA 2 — LÓGICA EN LA NUBE", AMBAR, AMBAR_S, [
+            ("Motor AppSheet", ["Ejecuta las reglas,", "sincroniza y publica"]),
+            ("Autenticación", ["Inicio de sesión con la", "cuenta corporativa"]),
+            ("Validaciones", ["Geofencing de cierre", "y precisión del GPS"]),
+            ("Automatización", ["Correo con informe", "PDF ante una falla"]),
+        ]),
+        ("CAPA 3 — DATOS", VERDE, VERDE_S, [
+            ("Google Sheets", ["Backend de producción,", "24 tablas"]),
+            ("Excel maestro", ["Registro As-Built", "en la carpeta BD/"]),
+            ("Evidencias", ["Fotografías comprimidas", "y firmas manuscritas"]),
+        ]),
+    ]
+
+    ALTO, SEP, MARGEN = 132, 46, 14
+    y = 92
+    ys = []
+    for nombre, c, cs, cajas in capas:
+        ys.append(y)
+        L.caja(30, y, 940, ALTO, FONDO, c, r=8)
+        L.caja(30, y, 940, 26, cs, cs, r=8)
+        L.d.rectangle([30*S, (y+16)*S, 970*S, (y+26)*S], fill=cs)
+        L.txt(44, y + 6, nombre, BOLD(9), c)
+
+        n = len(cajas)
+        util = 940 - 2*MARGEN
+        hueco = 14
+        ancho = (util - hueco*(n-1)) // n
+        for i, (tit, sub) in enumerate(cajas):
+            x = 30 + MARGEN + i*(ancho + hueco)
+            L.caja(x, y + 40, ancho, 78, SUAVE, LINEA, r=6)
+            L.txt(x + 13, y + 50, tit, BOLD(10), TINTA)
+            for j, ln in enumerate(sub):
+                L.txt(x + 13, y + 70 + j*13, ln, REG(9), GRIS)
+        y += ALTO + SEP
+
+    for a, b, etiquetas in ((0, 1, ("sincroniza cada cierto tiempo", "conexión web")),
+                            (1, 2, ("lee y escribe los datos", "guarda las evidencias"))):
+        y1 = ys[a] + ALTO
+        for k, x in enumerate((180, 560)):
+            L.flecha(x, y1 + 6, x, y1 + SEP - 8, GRIS)
+            L.txt(x + 10, y1 + 14, etiquetas[k], REG(8), GRIS)
+
+    yc = ys[2] + ALTO + 22
+    L.caja(30, yc, 940, 82, SUAVE, LINEA, r=6)
+    L.txt(46, yc + 10, "Qué significa esta arquitectura en la práctica", BOLD(10), TINTA)
+    for i, t in enumerate([
+        "No hay servidor que administrar, ni certificados, ni publicación en tiendas de aplicaciones.",
+        "El técnico instala la aplicación AppSheet desde la tienda y entra con su cuenta corporativa.",
+        "Un cambio en un formulario se publica desde el navegador y llega en la siguiente sincronización.",
+    ]):
+        L.d.ellipse([46*S, (yc+36+i*16)*S, 50*S, (yc+40+i*16)*S], fill=AZUL)
+        L.txt(58, yc + 32 + i*16, t, REG(9), TINTA)
+    L.guardar("fig_06_arquitectura.png")
+
+
+# ---------------------------------------------------------------- FIGURA 7
+def fig_modelo_datos():
+    L = Lienzo(1000, 600)
+    L.titulo("Figura 7. Modelo de datos: 24 tablas en cuatro grupos",
+             "La cadena operativa al centro; catálogos que la alimentan arriba; motor de formularios abajo")
+
+    # Catálogos
+    L.caja(30, 92, 940, 76, FONDO, LINEA, r=8)
+    L.txt(44, 100, "CATÁLOGOS Y SOPORTE (9)", BOLD(9), GRIS)
+    cat = ["USR_Usuarios", "ROL_Roles", "SED_Sedes", "TIP_TiposActivo", "EST_Activo",
+           "FRE_Frecuencias", "CAL_Calzadas", "SEN_Sentidos", "FRM_Formularios"]
+    for i, t in enumerate(cat):
+        x = 44 + i * 103
+        L.caja(x, 122, 96, 30, SUAVE, LINEA, r=5)
+        L.txt(x + 48, 131, t, SEMI(8), TINTA, anchor="ma")
+
+    # Cadena operativa
+    L.caja(30, 190, 940, 156, FONDO, AZUL, r=8, grosor=2)
+    L.txt(44, 196, "CADENA OPERATIVA — MAESTRAS Y TRANSACCIONALES (8)", BOLD(9), AZUL)
+    cadena = [("ACT_Activos", "34 activos\nPR, QR, Ubicacion", 44),
+              ("OT_OrdenesTrabajo", "Orden programada\nclave: Numero_OT", 290),
+              ("MAN_Mantenimientos", "Ejecución en campo\nCoordenadas_Cierre", 536)]
+    for tit, sub, x in cadena:
+        L.caja(x, 230, 210, 62, AZUL_S, AZUL, r=6)
+        L.txt(x + 12, 240, tit, BOLD(10), AZUL)
+        for j, ln in enumerate(sub.split("\n")):
+            L.txt(x + 12, 260 + j*13, ln, REG(8), GRIS)
+    L.flecha(258, 261, 286, 261, AZUL)
+    L.flecha(504, 261, 532, 261, AZUL)
+
+    hijos = [("FOT_Fotografias", 536), ("FIR_Firmas", 680), ("GPS", 824)]
+    for tit, x in hijos:
+        ancho = 130 if tit != "GPS" else 130
+        L.caja(x, 304, ancho, 28, SUAVE, LINEA, r=5)
+        L.txt(x + ancho//2, 312, tit, SEMI(8), TINTA, anchor="ma")
+        L.flecha(x + ancho//2, 296, x + ancho//2, 302, GRIS, 1, 4)
+    L.txt(920, 258, "evidencias", REG(8), GRIS, anchor="ma")
+
+    L.caja(770, 230, 200, 62, SUAVE, LINEA, r=6)
+    L.txt(782, 240, "CHK_Checklists", BOLD(10), TINTA)
+    L.txt(782, 260, "Inspección ejecutada", REG(8), GRIS)
+    L.txt(782, 273, "y CHD_ChecklistDetalle", REG(8), GRIS)
+    # codo por encima de MAN para no cruzar su caja
+    L.linea(395, 228, 395, 220, GRIS, 2)
+    L.linea(395, 220, 870, 220, GRIS, 2)
+    L.flecha(870, 220, 870, 227, GRIS)
+    L.txt(632, 208, "una orden genera su inspección", REG(8), GRIS, anchor="ma")
+
+    # Motor de formularios
+    L.caja(30, 374, 940, 100, FONDO, LINEA, r=8)
+    L.txt(44, 382, "MOTOR DE FORMULARIOS DINÁMICOS (7)", BOLD(9), GRIS)
+    motor = [("FRM_Preguntas", "banco de preguntas", 44),
+             ("FRM_Secciones", "agrupación", 260),
+             ("TPR_TiposRespuesta", "tipo de dato", 440),
+             ("LST_ValoresLista", "opciones de lista", 660),
+             ("FRM_SOS, CCTV, PMVF", "plantillas planas", 820)]
+    for tit, sub, x in motor:
+        ancho = 200 if x == 44 else 165 if x in (260, 660) else 185 if x == 440 else 150
+        L.caja(x, 406, ancho, 46, SUAVE, LINEA, r=5)
+        L.parrafo(x + 10, 414, tit, BOLD(9), TINTA, ancho=22, interlinea=11)
+        L.txt(x + 10, 436, sub, REG(8), GRIS)
+
+    L.flecha(148, 152, 148, 226, GRIS)
+    L.txt(156, 178, "clasifican y filtran", REG(8), GRIS)
+    L.flecha(148, 404, 148, 350, GRIS)
+    L.txt(156, 368, "alimenta el checklist", REG(8), GRIS)
+
+    L.caja(30, 496, 940, 76, ROJO_S, ROJO, r=6)
+    L.txt(46, 504, "Cuatro tablas están vacías y dos enlaces no están establecidos", BOLD(10), ROJO)
+    for i, t in enumerate([
+        "MAN_Mantenimientos, FOT_Fotografias, FIR_Firmas y GPS no tienen un solo registro: el ciclo nunca se ha ejecutado.",
+        "TIP_TiposActivo no apunta a ningún formulario, de modo que el checklist dinámico no puede resolverse.",
+        "CHK_Checklists referencia una orden de trabajo que no existe en OT_OrdenesTrabajo.",
+    ]):
+        L.d.ellipse([46*S, (526+i*16)*S, 50*S, (530+i*16)*S], fill=ROJO)
+        L.txt(58, 522 + i*16, t, REG(9), TINTA)
+    L.guardar("fig_07_modelo_datos.png")
+
+
 if __name__ == "__main__":
     print("Generando esquemas en", OUT)
     fig_actores()
@@ -337,4 +484,6 @@ if __name__ == "__main__":
     fig_coordenadas()
     fig_ciclo_ot()
     fig_ruta_critica()
+    fig_arquitectura()
+    fig_modelo_datos()
     print("Listo.")

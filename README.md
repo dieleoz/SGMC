@@ -215,9 +215,9 @@ archivo/       Material de origen, no versionado
 |---|---|
 | `entregables/Definicion_Funcional_SGMC_Mesa_de_Trabajo.docx` | Para enviar. 14 decisiones con propuesta marcada y 5 esquemas |
 | `entregables/CORREO_ENVIO_MESA_DE_TRABAJO.md` | Texto del correo de envío, listo para copiar |
-| `entregables/Especificaciones_Tecnicas_SGMC_AsBuilt.docx` | Enviado previamente. Pendiente de actualizar al modelo de 24 tablas |
+| `entregables/Especificaciones_Tecnicas_SGMC_AsBuilt.docx` | v2.0. Qué hace, qué ofrece y cómo funciona, con el modelo real de 24 tablas y el estado verificado de los 16 requerimientos |
 | `entregables/Modelo_Datos_SGMC_AsBuilt.xlsx` | Copia publicada del maestro. No editar: se edita `BD/` y se replica |
-| `Manuales/Manual_de_Usuario_SGMC_Con_Diagramas.docx` | Enviado previamente. Sus imágenes tienen las tildes corruptas y deben regenerarse |
+| `Manuales/Manual_de_Usuario_SGMC_Con_Diagramas.docx` | No es entregable ahora: el manual sirve cuando la app esté lista para usarse. Además sus imágenes tienen las tildes corruptas |
 
 ## 9. Enlaces
 
