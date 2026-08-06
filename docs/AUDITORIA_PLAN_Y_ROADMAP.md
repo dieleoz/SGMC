@@ -352,3 +352,70 @@ de los dos modelos está escrito.
 Se incorpora una **Fase 0.5 de reconciliación de modelos**, bloqueante y previa a cualquier
 configuración. Su detalle está en [ROADMAP.md](ROADMAP.md). Configurar sobre dos modelos que
 divergen es trabajar sobre un blanco móvil.
+
+
+---
+
+## 10. Adenda del 6 de agosto de 2026, tarde: intervención en AppSheet
+
+Se accedió al editor de la aplicación con la sesión del cliente, previa copia de respaldo hecha
+por el equipo de desarrollo.
+
+### 10.1 Aplicado y verificado
+
+| Acción | Resultado |
+|---|---|
+| *Regenerate Structure* sobre `MAN_Mantenimientos` | La tabla pasó de 26 a 28 columnas: la aplicación ya reconoce las dos agregadas al Sheets |
+| Tipado de `Coordenadas_Cierre` | `Text` a `LatLong` |
+| Tipado de `Precision_GPS` | `LatLong` a `Number` |
+| Guardado de la aplicación | Confirmado, con sincronización posterior |
+
+AppSheet había inferido ambos tipos mal, y además cruzados: asignó `Text` a la coordenada y
+`LatLong` a la precisión. Con esos tipos la función de distancia no habría operado.
+
+### 10.2 Hallazgos nuevos, bloqueantes
+
+**B-13. `MAN_Mantenimientos` no tiene ninguna columna que apunte al activo.** Al escribir la regla
+de geofencing, el Asistente de Expresiones respondió: *Can't find column "ActivoID" in table
+"MAN_Mantenimientos". Did you mean "Activo"?*. La columna `Activo` de esa tabla es un indicador de
+registro vigente, no una referencia al activo intervenido.
+
+Consecuencia: **la fórmula que este proyecto ha documentado durante meses como correcta,
+`DISTANCE([Coordenadas_Cierre], [ActivoID].[Ubicacion]) <= 1.0`, no funciona.** No es un problema
+de sintaxis ni de nombre de campo: no existe la relación que presupone.
+
+**B-14. Las referencias del modelo no existen en la aplicación.** Probada la ruta alterna vía la
+orden de trabajo, el error fue: *Invalid dereference. Column OTID is not a Ref*. `OTID` está
+tipada como `Text`. La cadena relacional Activo → Orden → Mantenimiento, que el diccionario de
+datos y todos los diagramas presentan como el núcleo del sistema, **está en el papel y no en la
+aplicación**.
+
+Alcance de este hallazgo, más amplio que el geofencing:
+- No hay navegación padre-hijo desde una orden a su mantenimiento.
+- No se puede construir un reporte por activo, ni la hoja de vida del activo de D-12.
+- Las vistas que hoy muestran nombres de activo probablemente resuelven por texto y no por
+  referencia, lo que se rompe ante cualquier cambio de nombre.
+
+### 10.3 Estado de la regla de geofencing
+
+No se escribió. Queda como **por revisar y por ajustar**, junto con el resto del cableado de
+referencias, dentro del fix integral de base de datos y aplicación que se acometerá con la
+definición funcional y el plan de trabajo ajustado.
+
+Fórmula candidata, pendiente de validar una vez cableadas las referencias:
+
+```
+DISTANCE([Coordenadas_Cierre], [OTID].[Activo].[Ubicacion]) <= 1.0
+```
+
+Requiere convertir `MAN_Mantenimientos.OTID` a `Ref` hacia `OT_OrdenesTrabajo`, y confirmar que
+`OT_OrdenesTrabajo.Activo` sea `Ref` hacia `ACT_Activos`.
+
+### 10.4 Lectura de conjunto
+
+Estos dos hallazgos no empeoran el diagnóstico: lo aclaran. Explican por qué ninguna de las cuatro
+tablas transaccionales tiene un solo registro, y por qué el flujo nunca se ejecutó de extremo a
+extremo. No es que faltara ejercitarlo: **el sistema no está cableado para que funcione**.
+
+Y dan por primera vez una ruta concreta de reparación, que es lo que faltaba para pasar de
+auditar a arreglar.

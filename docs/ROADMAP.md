@@ -94,8 +94,18 @@ Mientras esto no se resuelva, cualquier trabajo de configuración se hace sobre 
 - [ ] Decidir cuál de los dos modelos es el válido, y dejarlo por escrito
 - [x] **Crear las dos columnas de GPS en el Sheets de producción.** Hecho el 6 de agosto de 2026
       en `Z1` y `AA1` de `MAN_Mantenimientos`, verificado celda por celda
-- [ ] **Hacerlas visibles y operativas en la aplicación:** *Regenerate Structure*, tipado y reglas.
-      Ver 4.5.1. Sin esto las columnas existen y la aplicación no las ve
+- [x] **Hacerlas visibles en la aplicación:** *Regenerate Structure* ejecutado el 6 de agosto de
+      2026, la tabla pasó de 26 a 28 columnas; tipadas `LatLong` y `Number`; aplicación guardada
+- [ ] **POR AJUSTAR — cablear las referencias del modelo.** `MAN_Mantenimientos.OTID` es `Text` y
+      debe ser `Ref` a `OT_OrdenesTrabajo`; confirmar que `OT_OrdenesTrabajo.Activo` sea `Ref` a
+      `ACT_Activos`. Sin esto no hay geofencing, ni navegación padre-hijo, ni reportes por activo
+- [ ] **POR AJUSTAR — escribir la regla de geofencing** una vez cableadas las referencias:
+      `DISTANCE([Coordenadas_Cierre], [OTID].[Activo].[Ubicacion]) <= 1.0`, con su mensaje de error
+- [ ] **POR REVISAR — cargar coordenadas reales de la vía de la Concesión**, al menos un subconjunto
+      para poder validar el geofencing antes del levantamiento completo de D-01
+- [ ] **POR REVISAR — poblar la base con datos de prueba** y ejercitar la aplicación, para
+      determinar qué tablas reciben escrituras, cuáles son legacy o quedaron sin relacionar, y
+      dónde escriben realmente los disparadores
 - [ ] Resolver qué hacer con las columnas que solo tiene producción (`Diagnostico`,
       `Trabajo_Realizado`, `Duracion_Minutos`, `Repuestos_Utilizados`, `Requiere_Repuesto`)
 - [ ] Retirar el modelo perdedor o dejarlo marcado como histórico, para que nadie lo siga editando
@@ -140,11 +150,13 @@ Invalid text:   Ubicación fuera de rango: debe estar a menos de 1.0 km del acti
 
 Y sobre `Precision_GPS`, valor inicial `USERLOCATIONACCURACY()`.
 
-**Advertencia sobre el alcance de este cambio.** Deja RF-011 con soporte y RF-012 configurable,
-pero **no hace funcionar el geofencing**: los 34 activos siguen compartiendo una coordenada en
-Bogotá (D-01) y el radio está sin confirmar (D-02). Con las columnas agregadas, la regla pasa de
-"imposible" a "activa pero siempre en falso". No dar por cerrado RF-012 hasta que existan
-coordenadas reales.
+**Advertencia sobre el alcance de este cambio.** Los pasos 1 a 3 están hechos. El paso 4 **no se
+pudo ejecutar**: al escribir la regla, AppSheet reveló que `MAN_Mantenimientos` no tiene ninguna
+columna que apunte al activo, y que `OTID` no es una referencia sino texto. Ver la sección 10 del
+dictamen de auditoría. La regla queda pendiente del cableado de referencias.
+
+Aunque se cablee, el geofencing seguirá sin funcionar mientras los 34 activos compartan la
+coordenada de Bogotá (D-01) y el radio esté sin confirmar (D-02).
 
 **Criterio de cierre de este punto:** una fila de prueba escrita en `MAN_Mantenimientos` desde la
 aplicación, con valor en las dos columnas nuevas, verificada leyendo el Sheets.

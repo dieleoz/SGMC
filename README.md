@@ -168,9 +168,10 @@ Lo que corre la app es el Sheets.
 | # | Hallazgo |
 |---|---|
 | B-01 | Los 34 activos comparten una sola coordenada, situada en Bogotá y no en el corredor. El geofencing es inoperante hasta levantar las coordenadas reales |
-| B-02 | Las columnas de GPS ya existen en el Sheets, pero la aplicación todavía no las ve: falta regenerar la estructura, tipar y configurar las reglas |
+| B-02 | La cadena relacional del modelo **no existe en la aplicación**: `OTID` es texto y no referencia, y `MAN_Mantenimientos` no tiene columna hacia el activo. Sin eso no hay geofencing, ni navegación padre-hijo, ni reportes por activo |
 | B-03 | Todos los usuarios están en la sede 1 y todos los activos en las sedes 7 a 10. El Security Filter dejaría a cada técnico sin activos |
 | B-04 | Solo 1 de 18 formularios tiene banco de preguntas |
+| B-09 | La fórmula de geofencing documentada durante meses, con `[ActivoID].[Ubicacion]`, no funciona: esa columna no existe en `MAN_Mantenimientos` |
 | B-05 | La entrega del backend de Valentín a la Concesión está pendiente de fecha |
 | B-06 | Fotografías, firmas y GPS están modelados dos veces: campos en `MAN_Mantenimientos` y tablas hijas vacías |
 | B-07 | `MAN_Mantenimientos` está vacía: ningún mantenimiento se ha ejecutado nunca de extremo a extremo |

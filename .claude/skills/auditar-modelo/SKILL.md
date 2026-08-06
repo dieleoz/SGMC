@@ -78,6 +78,27 @@ Filters, `IsPartOf`, tipos de columna ni bots. Para verificar eso hay que entrar
 AppSheet por navegador. Si un hallazgo depende de la configuración, márcalo como **no verificado**
 en lugar de suponerlo.
 
+**Lección del 2026-08-06.** Que dos tablas compartan un nombre de columna no significa que estén
+relacionadas. En este proyecto, la cadena Activo → Orden → Mantenimiento existía en el diccionario
+de datos, en los diagramas y en todos los documentos, pero en la aplicación `OTID` estaba tipada
+como `Text`: no había ninguna referencia real. **Una relación solo existe si la columna es de tipo
+`Ref` en AppSheet.** Verifícalo en el editor antes de escribir cualquier expresión que
+desreferencie con la notación `[Columna].[Otra]`.
+
+Atajo para comprobar una expresión sin romper nada: ábrela en el Asistente de Expresiones del
+editor y lee el error. Valida contra el esquema real y es la forma más rápida de descubrir que una
+relación que dabas por hecha no existe.
+
+## Cómo entrar al editor
+
+```
+https://www.appsheet.com/Template/AppDef?appName=SGMC-886843353
+```
+
+La ruta con `appId` devuelve 404; usa `appName`. Antes de tocar el editor, confirma que exista una
+copia de respaldo de la aplicación: *Regenerate Structure* advierte explícitamente que no se puede
+deshacer.
+
 ## Al terminar
 
 Actualiza `docs/AUDITORIA_PLAN_Y_ROADMAP.md` con lo encontrado, y `CLAUDE.md` si cambia el estado

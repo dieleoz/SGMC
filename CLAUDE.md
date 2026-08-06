@@ -91,11 +91,26 @@ Verifica la clave real antes de asumirla.
 
 ## 6. Fórmulas y reglas de la app
 
+> **CORRECCIÓN DEL 2026-08-06, POR REVISAR.** Durante meses se documentó como fórmula correcta
+> `DISTANCE([Coordenadas_Cierre], [ActivoID].[Ubicacion]) <= 1.0`. **No funciona.** El Asistente de
+> Expresiones de AppSheet la rechaza con: *Can't find column "ActivoID" in table
+> "MAN_Mantenimientos"*. Esa tabla **no tiene ninguna columna que apunte al activo**.
+>
+> Al probar la ruta alterna vía la orden de trabajo, el error fue otro: *Invalid dereference.
+> Column OTID is not a Ref*. Es decir, **las referencias del modelo no existen en la aplicación**:
+> `OTID` es de tipo `Text`, no `Ref`. La cadena relacional Activo → Orden → Mantenimiento está en
+> el papel, no en la app.
+>
+> Fórmula candidata **una vez cableadas las referencias** (pendiente de validar):
+> `DISTANCE([Coordenadas_Cierre], [OTID].[Activo].[Ubicacion]) <= 1.0`
+> Requiere convertir `MAN_Mantenimientos.OTID` a `Ref` hacia `OT_OrdenesTrabajo`, y confirmar que
+> `OT_OrdenesTrabajo.Activo` sea `Ref` hacia `ACT_Activos`.
+
 Geofencing de cierre (RF-012). `ACT_Activos` guarda un único campo `Ubicacion` de tipo LatLong;
-no existen columnas `Latitud`/`Longitud` separadas. La fórmula correcta es:
+no existen columnas `Latitud`/`Longitud` separadas. La expresión, con la ruta pendiente de cerrar:
 
 ```
-DISTANCE([Coordenadas_Cierre], [ActivoID].[Ubicacion]) <= 1.0
+DISTANCE([Coordenadas_Cierre], [OTID].[Activo].[Ubicacion]) <= 1.0
 ```
 
 Mensaje de error, en texto plano:
@@ -104,8 +119,9 @@ Mensaje de error, en texto plano:
 Ubicación fuera de rango: debe estar a menos de 1.0 km del activo.
 ```
 
-Toda variante con `LATLONG([ActivoID].[Latitud], [ActivoID].[Longitud])` es incorrecta contra este
-modelo y falla en ejecución.
+Son incorrectas contra este modelo, y fallan en ejecución, tanto la variante con
+`LATLONG([ActivoID].[Latitud], [ActivoID].[Longitud])` como cualquiera que invoque `[ActivoID]`
+desde `MAN_Mantenimientos`: esa columna no existe.
 
 Security Filter por sede (RF-004): filtra `ACT_Activos` por el `SedeID` del usuario resuelto vía
 `USEREMAIL()` contra `USR_Usuarios`.
@@ -118,10 +134,12 @@ La Fase 0 **no está cerrada**. `docs/ROADMAP.md` ya fue corregido; `docs/DICTAM
 
 1. Los 34 activos de `ACT_Activos` comparten una sola coordenada, `4.728512, -74.114531`, que está
    en Bogotá y no en el corredor.
-2. `MAN_Mantenimientos` ya tiene `Coordenadas_Cierre` y `Precision_GPS` en el Sheets, agregadas
-   el 2026-08-06. **La aplicación todavía no las ve**: falta *Regenerate Structure*, tipar como
-   `LatLong` y `Number`, y configurar `Valid_If` e `Initial value`. No des RF-011 ni RF-012 por
-   resueltos hasta ver una fila escrita desde la app.
+2. `MAN_Mantenimientos` ya tiene `Coordenadas_Cierre` (LatLong) y `Precision_GPS` (Number),
+   agregadas al Sheets y reconocidas por la aplicación el 2026-08-06. **Falta la regla de
+   validación**, que no pudo escribirse porque no hay ruta de referencia al activo. Ver sección 6.
+2b. **POR REVISAR / POR AJUSTAR:** las referencias del modelo no existen en la aplicación. `OTID`
+   es `Text`, no `Ref`, y `MAN_Mantenimientos` no tiene columna hacia el activo. Sin eso no hay
+   geofencing, ni navegación padre-hijo, ni reportes por activo.
 3. Solo `FRM_SOS` tiene banco de preguntas en `FRM_Preguntas` (15). Faltan 17 de 18.
 4. Todos los usuarios están en `SedeID = 1`; todos los activos en `SedeID` 7 a 10. El Security
    Filter dejaría a cada técnico con cero activos.
