@@ -12,8 +12,9 @@ sesión con su cuenta corporativa.
 > cerrada, la definición funcional no ha sido validada con el líder funcional, y el 6 de agosto de
 > 2026 se detectó que **el Excel local y el backend de producción son modelos distintos**. Ver [Estado real](#estado-real-verificado) y
 > [AUDITORIA_PLAN_Y_ROADMAP.md](docs/AUDITORIA_PLAN_Y_ROADMAP.md).
-> Las 14 decisiones ya se enviaron al líder funcional y se espera su respuesta; lo que quede
-> abierto se retoma en un Sprint 2. Entretanto avanza la reconciliación de modelos.
+> Las 14 decisiones se enviaron al líder funcional, pero el proyecto **no espera su respuesta**:
+> se adoptaron como supuestos vinculantes y se construye sobre ellos. Ver
+> [ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md).
 > No desplegar a campo hasta cerrar
 > [DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md).
 
@@ -212,7 +213,9 @@ archivo/       Material de origen, no versionado
 
 | Documento | Para qué sirve |
 |---|---|
-| [DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md) | Flujos funcionales por actor y 14 decisiones a validar con el líder funcional |
+| [ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md) | Alcance del sistema completo y los 14 supuestos adoptados. Frente activo |
+| [prompts/PROMPT_CONSTRUCCION_SGMC.md](docs/prompts/PROMPT_CONSTRUCCION_SGMC.md) | Directiva de construcción en 7 pasos con criterios de aceptación |
+| [DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md) | Flujos funcionales por actor y las 14 decisiones, ya enviadas al funcional |
 | [AUDITORIA_PLAN_Y_ROADMAP.md](docs/AUDITORIA_PLAN_Y_ROADMAP.md) | Dictamen vigente: hallazgos, evidencia y Fase 0 corregida |
 | [bd.md](docs/bd.md) | Diccionario de datos de las 24 tablas |
 | [especificaciones.md](docs/especificaciones.md) | Requerimientos funcionales RF-001 a RF-016 |

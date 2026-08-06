@@ -156,17 +156,34 @@ el checklist huérfano.
 
 Detalle, evidencia y remediación en `docs/AUDITORIA_PLAN_Y_ROADMAP.md`.
 
-El documento de las 14 decisiones **ya se envió** al líder funcional y se está a la espera de su
-respuesta. No generes ni propongas reenviarle una versión corregida: insistir sobre lo mismo resta
-credibilidad a la petición. Lo que se aprenda entretanto se acumula para un **Sprint 2** con el
-funcional.
+## Método de trabajo vigente: construir bajo supuestos
 
-No configures ni construyas sobre un punto que dependa de una decisión abierta en
-`docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md`. La ruta crítica es D-01 (coordenadas reales de los
-34 activos) y D-09 (bancos de preguntas), ambas trabajo del cliente.
+El enfoque de preguntar primero al líder funcional **está descartado**. El documento de las 14
+decisiones ya se envió y no se reenvía, pero no se espera su respuesta para avanzar.
 
-**El frente que sí puede avanzar sin el funcional es la Fase 0.5**: reconciliar los dos modelos,
-agregar las columnas de GPS en producción y limpiar los datos de prueba. Ver `docs/ROADMAP.md`.
+Los catorce supuestos están adoptados en `docs/ALCANCE_Y_SUPUESTOS_SGMC.md` y son **vinculantes
+hasta que el campo los desmienta**. Trabaja con ellos. No abras un punto para consultarlo: si
+falta una definición, adóptala como supuesto, decláralo y sigue.
+
+La razón es doble. Un cuestionario en abstracto a quien todavía no tiene el modelo mental produce
+silencio o un "de acuerdo" a todo, que simula una decisión inexistente. Y el sistema actual no
+permite formarse criterio: cuatro tablas vacías, un formulario de dieciocho y ninguna transacción.
+Una suposición escrita y probada se corrige en una tarde; una pregunta sin responder bloquea
+semanas.
+
+La directiva de ejecución es `docs/prompts/PROMPT_CONSTRUCCION_SGMC.md`.
+
+## Economía de interfaz
+
+Manejar el editor de AppSheet clic a clic consume muchos tokens y es frágil: los desplegables no
+siempre se abren, y el viewport cambia de tamaño entre llamadas y desplaza las coordenadas.
+
+- Los datos se cargan **por lote** sobre el Sheets, nunca celda por celda.
+- La configuración de AppSheet no tiene API, así que va por navegador: **agrupa las acciones y
+  verifica al final del bloque**, no después de cada clic.
+- Para validar una expresión, el Asistente de Expresiones es más rápido y seguro que probarla en
+  la aplicación.
+- Prefiere leer el backend con el conector de Google Drive antes que navegar la interfaz.
 
 Lo que sí está verificado como resuelto: `Coordenadas_Cierre` y `Precision_GPS` existen en
 `MAN_Mantenimientos`; la columna `Observaciones` ya no está duplicada (24 columnas únicas).

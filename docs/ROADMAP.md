@@ -3,7 +3,7 @@
 **Proyecto:** Sistema de Gestión de Mantenimiento en Campo
 **Cliente:** Concesión Transversal del Sisga S.A.S.
 **Actualizado:** 6 de agosto de 2026 | **Versión:** 3.0
-**Estado actual:** Sprint 0 enviado, a la espera de respuesta del líder funcional. Frente técnico activo: Fase 0.5
+**Estado actual:** Construcción bajo supuestos adoptados. No se espera respuesta del funcional para avanzar
 
 > Esta versión corrige la anterior, que declaraba completadas al 100 % la Fase 0 y la Fase 1.
 > La auditoría del 6 de agosto de 2026 verificó contra el archivo que esa declaración era falsa.
@@ -62,22 +62,19 @@ Verificado el 6 de agosto de 2026 leyendo `BD/Modelo de Datos (2).xlsx` con `ope
 
 ---
 
-## 4. Sprint 0 — Definición funcional (enviado, esperando respuesta)
+## 4. Sprint 0 — Definición funcional (cerrado por supuestos)
 
-El documento y su correo ya salieron al líder funcional. **No se reenvía ninguna versión
-posterior:** volver a escribir sobre lo mismo confunde y resta credibilidad a la petición. Las
-correcciones y afinamientos posteriores se acumulan para un Sprint 2 con el funcional.
+El documento y su correo salieron al líder funcional y **no se reenvían**. Pero el proyecto dejó de
+esperar su respuesta: las catorce decisiones se adoptaron como supuestos en
+`ALCANCE_Y_SUPUESTOS_SGMC.md` y son vinculantes hasta que el campo las desmienta.
 
 - [x] Enviar el documento al líder funcional
-- [ ] Recibir respuesta a las 14 decisiones
-- [ ] Consolidar las respuestas en un acta de decisiones
-- [ ] Sprint 2 con el funcional: lo que quede abierto, más lo aprendido entretanto
+- [x] Adoptar los catorce supuestos y declararlos por escrito
+- [ ] Contrastar la respuesta del funcional, cuando llegue, contra los supuestos adoptados
 
-**Cierra cuando:** hay respuesta escrita. Toda decisión no resuelta queda con el supuesto que el
-documento declaró marcado, y ese supuesto es vinculante.
-
-**Mientras tanto no se está bloqueado.** La Fase 0.5 es trabajo técnico que no depende del líder
-funcional y puede avanzar en paralelo.
+**Por qué cambió.** Un cuestionario en abstracto a quien no tiene todavía el modelo mental produce
+silencio, y el sistema actual no permite formarse criterio: no hay nada que mirar. Es más rápido
+construir completo, poblar con datos, entregar con manual, y corregir con lo que diga el campo.
 
 ---
 

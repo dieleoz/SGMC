@@ -12,6 +12,8 @@
 | Si necesitas | Abre |
 |---|---|
 | Entender qué es el proyecto | [README.md](README.md) |
+| Saber qué se va a construir y con qué supuestos | [docs/ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md) |
+| Ejecutar la construcción | [docs/prompts/PROMPT_CONSTRUCCION_SGMC.md](docs/prompts/PROMPT_CONSTRUCCION_SGMC.md) |
 | Saber el estado real y qué está bloqueado | [docs/AUDITORIA_PLAN_Y_ROADMAP.md](docs/AUDITORIA_PLAN_Y_ROADMAP.md) |
 | Enviar la definición funcional al cliente | [entregables/CORREO_ENVIO_MESA_DE_TRABAJO.md](entregables/CORREO_ENVIO_MESA_DE_TRABAJO.md) y el .docx adjunto |
 | Trabajar sobre el repositorio como agente | [CLAUDE.md](CLAUDE.md) y las skills de `.claude/skills/` |
@@ -31,6 +33,7 @@ D:\@Proyect\Sisga\
 │   └── Modelo de Datos (2).xlsx  24 hojas. Único archivo que se edita
 │
 ├── docs/                         Documentación técnica y funcional
+│   ├── ALCANCE_Y_SUPUESTOS_SGMC.md
 │   ├── DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md
 │   ├── AUDITORIA_PLAN_Y_ROADMAP.md
 │   ├── bd.md
@@ -79,7 +82,9 @@ D:\@Proyect\Sisga\
 
 | Documento | Contenido | Vigencia |
 |---|---|---|
-| [docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md) | 6 casos de uso estilo ISTQB y 14 decisiones para el líder funcional | Vigente. Es el frente activo |
+| [docs/ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md) | Alcance del sistema completo y los 14 supuestos adoptados | **Vigente. Es el frente activo** |
+| [docs/prompts/PROMPT_CONSTRUCCION_SGMC.md](docs/prompts/PROMPT_CONSTRUCCION_SGMC.md) | Directiva de construcción en 7 pasos con criterios de aceptación | Vigente |
+| [docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md) | 6 casos de uso estilo ISTQB y 14 decisiones | Enviado. Sus propuestas son ahora los supuestos adoptados |
 | [docs/AUDITORIA_PLAN_Y_ROADMAP.md](docs/AUDITORIA_PLAN_Y_ROADMAP.md) | Dictamen del 6 de agosto: 8 bloqueantes con evidencia y Fase 0 corregida | Vigente |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Fases con criterio de cierre verificable | Vigente |
 | [docs/plan_de_trabajo.md](docs/plan_de_trabajo.md) | Plan operativo Audit-First | Supeditado a la mesa de trabajo |
@@ -112,7 +117,7 @@ D:\@Proyect\Sisga\
 
 | Documento | Contenido | Vigencia |
 |---|---|---|
-| [docs/prompts/PROMPT_PARA_AGENTE_AUDITOR_Y_SUBSANADOR.md](docs/prompts/PROMPT_PARA_AGENTE_AUDITOR_Y_SUBSANADOR.md) | Directiva Audit-First | Por reescribir contra la Fase 0 corregida |
+| [docs/prompts/PROMPT_PARA_AGENTE_AUDITOR_Y_SUBSANADOR.md](docs/prompts/PROMPT_PARA_AGENTE_AUDITOR_Y_SUBSANADOR.md) | Directiva Audit-First | **Superado** por PROMPT_CONSTRUCCION_SGMC.md |
 | [docs/prompts/PROMPT_VALIDACION_IA_EXTERNA.md](docs/prompts/PROMPT_VALIDACION_IA_EXTERNA.md) | Prompt para auditoría por IA externa | Vigente |
 
 ---
