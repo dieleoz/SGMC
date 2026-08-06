@@ -12,6 +12,10 @@ __pycache__/
 .pytest_cache/
 scratch/
 
+# Temporary Word lock files
+~$*
+~$*.docx
+
 # IDE & OS files
 .vscode/
 .idea/
