@@ -154,4 +154,4 @@ graph TD
 * 📱 **`MANUAL_DE_USUARIO_ILUSTRADO.md`** (Manual en línea con diagramas y maqueta visual de pantallas).
 
 ---
-*Referencias Cruzadas:* [README.md](./README.md) | [MAP.md](./MAP.md) | [plan_de_trabajo.md](./plan_de_trabajo.md) | [especificaciones.md](./especificaciones.md)
+*Referencias Cruzadas:* [README.md](../README.md) | [MAP.md](../MAP.md) | [plan_de_trabajo.md](../docs/plan_de_trabajo.md) | [especificaciones.md](../docs/especificaciones.md)

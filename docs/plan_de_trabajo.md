@@ -61,4 +61,4 @@ gantt
 
 ---
 *Plan de trabajo actualizado para el modelo de 24 hojas.*  
-*Referencias Cruzadas:* [README.md](./README.md) | [bd.md](./bd.md) | [MAP.md](./MAP.md) | [especificaciones.md](./especificaciones.md)
+*Referencias Cruzadas:* [README.md](../README.md) | [bd.md](../docs/bd.md) | [MAP.md](../MAP.md) | [especificaciones.md](../docs/especificaciones.md)

@@ -111,4 +111,4 @@ graph TD
 
 ---
 *Manual de usuario y guía de operación completa del SGMC.*  
-*Referencias Cruzadas:* [README.md](./README.md) | [MAP.md](./MAP.md) | [especificaciones.md](./especificaciones.md) | [plan_de_trabajo.md](./plan_de_trabajo.md)
+*Referencias Cruzadas:* [README.md](../README.md) | [MAP.md](../MAP.md) | [especificaciones.md](../docs/especificaciones.md) | [plan_de_trabajo.md](../docs/plan_de_trabajo.md)

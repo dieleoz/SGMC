@@ -1,8 +1,8 @@
 # Git Ignore for SGMC Project
 
-# Legacy directory (Excluded from git tracking)
-legacy/
-legacy/*
+# Material de origen archivado (no se versiona: PDFs, video, borradores)
+archivo/
+archivo/*
 
 # Temporary python & scratch files
 __pycache__/

@@ -21,7 +21,7 @@ dictámenes de auditoría y el archivo Excel maestro.
 
 `BD/Modelo de Datos (2).xlsx` — 24 hojas. Es el único modelo de datos válido.
 
-`Modelo_Datos_SGMC_AsBuilt.xlsx` en la raíz es una **copia byte a byte idéntica** del anterior
+`entregables/Modelo_Datos_SGMC_AsBuilt.xlsx` es una **copia byte a byte idéntica** del anterior
 (sha256 verificado el 2026-08-06). Es un artefacto de publicación, no una segunda fuente.
 
 Reglas:
@@ -50,7 +50,6 @@ Este proyecto arrastra un historial de subsanaciones reportadas como cerradas qu
 - Español, con las tildes correctas. Ojo: varias hojas del Excel tienen encabezados con
   mojibake (`Descripci�n`, `T�cnicoID`, `Secci�n`) por codificación; al leer, no los normalices
   silenciosamente — repórtalos como hallazgo.
-- Todo documento nuevo se enlaza en `MAP.md` y en la tabla de navegación de `README.md`.
 - No hagas commit ni push salvo petición explícita.
 
 ## 5. Nomenclatura del modelo
@@ -87,7 +86,7 @@ Security Filter por sede (RF-004): filtra `ACT_Activos` por el `SedeID` del usua
 
 ## 7. Estado real (verificado 2026-08-06)
 
-La Fase 0 **no está cerrada**, pese a lo que afirman `ROADMAP.md` y `DICTAMEN_AUDITORIA_LOCAL_SGMC.md`.
+La Fase 0 **no está cerrada**. `docs/ROADMAP.md` ya fue corregido; `docs/DICTAMEN_AUDITORIA_LOCAL_SGMC.md` sigue afirmando lo contrario.
 Bloqueantes vigentes, en orden:
 
 1. Los 34 activos de `ACT_Activos` comparten una sola coordenada, `4.728512, -74.114531`, que está
@@ -100,11 +99,11 @@ Bloqueantes vigentes, en orden:
 5. `CHK_Checklists.OTID = '1'` es huérfano frente a las claves `OT-0001..OT-0006`.
 6. Evidencias y GPS modelados por duplicado (campos en `MAN` + tablas hijas vacías).
 
-Detalle, evidencia y remediación en `AUDITORIA_PLAN_Y_ROADMAP.md`.
+Detalle, evidencia y remediación en `docs/AUDITORIA_PLAN_Y_ROADMAP.md`.
 
 El proyecto está en **Sprint 0: definición funcional**. La mayoría de los bloqueantes no son
 errores de implementación sino decisiones de negocio sin tomar. No configures ni construyas sobre
-un punto que dependa de una decisión abierta en `DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md`: primero
+un punto que dependa de una decisión abierta en `docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md`: primero
 se cierra la mesa con el líder funcional, y de ahí sale el roadmap. La ruta crítica es D-01
 (coordenadas reales de los 34 activos) y D-09 (bancos de preguntas), ambas trabajo del cliente.
 
@@ -116,39 +115,39 @@ Lo que sí está verificado como resuelto: `Coordenadas_Cierre` y `Precision_GPS
 Estos documentos contienen afirmaciones que no corresponden al archivo real. No los uses como
 fuente sin contrastar:
 
-- `MAP.md` — describe 17 tablas y el Excel raíz como maestro; enlace roto a `d.md` (es `bd.md`).
-- `bd.md` — la sección 3.1 lista un `MAN_Mantenimientos` de 25 columnas con nombres que no existen
+- `docs/bd.md` — la sección 3.1 lista un `MAN_Mantenimientos` de 25 columnas con nombres que no existen
   (`MttoID`, `Diagnostico`, `Trabajo_Realizado`, `Duracion_Minutos`); el real tiene 24 con otros
   nombres. Declara `CHK`/`CHD` con 21 columnas; tienen 9 y 6.
-- `ROADMAP.md` — marca como completada la Fase 0, el modelo de 17 tablas y los 18 formularios
-  dinámicos.
-- `DICTAMEN_AUDITORIA_LOCAL_SGMC.md` e `INFORME_QA_ISTQB_Y_AUDITORIA_ARQUITECTO.md` — dictaminan
+- `docs/DICTAMEN_AUDITORIA_LOCAL_SGMC.md` e `docs/INFORME_QA_ISTQB_Y_AUDITORIA_ARQUITECTO.md` — dictaminan
   100% conforme sobre un modelo anterior y describen un mantenimiento ejecutado en vivo que no
   existe en `MAN_Mantenimientos` (0 filas).
 
 ## 9. Estructura del repositorio
 
 ```
-BD/Modelo de Datos (2).xlsx        Fuente de verdad, 24 hojas
-Modelo_Datos_SGMC_AsBuilt.xlsx     Copia idéntica para publicación
-README.md                          Visión general y arquitectura de 3 capas
-MAP.md                             Índice maestro y referencias cruzadas
-CLAUDE.md                          Este archivo
-ROADMAP.md                         Fases
-plan_de_trabajo.md                 Plan operativo Audit-First
-especificaciones.md                RF-001 a RF-016
-especificaciones_visuales.md       Pantallas y elementos DOM
-bd.md                              Diccionario de datos
-AUDITORIA_PLAN_Y_ROADMAP.md        Dictamen de auditoría vigente
-DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md  Flujos por actor y 14 decisiones para el líder funcional
-GUIA_SVG_BOTONES_DINAMICOS_APPSHEET.md
-INFORME_QA_ISTQB_Y_AUDITORIA_ARQUITECTO.md
-DICTAMEN_AUDITORIA_LOCAL_SGMC.md
-PROMPT_PARA_AGENTE_AUDITOR_Y_SUBSANADOR.md
-PROMPT_VALIDACION_IA_EXTERNA.md
-Manuales/                          Manuales md, Word con diagramas, script generador
-legacy/                            Insumos originales, PDFs, videos, borradores
+README.md          Entrada: qué es el proyecto, cómo funciona, estado real
+CLAUDE.md          Este archivo
+MAP.md             Índice maestro y referencias cruzadas
+
+BD/                FUENTE DE VERDAD: Modelo de Datos (2).xlsx, 24 hojas
+docs/              Documentación técnica y funcional (.md)
+  images/          Figuras de los documentos (fig_01 a fig_05)
+  prompts/         Directivas para agentes de auditoría
+Manuales/          Manuales de usuario
+  images/          Maquetas del manual (img_01 a img_06)
+entregables/       Word y Excel listos para enviar al cliente
+scripts/           Generadores de figuras y documentos
+archivo/           Material de origen. No versionado (en .gitignore)
 ```
+
+Reglas de ubicación al crear archivos:
+
+- Un `.md` de documentación va en `docs/`. Solo README, CLAUDE y MAP viven en la raíz.
+- Un `.py` va en `scripts/` y resuelve sus rutas desde la raíz del repositorio con
+  `os.path.dirname(os.path.dirname(os.path.abspath(__file__)))`. Nunca rutas absolutas `D:\`.
+- Un `.docx` o `.xlsx` destinado al cliente va en `entregables/`. Los manuales van en `Manuales/`.
+- Las figuras de un documento van en `docs/images/`; las del manual, en `Manuales/images/`.
+- Todo documento nuevo se enlaza en `MAP.md` y en la tabla de `README.md`.
 
 ## 10. Alcance
 

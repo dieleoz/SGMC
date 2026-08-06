@@ -11,9 +11,9 @@ sesión con su cuenta corporativa.
 > El modelo de datos y la app existen y están operativos como prototipo, pero la Fase 0 no está
 > cerrada: hay 8 bloqueantes verificados y la definición funcional aún no ha sido validada con el
 > líder funcional. Ver [Estado real](#estado-real-verificado) y
-> [AUDITORIA_PLAN_Y_ROADMAP.md](./AUDITORIA_PLAN_Y_ROADMAP.md).
+> [AUDITORIA_PLAN_Y_ROADMAP.md](docs/AUDITORIA_PLAN_Y_ROADMAP.md).
 > No desplegar a campo hasta cerrar la mesa de trabajo de
-> [DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](./DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md).
+> [DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md).
 
 ---
 
@@ -89,8 +89,8 @@ por correo), revisar la evidencia sincronizada y aprobar, con el tablero de indi
 
 ## 5. Modelo de datos
 
-Fuente de verdad: **`BD/Modelo de Datos (2).xlsx`**, 24 hojas. `Modelo_Datos_SGMC_AsBuilt.xlsx`
-en la raíz es una copia idéntica publicada. Diccionario completo en [bd.md](./bd.md).
+Fuente de verdad: **`BD/Modelo de Datos (2).xlsx`**, 24 hojas. `entregables/Modelo_Datos_SGMC_AsBuilt.xlsx`
+es una copia idéntica publicada, para enviar; no se edita. Diccionario completo en [bd.md](docs/bd.md).
 
 ```mermaid
 erDiagram
@@ -162,7 +162,7 @@ Verificado el 6 de agosto de 2026 leyendo el Excel maestro directamente en disco
 | B-07 | `MAN_Mantenimientos` está vacía: ningún mantenimiento se ha ejecutado nunca de extremo a extremo |
 | B-08 | El detalle de checklist guarda las preguntas como texto libre, sin trazabilidad al banco de preguntas |
 
-Detalle, evidencia y plan de remediación en [AUDITORIA_PLAN_Y_ROADMAP.md](./AUDITORIA_PLAN_Y_ROADMAP.md).
+Detalle, evidencia y plan de remediación en [AUDITORIA_PLAN_Y_ROADMAP.md](docs/AUDITORIA_PLAN_Y_ROADMAP.md).
 
 ## 7. Por qué el proyecto vuelve a la definición funcional
 
@@ -177,26 +177,46 @@ gobierna la sede de un activo, cuántas fotos exige realmente una inspección, q
 entregar el sistema.
 
 Por eso el paso siguiente no es configurar sino definir. El documento
-[DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](./DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md) presenta los
+[DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md) presenta los
 flujos funcionales por actor y las decisiones pendientes al líder funcional. Sus respuestas
 producen el roadmap de implementación.
 
-## 8. Documentación
+## 8. Organización del repositorio
+
+```
+BD/            Fuente de verdad: Modelo de Datos (2).xlsx, 24 hojas
+docs/          Documentación técnica y funcional
+docs/images/   Figuras de los documentos
+docs/prompts/  Directivas para agentes de auditoría
+Manuales/      Manuales de usuario y sus imágenes
+entregables/   Documentos Word y Excel listos para enviar al cliente
+scripts/       Generadores de figuras y documentos
+archivo/       Material de origen, no versionado
+```
 
 | Documento | Para qué sirve |
 |---|---|
-| [DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](./DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md) | Flujos funcionales por actor y decisiones a validar con el líder funcional |
-| [AUDITORIA_PLAN_Y_ROADMAP.md](./AUDITORIA_PLAN_Y_ROADMAP.md) | Dictamen vigente: hallazgos, evidencia y Fase 0 corregida |
-| [bd.md](./bd.md) | Diccionario de datos de las 24 tablas |
-| [especificaciones.md](./especificaciones.md) | Requerimientos funcionales RF-001 a RF-016 |
-| [especificaciones_visuales.md](./especificaciones_visuales.md) | Pantallas, vistas y elementos de interfaz |
-| [plan_de_trabajo.md](./plan_de_trabajo.md) | Plan operativo (en revisión tras la auditoría) |
-| [ROADMAP.md](./ROADMAP.md) | Fases (en revisión tras la auditoría) |
-| [MAP.md](./MAP.md) | Índice maestro y referencias cruzadas |
-| [CLAUDE.md](./CLAUDE.md) | Reglas de trabajo para agentes sobre este repositorio |
-| [Manuales/](./Manuales/) | Manual de usuario, versión ilustrada y documento Word para entrega |
-| [GUIA_SVG_BOTONES_DINAMICOS_APPSHEET.md](./GUIA_SVG_BOTONES_DINAMICOS_APPSHEET.md) | Diseño de botones e iconos dinámicos en AppSheet |
-| `legacy/` | Insumos originales: ERS, plan de implementación, levantamiento de UI, PDFs y video |
+| [DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md) | Flujos funcionales por actor y 14 decisiones a validar con el líder funcional |
+| [AUDITORIA_PLAN_Y_ROADMAP.md](docs/AUDITORIA_PLAN_Y_ROADMAP.md) | Dictamen vigente: hallazgos, evidencia y Fase 0 corregida |
+| [bd.md](docs/bd.md) | Diccionario de datos de las 24 tablas |
+| [especificaciones.md](docs/especificaciones.md) | Requerimientos funcionales RF-001 a RF-016 |
+| [especificaciones_visuales.md](docs/especificaciones_visuales.md) | Pantallas, vistas y elementos de interfaz |
+| [plan_de_trabajo.md](docs/plan_de_trabajo.md) | Plan operativo, supeditado a la mesa de trabajo |
+| [ROADMAP.md](docs/ROADMAP.md) | Fases y criterios de cierre |
+| [GUIA_SVG_BOTONES_DINAMICOS_APPSHEET.md](docs/GUIA_SVG_BOTONES_DINAMICOS_APPSHEET.md) | Diseño de botones e iconos dinámicos en AppSheet |
+| [MAP.md](MAP.md) | Índice maestro y referencias cruzadas |
+| [CLAUDE.md](CLAUDE.md) | Reglas de trabajo para agentes sobre este repositorio |
+| [Manuales/](Manuales/) | Manual de usuario, versión ilustrada y documento Word |
+| [entregables/](entregables/) | Mesa de trabajo, especificaciones técnicas y modelo de datos publicado |
+
+**Entregables al cliente**
+
+| Archivo | Estado |
+|---|---|
+| `entregables/Definicion_Funcional_SGMC_Mesa_de_Trabajo.docx` | Para enviar. Incluye 14 casillas de respuesta y 5 esquemas |
+| `entregables/Especificaciones_Tecnicas_SGMC_AsBuilt.docx` | Enviado previamente. Pendiente de actualizar al modelo de 24 tablas |
+| `entregables/Modelo_Datos_SGMC_AsBuilt.xlsx` | Copia publicada del maestro. No editar: se edita `BD/` y se replica |
+| `Manuales/Manual_de_Usuario_SGMC_Con_Diagramas.docx` | Enviado previamente. Sus imágenes tienen las tildes corruptas y deben regenerarse |
 
 ## 9. Enlaces
 

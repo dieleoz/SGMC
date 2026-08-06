@@ -95,4 +95,4 @@ Cuando se generan reportes en PDF o vistas HTML exportadas donde no se renderiza
 
 ---
 *Documento rescatado de la carpeta `legacy/` e integrado al estándar técnico del SGMC.*  
-*Referencias Cruzadas:* [README.md](./README.md) | [especificaciones.md](./especificaciones.md) | [especificaciones_visuales.md](./especificaciones_visuales.md) | [MAP.md](./MAP.md)
+*Referencias Cruzadas:* [README.md](../README.md) | [especificaciones.md](../docs/especificaciones.md) | [especificaciones_visuales.md](../docs/especificaciones_visuales.md) | [MAP.md](../MAP.md)

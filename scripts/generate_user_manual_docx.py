@@ -152,5 +152,7 @@ for e in errors_data:
     c[1].text = e[1]
     c[2].text = e[2]
 
-doc.save("Manual_de_Usuario_SGMC_Con_Diagramas.docx")
+import os
+RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+doc.save(os.path.join(RAIZ, "Manuales", "Manual_de_Usuario_SGMC_Con_Diagramas.docx"))
 print("Manual_de_Usuario_SGMC_Con_Diagramas.docx generado exitosamente!")

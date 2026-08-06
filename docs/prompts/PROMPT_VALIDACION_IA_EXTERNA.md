@@ -39,4 +39,4 @@ Instrucciones de Auditoría:
 ```
 
 ---
-*Referencias Cruzadas:* [README.md](./README.md) | [especificaciones.md](./especificaciones.md) | [especificaciones_visuales.md](./especificaciones_visuales.md) | [MAP.md](./MAP.md)
+*Referencias Cruzadas:* [README.md](../../README.md) | [especificaciones.md](../../docs/especificaciones.md) | [especificaciones_visuales.md](../../docs/especificaciones_visuales.md) | [MAP.md](../../MAP.md)

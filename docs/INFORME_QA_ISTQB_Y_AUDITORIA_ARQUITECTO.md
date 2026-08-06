@@ -106,4 +106,4 @@ ESTADO GLOBAL DE AUDITORÍA QA: 🟢 APROBADO CON OBSERVACIONES MENORES (PASS WI
 ```
 
 ---
-*Referencias Cruzadas:* [README.md](./README.md) | [especificaciones.md](./especificaciones.md) | [bd.md](./bd.md) | [PROMPT_VALIDACION_IA_EXTERNA.md](./PROMPT_VALIDACION_IA_EXTERNA.md)
+*Referencias Cruzadas:* [README.md](../README.md) | [especificaciones.md](../docs/especificaciones.md) | [bd.md](../docs/bd.md) | [PROMPT_VALIDACION_IA_EXTERNA.md](../docs/prompts/PROMPT_VALIDACION_IA_EXTERNA.md)

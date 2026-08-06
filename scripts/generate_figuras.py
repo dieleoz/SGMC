@@ -4,7 +4,8 @@ Supersampling x2 + LANCZOS para bordes y texto limpios."""
 import os
 from PIL import Image, ImageDraw, ImageFont
 
-OUT = r"D:\@Proyect\Sisga\Manuales\images"
+RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT = os.path.join(RAIZ, "docs", "images")
 S = 2  # factor de supersampling
 
 FONTS = r"C:\Windows\Fonts"

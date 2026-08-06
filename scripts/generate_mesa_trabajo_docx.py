@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """Genera el documento Word de mesa de trabajo funcional del SGMC.
 
-Salida: Definicion_Funcional_SGMC_Mesa_de_Trabajo.docx
-Fuente de contenido: DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md
-Figuras: Manuales/images/fig_0*.png (generadas por figuras.py)
+Salida: entregables/Definicion_Funcional_SGMC_Mesa_de_Trabajo.docx
+Fuente de contenido: docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md
+Figuras: docs/images/fig_0*.png (generadas por generate_figuras.py)
 
 El documento incluye casillas de respuesta editables para que el líder funcional
 responda directamente sobre el archivo y lo devuelva.
@@ -17,9 +17,9 @@ from docx.enum.section import WD_SECTION
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 
-BASE = os.path.dirname(os.path.abspath(__file__))
-IMG = os.path.join(BASE, "Manuales", "images")
-SALIDA = os.path.join(BASE, "Definicion_Funcional_SGMC_Mesa_de_Trabajo.docx")
+RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+IMG = os.path.join(RAIZ, "docs", "images")
+SALIDA = os.path.join(RAIZ, "entregables", "Definicion_Funcional_SGMC_Mesa_de_Trabajo.docx")
 
 TINTA = RGBColor(0x1C, 0x25, 0x30)
 GRIS = RGBColor(0x6E, 0x7A, 0x86)

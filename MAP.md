@@ -1,61 +1,137 @@
-# 🗺️ MAPA DEL PROYECTO Y MATRIZ DE REFERENCIAS CRUZADAS (MAP.md)
+# MAP.md — Índice maestro del proyecto
 
-**Proyecto:** Sistema de Gestión de Mantenimiento en Campo (SGMC)  
-**Cliente:** Concesión Transversal del Sisga S.A.S.  
-**Aplicación en Vivo:** [SGMC en AppSheet](https://www.appsheet.com/start/060b99df-2037-4049-b94d-03c1eefc3219?platform=desktop#appName=SGMC-886843353&vss=H4sIAAAAAAAAA6XOvQ7CIBQF4Hc5M0_AahyM0cWfRTpguU2ILTQF1Ibw7t6qjbM6csh37sm4Wrrtoq4vkKf8ea1phERW2I89KUiFhXdx8K2CUNjq7hUeQtKD9UGhoFRi9pECZP6Oy_-uC1hDLtrG0jB1TZI73o6_J8XBbFAEuhT1uaXnYDalcNb4OgUyR57yw4Swcst7r53ZeMOVjW4DlQcPF0XqZQEAAA==&view=Usuarios)  
-**Propósito:** Índice maestro de archivos, especificaciones visuales, guías técnicas, dictámenes de auditoría, manuales ilustrados en /Manuales y prompt de validación para auditorías externas.
-
----
-
-## 📂 Estructura Limpia de Archivos (d:\@Proyect\Sisga)
-
-`
-d:\@Proyect\Sisga\
-├── README.md                                  <- Visión general, arquitectura de 3 capas y enlace a AppSheet
-├── MAP.md                                     <- Mapa de navegación e índice de referencias cruzadas (ESTE ARCHIVO)
-├── ROADMAP.md                                 <- Hoja de ruta de implementación As-Built y evolución
-├── plan_de_trabajo.md                         <- Plan de trabajo operativo para el agente / equipo de despliegue
-├── especificaciones.md                        <- Especificaciones técnicas funcionales (RF-001 al RF-016)
-├── especificaciones_visuales.md               <- Levantamiento de pantallas visuales y elementos DOM de la app
-├── bd.md                                      <- Especificación técnica de Base de Datos (17 tablas, ER)
-├── GUIA_SVG_BOTONES_DINAMICOS_APPSHEET.md    <- Guía rescatada de legacy: SVG dinámicos, botones y colores
-├── INFORME_QA_ISTQB_Y_AUDITORIA_ARQUITECTO.md <- Informe ISTQB, simulación de flujo, guardado y hallazgos
-├── DICTAMEN_AUDITORIA_LOCAL_SGMC.md           <- Dictamen oficial de auditoría local 100% Conforme
-├── PROMPT_VALIDACION_IA_EXTERNA.md            <- Prompt maestro listo para enviar a otra IA para auditar
-├── PROMPT_PARA_AGENTE_AUDITOR_Y_SUBSANADOR.md <- Directiva Audit-First para que el agente audite primero y subsane después            <- Prompt maestro listo para enviar a otra IA para auditar
-├── Modelo_Datos_SGMC_AsBuilt.xlsx             <- Base de datos Excel construida y subsanada (17 Hojas)
-├── Especificaciones_Tecnicas_SGMC_AsBuilt.docx <- Documento formal en Word
-├── 📁 Manuales/                               <- Carpeta oficial de manuales de usuario y operación
-│   ├── MANUAL_DE_USUARIO.md                   <- Manual de usuario completo (Técnicos, Supervisores, Admin)
-│   ├── MANUAL_DE_USUARIO_ILUSTRADO.md         <- Manual con diagramas y maquetas visuales de pantallas
-│   ├── Manual_de_Usuario_SGMC_Con_Diagramas.docx <- Documento ejecutable Word listo para enviar al líder funcional
-│   └── generate_user_manual_docx.py           <- Script Python generador del manual Word
-└── 📁 legacy/                                 <- Insumos originales, PDFs, videos y borradores
-`
+**Proyecto:** Sistema de Gestión de Mantenimiento en Campo (SGMC)
+**Cliente:** Concesión Transversal del Sisga S.A.S.
+**Actualizado:** 6 de agosto de 2026
+**Propósito:** Mapa de navegación del repositorio. Dónde está cada cosa y qué contiene.
 
 ---
 
-## 🔗 Matriz de Referencias Cruzadas (Cross-Reference Matrix)
+## 1. Por dónde empezar
 
-| Concepto / Componente | Archivo Documentado | Sección Específica | Enlace Directo |
-|---|---|---|---|
-| **Arquitectura de Software** | README.md | Sección 3: Arquitectura | [README.md](./README.md) |
-| **Manual de Usuario Ilustrado (Word para Entrega)** | Manuales/Manual_de_Usuario_SGMC_Con_Diagramas.docx | Documento Word | [Manual Word](./Manuales/Manual_de_Usuario_SGMC_Con_Diagramas.docx) |
-| **Manual de Usuario Ilustrado en Línea** | Manuales/MANUAL_DE_USUARIO_ILUSTRADO.md | Sección 2 y 3: Pantallas | [MANUAL_DE_USUARIO_ILUSTRADO.md](./Manuales/MANUAL_DE_USUARIO_ILUSTRADO.md) |
-| **Manual de Usuario Operativo** | Manuales/MANUAL_DE_USUARIO.md | Sección 2 a 4: Guías por Rol | [MANUAL_DE_USUARIO.md](./Manuales/MANUAL_DE_USUARIO.md) |
-| **Script Generador del Manual Word** | Manuales/generate_user_manual_docx.py | Script Python | [generate_user_manual_docx.py](./Manuales/generate_user_manual_docx.py) |
-| **Plan de Trabajo y Despliegue** | plan_de_trabajo.md | Sección 2 y 3: Cronograma y Tareas | [plan_de_trabajo.md](./plan_de_trabajo.md) |
-| **Especificación de Requerimientos (RF-001 a RF-016)** | especificaciones.md | Sección 2: Matriz RF | [especificaciones.md](./especificaciones.md) |
-| **Navegación Visual y Pantallas Capturadas** | especificaciones_visuales.md | Sección 2: Vistas Capturadas | [especificaciones_visuales.md](./especificaciones_visuales.md) |
-| **Modelo ER (24 Tablas)** | bd.md | Sección 2: Diagrama ER | [bd.md](./bd.md) |
-| **Definición Funcional y Mesa de Trabajo (Validación con el Funcional)** | DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md | Parte II: Flujos y Parte III: 14 Decisiones | [DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](./DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md) |
-| **Instrucciones para Agentes (Fuente de Verdad y Convenciones)** | CLAUDE.md | Secciones 2, 3 y 7 | [CLAUDE.md](./CLAUDE.md) |
-| **Dictamen de Auditoría Vigente (Plan y Roadmap)** | AUDITORIA_PLAN_Y_ROADMAP.md | Sección 3 y 6 | [AUDITORIA_PLAN_Y_ROADMAP.md](./AUDITORIA_PLAN_Y_ROADMAP.md) |
-| **Diseño SVG y Botones Dinámicos** | GUIA_SVG_BOTONES_DINAMICOS_APPSHEET.md | Sección 2 y 4: Fórmulas SVG | [GUIA_SVG_BOTONES_DINAMICOS_APPSHEET.md](./GUIA_SVG_BOTONES_DINAMICOS_APPSHEET.md) |
-| **Informe QA (ISTQB) y Evaluación de Flujo** | INFORME_QA_ISTQB_Y_AUDITORIA_ARQUITECTO.md | Sección 2 a 4: Flujo y Hallazgos | [INFORME_QA_ISTQB_Y_AUDITORIA_ARQUITECTO.md](./INFORME_QA_ISTQB_Y_AUDITORIA_ARQUITECTO.md) |
-| **Dictamen Oficial de Auditoría Local** | DICTAMEN_AUDITORIA_LOCAL_SGMC.md | Sección 3 y 4: Cierre de Hallazgos | [DICTAMEN_AUDITORIA_LOCAL_SGMC.md](./DICTAMEN_AUDITORIA_LOCAL_SGMC.md) |
-| **Prompt para Auditoría por IA Externa** | PROMPT_VALIDACION_IA_EXTERNA.md | Prompt Maestro | [PROMPT_VALIDACION_IA_EXTERNA.md](./PROMPT_VALIDACION_IA_EXTERNA.md) |
-| **Roadmap y Fases** | ROADMAP.md | Sección 2: Detalle Fases | [ROADMAP.md](./ROADMAP.md) |
+| Si necesitas | Abre |
+|---|---|
+| Entender qué es el proyecto | [README.md](README.md) |
+| Saber el estado real y qué está bloqueado | [docs/AUDITORIA_PLAN_Y_ROADMAP.md](docs/AUDITORIA_PLAN_Y_ROADMAP.md) |
+| Llevar algo a la mesa con el líder funcional | [entregables/Definicion_Funcional_SGMC_Mesa_de_Trabajo.docx](entregables/) |
+| Trabajar sobre el repositorio como agente | [CLAUDE.md](CLAUDE.md) |
+| Consultar la estructura de datos | [docs/bd.md](docs/bd.md) y `BD/Modelo de Datos (2).xlsx` |
 
 ---
-*SGMC Document Map | Concesión Transversal del Sisga S.A.S.*
+
+## 2. Estructura de carpetas
+
+```
+D:\@Proyect\Sisga\
+├── README.md                     Entrada del proyecto: qué es, cómo funciona, estado real
+├── CLAUDE.md                     Reglas de trabajo para agentes
+├── MAP.md                        Este archivo
+│
+├── BD/                           FUENTE DE VERDAD
+│   └── Modelo de Datos (2).xlsx  24 hojas. Único archivo que se edita
+│
+├── docs/                         Documentación técnica y funcional
+│   ├── DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md
+│   ├── AUDITORIA_PLAN_Y_ROADMAP.md
+│   ├── bd.md
+│   ├── especificaciones.md
+│   ├── especificaciones_visuales.md
+│   ├── plan_de_trabajo.md
+│   ├── ROADMAP.md
+│   ├── GUIA_SVG_BOTONES_DINAMICOS_APPSHEET.md
+│   ├── INFORME_QA_ISTQB_Y_AUDITORIA_ARQUITECTO.md
+│   ├── DICTAMEN_AUDITORIA_LOCAL_SGMC.md
+│   ├── images/                   fig_01 a fig_05, figuras de la mesa de trabajo
+│   └── prompts/                  Directivas para agentes de auditoría
+│
+├── Manuales/                     Manuales de usuario
+│   ├── MANUAL_DE_USUARIO.md
+│   ├── MANUAL_DE_USUARIO_ILUSTRADO.md
+│   ├── Manual_de_Usuario_SGMC_Con_Diagramas.docx
+│   └── images/                   img_01 a img_06, maquetas del manual
+│
+├── entregables/                  Listos para enviar al cliente
+│   ├── Definicion_Funcional_SGMC_Mesa_de_Trabajo.docx
+│   ├── Especificaciones_Tecnicas_SGMC_AsBuilt.docx
+│   └── Modelo_Datos_SGMC_AsBuilt.xlsx
+│
+├── scripts/                      Generadores
+│   ├── generate_figuras.py
+│   ├── generate_mesa_trabajo_docx.py
+│   └── generate_user_manual_docx.py
+│
+└── archivo/                      Material de origen. No versionado
+    └── legacy/                   ERS, plan original, levantamiento de UI, PDFs, video
+```
+
+---
+
+## 3. Índice de documentos
+
+### Definición y estado
+
+| Documento | Contenido | Vigencia |
+|---|---|---|
+| [docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md) | 6 casos de uso estilo ISTQB y 14 decisiones para el líder funcional | Vigente. Es el frente activo |
+| [docs/AUDITORIA_PLAN_Y_ROADMAP.md](docs/AUDITORIA_PLAN_Y_ROADMAP.md) | Dictamen del 6 de agosto: 8 bloqueantes con evidencia y Fase 0 corregida | Vigente |
+| [docs/ROADMAP.md](docs/ROADMAP.md) | Fases con criterio de cierre verificable | Vigente |
+| [docs/plan_de_trabajo.md](docs/plan_de_trabajo.md) | Plan operativo Audit-First | Supeditado a la mesa de trabajo |
+
+### Especificación técnica
+
+| Documento | Contenido | Vigencia |
+|---|---|---|
+| [docs/bd.md](docs/bd.md) | Diccionario de datos de las 24 tablas | Sección 3.1 desactualizada, ver CLAUDE.md |
+| [docs/especificaciones.md](docs/especificaciones.md) | Requerimientos RF-001 a RF-016 | Vigente |
+| [docs/especificaciones_visuales.md](docs/especificaciones_visuales.md) | Pantallas, vistas y elementos de interfaz | Vigente |
+| [docs/GUIA_SVG_BOTONES_DINAMICOS_APPSHEET.md](docs/GUIA_SVG_BOTONES_DINAMICOS_APPSHEET.md) | Fórmulas SVG, botones y colores dinámicos | Vigente |
+
+### Auditorías anteriores
+
+| Documento | Contenido | Vigencia |
+|---|---|---|
+| [docs/DICTAMEN_AUDITORIA_LOCAL_SGMC.md](docs/DICTAMEN_AUDITORIA_LOCAL_SGMC.md) | Dictamen "100% conforme" | **Superado.** Certifica un modelo anterior con tablas vacías |
+| [docs/INFORME_QA_ISTQB_Y_AUDITORIA_ARQUITECTO.md](docs/INFORME_QA_ISTQB_Y_AUDITORIA_ARQUITECTO.md) | Informe QA y simulación de flujo | **Superado.** Describe una ejecución sin respaldo en los datos |
+
+### Manuales
+
+| Documento | Contenido |
+|---|---|
+| [Manuales/MANUAL_DE_USUARIO.md](Manuales/MANUAL_DE_USUARIO.md) | Guías por rol: técnico, supervisor, administrador |
+| [Manuales/MANUAL_DE_USUARIO_ILUSTRADO.md](Manuales/MANUAL_DE_USUARIO_ILUSTRADO.md) | Versión con maquetas de pantalla |
+| [Manuales/Manual_de_Usuario_SGMC_Con_Diagramas.docx](Manuales/Manual_de_Usuario_SGMC_Con_Diagramas.docx) | Word entregado al líder funcional |
+
+### Prompts de auditoría
+
+| Documento | Contenido | Vigencia |
+|---|---|---|
+| [docs/prompts/PROMPT_PARA_AGENTE_AUDITOR_Y_SUBSANADOR.md](docs/prompts/PROMPT_PARA_AGENTE_AUDITOR_Y_SUBSANADOR.md) | Directiva Audit-First | Por reescribir contra la Fase 0 corregida |
+| [docs/prompts/PROMPT_VALIDACION_IA_EXTERNA.md](docs/prompts/PROMPT_VALIDACION_IA_EXTERNA.md) | Prompt para auditoría por IA externa | Vigente |
+
+---
+
+## 4. Matriz de referencias cruzadas
+
+| Concepto | Dónde está documentado | Dónde está el dato real |
+|---|---|---|
+| Arquitectura de 3 capas | [README.md](README.md) sección 4 | Aplicación AppSheet `SGMC-886843353` |
+| Modelo relacional de 24 tablas | [docs/bd.md](docs/bd.md) y [README.md](README.md) sección 5 | `BD/Modelo de Datos (2).xlsx` |
+| Regla de geofencing | [CLAUDE.md](CLAUDE.md) sección 6 | `MAN_Mantenimientos[Coordenadas_Cierre]` en AppSheet |
+| Requerimientos funcionales | [docs/especificaciones.md](docs/especificaciones.md) | — |
+| Flujos por actor y casos de uso | [docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md) parte II | — |
+| Decisiones pendientes del funcional | [docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md) parte III | — |
+| Bloqueantes verificados | [docs/AUDITORIA_PLAN_Y_ROADMAP.md](docs/AUDITORIA_PLAN_Y_ROADMAP.md) sección 3 | Verificable con `openpyxl` sobre `BD/` |
+| Fases y criterios de cierre | [docs/ROADMAP.md](docs/ROADMAP.md) | — |
+| Pantallas y vistas | [docs/especificaciones_visuales.md](docs/especificaciones_visuales.md) | Aplicación AppSheet |
+| Deriva documental conocida | [CLAUDE.md](CLAUDE.md) sección 8 | — |
+
+---
+
+## 5. Enlaces externos
+
+- Aplicación AppSheet: [SGMC-886843353](https://www.appsheet.com/start/060b99df-2037-4049-b94d-03c1eefc3219?platform=desktop#appName=SGMC-886843353&view=Usuarios)
+- Backend Google Sheets: [abrir](https://docs.google.com/spreadsheets/d/1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc/edit)
+- Repositorio: [github.com/dieleoz/SGMC](https://github.com/dieleoz/SGMC)
+
+---
+*SGMC | Concesión Transversal del Sisga S.A.S.*

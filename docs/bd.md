@@ -86,4 +86,4 @@ Catálogo oficial de activos del corredor vial:
 > 🔗 [https://docs.google.com/spreadsheets/d/1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc/edit?gid=1353886072#gid=1353886072](https://docs.google.com/spreadsheets/d/1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc/edit?gid=1353886072#gid=1353886072)
 
 ---
-*Referencias Cruzadas:* [README.md](./README.md) | [plan_de_trabajo.md](./plan_de_trabajo.md) | [MAP.md](./MAP.md) | [especificaciones.md](./especificaciones.md)
+*Referencias Cruzadas:* [README.md](../README.md) | [plan_de_trabajo.md](../docs/plan_de_trabajo.md) | [MAP.md](../MAP.md) | [especificaciones.md](../docs/especificaciones.md)
