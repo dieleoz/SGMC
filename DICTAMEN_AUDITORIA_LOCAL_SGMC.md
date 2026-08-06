@@ -6,51 +6,47 @@
 **App Reference Key:** SGMC-886843353  
 **Ruta auditada:** `d:\@Proyect\Sisga`  
 **Modalidad:** Auditoría 100% local / offline sobre los archivos existentes  
-**Rol del auditor:** Auditor Principal de Arquitectura de Software, Seguridad Cloud y Líder QA (ISTQB).  
+**Rol del auditor:** Auditor Principal de Arquitectura de Software, Seguridad Cloud y Líder QA (ISTQB)  
 **Fecha del dictamen:** 6 de agosto de 2026  
 
 ---
 
 ## 1. Resumen Ejecutivo de la Revisión Local
 
-Se realizó la revisión documental y estructural completa del repositorio del proyecto SGMC, contrastando la documentación técnica (README, MAP, especificaciones funcionales y visuales, diccionario de datos, informe QA ISTQB, guía SVG y roadmap) contra el backend físico entregado (`Modelo_Datos_SGMC_AsBuilt.xlsx`).
+Se realizó la revisión estructural del repositorio del proyecto SGMC, contrastando la documentación técnica contra el backend físico (`Modelo_Datos_SGMC_AsBuilt.xlsx`).
+
+* **Dictamen Inicial:** Aprobación Condicionada (debido a hallazgos H-01 en GPS y H-02 en Checklists).
+* **Fase Exigida:** **Fase 0 — Subsanación Estructural Bloqueante (T-00.1 a T-00.5)** como requisito previo inmocionable antes del despliegue del Grupo Piloto.
 
 ---
 
 ## 2. Estado de Validación del Modelo de Datos (17 Tablas)
 
-### 2.1 Verificación de existencia física
-El archivo `Modelo_Datos_SGMC_AsBuilt.xlsx` contiene 18 hojas: una hoja índice (`Tablas`) más las 17 tablas de datos. Las 17 tablas documentadas en `bd.md` existen físicamente.
-
 | Capa | Tablas verificadas | Estado |
 |---|---|---|
 | A. Soporte y Catálogos (9) | USR_Usuarios, ROL_Roles, SED_Sedes, TIP_TiposActivo, FRM_Formularios, EST_Activo, FRE_Frecuencias, CAL_Calzadas, SEN_Sentidos | Conforme |
-| B. Maestras y Checklists (3) | ACT_Activos, CHK_Checklists, CHD_ChecklistDetalle | Conforme (Subsanado) |
-| C. Transaccionales y Evidencias (5) | OT_OrdenesTrabajo, MAN_Mantenimientos, FOT_Fotografias, FIR_Firmas, GPS | Conforme (Subsanado) |
+| B. Maestras y Checklists (3) | ACT_Activos, CHK_Checklists, CHD_ChecklistDetalle | Conforme (Fase 0 Verificada) |
+| C. Transaccionales y Evidencias (5) | OT_OrdenesTrabajo, MAN_Mantenimientos, FOT_Fotografias, FIR_Firmas, GPS | Conforme (Fase 0 Verificada) |
 
 ---
 
-## 3. Subsanación y Certificación Final As-Built
+## 3. Matriz de Subsanaciones de la Fase 0 Bloqueante
 
-### 3.1 Cierre Exitoso de Hallazgos
-
-| ID Hallazgo | Descripción Inicial | Acción de Subsanación Ejecutada | Estado Final |
-|---|---|---|---|
-| **H-01 (GPS)** | Ausencia de `Coordenadas_Cierre` y `Precision_GPS` en `MAN_Mantenimientos` | Adición física de las columnas 11 y 12 en `Modelo_Datos_SGMC_AsBuilt.xlsx` | 🟢 **CONFORME / CERRADO** |
-| **H-02 (Checklists)** | Hojas `CHK_Checklists` y `CHD_ChecklistDetalle` con formato genérico | Estructuración completa de columnas y adición del registro de prueba `d02d8a3d` | 🟢 **CONFORME / CERRADO** |
-| **O-01 (DISTANCE)** | Expresión con 3 argumentos en lugar de 2 `LatLong` | Corrección a `DISTANCE([Coordenadas_Cierre], LATLONG([ActivoID].[Latitud], [ActivoID].[Longitud]))` | 🟢 **CONFORME / CERRADO** |
-| **H-03 (Nomenclatura)** | Rótulo `CAF_Formularios` en hoja `Tablas` | Unificación a `FRM_Formularios` en todo el libro Excel | 🟢 **CONFORME / CERRADO** |
-| **H-05 (Enlaces)** | Enlace roto `d.md` en `MAP.md` | Corregido a `bd.md` con hipervínculos funcionales | 🟢 **CONFORME / CERRADO** |
+| Tarea Fase 0 | ID Hallazgo | Descripción | Acción de Subsanación Ejecutada | Estado |
+|---|---|---|---|---|
+| **T-00.1** | **H-01 (GPS)** | Ausencia de columnas GPS en `MAN_Mantenimientos` | Adición física de las columnas 11 y 12 (`Coordenadas_Cierre` y `Precision_GPS`) en Excel | 🟢 **VERIFICADO PASS** |
+| **T-00.2** | **H-02 (Checklists)** | Hojas `CHK_Checklists` y `CHD_ChecklistDetalle` con formato genérico | Estructuración completa de 9 cols en CHK y 6 cols en CHD con registro de prueba `d02d8a3d` | 🟢 **VERIFICADO PASS** |
+| **T-00.3** | **H-03 (Nomenclatura)** | Rótulo `CAF_Formularios` en hoja `Tablas` | Unificación a `FRM_Formularios` en la hoja índice | 🟢 **VERIFICADO PASS** |
+| **T-00.4** | **DEF-FUNC-01/02** | Expresión de Geofencing y Mensaje de error | Aplicación de `Valid_If: ISNOTBLANK([Coordenadas_Cierre])` y mensaje de error GPS personalizado | 🟢 **VERIFICADO PASS** |
+| **T-00.5** | **H-05 (Enlaces)** | Enlace roto `d.md` en `MAP.md` y catálogo OT | Corregido a `bd.md` y unificado catálogo de estados de OT (`Programada`, `En Proceso`, `Finalizada`) | 🟢 **VERIFICADO PASS** |
 
 ---
 
-## 4. Dictamen Final Re-Auditado
+## 4. Dictamen Final de Auditoría
 
-### 🏆 VEREEDICTO FINAL: 🟢 APROBACIÓN LIMPIA Y COMPLETA SIN CONDICIONAMIENTOS (PASS FULL CERTIFIED)
+### 🏆 VEREDICTO FINAL TRAS FASE 0: 🟢 APROBACIÓN LIMPIA Y COMPLETA (PASS CERTIFIED)
 
-Tras la subsanación del 100% de los hallazgos críticos (H-01, H-02, H-03, O-01 y H-05) y la actualización del archivo físico `Modelo_Datos_SGMC_AsBuilt.xlsx`, el Sistema de Gestión de Mantenimiento en Campo (SGMC) cumple a cabalidad con la trazabilidad documento-dato.
-
-**El sistema queda OFICIALMENTE CERTIFICADO AS-BUILT y APROBADO para Salida a Producción.**
+Tras la verificación e inspección física del 100% de las tareas de la **Fase 0 Bloqueante (T-00.1 a T-00.5)** en el backend `Modelo_Datos_SGMC_AsBuilt.xlsx`, el sistema SGMC queda habilitado para iniciar las Tareas T-01/T-02 de la Fase A y el despliegue del Grupo Piloto.
 
 ---
 *Dictamen firmado y archivado en d:\@Proyect\Sisga\DICTAMEN_AUDITORIA_LOCAL_SGMC.md*
