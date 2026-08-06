@@ -47,7 +47,10 @@ d:\@Proyect\Sisga\
 | **Plan de Trabajo y Despliegue** | plan_de_trabajo.md | Sección 2 y 3: Cronograma y Tareas | [plan_de_trabajo.md](./plan_de_trabajo.md) |
 | **Especificación de Requerimientos (RF-001 a RF-016)** | especificaciones.md | Sección 2: Matriz RF | [especificaciones.md](./especificaciones.md) |
 | **Navegación Visual y Pantallas Capturadas** | especificaciones_visuales.md | Sección 2: Vistas Capturadas | [especificaciones_visuales.md](./especificaciones_visuales.md) |
-| **Modelo ER (17 Tablas)** | d.md | Sección 2: Diagrama ER | [bd.md](./bd.md) |
+| **Modelo ER (24 Tablas)** | bd.md | Sección 2: Diagrama ER | [bd.md](./bd.md) |
+| **Definición Funcional y Mesa de Trabajo (Validación con el Funcional)** | DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md | Parte II: Flujos y Parte III: 14 Decisiones | [DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](./DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md) |
+| **Instrucciones para Agentes (Fuente de Verdad y Convenciones)** | CLAUDE.md | Secciones 2, 3 y 7 | [CLAUDE.md](./CLAUDE.md) |
+| **Dictamen de Auditoría Vigente (Plan y Roadmap)** | AUDITORIA_PLAN_Y_ROADMAP.md | Sección 3 y 6 | [AUDITORIA_PLAN_Y_ROADMAP.md](./AUDITORIA_PLAN_Y_ROADMAP.md) |
 | **Diseño SVG y Botones Dinámicos** | GUIA_SVG_BOTONES_DINAMICOS_APPSHEET.md | Sección 2 y 4: Fórmulas SVG | [GUIA_SVG_BOTONES_DINAMICOS_APPSHEET.md](./GUIA_SVG_BOTONES_DINAMICOS_APPSHEET.md) |
 | **Informe QA (ISTQB) y Evaluación de Flujo** | INFORME_QA_ISTQB_Y_AUDITORIA_ARQUITECTO.md | Sección 2 a 4: Flujo y Hallazgos | [INFORME_QA_ISTQB_Y_AUDITORIA_ARQUITECTO.md](./INFORME_QA_ISTQB_Y_AUDITORIA_ARQUITECTO.md) |
 | **Dictamen Oficial de Auditoría Local** | DICTAMEN_AUDITORIA_LOCAL_SGMC.md | Sección 3 y 4: Cierre de Hallazgos | [DICTAMEN_AUDITORIA_LOCAL_SGMC.md](./DICTAMEN_AUDITORIA_LOCAL_SGMC.md) |
