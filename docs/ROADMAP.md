@@ -148,6 +148,15 @@ Mientras esto no se resuelva, cualquier trabajo de configuración se hace sobre 
       tenga algo que rechazar
 - [ ] **Decidir el ciclo de baja en los reportes.** RG-18: un histórico nunca filtra por el estado
       actual del activo, o al dar de baja uno desaparecen sus mantenimientos pasados
+- [ ] **`ESPEC-003`: devolver a la app la creación de órdenes (CU-02).** DECIDIDO el 7 de agosto de
+      2026: se **aplaza**, no se descarta. Hoy `OT_OrdenesTrabajo` no admite `Adds` porque `OTID`
+      hace de clave y de etiqueta legible a la vez, y esos dos papeles piden cosas opuestas. La
+      solución está clara —`OTID` pasa a `UNIQUEID()` y `Numero_OT` vuelve como etiqueta calculada
+      con `Initial value`, nunca `App formula`, o se recalcularía años después— y cuesta una columna
+      nueva en la hoja. **Mientras tanto las órdenes se crean en el Sheets**, que es aceptable en el
+      piloto por el volumen, pero no como procedimiento: escribir en la hoja se salta todas las
+      validaciones, las referencias y el filtro de seguridad. `DEFINICION_FUNCIONAL` CU-02 y el
+      ciclo del supervisor del README describen hoy lo que no se puede hacer
 - [ ] **`ESPEC-003`: las reglas de negocio que hoy son prosa y ningún constructo aplica.** Salieron
       al revisar si faltaban condicionales de AppSheet. `ModoFallaID` dice «solo en correctivos» y
       no hay `Show_If` ni `Required_If` que lo imponga —depende de `OT.Tipo`, hoy vacía—, y

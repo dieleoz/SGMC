@@ -7,9 +7,9 @@ al terminar hay referencias reales, geofencing y navegación entre tablas.
 |---|---|
 | Dónde se aplica | Editor de AppSheet, aplicación `SGMC-886843353` |
 | Quién | Agente de navegador, o una persona. No hay API en el plan actual |
-| Precede | `ESPEC-001`, `ESPEC-001B` y `ESPEC-001C`, cerradas (`ACTA-002`) |
+| Precede | `ESPEC-001`, `001B` y `001C`, cerradas. Hoja cerrada en contenido y formato (`ACTA-004`) |
 | Pruebas | `PRUEBA-002` |
-| Versión 2 | Reescrita el 2026-08-07 tras el veredicto BLOQUEA del arquitecto, 16 hallazgos |
+| Versión | Diez rondas de revisión adversarial. Última corrección el 2026-08-07 |
 
 ---
 
@@ -43,6 +43,10 @@ rompe datos correctos:
 | Antes | Ahora |
 |---|---|
 | `CHK.MantenimientoID` guardaba `OT-0001`, una orden | Resuelve contra `MAN_Mantenimientos` |
+| `OT_OrdenesTrabajo.Activo` estaba vacía en las 6 filas | Vale `TRUE` en las 6 |
+| `USR_Usuarios.UsuarioID` mezclaba números y texto | Los 11 son texto, `3aa202ee` incluido |
+| `OT.ActivoID` texto contra `ACT.ActivoID` numérico | Ambos texto, sin decimales |
+| `TIP_TiposActivo.FormularioID` tenía 18 fórmulas | 18 valores, 0 fórmulas |
 | `LST_ValoresLista.PreguntaID` guardaba el texto `Estado encontrado` | Vale `SOS001` en las 4 filas |
 | Faltaban `FechaBaja` y `MotivoBaja` | Presentes en `ACT_Activos` |
 
@@ -50,11 +54,9 @@ rompe datos correctos:
 
 | Hecho verificado | Consecuencia |
 |---|---|
-| `TIP_TiposActivo.RadioGeofencingKm` está **vacío en los 18 tipos** | RG-01 no puede usarlo. Ver bloque 4 |
-| `OT_OrdenesTrabajo.Activo` está **vacía en las 6 filas** | Tiparla `Yes/No` sin poblarla deja las 6 órdenes como inactivas. Ver 5.1 |
+| `TIP_TiposActivo.RadioGeofencingKm` está **vacío en los 18 tipos** | RG-01 usa el literal de `PAR_Parametros`. Ver bloque 4 |
 | `MAN_Mantenimientos` tiene **2 filas**, no 0 | Son de prueba y desechables, pero la premisa «no arrastra nada» ya no es literal |
-| `USR_Usuarios.UsuarioID` mezcla 10 numéricos y uno de texto (`3aa202ee`) | Si la clave se tipa `Number`, esa fila queda con clave inválida |
-| `OT.ActivoID` guarda texto (`'2'`) y `ACT.ActivoID` números (`2.0`) | La referencia solo resuelve si ambas se tipan igual |
+| `USR_Usuarios.UsuarioID` es texto en las 11 filas | Al tipar la clave, **forzar `Text`**: si AppSheet infiere `Number`, la fila `3aa202ee` queda sin clave válida |
 
 ---
 
@@ -185,10 +187,14 @@ al crear un registro.
 argumento por el que `OT_OrdenesTrabajo` pierde `Adds`. Ver la tabla final de
 `docs/BASE_CONOCIMIENTO_APPSHEET.md`.
 
-**Verificación del bloque 1:** `MAN_Mantenimientos` muestra **36 columnas**. Cada tabla tiene una
-sola clave, la de la tabla anterior, con su tipo. Un número **mayor** que 36 significa definiciones
-de columna fantasma que sobrevivieron al *Regenerate* —`MttoID`, `Tecnico_Asignado`— y hay que
-retirarlas.
+**Verificación del bloque 1:** `MAN_Mantenimientos` muestra **36 columnas reales**. Cada tabla tiene
+una sola clave, la de la tabla anterior, con su tipo.
+
+**Cuidado al contar, y no borres de más.** *Regenerate Structure* **añade columnas virtuales por su
+cuenta** —del tipo `Related FOT_Fotografias`— y son **legítimas**: son las que hacen funcionar la
+navegación padre-hijo que comprueba P-07. Las que sí hay que retirar son las definiciones fantasma
+con nombres viejos: `MttoID`, `Tecnico_Asignado`, `EstadoID`, `SedeID`. Cuenta las reales y anota
+las virtuales aparte, como hace P-01.
 
 ---
 
@@ -213,6 +219,7 @@ Independientes entre sí, no pueden romper nada.
 | `FOT_Fotografias` | `Ubicacion` | `LatLong` |
 | `FIR_Firmas` | `Imagen` | `Signature` |
 | `TIP_TiposActivo` | `RadioGeofencingKm` | `Decimal` |
+| `PAR_Parametros` | `Valor` | `Decimal`. RG-19 lo compara contra `Precision_GPS`: si queda `Text`, la comparación numérica no opera |
 
 ### 5.0 `Editable_If = FALSE` en las cuatro columnas de captura. **Antes que ninguna regla**
 
@@ -235,9 +242,6 @@ Si `Coordenadas_Cierre` queda como `Text`, `DISTANCE()` no opera y el bloque 4 f
 por qué.
 
 ### 5.1 Precondiciones de datos — **YA CUMPLIDAS. No vuelvas a la hoja**
-
-`OT.Activo` está **vacía en las 6 filas**. Tipada como `Yes/No`, un blanco se lee como falso: las
-seis órdenes quedarían inactivas.
 
 **Esto es contexto, no trabajo pendiente.** Se aplicó el 7 de agosto de 2026 y está verificado en
 `ACTA-004` sobre `BD/Modelo de Datos (11).xlsx`, con `FASE A CERRADA` y 0 fallos.
@@ -304,9 +308,9 @@ Varias pueden estar **ya** como `Ref` con el nombre viejo. Comprobar antes de cr
 
 | Columna | `Ref` a | Nota |
 |---|---|---|
-| `ActivoID` | `ACT_Activos` | Guarda texto `'2'`, `'26'`… Solo resuelve si `ACT.ActivoID` es `Text` |
+| `ActivoID` | `ACT_Activos` | Texto en ambos lados. Resuelve si la clave se tipa `Text` |
 | `TecnicoID` | `USR_Usuarios` | |
-| `SupervisorID` | `USR_Usuarios` | Mezcla `8.0` y `'8'`. Verificar que las 6 resuelvan |
+| `SupervisorID` | `USR_Usuarios` | Las 6 son texto y resuelven |
 | `EstadoOrdenID` | `EOT_EstadosOrden` | Las 6 resuelven, verificado |
 | `OTOrigenID` | `OT_OrdenesTrabajo` | Autorreferencia. Vacía hoy |
 
@@ -553,7 +557,7 @@ sobre producción.**
    mano en el Sheets**.
 
    **`TEST-MTTO-001` y sus 20 hijos NO se tocan.** Son datos de la Fase A, certificados en
-   `ACTA-002`: 3 fotografías, 1 firma, 1 checklist y 15 detalles. Son la cadena de evidencia
+   `ACTA-004`: 3 fotografías, 1 firma, 1 checklist y 15 detalles. Son la cadena de evidencia
    poblada, no residuo de esta fase.
 
 3. **Escrituras sobre `ACT_Activos` fila 34, que es dato maestro y no de prueba.** Dos pruebas la
@@ -563,6 +567,7 @@ sobre producción.**
    |---|---|---|
    | P-16 | Guarda la fila para forzar el recálculo de la `App formula`, tocando `Observaciones` | Devolver `Observaciones` a su valor anterior. **Anótalo antes de tocarlo** |
    | P-17 | Vacía `FechaBaja` en el formulario | La rama que pasa **no persiste nada**: AppSheet rechaza el guardado y se cancela. Si la regla falla y llega a guardar, devolver `FechaBaja = 2026-08-07` |
+   | P-18 | Cambia `PAR_Parametros.UMBRAL_GPS` a `50` para probar la calibración | Devolverlo a **`40`**. Si se interrumpe a medias, el umbral se queda en 50 y **todo cierre entre 40 y 45 m saldría como limpio** — el fallo exacto que RG-19 existe para impedir. Ejecutar junto a P-17, al final de la tanda |
 
    Ninguna de las dos cambia el `EstadoActivoID`, así que el activo 34 sigue `Retirado` en todo
    momento.

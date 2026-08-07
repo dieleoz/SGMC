@@ -45,7 +45,7 @@ fallos). No es el Excel local histórico, que describe otro modelo:
   que retirarlas; **no confundirlas con las virtuales**, que son legítimas. Menos de 36 y distinto
   de 27, que la hoja cambió sin que nadie lo registrara.
 
-### P-02 — Las siete tablas nuevas existen en la app
+### P-02 — Las ocho tablas nuevas existen en la app
 
 - **Acción:** *Data > Tables*, buscar `UNF_UnidadesFuncionales`, `ASG_AsignacionZona`,
   `EOT_EstadosOrden`, `MOT_MotivosPendiente`, `FAL_ModosFalla`, `NOV_Novedades`,
@@ -57,7 +57,7 @@ fallos). No es el Excel local histórico, que describe otro modelo:
 
 ### P-03 — Las claves son las correctas
 
-- **Acción:** *Data > Columns*, revisar la casilla `KEY` en las **27 tablas** de la sección 4.2 de
+- **Acción:** *Data > Columns*, revisar la casilla `KEY` en las **28 tablas** de la sección 4.2 de
   `ESPEC-002`, comprobando nombre **y tipo**. Todas las claves van `Text`.
 - **Después de forzar el tipo, contar filas:** `ACT_Activos` 34, `USR_Usuarios` 11,
   `OT_OrdenesTrabajo` 6. Forzar el tipo de una clave es la operación que más silenciosamente pierde
@@ -74,7 +74,11 @@ fallos). No es el Excel local histórico, que describe otro modelo:
 
 - **Qué comprueba:** que lo que escribe `HERE()` coincide con lo que guarda `ACT_Activos.Ubicacion`.
   Hoy es un supuesto: no hay ni una coordenada capturada por la app en todo el sistema.
-- **Precondición:** `Coordenadas_Cierre` tipada como `LatLong`.
+- **Precondición:** `Coordenadas_Cierre` tipada como `LatLong`, y **se ejecuta ANTES del bloque 4**.
+  Si se hace después, con RG-01 ya configurada y `HERE()` devolviendo blanco por falta de permiso de
+  ubicación, `DISTANCE(blanco, …)` no supera el radio y **AppSheet rechaza el guardado**: P-04 no se
+  podría completar, y con ella caerían P-12 —innegociable— y la mitad de P-19. Si ya se pasó el
+  bloque 4, ir directamente al plan B sin intentar crear el registro.
 - **Acción:** crear un registro desde la aplicación dejando que `HERE()` capture, y leer el Sheets
   de vuelta con el conector de Drive.
 - **Resultado esperado:** un literal con la misma forma que `4.728512, -74.114531` — separador,
@@ -131,6 +135,11 @@ fallos). No es el Excel local histórico, que describe otro modelo:
   1. Lo acepta. La regla no se aplica.
   2. Lo rechaza con un error genérico de AppSheet. La regla existe pero el mensaje no guía al
      técnico, que es medio requisito.
+- **Supuesto no verificado, y es el primero que hay que sospechar.** Nadie ha confirmado que AppSheet
+  evalúe un `Valid_If` sobre una columna con `Editable_If = FALSE` — RG-20 hace `Coordenadas_Cierre`
+  no editable y RG-01 pone su validación encima. No está en la documentación oficial. **Si P-08 y
+  P-09 salen las dos aceptadas, la causa más probable es esa, no el radio.** Sería el peor de los
+  fallos posibles: la regla parecería funcionar por no ejercitarse nunca.
 
 ### P-10 — El filtro por zona devuelve algo
 
