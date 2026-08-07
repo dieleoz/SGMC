@@ -67,6 +67,15 @@ cara. `MAN_Mantenimientos` tiene 0 filas: convertir su `OTID` hoy no cuesta nada
 piloto cuesta una migración. Si el cambio es de esta clase y la especificación no lo dice, señálalo
 aunque apruebes.
 
+**8. ¿Qué despierta este cambio?** Es la pregunta que más se olvida. Una condición mal escrita que
+nunca se cumplía mantenía dormido todo lo que dependía de que no se cumpliera. Al corregirla, eso
+se activa de golpe. Ocurrió el 2026-08-07: RG-16 era siempre cierta, así que ningún activo llegaba
+a `Activo = FALSE` y RG-18 —que prohíbe filtrar el histórico por esa bandera— no tenía a qué morder.
+Arreglar la primera volvió urgente la segunda, y la especificación no la mencionaba.
+
+Y su reverso: **¿qué arrastra lo que se aplaza?** Posponer una referencia deja sin resolver las
+reglas que la desreferencian.
+
 ## Trampas que debes buscar activamente
 
 - **El dato guardado dos veces.** Si se alcanza por referencia, no se guarda además. Dos copias
@@ -80,6 +89,17 @@ aunque apruebes.
   iguales y AppSheet resuelve una sin decir cuál.
 - **Alcance que crece.** Si la especificación mete algo que nadie pidió, señálalo. La instrucción
   vigente es que funcione primero.
+- **Reglas corregidas sin prueba.** Si una ronda arregla una regla y la tanda de pruebas no la toca,
+  el arreglo queda sin constancia. Exígela, y con más razón si la regla **escribe** sobre los datos.
+- **Comprobaciones que se relajan en vez de endurecerse.** Retirar una regla de validación porque
+  estorba es lo contrario de lo que pide `CLAUDE.md` §3. Si algo quedó obsoleto, se sustituye por la
+  comprobación inversa, no se borra.
+
+## Sobre tus propias propuestas
+
+Las listas y conjuntos que propongas se van a verificar contra el archivo antes de aplicarse, y ya
+ha fallado una: propusiste como catálogos de clave legible siete tablas que son numéricas. **Deriva
+del dato lo que puedas derivar del dato**, con un volcado, en lugar de enumerarlo de memoria.
 
 ## Veredicto
 

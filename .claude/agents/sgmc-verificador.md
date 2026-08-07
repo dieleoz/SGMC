@@ -42,6 +42,15 @@ es una intención.
   la prueba no discrimina y sobra.
 ```
 
+## Si la ronda corrigió una regla, esa regla necesita su prueba
+
+No es opcional y es lo que más se olvida. El 2026-08-07 se corrigieron RG-16 y RG-17 —el motivo de
+toda una ronda de revisión— y la tanda de pruebas no las tocaba. Un arreglo sin prueba es un arreglo
+sin constancia, y con más razón cuando la regla es una `App formula`, porque **escribe sobre los
+datos**.
+
+Antes de cerrar una tanda, cruza la lista de reglas que cambiaron contra la lista de pruebas.
+
 ## Las tres clases que toda tanda debe llevar
 
 Si falta alguna, la tanda está incompleta y el arquitecto debe rechazarla.

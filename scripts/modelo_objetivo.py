@@ -688,20 +688,37 @@ RETIPADOS = {
 # impresion. Si una tabla cambia de clave numerica a legible, se actualiza aqui.
 CLAVE_LEGIBLE = {
     "OT_OrdenesTrabajo",       # OT-0001
-    "MAN_Mantenimientos",      # TEST-MTTO-001
-    "EOT_EstadosOrden",        # Asignada, Cerrada
+    "EOT_EstadosOrden",        # Asignada, Cerrada, Suspendida
     "MOT_MotivosPendiente",    # MOT-01
     "FAL_ModosFalla",          # FAL-01
     "ASG_AsignacionZona",      # ASG-01
     "SEN_Sentidos",            # SA, AS
     "FRM_Formularios",         # FRM_SOS
     "FRM_Preguntas",           # SOS001
-    "CHK_Checklists",          # TEST-CHK-001
-    "CHD_ChecklistDetalle",    # TEST-CHD-001
-    "FOT_Fotografias",         # TEST-FOT-001
-    "FIR_Firmas",              # TEST-FIR-001
-    "NOV_Novedades",           # TEST-NOV-001
     "PLA_PlanMantenimiento",   # PLA-001
+}
+
+# ------------------------------------------- catalogos de clave GENERADA
+#
+# Tablas cuya clave la genera la aplicacion con UNIQUEID(). Hoy sus valores
+# parecen legibles -TEST-MTTO-001, TEST-FOT-001- pero eso es el fixture que
+# escribio la Fase A a mano: desde la PRIMERA fila que cree la aplicacion son
+# cadenas aleatorias.
+#
+# Por eso NO estan en CLAVE_LEGIBLE, aunque el archivo de hoy diga que lo son.
+# Comparar un Ref a una de estas contra un literal de texto es SIEMPRE un error,
+# y meterlas en CLAVE_LEGIBLE apagaria V-17 justo donde mas falta hace.
+#
+# Leccion de metodo: una lista derivada del dato puede ser cierta contra el
+# fixture y falsa contra el diseno. Derivar no basta; hay que preguntarse si el
+# dato del que se deriva es el definitivo.
+CLAVE_GENERADA = {
+    "MAN_Mantenimientos",
+    "CHK_Checklists",
+    "CHD_ChecklistDetalle",
+    "FOT_Fotografias",
+    "FIR_Firmas",
+    "NOV_Novedades",
 }
 
 # --------------------------------------------------------- reglas de la app

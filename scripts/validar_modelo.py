@@ -15,7 +15,8 @@ from collections import defaultdict
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from modelo_objetivo import (MODELO, TIPOS, GRUPOS, RETIRADAS, CAMPOS_RETIRADOS, REGLAS,
-                             RENOMBRADOS, RETIPADOS, CLAVE_LEGIBLE)
+                             RENOMBRADOS, RETIPADOS, CLAVE_LEGIBLE,
+                             CLAVE_GENERADA)
 
 errores, avisos = [], []
 
@@ -182,7 +183,7 @@ _LIT = r'"[^"]*"' + "|" + r"'[^']*'"
 COMPARA = [
     re.compile(r'\[(\w+)\](?!\s*\.\s*\[)\s*(?:=|<>|<=|>=|<|>)\s*(' + _LIT + ')'),   # [Col] = "x"
     re.compile(r'(' + _LIT + r')\s*(?:=|<>|<=|>=|<|>)\s*\[(\w+)\](?!\s*\.\s*\[)'),   # "x" = [Col]
-    re.compile(r'(?:IN|CONTAINS)\(\s*\[(\w+)\](?!\s*\.\s*\[)\s*,([^)]*)'),          # IN([Col], LIST("x"))
+    re.compile(r'(?:IN|CONTAINS|SWITCH)\(\s*\[(\w+)\](?!\s*\.\s*\[)\s*,([^)]*)'),          # IN([Col], LIST("x"))
 ]
 
 
@@ -204,7 +205,7 @@ def _revisar_literales(ident, tabla, expresion):
         destino = c.get("ref")
         # Contra un catalogo de clave legible la comparacion es CORRECTA: la
         # clave es la palabra. EOT_EstadosOrden se construyo asi a proposito.
-        if destino in CLAVE_LEGIBLE:
+        if destino in CLAVE_LEGIBLE and destino not in CLAVE_GENERADA:
             continue
         pk = next((x["nombre"] for x in MODELO[destino]["columnas"] if x.get("pk")), "?")
         error("V-17", f"{ident}: compara {tabla}.{columna} con el literal '{literal}'. "

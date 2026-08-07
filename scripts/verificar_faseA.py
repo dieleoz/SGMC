@@ -18,7 +18,8 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from modelo_objetivo import MODELO, RENOMBRADOS, RETIPADOS, CAMPOS_RETIRADOS
+from modelo_objetivo import (MODELO, RENOMBRADOS, RETIPADOS, CAMPOS_RETIRADOS,
+                             CLAVE_LEGIBLE, CLAVE_GENERADA)
 
 try:
     import openpyxl
@@ -240,6 +241,47 @@ for tabla, columna, destino in CADENA:
     else:
         oks.append("%s.%s resuelve contra %s (%d valores)"
                    % (tabla, columna, destino, len(usados)))
+
+# ------------- F-11 las listas de claves dicen la verdad sobre la hoja
+# CLAVE_LEGIBLE decide cuando V-17 permite comparar un Ref contra un literal.
+# Si la lista y la hoja divergen, V-17 miente en una de las dos direcciones: o
+# bloquea trabajo correcto, o deja pasar el defecto que existe para cazar.
+#
+# La comprobacion es ASIMETRICA a proposito:
+#   - FALLO si una tabla FUERA de CLAVE_LEGIBLE tiene clave de texto legible.
+#     Ese es el caso que bloquea trabajo correcto.
+#   - AVISO si una tabla DENTRO la tiene numerica. Molesta, no rompe.
+#   - CLAVE_GENERADA queda exenta de las dos: sus valores parecen legibles hoy
+#     solo por el fixture de la Fase A, y seran aleatorios en cuanto la
+#     aplicacion cree la primera fila.
+def _clave_es_legible(hoja):
+    ws = wb[hoja]
+    for r in ws.iter_rows(min_row=2, values_only=True):
+        if r and r[0] not in (None, ""):
+            v = r[0]
+            return isinstance(v, str) and not v.replace(".", "").replace("-", "").isdigit()
+    return None                      # tabla vacia: no se puede decidir
+
+
+for tabla in MODELO:
+    if tabla not in wb.sheetnames or tabla in CLAVE_GENERADA:
+        continue
+    legible = _clave_es_legible(tabla)
+    if legible is None:
+        continue
+    if legible and tabla not in CLAVE_LEGIBLE:
+        falla("F-11", "%s tiene clave de texto legible en la hoja y NO esta en CLAVE_LEGIBLE. "
+                      "V-17 bloqueara una comparacion correcta contra ella" % tabla)
+    elif not legible and tabla in CLAVE_LEGIBLE:
+        aviso("F-11", "%s esta en CLAVE_LEGIBLE pero su clave en la hoja es numerica. "
+                      "Sacala, o V-17 dejara pasar un defecto real" % tabla)
+    elif legible:
+        oks.append("%s: clave legible, coherente con CLAVE_LEGIBLE" % tabla)
+
+for tabla in CLAVE_GENERADA:
+    if tabla in wb.sheetnames and tabla in CLAVE_LEGIBLE:
+        falla("F-11", "%s esta en CLAVE_GENERADA y tambien en CLAVE_LEGIBLE. Su clave sera "
+                      "aleatoria en cuanto la app cree una fila: no puede estar en las dos" % tabla)
 
 # ------------------------------------------------------------------- informe
 print("=" * 78)

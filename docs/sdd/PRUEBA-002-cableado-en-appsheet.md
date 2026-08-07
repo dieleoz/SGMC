@@ -187,16 +187,33 @@ Excel*). No es el Excel local histórico, que describe otro modelo:
 - **Acción:** abrir en la vista previa el activo `34` y cualquiera de los otros 33.
 - **Resultado esperado:** el 34 muestra `Activo` en **FALSE**; los demás, en **TRUE**.
 - **Cómo se distingue el fallo:** si el 34 sale `TRUE`, la comparación va contra la clave y no
-  contra `[Nombre]` — el defecto exacto del 2026-08-07. **Y no es inocuo: al ser `App formula`,
-  escribe**, así que estaría reponiendo la bandera sobre un activo dado de baja.
+  contra `[Nombre]` — el defecto exacto del 2026-08-07.
+- **Segunda parte, obligatoria: demostrar que ESCRIBE bien.** Lo anterior prueba que la fórmula
+  *muestra* bien, no que *escriba* bien, y una `App formula` de AppSheet materializa su valor **al
+  guardar la fila**. Que la celda ya valga `FALSE` no prueba nada: la puso a mano el paso 5.1.
+  1. **Guardar** el activo 34 desde la aplicación. Basta con tocar `Observaciones`.
+  2. **Leer `ACT_Activos` de vuelta** en producción con el conector de Drive.
+  3. `Activo` de la fila 34 debe seguir en **`FALSE`**.
+- **Cómo se distingue este fallo:** si al guardar se repone a `TRUE`, la fórmula está deshaciendo la
+  baja en cada escritura. Es exactamente el daño que motivó el tercer bloqueo, y sin este paso la
+  prueba no lo vería.
 
 ### P-17 — La baja exige fecha (RG-17)
 
 - **Precondición:** RG-17 configurada como `Required_If` = `[EstadoActivoID].[Nombre] = "Retirado"`.
-- **Acción:** en la vista previa, poner un activo en estado `Retirado` y dejar `FechaBaja` vacía.
+- **Acción:** **sobre el activo 34, que ya está `Retirado`** — no se cambia el estado de ningún
+  otro—, **vaciar** `FechaBaja` e intentar guardar.
 - **Resultado esperado:** **no deja guardar** hasta rellenar `FechaBaja`.
-- **Cómo se distingue el fallo:** si guarda, la condición nunca se cumple —mismo defecto que P-16—
-  y el histórico no podrá explicar por qué el activo dejó de recibir mantenimiento.
+- **Restitución, en la misma prueba:** devolver `FechaBaja = 2026-08-07`. Es una celda y es la única
+  escritura que P-17 produce.
+- **Cómo se distingue el fallo:** si guarda con la fecha vacía, la condición nunca se cumple —mismo
+  defecto que P-16— y el histórico no podrá explicar por qué el activo dejó de recibir
+  mantenimiento.
+
+> **Por qué sobre el 34 y no sobre otro.** Retirar un activo cualquiera para probar escribiría sobre
+> un dato maestro que no es de prueba, y si la tanda se interrumpe a medias queda un activo retirado
+> por error, con `Activo = FALSE` calculado por RG-16 y su histórico expuesto a RG-18. El 34 ya está
+> dado de baja: solo se toca una fecha, y se restituye.
 
 ---
 
@@ -212,6 +229,13 @@ que **el dato es correcto**, y para eso hace falta el levantamiento de campo.
 
 ### P-15 — Reglas fuera de alcance · **NO SE PRUEBAN EN ESTA FASE**
 
+| Regla | Qué es | Por qué no se prueba |
+|---|---|---|
+| RG-08, RG-12 | Bot programado | No se ejecutan en el plan gratuito. D-B |
+| RG-06, RG-07, RG-10 | Bot por evento | Mismo plan |
+| RG-11 | `App formula` | Usa `[FrecuenciaID].[Dias]`, referencia aplazada a `ESPEC-003` |
+| RG-13 | Verificación de evidencia | Excluida por alcance, no por falta de dato |
+
 La clasificación es la de `ESPEC-002` §7, y **no son todas bots**: RG-11 es una `App formula` que
 depende de una referencia aplazada, y RG-13 una verificación de evidencia excluida por alcance.
 Si esta lista y la de `ESPEC-002` divergen, el ejecutor configura una cosa y el probador mide otra.
@@ -224,7 +248,7 @@ Si esta lista y la de `ESPEC-002` divergen, el ejecutor configura una cosa y el 
 **Deben pasar P-01 a P-13 y P-16 a P-17, las quince.** P-14 y P-15 quedan bloqueadas por decisiones ajenas a esta
 fase.
 
-Tres son innegociables, y conviene decir por qué antes de que alguien proponga cerrar sin ellas:
+**Cuatro** son innegociables, y conviene decir por qué antes de que alguien proponga cerrar sin ellas:
 
 - **P-05**, porque es el defecto raíz. Sin la cadena no hay sistema, solo formularios.
 - **P-09**, porque una validación que nunca ha rechazado nada no está probada. Es la única prueba
@@ -233,4 +257,4 @@ Tres son innegociables, y conviene decir por qué antes de que alguien proponga 
 - **P-16**, porque corregir una regla y no probarla deja el arreglo sin constancia. Es el bucle que
   `ACTA-002` §3 dejó por escrito, y RG-16 **escribe** sobre los datos.
 
-Si alguna de las tres falla, la Fase B **no se cierra**, por muchas de las otras que pasen.
+Si alguna de las **cuatro** falla, la Fase B **no se cierra**, por muchas de las otras que pasen.

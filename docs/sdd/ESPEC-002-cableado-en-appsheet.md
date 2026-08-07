@@ -382,8 +382,8 @@ llegaba a `Activo = FALSE`. **Con RG-16 corregida, el activo 34 pasará a `FALSE
 vista que filtre por `[ActivoID].[Activo] = TRUE` hará desaparecer retroactivamente todos sus
 mantenimientos pasados. Corregir RG-16 es lo que vuelve urgente a RG-18.
 
-Por eso el inventario del punto 3.4 y el bloque 5 incluyen **buscar ese filtro en las vistas que ya
-existen**, y P-13 lo comprueba.
+Por eso los puntos **3.4 y 3.5** del inventario y el bloque 5 incluyen **buscar ese filtro en las
+vistas que ya existen**, y P-13 lo comprueba.
 
 ### Las reglas que NO entran en esta fase, y por qué
 
@@ -416,10 +416,16 @@ Es la misma lista que comprueba `PRUEBA-002` P-13.
 
 ## 9. Criterio de cierre
 
-El de `PRUEBA-002`: **pasan P-01 a P-17**. P-14 y P-15 quedan bloqueadas por D-01 y D-B.
+El de `PRUEBA-002`: **pasan P-01 a P-13 y P-16 a P-17, las quince.** P-14 y P-15 quedan fuera,
+bloqueadas por D-01 y D-B.
 
-Tres son innegociables: **P-05** (la cadena resuelve), **P-09** (el cierre a 8,89 km es rechazado
-con el mensaje escrito) y **P-12** (el dato llegó al Sheets, no solo a la pantalla).
+**Cuatro son innegociables**, y si alguna de las cuatro falla la Fase B no se cierra por muchas de
+las otras que pasen:
+
+- **P-05** — la cadena `[OTID].[ActivoID].[Ubicacion]` resuelve. Es el defecto raíz.
+- **P-09** — el cierre a 8,89 km es rechazado, con el mensaje escrito.
+- **P-12** — el dato llegó al Sheets, no solo a la pantalla.
+- **P-16** — RG-16 calcula y **escribe** bien la baja del activo 34.
 
 ---
 

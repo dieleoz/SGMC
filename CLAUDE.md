@@ -62,13 +62,28 @@ edición. No infieras el nivel de acceso desde esa API.
 
 Este proyecto arrastra un historial de subsanaciones reportadas como cerradas que no lo estaban.
 
-- **No declares nada conforme por reporte. Verifícalo contra el archivo.**
+- **No declares nada conforme por reporte. Verifícalo contra el archivo.** Vale también para los
+  informes de otros agentes, incluidos los que te dan la razón: el arquitecto propuso una lista de
+  catálogos con clave legible que incluía siete tablas **numéricas**. Se detectó volcando la
+  primera columna de las 31 hojas, no leyendo con más atención.
 - Para el Excel, usa `openpyxl` (disponible, 3.1.5) y muestra el dato leído, no un resumen.
 - Distingue siempre **estructura** de **población**: que exista la columna no significa que el
   campo tenga datos, y que la tabla exista no significa que el flujo se haya ejercitado.
   Cuatro tablas del modelo están hoy vacías (`MAN_Mantenimientos`, `FOT_Fotografias`,
   `FIR_Firmas`, `GPS`).
 - Al cerrar un hallazgo, deja constancia de con qué comando y qué salida lo cerraste.
+- **Una regla de validación nueva se prueba reintroduciendo el defecto.** Si no la ves fallar, no
+  sabes si funciona. V-17 se escribió el 2026-08-07 para cazar un defecto real y **su primera
+  versión daba falso positivo** sobre una regla correcta: prohibía la clase entera en vez de
+  discriminar, y habría detenido el pipeline. Se corrigió y se probó con siete casos, cinco que
+  deben fallar y dos que deben pasar.
+- **Una lista escrita a mano se contrasta contra el archivo, automáticamente.** No basta con
+  derivarla bien una vez: alguien la editará después. `CLAVE_LEGIBLE` y `CLAVE_GENERADA` las
+  comprueba F-11 contra la hoja, y de forma **asimétrica**: falla si una tabla fuera de la lista
+  tiene clave legible —eso bloquea trabajo correcto— y solo avisa en el caso contrario.
+- **Corregir una regla sin añadir su prueba deja el arreglo sin constancia.** RG-16 y RG-17 se
+  corrigieron y no tenían ni una prueba de aceptación; son P-16 y P-17 porque alguien lo señaló, no
+  porque el arreglo lo llevara puesto.
 - **Quien aplica un cambio no modifica la comprobación que lo mide.** Ocurrió el 2026-08-07: el
   agente que aplicó `ESPEC-001C` editó `verificar_faseA.py` y después anunció que pasaba. Tenía
   razón en el fondo —la regla F-05 había quedado obsoleta— pero el bucle está mal aunque la
@@ -170,6 +185,35 @@ ninguna. **Un catálogo se diseña mirando los datos que va a tener que resolver
 **R-9. La cadena se prueba en el Asistente de Expresiones, no en la aplicación.** Escribir
 `[OTID].[ActivoID].[Ubicacion]` sobre `MAN_Mantenimientos` y ver que resuelve es la prueba de que
 la referencia quedó. Es más rápido y más seguro que ejercitar la app.
+
+**R-10. Un `Ref` guarda la clave, no el nombre — pero no toda comparación contra un literal está
+mal.** `[EstadoActivoID] <> "Retirado"` es siempre cierto, porque `EST_Activo` tiene la clave `1..4`
+y el texto vive en `Nombre`. Se escribe `[EstadoActivoID].[Nombre]`. **En cambio
+`[EstadoOrdenID] = "Cerrada"` es correcto**, porque `EOT_EstadosOrden` tiene la palabra como clave,
+por diseño (R-8). La distinción está en `CLAVE_LEGIBLE` de `scripts/modelo_objetivo.py`: las 15
+tablas cuya clave es texto legible, **derivadas del archivo y no de una impresión**. La regla V-17
+lo comprueba.
+
+Y lo peligroso no es que la expresión falle: **no falla**. Devuelve siempre lo mismo. Si además es
+una `App formula`, **escribe** ese resultado constante sobre los datos.
+
+**R-10b. Una lista derivada del dato puede ser cierta contra el fixture y falsa contra el diseño.**
+`CLAVE_LEGIBLE` se derivó volcando la clave de las 31 hojas, que es lo correcto — y aun así nació
+mal: seis de sus quince entradas eran «legibles» solo porque la Fase A escribió a mano
+`TEST-MTTO-001`, y esas seis reciben `UNIQUEID()`, de modo que serán cadenas aleatorias desde la
+primera fila que cree la aplicación. **Derivar del dato no basta: hay que preguntar si ese dato es
+el definitivo.** De ahí `CLAVE_GENERADA`, y la regla F-11 de `verificar_faseA.py`, que contrasta las
+dos listas contra la hoja de forma asimétrica.
+
+**R-11. Aplazar una referencia arrastra la regla que la usa.** Al posponer
+`PLA_PlanMantenimiento.FrecuenciaID` quedó RG-11 —una `App formula` que usa `[FrecuenciaID].[Dias]`—
+configurada contra una columna todavía de texto: `ProximaFecha` habría quedado en blanco sin decir
+por qué. Antes de aplazar una referencia, busca qué reglas la desreferencian.
+
+**R-12. Arreglar una regla puede despertar un peligro dormido.** Mientras RG-16 estuvo mal escrita
+era siempre cierta, así que ningún activo llegaba nunca a `Activo = FALSE` y RG-18 no tenía a qué
+morder. Corregirla activó el escenario. **Cuando arregles una condición que nunca se cumplía,
+pregunta qué dependía de que no se cumpliera.**
 
 ### Expresiones vigentes
 

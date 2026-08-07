@@ -94,7 +94,8 @@ Las reglas que te van a frenar:
 | V-14 | El renombrado aterriza en una columna que existe. Avisa si reutiliza el nombre viejo |
 | V-15 | Toda referencia declara de dónde sale: renombrado, retipado o columna nueva |
 | V-16 | Lo retipado coincide en tipo y destino con lo que declara el modelo |
-| V-17 | Ninguna expresión compara una columna `Ref` contra un literal de texto, **salvo que el destino esté en `CLAVE_LEGIBLE`** |
+| V-17 | Ninguna expresión compara una columna `Ref` contra un literal de texto, **salvo que el destino esté en `CLAVE_LEGIBLE`**. Cubre `=`, `<>`, orden invertido, comillas simples, `IN`, `LIST`, `CONTAINS` y `SWITCH` |
+| F-11 | `CLAVE_LEGIBLE` y `CLAVE_GENERADA` siguen siendo ciertas contra la hoja (en `verificar_faseA.py`) |
 
 **V-11 es la que habría ahorrado meses.** Comprueba lo que AppSheet comprueba, sin abrir AppSheet.
 
@@ -139,12 +140,28 @@ catálogo tiene la clave legible, la palabra **es** la clave: `[EstadoOrdenID] =
 correcto, porque `ESPEC-001B` construyó `EOT_EstadosOrden` así a propósito siguiendo R-8. La primera
 versión de V-17 prohibía la clase entera y daba falso positivo sobre esa regla, contradiciendo la
 doctrina del propio proyecto. Por eso existe `CLAVE_LEGIBLE` en `modelo_objetivo.py`, **derivada del
-dato y no de una impresión**: lista las 15 tablas cuya clave es texto legible. Si una tabla cambia
-de clave numérica a legible, se actualiza ahí.
+dato y no de una impresión**. Y hay una segunda vuelta que costó otra ronda: **derivar del dato no
+basta si el dato es temporal.** Seis tablas parecían de clave legible porque la Fase A escribió a
+mano `TEST-MTTO-001`, pero reciben `UNIQUEID()` y serán cadenas aleatorias en cuanto la aplicación
+cree una fila. Están aparte, en `CLAVE_GENERADA`, exentas de la comprobación en los dos sentidos.
+
+`CLAVE_LEGIBLE` queda en nueve tablas. La regla **F-11** de `verificar_faseA.py` contrasta ambas
+listas contra la hoja, porque una lista escrita a mano envejece: **falla** si una tabla fuera de la
+lista tiene clave legible —eso bloquearía trabajo correcto— y **avisa** en el caso contrario.
 
 **El texto como clave ajena.** `CHD_ChecklistDetalle` referenciaba la pregunta por su **enunciado**.
 Corregir una tilde rompía la agrupación histórica. Si ves una columna que guarda texto legible y
 hace de clave, es un defecto, no una comodidad.
+
+**Aplazar una referencia arrastra la regla que la usa.** Si pospones cablear
+`PLA_PlanMantenimiento.FrecuenciaID`, RG-11 —que usa `[FrecuenciaID].[Dias]`— queda configurada
+contra una columna de texto y deja `ProximaFecha` en blanco sin decir por qué. Antes de aplazar,
+busca qué reglas desreferencian esa columna.
+
+**Arreglar una regla puede despertar un peligro dormido.** RG-16 mal escrita era siempre cierta, así
+que ningún activo llegaba a `Activo = FALSE` y RG-18 no tenía a qué morder. Corregirla activó el
+escenario. Cuando arregles una condición que nunca se cumplía, pregunta qué dependía de que no se
+cumpliera.
 
 **Renombrar la clave rompe las vistas.** Antes de renombrar, busca el nombre viejo en el editor de
 AppSheet y anota dónde aparece. Después de *Regenerate Structure*, corrige cada aparición.
