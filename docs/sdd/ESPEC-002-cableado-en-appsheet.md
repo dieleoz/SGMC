@@ -47,8 +47,21 @@ De ahí las tres reglas de orden, y por eso los pasos van en el orden en que van
 
 1. **Respaldo del Sheets:** ya existe, `SGMC_backup_2026-08-07_antes_cableado_FaseA`. Si han pasado
    días, haz otro.
-2. **Versión de la aplicación:** *Manage → Versions → Save a version*, con la nota
-   `antes de cablear referencias`.
+2. **Versión de la aplicación: no hay que guardar nada.** AppSheet crea una versión sola cada vez
+   que cambia la definición; *Manage → Versions → Version History* es historial y restauración, no
+   respaldo manual. Lo que sí hay que hacer es **anotar el número de versión actual**, porque es el
+   punto al que se vuelve.
+
+   Punto de restauración de la Fase B: **`1.000238`**, del 2026-08-07T15:12:25 UTC. La creó el
+   propio AppSheet con origen *Editor refresh / Automatic consistency check*: detectó por su cuenta
+   que la hoja había cambiado bajo sus pies durante la Fase A. La anterior de una persona es
+   `1.000237`, del 2026-08-06T23:44 UTC.
+
+   **Restaurar la definición no deshace la Fase A.** Los renombrados están en el Sheets, no en la
+   app. Volver a `1.000237` daría una definición que busca `Numero_OT` en una hoja donde ya no
+   existe. La reversión completa exigiría restaurar también
+   `SGMC_backup_2026-08-07_antes_cableado_FaseA`, y eso tira toda la Fase A. El camino hacia
+   adelante es el único razonable: la app se arregla completando esta fase, no retrocediendo.
 3. **Avisar a quien pueda editar** durante la ventana: el propietario del documento y la cuenta del
    cliente. La reversión solo es limpia si nadie más escribe.
 4. **Buscar `Numero_OT` en el editor** y anotar cada vista, fórmula o acción que lo cite. Esa
