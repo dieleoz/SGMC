@@ -138,7 +138,7 @@ erDiagram
 `Longitud` separadas. La expresión válida contra este modelo es:
 
 ```
-DISTANCE([Coordenadas_Cierre], [ActivoID].[Ubicacion]) <= 1.0
+DISTANCE([Coordenadas_Cierre], [OTID].[Activo].[Ubicacion]) <= 1.0
 ```
 
 ## 6. Estado real (verificado)
@@ -213,7 +213,8 @@ archivo/       Material de origen, no versionado
 
 | Documento | Para qué sirve |
 |---|---|
-| [ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md) | Alcance del sistema completo y los 14 supuestos adoptados. Frente activo |
+| [ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) | **Frente activo.** Modelo objetivo: 25 tablas, 173 columnas, 33 referencias, 10 reglas. Generado desde `scripts/modelo_objetivo.py` y validado automáticamente |
+| [ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md) | Alcance del sistema completo y los 14 supuestos adoptados |
 | [prompts/PROMPT_CONSTRUCCION_SGMC.md](docs/prompts/PROMPT_CONSTRUCCION_SGMC.md) | Directiva de construcción en 7 pasos con criterios de aceptación |
 | [DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md) | Flujos funcionales por actor y las 14 decisiones, ya enviadas al funcional |
 | [AUDITORIA_PLAN_Y_ROADMAP.md](docs/AUDITORIA_PLAN_Y_ROADMAP.md) | Dictamen vigente: hallazgos, evidencia y Fase 0 corregida |

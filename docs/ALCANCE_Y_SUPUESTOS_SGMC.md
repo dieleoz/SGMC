@@ -69,6 +69,24 @@ como decisión de trabajo. La columna de validación dice cómo se comprobará e
 evidencia después de cargar datos obliga a migrar; y D-13, porque si las cifras van a interventoría
 la definición debe estar acordada antes de emitir el primer informe.
 
+### 3.1 D-09 diverge de lo que se envió al funcional
+
+El documento que ya salió proponía **arrancar con tres tipos** y advertía, con estas palabras, que
+*intentar construir los 18 a la vez es lo que hará que el proyecto se estanque otro mes*.
+
+Aquí se adopta lo contrario: **se construyen los 18**. La divergencia es deliberada y el motivo es
+que cambió la premisa. Aquella advertencia suponía que los bancos los redactaba el equipo de la
+Concesión, y en ese escenario era cierta. Con el método nuevo los redacta el agente a partir del
+patrón existente, y el líder técnico corrige sobre texto concreto. Redactar es lo caro; corregir
+es barato.
+
+El riesgo que permanece es distinto y hay que nombrarlo: **250 preguntas escritas por quien no
+hace el mantenimiento**. Saldrán razonables por venir del patrón de los tres existentes, pero no
+son la práctica real del equipo. Deben presentarse como borrador técnico, nunca como definitivas,
+y la revisión del líder técnico es obligatoria antes del piloto.
+
+Si al revisar aparece que la mayoría no sirve, se vuelve a la propuesta original de tres tipos.
+
 ---
 
 ## 4. Fuera de alcance

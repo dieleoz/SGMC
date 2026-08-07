@@ -1,5 +1,8 @@
 # 🤖 PROMPT Y DIRECTIVA DE INSTRUCCIÓN PARA EL AGENTE DE AUDITORÍA Y SUBSANACIÓN
 
+> **DOCUMENTO SUPERADO — 6 de agosto de 2026.** Su Paso 2 ordena configurar sobre un modelo cuyas referencias no están cableadas.
+> Vigentes: [ALCANCE_Y_SUPUESTOS_SGMC.md](../ALCANCE_Y_SUPUESTOS_SGMC.md) y [PROMPT_CONSTRUCCION_SGMC.md](PROMPT_CONSTRUCCION_SGMC.md).
+
 **Copie y pegue el siguiente bloque de texto en la consola de cualquier Agente IA para ejecutar el plan corregido:**
 
 ```text
@@ -21,7 +24,7 @@ PASO 1: AUDITORÍA PREVIA Y CONFIRMACIÓN DE LA BD MAESTRA (SIN EDITAR NADA INIC
 
 PASO 2: CONFIGURACIÓN EN APPSHEET
 1. En el editor de AppSheet, configura la regla Valid_If de Geofencing GPS sobre 'MAN_Mantenimientos[Coordenadas_Cierre]':
-   DISTANCE([Coordenadas_Cierre], [ActivoID].[Ubicacion]) <= 1.0
+   DISTANCE([Coordenadas_Cierre], [OTID].[Activo].[Ubicacion]) <= 1.0
 2. Establece el texto de error en español sin símbolos decorativos:
    "Ubicación fuera de rango: debe estar a menos de 1.0 km del activo."
 3. Marca IsPartOf = TRUE en las tablas de evidencias FOT_Fotografias y FIR_Firmas.

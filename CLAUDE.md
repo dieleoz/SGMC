@@ -173,6 +173,21 @@ semanas.
 
 La directiva de ejecución es `docs/prompts/PROMPT_CONSTRUCCION_SGMC.md`.
 
+## El modelo objetivo se edita en un solo sitio
+
+La arquitectura correcta está codificada como datos en `scripts/modelo_objetivo.py`. De ahí salen
+la validación y la documentación. **No edites `docs/ARQUITECTURA_OBJETIVO_SGMC.md` a mano:** se
+regenera. Flujo obligatorio ante cualquier cambio de diseño:
+
+```
+1. editar  scripts/modelo_objetivo.py
+2. correr  python scripts/validar_modelo.py        -> debe dar 0 errores
+3. correr  python scripts/generar_doc_arquitectura.py
+```
+
+Esto existe porque el proyecto ya sufrió lo contrario: `bd.md` y el Excel describían modelos
+distintos y nadie lo detectó durante meses.
+
 ## Economía de interfaz
 
 Manejar el editor de AppSheet clic a clic consume muchos tokens y es frágil: los desplegables no

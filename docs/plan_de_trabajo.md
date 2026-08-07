@@ -1,5 +1,8 @@
 # 📅 PLAN DE TRABAJO Y HOJA DE RUTA OPERATIVA (SGMC)
 
+> **DOCUMENTO SUPERADO — 6 de agosto de 2026.** Su Fase 0 cubre 2 de los bloqueantes reales y presupone decisiones que no estaban tomadas.
+> Vigentes: [ALCANCE_Y_SUPUESTOS_SGMC.md](ALCANCE_Y_SUPUESTOS_SGMC.md) y [PROMPT_CONSTRUCCION_SGMC.md](prompts/PROMPT_CONSTRUCCION_SGMC.md).
+
 **Proyecto:** Sistema de Gestión de Mantenimiento en Campo (SGMC)  
 **Cliente:** Concesión Transversal del Sisga S.A.S.  
 **Plataforma Cloud:** Google AppSheet + Google Sheets Backend (Producción)  
@@ -15,7 +18,7 @@
 > **[!IMPORTANT] PROTOCOLO DE AUDITORÍA PREVIA Y CONSOLIDACIÓN DE BACKEND:**  
 > 1. **Única Fuente de Verdad:** La única base de datos oficial del sistema es el archivo de 24 hojas `BD/Modelo de Datos (2).xlsx` (replicado en Google Sheets). Se desconecta cualquier referencia a archivos viejos de 18 hojas.  
 > 2. **Paso 1 Obligatorio (Sin editar nada):** El agente inspeccionará la BD de producción y verificará que las columnas `Coordenadas_Cierre` y `Precision_GPS` ya existen en `MAN_Mantenimientos`, y emite su dictamen.  
-> 3. **Paso 2 (Ajustes de Fase 0):** Desduplicación de la columna `Observaciones` en `MAN_Mantenimientos` y configuración de la regla de Geofencing `DISTANCE([Coordenadas_Cierre], [ActivoID].[Ubicacion]) <= 1.0`.
+> 3. **Paso 2 (Ajustes de Fase 0):** Desduplicación de la columna `Observaciones` en `MAN_Mantenimientos` y configuración de la regla de Geofencing. **Documento superado:** ver `ALCANCE_Y_SUPUESTOS_SGMC.md` y `prompts/PROMPT_CONSTRUCCION_SGMC.md`.
 
 ---
 
@@ -45,7 +48,7 @@ gantt
 - [ ] **Tarea AUDIT-01:** Inspeccionar el archivo `BD/Modelo de Datos (2).xlsx` (24 Hojas) y confirmar que la hoja `MAN_Mantenimientos` contiene físicamente `Coordenadas_Cierre` y `Precision_GPS`.
 - [ ] **Tarea T-00.1 [DESDUPLICACIÓN]:** Verificar que la columna `Observaciones` en `MAN_Mantenimientos` no se encuentre duplicada (24 columnas únicas).
 - [ ] **Tarea T-00.2 [GEOFENCING GPS]:** Configurar en AppSheet la fórmula de Geofencing evaluando la columna `Ubicacion` de `ACT_Activos`:  
-  `DISTANCE([Coordenadas_Cierre], [ActivoID].[Ubicacion]) <= 1.0`
+  `DISTANCE([Coordenadas_Cierre], [OTID].[Activo].[Ubicacion]) <= 1.0`
 - [ ] **Tarea T-00.3 [TEXTO DE ERROR]:** Establecer en AppSheet el mensaje de error de Geofencing en texto plano sin emojis:  
   `"Ubicación fuera de rango: debe estar a menos de 1.0 km del activo."`
 - [ ] **Tarea T-00.4 [LLAVE OT]:** Confirmar en AppSheet que la llave primaria de `OT_OrdenesTrabajo` sea `Numero_OT` para que las referencias `Ref` de `MAN_Mantenimientos` y `CHK_Checklists` mapeen correctamente.

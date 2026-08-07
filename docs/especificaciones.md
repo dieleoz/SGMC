@@ -24,7 +24,7 @@
 | **RF-009** | Formularios de CCTV y PMVF | Inspección de cámaras de tráfico, Domos, Paneles de Mensaje Variable. | 🟢 Conforme |
 | **RF-010** | Evidencias Fotográficas | Registro de hasta 6 fotografías comprimidas a 600px en `FOT_Fotografias` (`IsPartOf`). | 🟢 Conforme |
 | **RF-011** | Captura de Precisión GPS | Registro automático de `Precision_GPS` en metros mediante `USERLOCATIONACCURACY()`. | 🟢 Conforme |
-| **RF-012** | Geofencing GPS de Cierre | Validación de cercanía al activo (`DISTANCE([Coordenadas_Cierre], [ActivoID].[Ubicacion]) <= 1.0`). | 🟢 Conforme |
+| **RF-012** | Geofencing GPS de Cierre | Validación de cercanía al activo. La expresión candidata es `DISTANCE([Coordenadas_Cierre], [OTID].[Activo].[Ubicacion]) <= 1.0`, pendiente de cablear las referencias. | No conforme |
 | **RF-013** | Firma Manuscrita Digital | Captura táctil de firma del técnico en `FIR_Firmas` (`IsPartOf`). | 🟢 Conforme |
 | **RF-014** | Portal Web para CCO | Interfaz para el CCO y supervisores en navegador web. | 🟢 Conforme |
 | **RF-015** | Tablero de Indicadores KPI | Monitoreo en tiempo real de porcentaje de cumplimiento y disponibilidad. | 🟢 Conforme |
@@ -38,7 +38,7 @@
 * **Campo Target:** `MAN_Mantenimientos[Coordenadas_Cierre]`
 * **Fórmula Valid_If:**
   ```excel
-  DISTANCE([Coordenadas_Cierre], [ActivoID].[Ubicacion]) <= 1.0
+  DISTANCE([Coordenadas_Cierre], [OTID].[Activo].[Ubicacion]) <= 1.0
   ```
 * **Texto de Error Personalizado (Invalid Text):**
   ```text

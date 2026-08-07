@@ -12,7 +12,8 @@
 | Si necesitas | Abre |
 |---|---|
 | Entender qué es el proyecto | [README.md](README.md) |
-| Saber qué se va a construir y con qué supuestos | [docs/ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md) |
+| Ver la arquitectura correcta que se va a construir | [docs/ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) |
+| Saber con qué supuestos se construye | [docs/ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md) |
 | Ejecutar la construcción | [docs/prompts/PROMPT_CONSTRUCCION_SGMC.md](docs/prompts/PROMPT_CONSTRUCCION_SGMC.md) |
 | Saber el estado real y qué está bloqueado | [docs/AUDITORIA_PLAN_Y_ROADMAP.md](docs/AUDITORIA_PLAN_Y_ROADMAP.md) |
 | Enviar la definición funcional al cliente | [entregables/CORREO_ENVIO_MESA_DE_TRABAJO.md](entregables/CORREO_ENVIO_MESA_DE_TRABAJO.md) y el .docx adjunto |
@@ -33,6 +34,7 @@ D:\@Proyect\Sisga\
 │   └── Modelo de Datos (2).xlsx  24 hojas. Único archivo que se edita
 │
 ├── docs/                         Documentación técnica y funcional
+│   ├── ARQUITECTURA_OBJETIVO_SGMC.md
 │   ├── ALCANCE_Y_SUPUESTOS_SGMC.md
 │   ├── DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md
 │   ├── AUDITORIA_PLAN_Y_ROADMAP.md
@@ -66,7 +68,10 @@ D:\@Proyect\Sisga\
 ├── scripts/                      Generadores
 │   ├── _helpers_docx.py
 │   ├── generate_figuras.py
+│   ├── generar_doc_arquitectura.py
 │   ├── generate_especificaciones_docx.py
+│   ├── modelo_objetivo.py
+│   ├── validar_modelo.py
 │   ├── generate_mesa_trabajo_docx.py
 │   └── generate_user_manual_docx.py
 │
@@ -82,7 +87,8 @@ D:\@Proyect\Sisga\
 
 | Documento | Contenido | Vigencia |
 |---|---|---|
-| [docs/ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md) | Alcance del sistema completo y los 14 supuestos adoptados | **Vigente. Es el frente activo** |
+| [docs/ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) | Modelo objetivo: 25 tablas, 173 columnas, 33 referencias, 10 reglas. Generado y validado | **Vigente. Es el frente activo** |
+| [docs/ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md) | Alcance del sistema completo y los 14 supuestos adoptados | Vigente |
 | [docs/prompts/PROMPT_CONSTRUCCION_SGMC.md](docs/prompts/PROMPT_CONSTRUCCION_SGMC.md) | Directiva de construcción en 7 pasos con criterios de aceptación | Vigente |
 | [docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md) | 6 casos de uso estilo ISTQB y 14 decisiones | Enviado. Sus propuestas son ahora los supuestos adoptados |
 | [docs/AUDITORIA_PLAN_Y_ROADMAP.md](docs/AUDITORIA_PLAN_Y_ROADMAP.md) | Dictamen del 6 de agosto: 8 bloqueantes con evidencia y Fase 0 corregida | Vigente |

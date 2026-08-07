@@ -153,7 +153,7 @@ pregunta, y cualquier cambio de redacción rompe la comparabilidad histórica.
 
 - La metodología Audit-First y la directiva de no editar antes de diagnosticar.
 - La declaración del archivo de 24 hojas como fuente única.
-- La fórmula de geofencing sobre `[ActivoID].[Ubicacion]`, correcta contra este modelo.
+- La fórmula de geofencing sobre `[ActivoID].[Ubicacion]`, que entonces se creyó correcta. La sección 10 demuestra que no lo es: esa columna no existe en `MAN_Mantenimientos`.
 - El mensaje de error en texto plano sin iconos.
 
 ### No conformidades

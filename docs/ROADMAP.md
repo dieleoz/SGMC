@@ -141,7 +141,7 @@ ve, y todo lo demás falla en silencio.
 
 ```
 Initial value:  HERE()
-Valid_If:       DISTANCE([Coordenadas_Cierre], [ActivoID].[Ubicacion]) <= 1.0
+Valid_If:       DISTANCE([Coordenadas_Cierre], [OTID].[Activo].[Ubicacion]) <= 1.0
 Invalid text:   Ubicación fuera de rango: debe estar a menos de 1.0 km del activo.
 ```
 
@@ -182,7 +182,7 @@ priorizados resuelven su formulario; y un usuario de prueba ve activos al aplica
 
 Solo después de las decisiones de arquitectura A-1 a A-5 del dictamen de auditoría.
 
-- [ ] Regla de geofencing `DISTANCE([Coordenadas_Cierre], [ActivoID].[Ubicacion]) <= 1.0` con el
+- [ ] Regla de geofencing `DISTANCE([Coordenadas_Cierre], [OTID].[Activo].[Ubicacion]) <= 1.0` con el
       radio decidido en D-02, y mensaje de error en texto plano
 - [ ] Manejo de excepción por precisión GPS insuficiente, según D-04
 - [ ] Security Filter por sede, verificado con una cuenta real de técnico
