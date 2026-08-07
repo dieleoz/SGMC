@@ -111,13 +111,14 @@ if "CHK_Checklists" in wb.sheetnames:
     ws = wb["CHK_Checklists"]
     ids = [str(r[0]).strip() for r in ws.iter_rows(min_row=2, values_only=True)
            if r and r[0] not in (None, "")]
-    for basura in ("CHK001", "0356e6d7"):
+    # d02d8a3d se retira de la lista de conservadas y pasa a la de borradas: ESPEC-001C
+    # ordeno eliminarla porque su MantenimientoID guardaba 'OT-0001', que es una ORDEN.
+    # No basta con dejar de exigir que exista; hay que exigir que NO exista.
+    for basura in ("CHK001", "0356e6d7", "d02d8a3d"):
         if basura in ids:
             falla("F-05", "CHK_Checklists: '%s' sigue ahi. Debia borrarse" % basura)
-    if "d02d8a3d" not in ids:
-        falla("F-05", "CHK_Checklists: se perdio d02d8a3d, que debia CONSERVARSE")
-    else:
-        oks.append("CHK_Checklists: d02d8a3d conservada, basura borrada")
+    if not any(b in ids for b in ("CHK001", "0356e6d7", "d02d8a3d")):
+        oks.append("CHK_Checklists: las tres filas de ensayo estan borradas")
 
 # ---------------------------------------------- F-06 catalogos nuevos poblados
 POBLACION_MINIMA = {

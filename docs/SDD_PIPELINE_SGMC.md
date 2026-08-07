@@ -150,9 +150,8 @@ en `scripts/modelo_objetivo.py`.**
 
 | Frente | Estado |
 |---|---|
-| Fase A, tandas 1 y 2 | **CERRADAS y verificadas** el 7 de agosto. Acta en `ACTA-001` |
-| Fase A, tanda 3 (`ESPEC-001C`) | **Frente activo.** Baja de activos, dos huérfanos por corregir y poblado completo de prueba. Prompt listo en `docs/prompts/` |
-| Fase B (navegador) | `ESPEC-002` escrita. Arranca cuando `ESPEC-001C` cierre |
+| Fase A, las tres tandas | **CERRADA, verificada y poblada** el 7 de agosto. 42 conformes, 0 fallos. Actas `ACTA-001` y `ACTA-002` |
+| Fase B (navegador) | **Frente activo.** `ESPEC-002`, cableado en AppSheet |
 | Coordenadas reales (D-01) | Bloqueado por levantamiento en campo |
 | Código QR | **Fuera de alcance por decisión del 2026-08-07.** Ver sección 8 |
 

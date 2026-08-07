@@ -8,7 +8,7 @@ y al terminar hay referencias reales, geofencing y navegación entre tablas.
 | Dónde se aplica | Editor de AppSheet, aplicación `SGMC-886843353` |
 | Quién | Agente de navegador, o una persona. No hay API en el plan actual |
 | Precede | `ESPEC-001` y **`ESPEC-001B`**, ambas cerradas |
-| Estado | **Pendiente de `ESPEC-001C`.** Ver sección 1 |
+| Estado | **ABIERTA.** Fase A cerrada y verificada, `ACTA-002` |
 
 ---
 

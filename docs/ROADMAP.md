@@ -133,7 +133,9 @@ Mientras esto no se resuelva, cualquier trabajo de configuración se hace sobre 
 - [ ] **Completar las 4 tablas nuevas que quedaron como cascara** y las columnas que faltan, en
       particular `FOT_Fotografias.Ubicacion`, `PrecisionGPS` y `FechaHora`, que son la cadena de
       evidencia
-- [ ] **`ESPEC-001C`: baja de activos y poblado completo de prueba.** Frente activo. Añade
+- [x] **`ESPEC-001C` aplicada y verificada el 7 de agosto.** `FASE A CERRADA`, 42 conformes, 0
+      fallos, sobre `BD/Modelo de Datos (7).xlsx`. Acta en `ACTA-002`
+- [ ] ~~`ESPEC-001C`: baja de activos y poblado completo de prueba~~ Añade
       `FechaBaja` y `MotivoBaja`, corrige dos huérfanos que quedaron —`CHK.MantenimientoID` guarda
       `OT-0001`, que es una orden, y `LST_ValoresLista.PreguntaID` guarda el texto de la pregunta—
       y puebla el ciclo completo con filas `TEST-`, una de ellas a 9 km para que el geofencing

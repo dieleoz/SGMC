@@ -232,9 +232,10 @@ archivo/       Material de origen, no versionado
 | [scripts/faseA_sheets.gs](scripts/faseA_sheets.gs) | La Fase A como Apps Script. La cuenta de Google bloqueó su ejecución |
 | [sdd/ESPEC-001B-cierre-de-la-fase-a.md](docs/sdd/ESPEC-001B-cierre-de-la-fase-a.md) | Los 23 fallos que faltaban para cerrar la Fase A. Aplicados |
 | [sdd/ACTA-001-cierre-de-la-fase-a.md](docs/sdd/ACTA-001-cierre-de-la-fase-a.md) | Acta de cierre de la Fase A, con la verificación y las lecciones de método |
-| [sdd/ESPEC-001C-baja-de-activos-y-datos-de-prueba.md](docs/sdd/ESPEC-001C-baja-de-activos-y-datos-de-prueba.md) | **Frente activo.** Baja de activos, los dos huérfanos que quedan y el poblado completo de prueba |
+| [sdd/ESPEC-001C-baja-de-activos-y-datos-de-prueba.md](docs/sdd/ESPEC-001C-baja-de-activos-y-datos-de-prueba.md) | Baja de activos, huérfanos y poblado de prueba. Aplicado y verificado |
+| [sdd/ACTA-002-cierre-definitivo-de-la-fase-a.md](docs/sdd/ACTA-002-cierre-definitivo-de-la-fase-a.md) | Cierre definitivo de la Fase A, con la integridad referencial comprobada relación por relación |
 | [prompts/PROMPT_AGENTE_HOJA_ESPEC_001C.md](docs/prompts/PROMPT_AGENTE_HOJA_ESPEC_001C.md) | Prompt autocontenido para el agente que aplica los cambios sobre la hoja |
-| [sdd/ESPEC-002-cableado-en-appsheet.md](docs/sdd/ESPEC-002-cableado-en-appsheet.md) | Fase B: el cableado en AppSheet, paso a paso. Arranca cuando cierre `ESPEC-001C` |
+| [sdd/ESPEC-002-cableado-en-appsheet.md](docs/sdd/ESPEC-002-cableado-en-appsheet.md) | **Frente activo.** Fase B: el cableado en AppSheet, paso a paso |
 | [scripts/verificar_faseA.py](scripts/verificar_faseA.py) | Verifica un `.xlsx` exportado contra el modelo objetivo, encabezado por encabezado. No cierra nada por reporte |
 | [ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md) | Alcance del sistema completo y los 14 supuestos adoptados |
 | [prompts/PROMPT_CONSTRUCCION_SGMC.md](docs/prompts/PROMPT_CONSTRUCCION_SGMC.md) | Directiva de construcción en 7 pasos con criterios de aceptación |

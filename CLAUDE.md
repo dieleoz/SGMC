@@ -69,6 +69,13 @@ Este proyecto arrastra un historial de subsanaciones reportadas como cerradas qu
   Cuatro tablas del modelo están hoy vacías (`MAN_Mantenimientos`, `FOT_Fotografias`,
   `FIR_Firmas`, `GPS`).
 - Al cerrar un hallazgo, deja constancia de con qué comando y qué salida lo cerraste.
+- **Quien aplica un cambio no modifica la comprobación que lo mide.** Ocurrió el 2026-08-07: el
+  agente que aplicó `ESPEC-001C` editó `verificar_faseA.py` y después anunció que pasaba. Tenía
+  razón en el fondo —la regla F-05 había quedado obsoleta— pero el bucle está mal aunque la
+  conclusión sea buena: la prueba solo vale mientras sea independiente de quien la aprueba. Un
+  cambio en `verificar_faseA.py` o `validar_modelo.py` propuesto por quien está siendo verificado
+  se revisa antes de aceptarlo, y **se prefiere endurecer la comprobación a retirarla**. Si una
+  fila debía borrarse, no basta con dejar de exigir que exista: hay que exigir que no exista.
 
 ## 4. Convenciones de entregables
 
@@ -211,7 +218,8 @@ La Fase 0 **no está cerrada**. `docs/ROADMAP.md` ya fue corregido; `docs/DICTAM
 2. `MAN_Mantenimientos` ya tiene `Coordenadas_Cierre` (LatLong) y `Precision_GPS` (Number),
    agregadas al Sheets y reconocidas por la aplicación el 2026-08-06. **Falta la regla de
    validación**, que no pudo escribirse porque no hay ruta de referencia al activo. Ver sección 6.
-2b. Las referencias del modelo siguen sin existir en la aplicación: `OTID` es `Text`, no `Ref`. Sin
+2b. Fase A **cerrada, verificada y con la hoja poblada** el 7 de agosto de 2026 (`ACTA-002`).
+   Las referencias del modelo siguen sin existir en la aplicación: `OTID` es `Text`, no `Ref`. Sin
    eso no hay geofencing, ni navegación padre-hijo, ni reportes por activo. `MAN_Mantenimientos`
    tiene 0 filas, de modo que la conversión no arrastra datos: es el momento más barato en que se
    podrá hacer. **La Fase A —toda la preparación de la hoja— está cerrada y verificada** desde el
