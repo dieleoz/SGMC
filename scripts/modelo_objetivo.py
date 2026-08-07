@@ -249,8 +249,9 @@ MODELO = {
                      "comprobar que llego y se quedo, no que paso cerca"),
             col("FechaHoraEscaneo", "DateTime",
                 nota="Con FechaHoraFin da la duracion real de la intervencion"),
-            col("EstadoActivoID", "Ref", ref="EST_Activo", obligatoria=True,
-                nota="Estado en que queda el activo tras la intervencion"),
+            col("EstadoActivoID", "Ref", ref="EST_Activo", obligatoria=True, nueva=True,
+                nota="Estado en que queda el activo tras la intervencion. No existe en produccion: "
+                     "se crea. El Excel local tiene 'Estado Final', que produccion no tiene"),
             col("Coordenadas_Cierre", "LatLong", obligatoria=True, valor_inicial="HERE()",
                 valid_if="DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]",
                 mensaje_error="Ubicacion fuera de rango: debe estar junto al activo para cerrar."),
@@ -502,9 +503,32 @@ CAMPOS_RETIRADOS = {
         "TecnicoID": ("Se alcanza por [MantenimientoID].[TecnicoID]. Es el campo donde el dato "
                       "de prueba dejo 'Santiago Moreno' en lugar de un identificador."),
         "Observaciones": "La observacion es de la ejecucion o de la respuesta, no del encabezado.",
+        "FechaCreacion": "Redundante con FechaInicio.",
+        "Estado": "Sustituido por Finalizado, que produccion ya tiene.",
+        "GPSInicio": "La coordenada es del mantenimiento y de cada fotografia, no del checklist.",
+        "GPSFin": "Idem.",
+        "FirmaTecnico": "Sustituido por FIR_Firmas.",
+        "FirmaSupervisor": "El supervisor aprueba en el portal, no firma. Supuesto D-10.",
+        "PDF": "El informe se genera al enviarlo, no se almacena en la fila.",
+        "FechaEnvioCorreo": "Es traza del bot, no del checklist.",
+        "Activo": "El checklist es parte de su mantenimiento: no se desactiva por separado.",
+        "PreguntaActual": "Estado de la interfaz, no dato. Se deriva de las respuestas.",
+        "TotalPreguntas": "Se cuenta de FRM_Preguntas.",
+        "Porcentaje": "Se calcula. Guardarlo permite que contradiga al detalle.",
     },
     "CHD_ChecklistDetalle": {
-        "Seccion": "Se alcanza por [PreguntaID].[SeccionID].",
+        "Orden": "Se alcanza por [PreguntaID].[Orden].",
+        "TipoRespuestaID": "Se alcanza por [PreguntaID].[TipoRespuestaID].",
+        "PreguntaActual": "Estado de la interfaz, no dato.",
+        "EstadoPregunta": "Redundante con Contestada.",
+        "TotalPreguntas": "No es del detalle sino del encabezado, y ademas se cuenta.",
+        "RespuestaFecha": "Fuera de alcance: ninguna pregunta usa tipo fecha.",
+        "RespuestaHora": "Fuera de alcance: ninguna pregunta usa tipo hora.",
+        "RespuestaFoto": "Sustituido por FOT_Fotografias.",
+        "RespuestaFirma": "Sustituido por FIR_Firmas.",
+        "RespuestaGPS": "La coordenada es del mantenimiento y de cada fotografia.",
+        "FechaRespuesta": "Se deriva del ChangeTimestamp del mantenimiento.",
+        "Activo": "El detalle es parte de su checklist: no se desactiva por separado.",
     },
 }
 
@@ -515,8 +539,14 @@ CAMPOS_RETIRADOS = {
 # misma. Se declaran aqui para que la migracion sea verificable y no dependa de
 # que alguien recuerde el mapeo.
 #
-# Verificado el 2026-08-07 leyendo BD/Modelo de Datos (2).xlsx con openpyxl.
-# Solo se declaran las cinco tablas cuyos encabezados se leyeron uno por uno.
+# FUENTE: Google Sheets de PRODUCCION, leido el 2026-08-07 con el conector de
+# Drive (fileId 1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc). NO el Excel local.
+#
+# Una version anterior de este mapeo se construyo sobre el Excel y era incorrecta
+# para MAN_Mantenimientos: el Excel la llama MantenimientoID y TecnicoID, y
+# produccion las llama MttoID y Tecnico_Asignado. Produccion es lo que corre la
+# app, de modo que manda produccion. Ese error es exactamente lo que el pipeline
+# SDD viene a impedir.
 RENOMBRADOS = {
     "OT_OrdenesTrabajo": {
         "Numero_OT": ("OTID", "La clave se llamaba distinto de la referencia que la apunta. "
@@ -532,12 +562,20 @@ RENOMBRADOS = {
     },
     "ACT_Activos": {
         "EstadoID": ("EstadoActivoID", "La referencia se llama como la clave destino."),
+        "SedeID": ("UnidadFuncionalID", "Guarda 7 a 10, que en SED_Sedes son UF1 a UF4, es decir "
+                                        "unidades funcionales y no sedes. La tabla ya mezclaba "
+                                        "los dos conceptos; esto solo lo hace explicito."),
+    },
+    "USR_Usuarios": {
+        "usuarioID": ("UsuarioID", "Produccion la escribe en minuscula inicial. AppSheet resuelve "
+                                   "por nombre literal."),
+        "Estado": ("Activo", "Convencion: todas las tablas usan Activo como bandera."),
     },
     "MAN_Mantenimientos": {
-        "T�cnicoID": ("TecnicoID", "Encabezado con la tilde corrupta por codificacion."),
-        "Hora Inicio": ("FechaHoraInicio", "Fecha y hora en una sola columna DateTime."),
-        "Hora Fin": ("FechaHoraFin", "Fecha y hora en una sola columna DateTime."),
-        "Estado Final": ("EstadoActivoID", "Pasa a referencia contra EST_Activo."),
+        "MttoID": ("MantenimientoID", "La clave no seguia la convencion <Prefijo>ID legible."),
+        "Tecnico_Asignado": ("TecnicoID", "Pasa a referencia contra USR_Usuarios."),
+        "Fecha_Hora_Inicio": ("FechaHoraInicio", "Convencion de nombres."),
+        "Fecha_Hora_Fin": ("FechaHoraFin", "Convencion de nombres."),
         "Requiere_Segunda_Visita": ("RequiereSegundaVisita", "Convencion de nombres."),
         "Motivo_Pendiente": ("MotivoPendienteID", "Pasa a referencia contra MOT_MotivosPendiente."),
         "Aprobado_Supervisor": ("AprobadoSupervisor", "Convencion de nombres."),
@@ -547,15 +585,10 @@ RENOMBRADOS = {
     "CHK_Checklists": {
         "OTID": ("MantenimientoID", "Cambia de padre: el checklist cuelga de la ejecucion, no "
                                     "de la orden. La inspeccion es parte de ejecutar."),
-        "T�cnicoID": ("TecnicoID", "Encabezado con la tilde corrupta. Se retira despues."),
-        "Estado": ("Finalizado", "Un booleano en lugar de texto libre."),
     },
     "CHD_ChecklistDetalle": {
-        "Secci�n": ("Seccion", "Encabezado con la tilde corrupta. Se retira despues."),
-        "PreguntaItem": ("PreguntaID", "Guardaba el TEXTO de la pregunta. Sin la clave no hay "
-                                       "comparacion historica posible."),
-        "EstadoRespuesta": ("RespuestaLista", "El tipo de respuesta lo fija la pregunta."),
-        "Observaci�n": ("Observacion", "Encabezado con la tilde corrupta."),
+        "Observaciones": ("Observacion", "Singular: es la observacion de una respuesta, no de la "
+                                         "tabla."),
     },
 }
 
@@ -587,6 +620,23 @@ RETIPADOS = {
     "CHD_ChecklistDetalle": {
         "ChecklistID": ("Text", "Ref", "CHK_Checklists",
                         "Ademas IsPartOf: el detalle vive y muere con su encabezado."),
+        "PreguntaID": ("Text", "Ref", "FRM_Preguntas",
+                       "Produccion ya la llama PreguntaID, pero LST_ValoresLista guarda ahi el "
+                       "TEXTO 'Estado encontrado' en vez de la clave. Confirmar antes de convertir."),
+    },
+    "USR_Usuarios": {
+        "RolID": ("Number", "Ref", "ROL_Roles", "Guarda enteros 2 a 5. Por confirmar el tipo."),
+        "SedeID": ("Number", "Ref", "SED_Sedes", "Guarda 1 en los 11 usuarios."),
+    },
+    "TIP_TiposActivo": {
+        "FormularioID": ("Text", "Ref", "FRM_Formularios",
+                         "Poblado en los 18 tipos con valores FRM_SOS a FRM_SUBE, que si existen "
+                         "en FRM_Formularios. La conversion no produce huerfanos."),
+    },
+    "FRM_Preguntas": {
+        "FormularioID": ("Text", "Ref", "FRM_Formularios", "Por confirmar el tipo."),
+        "SeccionID": ("Number", "Ref", "FRM_Secciones", "Por confirmar el tipo."),
+        "TipoRespuestaID": ("Number", "Ref", "TPR_TiposRespuesta", "Por confirmar el tipo."),
     },
 }
 

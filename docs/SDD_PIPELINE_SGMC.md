@@ -99,6 +99,42 @@ Todos en `docs/sdd/`, numerados en serie y compartiendo número dentro de un mis
 | `ACTA-NNN-nombre.md` | Ejecutor | Al aplicar |
 | `ACTA-NNN-pruebas.md` | Probador | Al terminar |
 
+## 5.1 Dos fases, dos gates de peso distinto
+
+Un cambio no se especifica entero de una vez. Se parte por **dónde se aplica**, porque el costo y
+la reversibilidad de las dos mitades no se parecen en nada.
+
+| | Alcance | Gate |
+|---|---|---|
+| **Fase A — Sheets** | Renombrados, columnas nuevas, tablas nuevas, limpieza, datos de prueba | **Ligero.** Es barato, reversible y se verifica leyendo de vuelta |
+| **Fase B — Navegador** | *Regenerate Structure*, tipado, cableado de referencias, reglas | **Pesado.** Es el paso caro y frágil. Aquí sí se exigen las tres firmas |
+
+Hay una razón técnica además de la económica: **AppSheet deriva su estructura leyendo la hoja e
+infiere el tipo a partir de los datos.** Si toda la Fase A está hecha, la Fase B necesita **un solo
+*Regenerate Structure* por tabla** en vez de uno por cambio, y una columna que ya trae
+`4.728512, -74.114531` tiene opción de salir tipada como `LatLong` sin intervención.
+
+Lo que la Fase A **no** consigue: las referencias no se infieren de forma fiable. AppSheet leerá una
+columna de enteros y dirá `Number`, no `Ref`. El cableado sigue siendo trabajo de navegador, columna
+por columna. La Fase A reduce el paso caro; no lo elimina.
+
+### Orden dentro de la Fase A
+
+**Primero la estructura, después los datos.** Poblar antes de renombrar obliga a migrar lo que
+acabas de escribir. Y los datos de prueba se escriben ya con la forma final: si la clave de la orden
+es `OT-0001`, la fila de prueba lleva `OT-0001` y no `1`, o la conversión de la Fase B la deja
+huérfana.
+
+### Higiene de los datos de prueba
+
+**Toda fila de prueba lleva el prefijo `TEST-` en su clave, y el paso que la borra se escribe en la
+misma especificación que la crea.** No en otra, y no «después».
+
+No es celo: es que este proyecto ya arrastra basura de prueba en producción. `CHK_Checklists`
+todavía tiene una fila con `TecnicoID = "Santiago Moreno"` y `FechaInicio = "NOW()"` como texto
+literal. Entró así, sin marca y sin fecha de caducidad, y hoy es una tarea de limpieza. Poblar sin
+esta regla es fabricar el próximo hallazgo.
+
 ## 6. Qué NO pasa por el pipeline
 
 Meter todo por aquí lo volvería inútil por burocrático. Van por la vía corta:
@@ -114,7 +150,8 @@ en `scripts/modelo_objetivo.py`.**
 
 | Frente | Estado |
 |---|---|
-| Cableado de referencias | Especificado en `CABLEADO_REFERENCIAS_SGMC.md`. Falta `PRUEBA` y veredicto |
+| Cableado, Fase A (Sheets) | `ESPEC-001` escrita contra producción. **Falta `PRUEBA-001` y veredicto** |
+| Cableado, Fase B (navegador) | Pendiente de `ESPEC-002`. No arranca hasta cerrar la Fase A |
 | Coordenadas reales (D-01) | Bloqueado por levantamiento en campo |
 | Código QR | **Fuera de alcance por decisión del 2026-08-07.** Ver sección 8 |
 

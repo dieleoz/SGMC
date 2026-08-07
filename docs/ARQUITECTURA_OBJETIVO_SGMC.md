@@ -94,12 +94,35 @@ resto son campos que guardaban por segunda vez un dato alcanzable por referencia
 | `ActivoID` | Se alcanza por [MantenimientoID].[OTID].[ActivoID]. |
 | `TecnicoID` | Se alcanza por [MantenimientoID].[TecnicoID]. Es el campo donde el dato de prueba dejo 'Santiago Moreno' en lugar de un identificador. |
 | `Observaciones` | La observacion es de la ejecucion o de la respuesta, no del encabezado. |
+| `FechaCreacion` | Redundante con FechaInicio. |
+| `Estado` | Sustituido por Finalizado, que produccion ya tiene. |
+| `GPSInicio` | La coordenada es del mantenimiento y de cada fotografia, no del checklist. |
+| `GPSFin` | Idem. |
+| `FirmaTecnico` | Sustituido por FIR_Firmas. |
+| `FirmaSupervisor` | El supervisor aprueba en el portal, no firma. Supuesto D-10. |
+| `PDF` | El informe se genera al enviarlo, no se almacena en la fila. |
+| `FechaEnvioCorreo` | Es traza del bot, no del checklist. |
+| `Activo` | El checklist es parte de su mantenimiento: no se desactiva por separado. |
+| `PreguntaActual` | Estado de la interfaz, no dato. Se deriva de las respuestas. |
+| `TotalPreguntas` | Se cuenta de FRM_Preguntas. |
+| `Porcentaje` | Se calcula. Guardarlo permite que contradiga al detalle. |
 
 **`CHD_ChecklistDetalle`**
 
 | Campo | Motivo |
 |---|---|
-| `Seccion` | Se alcanza por [PreguntaID].[SeccionID]. |
+| `Orden` | Se alcanza por [PreguntaID].[Orden]. |
+| `TipoRespuestaID` | Se alcanza por [PreguntaID].[TipoRespuestaID]. |
+| `PreguntaActual` | Estado de la interfaz, no dato. |
+| `EstadoPregunta` | Redundante con Contestada. |
+| `TotalPreguntas` | No es del detalle sino del encabezado, y ademas se cuenta. |
+| `RespuestaFecha` | Fuera de alcance: ninguna pregunta usa tipo fecha. |
+| `RespuestaHora` | Fuera de alcance: ninguna pregunta usa tipo hora. |
+| `RespuestaFoto` | Sustituido por FOT_Fotografias. |
+| `RespuestaFirma` | Sustituido por FIR_Firmas. |
+| `RespuestaGPS` | La coordenada es del mantenimiento y de cada fotografia. |
+| `FechaRespuesta` | Se deriva del ChangeTimestamp del mantenimiento. |
+| `Activo` | El detalle es parte de su checklist: no se desactiva por separado. |
 
 ### 2.4 Cableado de referencias
 
@@ -125,6 +148,13 @@ Los nombres actuales se verificaron el 2026-08-07 leyendo `BD/Modelo de Datos (2
 | `ACT_Activos` | `FrecuenciaID` | Number | **Ref** | `FRE_Frecuencias` | Por confirmar en produccion. |
 | `CHK_Checklists` | `FormularioID` | Text | **Ref** | `FRM_Formularios` | Por confirmar en produccion. |
 | `CHD_ChecklistDetalle` | `ChecklistID` | Text | **Ref** | `CHK_Checklists` | Ademas IsPartOf: el detalle vive y muere con su encabezado. |
+| `CHD_ChecklistDetalle` | `PreguntaID` | Text | **Ref** | `FRM_Preguntas` | Produccion ya la llama PreguntaID, pero LST_ValoresLista guarda ahi el TEXTO 'Estado encontrado' en vez de la clave. Confirmar antes de convertir. |
+| `USR_Usuarios` | `RolID` | Number | **Ref** | `ROL_Roles` | Guarda enteros 2 a 5. Por confirmar el tipo. |
+| `USR_Usuarios` | `SedeID` | Number | **Ref** | `SED_Sedes` | Guarda 1 en los 11 usuarios. |
+| `TIP_TiposActivo` | `FormularioID` | Text | **Ref** | `FRM_Formularios` | Poblado en los 18 tipos con valores FRM_SOS a FRM_SUBE, que si existen en FRM_Formularios. La conversion no produce huerfanos. |
+| `FRM_Preguntas` | `FormularioID` | Text | **Ref** | `FRM_Formularios` | Por confirmar el tipo. |
+| `FRM_Preguntas` | `SeccionID` | Number | **Ref** | `FRM_Secciones` | Por confirmar el tipo. |
+| `FRM_Preguntas` | `TipoRespuestaID` | Number | **Ref** | `TPR_TiposRespuesta` | Por confirmar el tipo. |
 
 #### Cambian de nombre
 
@@ -139,22 +169,20 @@ Los nombres actuales se verificaron el 2026-08-07 leyendo `BD/Modelo de Datos (2
 | `OT_OrdenesTrabajo` | `Fecha_Cierre` | **`FechaCierre`** | Convencion de nombres. |
 | `OT_OrdenesTrabajo` | `Cerrada_Por` | **`CerradaPor`** | Convencion de nombres. |
 | `ACT_Activos` | `EstadoID` | **`EstadoActivoID`** | La referencia se llama como la clave destino. |
-| `MAN_Mantenimientos` | `T�cnicoID` | **`TecnicoID`** | Encabezado con la tilde corrupta por codificacion. |
-| `MAN_Mantenimientos` | `Hora Inicio` | **`FechaHoraInicio`** | Fecha y hora en una sola columna DateTime. |
-| `MAN_Mantenimientos` | `Hora Fin` | **`FechaHoraFin`** | Fecha y hora en una sola columna DateTime. |
-| `MAN_Mantenimientos` | `Estado Final` | **`EstadoActivoID`** | Pasa a referencia contra EST_Activo. |
+| `ACT_Activos` | `SedeID` | **`UnidadFuncionalID`** | Guarda 7 a 10, que en SED_Sedes son UF1 a UF4, es decir unidades funcionales y no sedes. La tabla ya mezclaba los dos conceptos; esto solo lo hace explicito. |
+| `USR_Usuarios` | `usuarioID` | **`UsuarioID`** | Produccion la escribe en minuscula inicial. AppSheet resuelve por nombre literal. |
+| `USR_Usuarios` | `Estado` | **`Activo`** | Convencion: todas las tablas usan Activo como bandera. |
+| `MAN_Mantenimientos` | `MttoID` | **`MantenimientoID`** | La clave no seguia la convencion <Prefijo>ID legible. |
+| `MAN_Mantenimientos` | `Tecnico_Asignado` | **`TecnicoID`** | Pasa a referencia contra USR_Usuarios. |
+| `MAN_Mantenimientos` | `Fecha_Hora_Inicio` | **`FechaHoraInicio`** | Convencion de nombres. |
+| `MAN_Mantenimientos` | `Fecha_Hora_Fin` | **`FechaHoraFin`** | Convencion de nombres. |
 | `MAN_Mantenimientos` | `Requiere_Segunda_Visita` | **`RequiereSegundaVisita`** | Convencion de nombres. |
 | `MAN_Mantenimientos` | `Motivo_Pendiente` | **`MotivoPendienteID`** | Pasa a referencia contra MOT_MotivosPendiente. |
 | `MAN_Mantenimientos` | `Aprobado_Supervisor` | **`AprobadoSupervisor`** | Convencion de nombres. |
 | `MAN_Mantenimientos` | `Usuario_Registro` | **`UsuarioRegistro`** | Convencion de nombres. |
 | `MAN_Mantenimientos` | `Fecha_Hora_Registro` | **`FechaHoraRegistro`** | Convencion de nombres. |
 | `CHK_Checklists` | `OTID` | **`MantenimientoID`** | Cambia de padre: el checklist cuelga de la ejecucion, no de la orden. La inspeccion es parte de ejecutar. |
-| `CHK_Checklists` | `T�cnicoID` | **`TecnicoID`** | Encabezado con la tilde corrupta. Se retira despues. |
-| `CHK_Checklists` | `Estado` | **`Finalizado`** | Un booleano en lugar de texto libre. |
-| `CHD_ChecklistDetalle` | `Secci�n` | **`Seccion`** | Encabezado con la tilde corrupta. Se retira despues. |
-| `CHD_ChecklistDetalle` | `PreguntaItem` | **`PreguntaID`** | Guardaba el TEXTO de la pregunta. Sin la clave no hay comparacion historica posible. |
-| `CHD_ChecklistDetalle` | `EstadoRespuesta` | **`RespuestaLista`** | El tipo de respuesta lo fija la pregunta. |
-| `CHD_ChecklistDetalle` | `Observaci�n` | **`Observacion`** | Encabezado con la tilde corrupta. |
+| `CHD_ChecklistDetalle` | `Observaciones` | **`Observacion`** | Singular: es la observacion de una respuesta, no de la tabla. |
 
 #### La trampa del nombre reutilizado
 
@@ -427,7 +455,7 @@ Ejecucion real en campo. Cuelga de la orden y es padre de la evidencia.
 | `OrigenApertura` | Enum |  |  | Sí | QR o Lista. Abrir por lista no prueba presencia; se marca para poder exigir QR donde importe y para medir cuantos cierres carecen de escaneo. Valor inicial: `QR` |
 | `UbicacionEscaneo` | LatLong |  |  |  | Donde estaba el tecnico al escanear. Junto con Coordenadas_Cierre permite comprobar que llego y se quedo, no que paso cerca |
 | `FechaHoraEscaneo` | DateTime |  |  |  | Con FechaHoraFin da la duracion real de la intervencion |
-| `EstadoActivoID` | Ref |  | `EST_Activo` | Sí | Estado en que queda el activo tras la intervencion |
+| `EstadoActivoID` | Ref |  | `EST_Activo` | Sí | Estado en que queda el activo tras la intervencion. No existe en produccion: se crea. El Excel local tiene 'Estado Final', que produccion no tiene |
 | `Coordenadas_Cierre` | LatLong |  |  | Sí | Valor inicial: `HERE()` |
 | `Precision_GPS` | Number |  |  |  | Valor inicial: `USERLOCATIONACCURACY()` |
 | `CierreConExcepcion` | Yes/No |  |  |  | Supuesto D-04: se activa cuando la precision supera el umbral. Valor inicial: `FALSE` |
