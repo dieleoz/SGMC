@@ -191,11 +191,18 @@ La Fase 0 **no está cerrada**. `docs/ROADMAP.md` ya fue corregido; `docs/DICTAM
 2. `MAN_Mantenimientos` ya tiene `Coordenadas_Cierre` (LatLong) y `Precision_GPS` (Number),
    agregadas al Sheets y reconocidas por la aplicación el 2026-08-06. **Falta la regla de
    validación**, que no pudo escribirse porque no hay ruta de referencia al activo. Ver sección 6.
-2b. Las referencias del modelo no existen en la aplicación: `OTID` es `Text`, no `Ref`. Sin eso no
-   hay geofencing, ni navegación padre-hijo, ni reportes por activo. **El procedimiento de
-   corrección ya está escrito y validado** en `docs/CABLEADO_REFERENCIAS_SGMC.md`; falta que un
-   operador lo ejecute. `MAN_Mantenimientos` tiene 0 filas, de modo que la conversión no arrastra
-   datos: es el momento más barato en que se podrá hacer.
+2b. Las referencias del modelo siguen sin existir en la aplicación: `OTID` es `Text`, no `Ref`. Sin
+   eso no hay geofencing, ni navegación padre-hijo, ni reportes por activo. `MAN_Mantenimientos`
+   tiene 0 filas, de modo que la conversión no arrastra datos: es el momento más barato en que se
+   podrá hacer. **La Fase A —toda la preparación de la hoja— está cerrada y verificada** desde el
+   7 de agosto de 2026, tras tres intentos: los dos primeros se reportaron cerrados y no lo estaban.
+   Acta en `docs/sdd/ACTA-001-cierre-de-la-fase-a.md`. El frente activo es la Fase B,
+   `docs/sdd/ESPEC-002-cableado-en-appsheet.md`.
+
+   Para comprobar el estado de la hoja en cualquier momento: *Archivo → Descargar → Microsoft
+   Excel*, guardar en `BD/` y correr
+   `python scripts/verificar_faseA.py "BD/Modelo de Datos (N).xlsx"`. **No cierres nada por el
+   reporte de quien lo aplicó**, ni siquiera por el tuyo.
 3. Solo `FRM_SOS` tiene banco de preguntas en `FRM_Preguntas` (15). Faltan 17 de 18.
 4. Todos los usuarios están en `SedeID = 1`; todos los activos en `SedeID` 7 a 10. El Security
    Filter dejaría a cada técnico con cero activos.

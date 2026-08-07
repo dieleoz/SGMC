@@ -155,8 +155,8 @@ if "UNF_UnidadesFuncionales" in wb.sheetnames and "ACT_Activos" in wb.sheetnames
                           "UNF_UnidadesFuncionales. La conversion a Ref dejaria esas "
                           "filas huerfanas" % sorted(huerfanos))
         else:
-            oks.append("Las %d claves de ACT_Activos.UnidadFuncionalID resuelven contra UNF"
-                       % len(usados))
+            oks.append("Las %d unidades funcionales distintas usadas por ACT_Activos resuelven "
+                       "contra UNF" % len(usados))
 
 # ------------------------------- F-08 los estados de la orden resuelven contra EOT
 if "EOT_EstadosOrden" in wb.sheetnames and "OT_OrdenesTrabajo" in wb.sheetnames:
@@ -174,8 +174,40 @@ if "EOT_EstadosOrden" in wb.sheetnames and "OT_OrdenesTrabajo" in wb.sheetnames:
             falla("F-08", "OT_OrdenesTrabajo.EstadoOrdenID usa %s, que no existe en "
                           "EOT_EstadosOrden" % sorted(huerfanos))
         else:
-            oks.append("Los estados de las %d ordenes resuelven contra EOT_EstadosOrden"
-                       % len(usados))
+            oks.append("Los %d estados distintos usados por las ordenes resuelven contra "
+                       "EOT_EstadosOrden" % len(usados))
+
+# ------------------------- F-09 la asignacion de zona resuelve por los dos lados
+def _claves(hoja, col=0):
+    ws = wb[hoja]
+    return {str(r[col]).strip().replace(".0", "") for r in ws.iter_rows(min_row=2, values_only=True)
+            if r and r[col] not in (None, "")}
+
+
+def _usados(hoja, columna):
+    h = encabezados(hoja)
+    if columna not in h:
+        return None
+    i = h.index(columna)
+    ws = wb[hoja]
+    return {str(r[i]).strip().replace(".0", "") for r in ws.iter_rows(min_row=2, values_only=True)
+            if r and len(r) > i and r[i] not in (None, "")}
+
+
+if "ASG_AsignacionZona" in wb.sheetnames:
+    for columna, destino in (("UsuarioID", "USR_Usuarios"),
+                             ("UnidadFuncionalID", "UNF_UnidadesFuncionales")):
+        usados = _usados("ASG_AsignacionZona", columna)
+        if usados is None:
+            falla("F-09", "ASG_AsignacionZona.%s no existe" % columna)
+            continue
+        huerfanos = usados - _claves(destino)
+        if huerfanos:
+            falla("F-09", "ASG_AsignacionZona.%s usa %s, que no existe en %s. El Security Filter "
+                          "devolveria cero activos para esos usuarios"
+                  % (columna, sorted(huerfanos), destino))
+        else:
+            oks.append("ASG_AsignacionZona.%s resuelve contra %s" % (columna, destino))
 
 # ------------------------------------------------------------------- informe
 print("=" * 78)

@@ -150,8 +150,8 @@ en `scripts/modelo_objetivo.py`.**
 
 | Frente | Estado |
 |---|---|
-| Cableado, Fase A (Sheets) | **Aplicada el 7 de agosto, reportada como cerrada al 100%. No lo está:** 27 conformes y 23 fallos. Corrección en `ESPEC-001B` |
-| Cableado, Fase B (navegador) | `ESPEC-002` escrita. **Bloqueada** hasta que `verificar_faseA.py` imprima `FASE A CERRADA` |
+| Cableado, Fase A (Sheets) | **CERRADA y verificada** el 7 de agosto. `verificar_faseA.py` en 0 fallos. Acta en `ACTA-001` |
+| Cableado, Fase B (navegador) | `ESPEC-002` escrita y **desbloqueada**. Es el frente activo |
 | Coordenadas reales (D-01) | Bloqueado por levantamiento en campo |
 | Código QR | **Fuera de alcance por decisión del 2026-08-07.** Ver sección 8 |
 

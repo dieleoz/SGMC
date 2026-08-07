@@ -120,7 +120,11 @@ Mientras esto no se resuelva, cualquier trabajo de configuración se hace sobre 
 - [~] **Fase A aplicada en produccion el 7 de agosto de 2026**, a mano sobre la hoja. Se reporto
       como cerrada al 100%: **no lo esta.** `python scripts/verificar_faseA.py` da 27 conformes y
       **19 fallos**. Correccion en `ESPEC-001B`
-- [ ] **Corregir `EOT_EstadosOrden`, que es el fallo grave.** Sus claves son `1..7` y
+- [x] **`EOT_EstadosOrden` corregida el 7 de agosto:** sus claves son ahora el nombre del estado y
+      las 6 ordenes resuelven. Era el fallo grave
+- [x] **`ASG_AsignacionZona` poblada** con 4 asignaciones, verificadas por los dos lados
+- [x] **FASE A CERRADA Y VERIFICADA**, `verificar_faseA.py` en 0 fallos. Acta en `ACTA-001`
+- [ ] ~~Corregir `EOT_EstadosOrden`~~ Sus claves son `1..7` y
       `OT_OrdenesTrabajo.EstadoOrdenID` guarda `Asignada`, `Cerrada`, `Suspendida`. Convertir a
       `Ref` asi dejaria las 6 ordenes huerfanas y en silencio: el mismo defecto de `OTID`,
       reproducido en una tabla creada ayer

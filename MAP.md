@@ -101,8 +101,9 @@ D:\@Proyect\Sisga\
 | [docs/SDD_PIPELINE_SGMC.md](docs/SDD_PIPELINE_SGMC.md) | Método de construcción: cinco agentes, dos fases, el gate antes del paso caro y la decisión de descartar el QR | **Vigente. Es el método** |
 | [docs/sdd/ESPEC-001-preparacion-del-sheets.md](docs/sdd/ESPEC-001-preparacion-del-sheets.md) | Fase A del cableado: todo lo que se hace sobre la hoja sin abrir AppSheet. Verificada contra producción | **Vigente** |
 | [scripts/faseA_sheets.gs](scripts/faseA_sheets.gs) | La Fase A como Apps Script. Google bloqueó su ejecución en esta cuenta | Histórico |
-| [docs/sdd/ESPEC-001B-cierre-de-la-fase-a.md](docs/sdd/ESPEC-001B-cierre-de-la-fase-a.md) | Los 23 fallos que faltan para cerrar la Fase A, verificados contra el archivo | **Vigente. Es el frente activo** |
-| [docs/sdd/ESPEC-002-cableado-en-appsheet.md](docs/sdd/ESPEC-002-cableado-en-appsheet.md) | Fase B: cableado en AppSheet, con orden obligatorio, verificación y reversión | **Vigente. Bloqueada por la Fase A** |
+| [docs/sdd/ESPEC-001B-cierre-de-la-fase-a.md](docs/sdd/ESPEC-001B-cierre-de-la-fase-a.md) | Los 23 fallos que faltaban para cerrar la Fase A | Aplicado |
+| [docs/sdd/ACTA-001-cierre-de-la-fase-a.md](docs/sdd/ACTA-001-cierre-de-la-fase-a.md) | Acta de cierre de la Fase A: qué se aplicó, qué se verificó y qué sigue pendiente a propósito | Vigente |
+| [docs/sdd/ESPEC-002-cableado-en-appsheet.md](docs/sdd/ESPEC-002-cableado-en-appsheet.md) | Fase B: cableado en AppSheet, con orden obligatorio, verificación y reversión | **Vigente. Es el frente activo** |
 | [docs/ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md) | Alcance del sistema completo y los 14 supuestos adoptados | Vigente |
 | [docs/prompts/PROMPT_CONSTRUCCION_SGMC.md](docs/prompts/PROMPT_CONSTRUCCION_SGMC.md) | Directiva de construcción en 7 pasos con criterios de aceptación | Vigente |
 | [docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md) | 6 casos de uso estilo ISTQB y 14 decisiones | Enviado. Sus propuestas son ahora los supuestos adoptados |

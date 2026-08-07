@@ -8,24 +8,24 @@ y al terminar hay referencias reales, geofencing y navegación entre tablas.
 | Dónde se aplica | Editor de AppSheet, aplicación `SGMC-886843353` |
 | Quién | Agente de navegador, o una persona. No hay API en el plan actual |
 | Precede | `ESPEC-001` y **`ESPEC-001B`**, ambas cerradas |
-| Estado | **BLOQUEADA.** Ver sección 1 |
+| Estado | **DESBLOQUEADA el 2026-08-07.** Ver sección 1 |
 
 ---
 
-## 1. Por qué está bloqueada ahora mismo
+## 1. La Fase A está cerrada
 
-`python scripts/verificar_faseA.py "BD/Modelo de Datos (4).xlsx"` devuelve **19 fallos**. Dos de
-ellos impiden empezar, y no por formalismo:
+`python scripts/verificar_faseA.py "BD/Modelo de Datos (6).xlsx"` imprime **`FASE A CERRADA`**, con
+0 fallos. Constancia en `ACTA-001-cierre-de-la-fase-a.md`.
 
-**`EOT_EstadosOrden` tiene claves numéricas `1..7`, y `OT_OrdenesTrabajo.EstadoOrdenID` guarda
-`Asignada`, `Cerrada` y `Suspendida`.** Si se ejecuta el paso 5 de esta especificación con eso sin
-corregir, las 6 órdenes quedan huérfanas y AppSheet no avisa. Se descubriría semanas después, igual
-que se descubrió lo de `OTID`.
+Los dos bloqueantes que había están resueltos y verificados: `EOT_EstadosOrden` usa ahora el nombre
+del estado como clave, de modo que las 6 órdenes resuelven, y `ASG_AsignacionZona` tiene sus 4
+asignaciones, con las que el Security Filter devolverá activos.
 
-**`ASG_AsignacionZona` está vacía.** El Security Filter del paso 7 dejaría a cada técnico con cero
-activos, y parecería un fallo de la regla cuando sería falta de datos.
+**Antes de empezar, vuelve a comprobarlo.** La hoja la editan dos personas más:
 
-No empieces esta fase hasta que la verificación imprima `FASE A CERRADA`.
+```
+python scripts/verificar_faseA.py "BD/Modelo de Datos (N).xlsx"
+```
 
 ---
 
