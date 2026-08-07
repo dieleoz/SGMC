@@ -148,6 +148,11 @@ Mientras esto no se resuelva, cualquier trabajo de configuración se hace sobre 
       tenga algo que rechazar
 - [ ] **Decidir el ciclo de baja en los reportes.** RG-18: un histórico nunca filtra por el estado
       actual del activo, o al dar de baja uno desaparecen sus mantenimientos pasados
+- [ ] **`ESPEC-003`: las reglas de negocio que hoy son prosa y ningún constructo aplica.** Salieron
+      al revisar si faltaban condicionales de AppSheet. `ModoFallaID` dice «solo en correctivos» y
+      no hay `Show_If` ni `Required_If` que lo imponga —depende de `OT.Tipo`, hoy vacía—, y
+      `ObservacionRechazo` es la traza de la devolución del supervisor, sin regla. Un campo que
+      existe y nada puebla es la misma patología que `CodigoQR`: estructura sin comportamiento
 - [ ] **Fase B: cablear en AppSheet** siguiendo `ESPEC-002`. Arranca cuando `verificar_faseA.py`
       vuelva a imprimir `FASE A CERRADA`
 - [x] **`IsPartOf` sobre `MAN_Mantenimientos.OTID`: DECIDIDO el 7 de agosto de 2026. Va sin él.**

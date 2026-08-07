@@ -188,7 +188,7 @@ Independientes entre sí, no pueden romper nada.
 | `MAN_Mantenimientos` | `FechaHoraInicio`, `FechaHoraFin`, `FechaHoraEscaneo`, `FechaAprobacion` | `DateTime` |
 | `MAN_Mantenimientos` | `FechaHoraRegistro` | `ChangeTimestamp` |
 | `MAN_Mantenimientos` | `OrigenApertura` | `Enum`: `QR`, `Lista` |
-| `MAN_Mantenimientos` | `CierreConExcepcion`, `RequiereSegundaVisita`, `AprobadoSupervisor`, `Activo` | `Yes/No` |
+| `MAN_Mantenimientos` | `CierreConExcepcion`, `RequiereSegundaVisita`, `AprobadoSupervisor`, `Activo` | `Yes/No`. `CierreConExcepcion` la calcula RG-19: no la edita nadie |
 | `OT_OrdenesTrabajo` | `Activo` | `Yes/No` |
 | `OT_OrdenesTrabajo` | `Tipo` | `Enum`: `Preventivo`, `Correctivo`. **Vacía en las 6 filas: deuda declarada.** No la marques obligatoria o las 6 órdenes quedan incompletas |
 | `FOT_Fotografias` | `Archivo` | `Image`, calidad baja 600 px |
@@ -344,6 +344,13 @@ La versión con radio por tipo entra cuando se pueblen los 18. Queda anotado com
 
 **RG-03:** `MotivoExcepcion`, `Required_If` = `[CierreConExcepcion] = TRUE`.
 
+**RG-19:** `MAN_Mantenimientos.CierreConExcepcion`, `App formula` = `[Precision_GPS] > 50`.
+
+> El umbral de 50 metros lo fija **D-04**, ya decidido: no hay que consultarlo. Sin esta regla la
+> columna existe y **nadie la puebla**, con lo que un cierre con 45 m de error del satélite sería
+> indistinguible de uno con 8 m. Ahí se cae la cadena de evidencia, que es para lo que existe el
+> sistema. Al ser `App formula`, el técnico no puede desmarcarla.
+
 **RG-04, Security Filter** sobre `ACT_Activos`:
 
 ```
@@ -430,7 +437,7 @@ Es la misma lista que comprueba `PRUEBA-002` P-13.
 
 ## 9. Criterio de cierre
 
-El de `PRUEBA-002`: **pasan P-01 a P-13 y P-16 a P-17, las quince.** P-14 y P-15 quedan fuera,
+El de `PRUEBA-002`: **pasan P-01 a P-13 y P-16 a P-18, las dieciséis.** P-14 y P-15 quedan fuera,
 bloqueadas por D-01 y D-B.
 
 **Cuatro son innegociables**, y si alguna de las cuatro falla la Fase B no se cierra por muchas de

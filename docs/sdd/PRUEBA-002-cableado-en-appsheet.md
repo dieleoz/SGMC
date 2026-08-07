@@ -22,7 +22,7 @@ Excel*). No es el Excel local histórico, que describe otro modelo:
 |---|---|---|
 | `ACT_Activos` | 34 | Las 34 con `Ubicacion = 4.728512, -74.114531`, en Bogotá |
 | `OT_OrdenesTrabajo` | 6 | Estados `Asignada`, `Cerrada`, `Suspendida` |
-| `MAN_Mantenimientos` | 2 | `TEST-MTTO-001` en rango, `TEST-MTTO-002` a 8,89 km |
+| `MAN_Mantenimientos` | 2 | `TEST-MTTO-001` en rango y con 8 m de GPS; `TEST-MTTO-002` a 8,89 km y con 65 m |
 | `ASG_AsignacionZona` | 4 | Técnicos 3 a 6 contra unidades 7 a 10 |
 | `FOT` / `FIR` / `CHK` / `CHD` | 3 / 1 / 1 / 15 | Cadena de evidencia poblada |
 
@@ -180,6 +180,19 @@ Excel*). No es el Excel local histórico, que describe otro modelo:
 
 ---
 
+### P-18 — POSITIVA Y NEGATIVA: el cierre con GPS deficiente se marca solo (RG-19)
+
+- **Qué comprueba:** que `CierreConExcepcion` se calcula y no se edita. Sin ella, un cierre con
+  error de satélite alto es indistinguible de uno bueno.
+- **Precondición:** RG-19 configurada como `App formula` = `[Precision_GPS] > 50`, con el umbral de
+  D-04. `Precision_GPS` tipada `Number`.
+- **Acción:** abrir en la vista previa `TEST-MTTO-001` (8 m) y `TEST-MTTO-002` (65 m).
+- **Resultado esperado:** el primero `FALSE`, el segundo **`TRUE`**. Y en ninguno de los dos el
+  técnico puede modificar la casilla: una `App formula` es de solo lectura para el usuario.
+- **Cómo se distingue el fallo:** si los dos salen igual, la fórmula no se aplicó o `Precision_GPS`
+  quedó como `Text` y la comparación numérica no opera. Si la casilla es editable, no se configuró
+  como `App formula` sino como valor inicial, y el técnico podría desmarcar su propia excepción.
+
 ### P-16 — POSITIVA Y NEGATIVA: la baja de activos se deriva bien (RG-16)
 
 - **Qué comprueba:** la regla que motivó el tercer bloqueo. `ACT_Activos.Activo` se calcula desde el
@@ -252,7 +265,7 @@ Si esta lista y la de `ESPEC-002` divergen, el ejecutor configura una cosa y el 
 
 ## 4. Criterio de cierre
 
-**Deben pasar P-01 a P-13 y P-16 a P-17, las quince.** P-14 y P-15 quedan bloqueadas por decisiones ajenas a esta
+**Deben pasar P-01 a P-13 y P-16 a P-18, las dieciséis.** P-14 y P-15 quedan bloqueadas por decisiones ajenas a esta
 fase.
 
 **Cuatro** son innegociables, y conviene decir por qué antes de que alguien proponga cerrar sin ellas:

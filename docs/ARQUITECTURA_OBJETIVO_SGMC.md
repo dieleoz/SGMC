@@ -8,7 +8,7 @@ Este documento define el sistema que se va a construir, no el que existe. El act
 descrito en `AUDITORIA_PLAN_Y_ROADMAP.md` y no sirve como base: sus referencias no están
 cableadas, cuatro tablas están vacías y la cadena relacional existe solo en el papel.
 
-**27 tablas · 194 columnas · 38 referencias · 18 reglas**
+**27 tablas · 194 columnas · 38 referencias · 19 reglas**
 
 ---
 
@@ -465,7 +465,7 @@ Ejecucion real en campo. Cuelga de la orden y es padre de la evidencia.
 | `EstadoActivoID` | Ref |  | `EST_Activo` | Sí | Estado en que queda el activo tras la intervencion. No existe en produccion: se crea. El Excel local tiene 'Estado Final', que produccion no tiene |
 | `Coordenadas_Cierre` | LatLong |  |  | Sí | Valor inicial: `HERE()` |
 | `Precision_GPS` | Number |  |  |  | Valor inicial: `USERLOCATIONACCURACY()` |
-| `CierreConExcepcion` | Yes/No |  |  |  | Supuesto D-04: se activa cuando la precision supera el umbral. Valor inicial: `FALSE` |
+| `CierreConExcepcion` | Yes/No |  |  |  | Supuesto D-04: umbral 50 m. Se calcula, no se edita (RG-19) |
 | `MotivoExcepcion` | LongText |  |  |  | Obligatorio si CierreConExcepcion es verdadero |
 | `RequiereSegundaVisita` | Yes/No |  |  |  | Valor inicial: `FALSE` |
 | `MotivoPendienteID` | Ref |  | `MOT_MotivosPendiente` |  |  |
@@ -759,6 +759,16 @@ DISTANCE([UbicacionEscaneo], [Coordenadas_Cierre]) <= 0.5
 ```
 
 Cubre: Prueba de presencia
+
+### RG-19 · App formula sobre `MAN_Mantenimientos`.`CierreConExcepcion`
+
+Marca el cierre como excepcional cuando el error del satelite supera los 50 metros que fija D-04. Sin ella la columna existe y nadie la puebla: un cierre con 45 m de error seria indistinguible de uno con 8 m, y ahi se cae la cadena de evidencia, que es para lo que existe el sistema. El umbral no hay que consultarlo, ya esta decidido.
+
+```
+[Precision_GPS] > 50
+```
+
+Cubre: D-04
 
 ### RG-16 · App formula sobre `ACT_Activos`.`Activo`
 

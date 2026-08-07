@@ -267,8 +267,8 @@ MODELO = {
                 valid_if="DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]",
                 mensaje_error="Ubicacion fuera de rango: debe estar junto al activo para cerrar."),
             col("Precision_GPS", "Number", valor_inicial="USERLOCATIONACCURACY()"),
-            col("CierreConExcepcion", "Yes/No", valor_inicial="FALSE",
-                nota="Supuesto D-04: se activa cuando la precision supera el umbral"),
+            col("CierreConExcepcion", "Yes/No", formula="[Precision_GPS] > 50",
+                nota="Supuesto D-04: umbral 50 m. Se calcula, no se edita (RG-19)"),
             col("MotivoExcepcion", "LongText", nota="Obligatorio si CierreConExcepcion es verdadero"),
             col("RequiereSegundaVisita", "Yes/No", valor_inicial="FALSE"),
             col("MotivoPendienteID", "Ref", ref="MOT_MotivosPendiente"),
@@ -784,6 +784,14 @@ REGLAS = [
          expresion="DISTANCE([UbicacionEscaneo], [Coordenadas_Cierre]) <= 0.5",
          descripcion=("Contrasta donde escaneo con donde cerro. Una diferencia grande indica que "
                       "escaneo en un sitio y cerro en otro. No bloquea: se reporta.")),
+    dict(id="RG-19", tabla="MAN_Mantenimientos", columna="CierreConExcepcion",
+         tipo="App formula", cubre="D-04",
+         expresion="[Precision_GPS] > 50",
+         descripcion=("Marca el cierre como excepcional cuando el error del satelite supera los 50 "
+                      "metros que fija D-04. Sin ella la columna existe y nadie la puebla: un "
+                      "cierre con 45 m de error seria indistinguible de uno con 8 m, y ahi se cae "
+                      "la cadena de evidencia, que es para lo que existe el sistema. El umbral no "
+                      "hay que consultarlo, ya esta decidido.")),
     dict(id="RG-16", tabla="ACT_Activos", columna="Activo",
          tipo="App formula", cubre="Baja de activos",
          expresion='[EstadoActivoID].[Nombre] <> "Retirado"',
