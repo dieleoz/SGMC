@@ -820,6 +820,27 @@ PROPUESTAS = {
                             "MODELO_EVOLUCION_FASE_2 §10 - Fase 2"),
 }
 
+# ---------------------------- columnas PROPUESTAS sobre tablas que YA existen
+#
+# Mismo criterio que PROPUESTAS, para columnas. Una especificacion puede proponer
+# una columna nueva sobre una tabla existente; verificar_documentos.py D-03 no
+# sabe distinguir "propuesta" de "inventada", asi que se declara aqui.
+#
+# (tabla, columna) -> (por que hace falta, donde se especifica)
+COLUMNAS_PROPUESTAS = {
+    ("TIP_TiposActivo", "SeVisita"): (
+        "Discrimina los cinco tipos que no son cosas que se visitan -licencias, "
+        "SSL, antivirus, ISP, radios-. NO reutilizar RequiereGPS: esa ya vale "
+        "FALSE en SERVIDOR y NAS, que si se visitan, y mezclarlas los eximiria "
+        "del geofencing en silencio",
+        "ESPEC-003"),
+    ("USR_Usuarios", "OficioID"): (
+        "Donde se lee el oficio de la persona. Sin ella los doce oficios de "
+        "ROL_Roles no compran nada: no hay contra que comparar el rol que exige "
+        "la tarea",
+        "ESPEC-003"),
+}
+
 # ------------------------------------- una sola forma por proposito
 #
 # Cada entrada es un proposito donde habia dos caminos. Se eligio uno; el otro NO

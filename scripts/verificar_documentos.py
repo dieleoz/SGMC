@@ -34,7 +34,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from modelo_objetivo import (MODELO, RETIRADAS, PROPUESTAS, DECISIONES,
-                             CAMPOS_RETIRADOS)
+                             CAMPOS_RETIRADOS, COLUMNAS_PROPUESTAS)
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -58,6 +58,8 @@ NO_SON_TABLAS = {
     "ITS_TI",
     # Nombre de una vista de AppSheet, no de una tabla
     "OT_Detail",
+    # Funcion de AppSheet, no tabla
+    "REF_ROWS",
     # Identificador de codigo de este mismo script, citado en ESPEC-003
     "RE_TABLA",
 }
@@ -163,6 +165,8 @@ for ruta in documentos():
         vivas = {x["nombre"] for x in MODELO[t]["columnas"]}
         if c in vivas or c in CAMPOS_RETIRADOS.get(t, {}):
             continue          # citar lo retirado es legitimo: se habla de ello
+        if (t, c) in COLUMNAS_PROPUESTAS:
+            continue          # declarada como propuesta, con su motivo
         if RE_CLAVE_FILA.match(c):
             continue          # PAR_Parametros.UMBRAL_GPS es una fila, no una columna
         if (t, c) in vistas:

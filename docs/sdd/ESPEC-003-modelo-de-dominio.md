@@ -115,7 +115,7 @@ empiezan en `RG-21`.**
 |---|---|---|
 | `OT_OrdenesTrabajo` **no tiene** ninguna fecha de creación | Volcado de `MODELO['OT_OrdenesTrabajo']` | 12 columnas: `OTID, ActivoID, TecnicoID, SupervisorID, Tipo, FechaProgramada, EstadoOrdenID, OTOrigenID, Observaciones, FechaCierre, CerradaPor, Activo`. **No hay `FechaCreacion`, ni `HoraAviso`, ni `TareaID`, ni `CriticidadID`** |
 | Lo mismo en la hoja | Encabezado de `OT_OrdenesTrabajo` en el `.xlsx` | 15 columnas: las 12 más `FormularioID`, `Motivo_Cierre` e `Informe_Final`, las tres ya marcadas como retiradas. **Tampoco hay fecha de creación** |
-| `TAR_Tareas` no existe | `'TAR_Tareas' in wb.sheetnames` | `False`. Tampoco existen `ETR_Estructuras`, `CRI_Criticidad` ni `EVT_EventosOrden` |
+| `TAR_Tareas` no existe | `'TAR_Tareas' in wb.sheetnames` | `False`. Tampoco existen `ETR_Estructuras`, `CRI_Criticidad`, `EVT_EventosOrden` ni `PAU_Pausas` |
 | `EOT_EstadosOrden.QuienCambia` **existe y está poblada** | Volcado completo de la hoja | 6 columnas, 7 filas. Ver 2.3 |
 | Ninguna regla usa `QuienCambia` | Búsqueda de `QuienCambia` en las 20 reglas de `REGLAS` | 0 apariciones. **La columna existe, está poblada y no la lee nadie** |
 | `FIR_Firmas.TipoFirma` no declara valores | Volcado de la columna en `MODELO` | `{'nombre': 'TipoFirma', 'tipo': 'Enum', 'obligatoria': True, 'nota': 'Tecnico'}`. La nota dice `Tecnico`; **no hay lista declarada**. La hoja tiene 1 fila con valor `Tecnico` |
@@ -123,12 +123,54 @@ empiezan en `RG-21`.**
 | `ACT_Activos` tiene `PR` y **no** `PK` | Encabezado | 17 columnas, `PR` presente, ninguna `PK` |
 | `SED_Sedes` no sabe dónde está una edificación | Volcado | 4 columnas: `SedeID, Nombre, Ciudad, Activo`. 10 filas, de las cuales **UF1 a UF4 son las claves 7 a 10** |
 | `UNF_UnidadesFuncionales.PRInicial` y `PRFinal` están **vacías** | Volcado de las 4 filas | Las 8 celdas en blanco |
-| `TIP_TiposActivo.RequiereGPS` existe | Encabezado y valores | 8 columnas; `RequiereGPS` presente. `TieneQR` vale `TRUE` en los 18 |
+| `TIP_TiposActivo.RequiereGPS` existe **y no está toda a `TRUE`** | Volcado de los 18 valores. Ver 2.2.1 | `FALSE` en `SERVIDOR` y `NAS`; `TRUE` en los otros 16 |
 | `TIP_TiposActivo.RadioGeofencingKm` sigue vacío | Valores distintos de la columna | `{None}` en los 18 tipos |
 | Los 34 activos comparten una coordenada | Valores distintos de `Ubicacion` | `{'4.728512, -74.114531'}` |
 | `OT_OrdenesTrabajo.Tipo` está vacía | Valores de la columna en las 6 filas | `[None, None, None, None, None, None]` |
 | Población de las transaccionales | Conteo de filas | `MAN` 2, `FOT` 3, `FIR` 1, `CHK` 1, `CHD` 15, `NOV` 1 |
 | `FRE_Frecuencias` no tiene «A demanda» | Volcado de las 8 filas | `Diario 1, Semanal 7, Quincenal 15, Mensual 30, Bimensual 60, Trimestral 90, Semestral 180, Anual 365` |
+| `ACT_Activos.FrecuenciaID` está poblada en las 34 | Volcado y contraste | **Round-robin exacto de 1 a 8, sin una sola excepción.** Es relleno, no periodicidad. Demostrado en 7.3 |
+| `MAN_Mantenimientos` tiene **2 filas**, no 0 | Conteo | **`CLAUDE.md` §7 dice «0 filas» y está desactualizado.** `ESPEC-002` §1 ya lo había corregido a 2. Sigue siendo el momento más barato para convertir `OTID`, pero no es gratis: son 2 filas que la conversión tiene que resolver |
+
+### 2.2.1 `TIP_TiposActivo`, los 18 tipos completos
+
+El arquitecto lo pidió y tenía razón en pedirlo: **la columna `RequiereGPS` no está vacía ni está
+toda a `TRUE`**, y una lectura descuidada habría construido encima una exención silenciosa.
+
+```
+TipoActivoID  Nombre        Categoria       TieneQR  RequiereGPS  FormularioID  RadioGeofencingKm
+ 1            SOS           ITS             TRUE     TRUE         FRM_SOS       (vacio)
+ 2            CCTV          ITS             TRUE     TRUE         FRM_CCTV      (vacio)
+ 3            PMVF          ITS             TRUE     TRUE         FRM_PMVF      (vacio)
+ 4            PMVM          ITS             TRUE     TRUE         FRM_PMVM      (vacio)
+ 5            SGM           ITS             TRUE     TRUE         FRM_SGM       (vacio)
+ 6            SGE           ITS             TRUE     TRUE         FRM_SGE       (vacio)
+ 7            SSA           ITS             TRUE     TRUE         FRM_SSA       (vacio)
+ 8            GENERADOR     Eléctrico       TRUE     TRUE         FRM_GENE      (vacio)
+ 9            BASCULA       ITS             TRUE     TRUE         FRM_BASC      (vacio)
+10            FO            Comunicaciones  TRUE     TRUE         FRM_FO        (vacio)
+11            VW            TI              TRUE     TRUE         FRM_VW        (vacio)
+12            SWITCH        TI              TRUE     TRUE         FRM_SWIT      (vacio)
+13            ROUTER        TI              TRUE     TRUE         FRM_ROUT      (vacio)
+14            FIREWALL      TI              TRUE     TRUE         FRM_FIRE      (vacio)
+15            UPS           Eléctrico       TRUE     TRUE         FRM_UPS       (vacio)
+16            SERVIDOR      TI              TRUE     FALSE        FRM_SERV      (vacio)
+17            NAS           TI              TRUE     FALSE        FRM_NAS       (vacio)
+18            SUBESTACIÓN   Eléctrico       TRUE     TRUE         FRM_SUBE      (vacio)
+```
+
+**`RequiereGPS = FALSE` vale exactamente en `SERVIDOR` (16) y `NAS` (17). Y esos dos SÍ se visitan:**
+son equipos físicos dentro del CCO o de un peaje, y alguien va hasta el rack a mantenerlos.
+
+Luego **`RequiereGPS` no significa «no se visita»**, y una versión anterior de esta especificación lo
+usó como si lo significara. Habría eximido del geofencing a los servidores y a los NAS **sin que
+nadie lo notara**, que es la forma exacta del defecto de `RG-16`: una condición que no falla, no
+avisa, y deja de proteger. Se corrige en 5.3.
+
+**Lo que sí significa `RequiereGPS = FALSE` no está escrito en ninguna parte.** La columna no lleva
+nota en `modelo_objetivo.py` y nadie la lee. La hipótesis razonable —bajo techo el GPS no es fiable—
+no es una verificación. Va a la sección 10 como **A-13**, y esta especificación **no le da
+significado nuevo ni la usa en ninguna regla**.
 
 ### 2.3 `EOT_EstadosOrden`, la tabla que ya sabe quién puede cambiar qué
 
@@ -501,26 +543,102 @@ Se elige eso y no sacarlos del alcance por una razón de dominio: son 5 de los 2
 contra el que mide la interventoría. Un sistema que no puede decir si el certificado SSL se renovó
 deja fuera del cumplimiento una parte del contrato.
 
-**Plano de realización.** La pieza que lo permite **ya existe y está poblada**:
-`TIP_TiposActivo.RequiereGPS`, verificada como columna presente en los 18 tipos. Nunca la ha leído
-ninguna regla. Este es el trabajo para el que se creó.
+**Plano de realización, y aquí hubo que corregir.** La primera versión de esta especificación
+reutilizaba `TIP_TiposActivo.RequiereGPS` para marcar los cinco. **Era un error**, y el volcado de
+2.2.1 lo demuestra: esa columna vale `FALSE` en `SERVIDOR` y `NAS`, que **sí se visitan**. El `OR`
+sobre `RG-01` habría eximido del geofencing a los servidores y los NAS sin decírselo a nadie.
+
+**Son dos conceptos y llevan dos columnas:**
+
+| Columna | Significa | Estado |
+|---|---|---|
+| `TIP_TiposActivo.SeVisita` | **Hay un lugar físico al que ir.** `FALSE` = el trabajo se hace desde un navegador o una consola | **Nueva.** Inicial `TRUE`; `FALSE` en los cinco |
+| `TIP_TiposActivo.RequiereGPS` | Sin definición escrita. Hoy `FALSE` en `SERVIDOR` y `NAS` | **Existe. No se toca, no se lee y no se le da significado nuevo.** Supuesto A-13 |
 
 | Pieza | Cómo |
 |---|---|
-| Marcar los tipos sin coordenada | `TIP_TiposActivo.RequiereGPS = FALSE` en esos tipos |
-| Que `ACT_Activos.Ubicacion` deje de ser obligatoria para ellos | `RG-22`: `Required_If = [TipoActivoID].[RequiereGPS] = TRUE` |
-| Que el geofencing no los rechace | **`RG-01` se modifica**: se envuelve en un `OR` con la exención. Ver 7.1 |
-| Que se sepa cuáles cerraron sin prueba de ubicación | Sale solo: son los que tienen `RequiereGPS = FALSE`. No hace falta columna |
+| Marcar los tipos sin lugar al que ir | `TIP_TiposActivo.SeVisita = FALSE` en los cinco |
+| Que `ACT_Activos.Ubicacion` deje de ser obligatoria para ellos | `RG-22`: `Required_If = [TipoActivoID].[SeVisita] = TRUE` |
+| Que el geofencing no los rechace | **`RG-01` se modifica**, con `[...].[SeVisita] = FALSE` en el `OR`. Ver 12.2 |
+| Los servidores y los NAS | **Siguen con geofencing.** Su problema es de precisión bajo techo, y para eso ya están `RadioGeofencingKm` por tipo y `RG-19`, que marca el cierre como excepcional cuando el error del satélite se dispara. No se les exime |
 
 > **Sin la modificación de `RG-01` esto falla de la peor manera posible.** `DISTANCE()` contra una
 > `Ubicacion` en blanco no da error: da un valor que **rechaza el cierre legítimo**. Es el mismo modo
 > de fallo que `ESPEC-002` §7 describe para el radio vacío, donde `P-08` y `P-09` fallarían las dos
-> y la tanda dejaría de discriminar. Marcar `RequiereGPS = FALSE` sin tocar `RG-01` deja los cinco
+> y la tanda dejaría de discriminar. Marcar `SeVisita = FALSE` sin tocar `RG-01` deja los cinco
 > tipos con órdenes que nadie puede cerrar.
 
 **Lo que se pierde, dicho claro.** Para esos cinco tipos la garantía del sistema baja de «esta
 persona estuvo frente al equipo» a «esta persona declaró haberlo hecho, con hora de servidor y
 firma». Es menos, y es honesto: no hay equipo frente al que estar.
+
+#### 5.3.1 Los cinco tipos **no existen como filas**, y sin ellas esta sección no se puede aplicar
+
+`TIP_TiposActivo` tiene 18 filas y el Plan Maestro tiene 24 tipos. **No son el mismo conjunto ni uno
+contiene al otro**, y ninguno de los cinco sin coordenada está en la hoja. Cruzados uno a uno:
+
+| | Cuántos | Cuáles |
+|---|---|---|
+| Tipos del Plan con fila en `TIP` | **10** | SOS, CCTV, PMVF, PMVM, Gálibos electrónicos (SGE), Gálibos mecánicos (SGM), Sensores ambientales (SSA), Fibra (FO), Servidores, Básculas |
+| Tipos del Plan que comparten una sola fila | **2 → 1** | `Switch Capa 3` y `Switch Capa 2` caen los dos en `SWITCH` (12). El Plan los separa; `TIP` no |
+| Tipos del Plan **sin fila** en `TIP` | **12** | ETD, Pasos Seguros, Peaje-Carriles, Peaje-Electrónica, OCR de pesaje, **Antivirus, Licencias, Radios, SSL, ISP**, Computadores, Impresoras |
+| Filas de `TIP` **sin tipo** en el Plan | **7** | GENERADOR, VW, ROUTER, FIREWALL, UPS, NAS, SUBESTACIÓN |
+
+**Para que 5.3 sea aplicable hacen falta cinco filas nuevas en `TIP_TiposActivo`**, con claves que
+continúan la serie numérica `1..18` que la hoja ya usa —no `TIP-19`, que rompería `F-11` mezclando
+formatos de clave—:
+
+| Clave | Nombre | Categoria | SeVisita | RequiereGPS | TieneQR | FormularioID |
+|---|---|---|---|---|---|---|
+| `19` | `ANTIVIRUS` | `TI` | `FALSE` | `FALSE` | `FALSE` | pendiente |
+| `20` | `LICENCIAS` | `TI` | `FALSE` | `FALSE` | `FALSE` | pendiente |
+| `21` | `SSL` | `TI` | `FALSE` | `FALSE` | `FALSE` | pendiente |
+| `22` | `ISP` | `Comunicaciones` | `FALSE` | `FALSE` | `FALSE` | pendiente |
+| `23` | `RADIOS` | `Comunicaciones` | `FALSE` | `FALSE` | `FALSE` | pendiente |
+
+`FormularioID` queda pendiente porque el formulario pasa a ser de la tarea (3.1), y las tareas de
+estos cinco no existen todavía. **Mientras `TIP_TiposActivo.FormularioID` siga viva —y sigue, hasta
+la Fase C por 7.4— es `obligatoria`, así que estas cinco filas no se pueden cargar sin un formulario
+que apuntar.** Es una dependencia real y ordena el trabajo: primero `TAR_Tareas` y sus formularios,
+después estas cinco filas.
+
+**Las otras dos diferencias no se resuelven aquí.** Los 12 tipos del Plan sin fila y las 7 filas sin
+tipo del Plan son una reconciliación de inventario que necesita a operación, no una decisión de
+modelo: hay que saber si `VW`, `ROUTER` o `SUBESTACIÓN` se mantienen y nadie los puso en el Plan
+Maestro, o si son parte de otro contrato. Va como **A-14**, y es hermana de A-01.
+
+### 5.4 El oficio necesita dónde leerse, o los doce no compran nada
+
+`USR_Usuarios` tiene hoy `UsuarioID, Nombres, Correo, Cargo, Iniciales, RolID, SedeID, Telefono,
+FechaIngreso, Activo`. **Ninguna columna dice qué oficio tiene la persona.**
+
+Así que cargar los doce oficios en `ROL_Roles` y colgarlos de `TAR_Tareas.RolRequeridoID` deja la
+mitad de una frase: el sistema sabría que «inspección de fibra la hace un Técnico Fibra» y **no
+sabría quién es Técnico Fibra**. Doce filas de catálogo sin un solo consumidor, que es alcance que
+crece sin uso — y la instrucción vigente de operación es que funcione primero.
+
+**Se cierra el circuito con una columna: `USR_Usuarios.OficioID`**, `Ref` a `ROL_Roles`, opcional,
+con `alias_justificado` porque la clave destino es `RolID`. Con ella:
+
+```
+TAR_Tareas.RolRequeridoID  ──┐
+                             ├── ¿coinciden?  ->  el supervisor lo ve al asignar
+USR_Usuarios.OficioID      ──┘
+```
+
+**Y se queda en comprobación de vista, no en regla que bloquea.** Un `Valid_If` sobre
+`OT_OrdenesTrabajo.TecnicoID` que exigiera la coincidencia impediría asignar órdenes en cuanto un
+usuario tuviera el oficio vacío —y los once lo tienen vacío hoy, porque la columna no existe—. El
+sistema quedaría sin poder asignar nada. Se declara como **deuda** y se resuelve cuando los once
+usuarios tengan oficio.
+
+Lo que sí es regla es `RG-33`: `OficioID` solo admite filas con `Clase = Oficio`, igual que `RG-21`
+restringe `RolID` a `Clase = Acceso`. Sin las dos, el discriminador de 5.2 es decorativo.
+
+**Alternativa considerada y descartada:** no cargar los doce oficios en esta especificación y dejar
+`TAR_Tareas.RolRequeridoID` vacío. Se descarta porque el dato ya existe —está en la columna
+`PERSONAL` del Plan Maestro, verificado— y porque `TAR_Tareas` sin rol requerido no puede decir
+quién debe ejecutar la tarea, que es la mitad de para qué existe la capa.
 
 ---
 
@@ -581,30 +699,50 @@ Y hay una cuarta que también falla, y es la que parece buena: **una columna `Ch
 sirve para «cuándo empezó», porque se reescribe.** Si la orden va `En ejecucion` → `Devuelta` →
 `En ejecucion`, la marca se mueve al segundo intento y el tiempo de respuesta se acorta solo.
 
-**Un solo patrón resuelve los tres:** una tabla hija **solo-añadir** de eventos, y el agregado
-derivado por consulta.
+**Un patrón resuelve los tres: tablas hijas de la orden, y el agregado derivado por consulta en vez
+de almacenado.** Son **dos tablas distintas y no intercambiables**, y conviene decirlo porque ya se
+confundieron una vez: una registra **transiciones de estado**, la otra registra **bloqueos**.
 
 ```
 OT_OrdenesTrabajo
-   ├── EVT_EventosOrden    una fila por transición de estado. Nunca se edita ni se borra
-   │        estado · fecha/hora del servidor · quién
-   └── EVT_EventosOrden          una fila por bloqueo. inicio · fin · motivo
-            MinutosPausa se calcula por fila; el total sale de un SUM()
+   ├── EVT_EventosOrden   una fila por TRANSICIÓN DE ESTADO. Solo se añade
+   │        EventoID · EstadoOrdenID · UsuarioID · FechaHora · Observacion
+   │
+   └── PAU_Pausas         una fila por BLOQUEO. Se añade al pausar, se cierra al reanudar
+            PausaID · Inicio · Fin · MotivoPendienteID · MinutosPausa
 
-HoraInicioTrabajos   = la fila EVT más antigua con estado 'En ejecucion'
-HoraAviso            = la fila EVT más antigua           (creación de la orden)
-Reloj parado         = SUM(EVT_EventosOrden[MinutosPausa]) de esa orden
+HoraAviso            = la fila EVT más antigua de la orden
+HoraInicioTrabajos   = la fila EVT más antigua con EstadoOrdenID = 'En ejecucion'
+Motivo de devolución = EVT.Observacion de la fila con EstadoOrdenID = 'Devuelta'
+Reloj parado         = SUM(PAU_Pausas[MinutosPausa]) de esa orden
 Tiempo de respuesta  = HoraInicioTrabajos − HoraAviso − reloj parado del tramo
 ```
 
-Ninguna fila se reescribe, así que dos dispositivos sin señal no se pisan: cada uno añade la suya y
-el total se recalcula al sincronizar. Es el mismo argumento que sacó `Adds` de la orden, aplicado en
-la dirección correcta.
+**`EVT_EventosOrden` sí es solo-añadir.** Una transición nunca se corrige: si el estado estaba mal,
+se hace otra transición. Dos dispositivos sin señal no se pisan porque cada uno añade su fila.
+
+> **`PAU_Pausas` NO es solo-añadir, y decir lo contrario sería falso.** Una versión anterior de esta
+> sección lo afirmaba. Con `Inicio` y `Fin` en la misma fila, **reanudar es un `UPDATE`**, no un
+> `INSERT`.
+>
+> Se consideró la alternativa fiel al patrón —dos filas de evento, `Pausa` y `Reanudacion`, emparejadas
+> por consulta— y **se descarta**: emparejar eventos consecutivos exige una consulta ordenada por
+> tiempo con correlación entre filas, y el lenguaje de expresiones de AppSheet no la tiene. Se
+> obtendría pureza sobre el papel y ningún total calculable.
+>
+> **Se adopta la fila editable**, con la regla `RG-32` que impide abrir una pausa si ya hay otra
+> abierta en la misma orden, y **con el fallo residual declarado**: si un técnico pausa en un
+> dispositivo y otro reanuda en un segundo dispositivo antes de sincronizar, `RG-32` no ve la fila
+> ajena, queda una segunda pausa abierta, `MinutosPausa` no se calcula y **`SUM()` la ignora**. El
+> reloj parado sale **por debajo** del real, que es el lado que perjudica a quien ejecuta el
+> mantenimiento y favorece a quien lo mide. Es `N-14`, y no se puede cerrar en esta plataforma.
 
 **El motivo de la pausa reutiliza un catálogo que ya existe y está poblado.** `MOT_MotivosPendiente`
 tiene las cinco filas verificadas —`Falta de repuesto, Clima, Acceso restringido, Riesgo para el
 tecnico, Requiere especialista`— que son exactamente las causas de reloj parado. No hace falta
 catálogo nuevo.
+
+**Y el motivo de la devolución tiene un solo sitio: `EVT_EventosOrden.Observacion`.** Ver 6.4.
 
 ### 6.3 Plano de realización
 
@@ -612,8 +750,9 @@ catálogo nuevo.
 |---|---|---|
 | `CRI_Criticidad` como catálogo | **Sí**, y **vacía de plazos** | Los números son de otro corredor. La tabla existe para que sean dato y no expresión |
 | `OT` gana `CriticidadID`, `HoraAviso`, `CanalAviso`, `NivelAtencion` | **Sí** | Columnas nuevas |
-| `EVT_EventosOrden` con su total por `SUM()` | **Sí** | El usuario añade la fila al pausar y al reanudar |
-| `EVT_EventosOrden` como tabla | **Sí** | Hoja nueva |
+| `EVT_EventosOrden` como tabla | **Sí** | Hoja nueva. Solo-añadir de verdad |
+| `PAU_Pausas` con su total por `SUM()` | **Sí, con matiz** | El usuario añade la fila al pausar y la **edita** al reanudar. No es solo-añadir: ver el recuadro de 6.2 y `N-14` |
+| `MinutosRelojParado` como **columna virtual** de la orden | **Sí** | **No puede ser `App formula` sobre columna real.** Ver el recuadro de abajo |
 | Que `EVT` se escriba **sola** en cada transición | **Supuesto no verificado** | Ver el recuadro. Si falla, ver N-05 |
 | Que `HoraInicioTrabajos` sea infalsificable | **NO del todo** | Quien escriba en el Sheets edita la fila de evento. Ver N-06 |
 | `Devuelta` como estado de rechazo | **Sí** | Fila nueva en `EOT_EstadosOrden` |
@@ -622,8 +761,28 @@ catálogo nuevo.
 | Crear una correctiva desde la aplicación | **NO** | `ESPEC-002` retiró `Adds` de `OT`. Ver N-08 |
 | Aviso automático al supervisor | **NO** | Bot por evento, plan de pago. Ver N-09 |
 
-> **Tres cosas que NO están verificadas contra la documentación de Google, y hay que verificarlas
-> antes de configurar nada.** Se declaran, no se afirman, y van también a la tabla del final de
+> **`MinutosRelojParado` va como columna VIRTUAL, no como `App formula` sobre una columna real.**
+>
+> Es la corrección que impide que el reloj parado vuelva a ser el acumulado del que huye 6.2.
+> `BASE_CONOCIMIENTO_APPSHEET.md` punto 2 lo dice con cita: una `App formula` se recalcula «cuando se
+> abre un formulario **o cuando la fila se modifica por otro mecanismo**». **Añadir una pausa modifica
+> la fila de `PAU_Pausas`, no la de `OT_OrdenesTrabajo`.** Una `App formula` en la orden no se
+> dispararía, el `SUM()` quedaría con el valor del último guardado de la orden, y el total sería un
+> acumulado obsoleto escrito en la hoja: exactamente el defecto que se quería evitar, con la agravante
+> de que una `App formula` **escribe**.
+>
+> Una columna virtual se recalcula en cada sincronización y **no se guarda en la hoja**, así que no
+> hay nada que pueda quedar desfasado.
+>
+> **Y por eso no se declara en `MODELO`.** `F-02` de `verificar_faseA.py` exige que toda columna del
+> modelo exista en la hoja, y una virtual no existe. Se declara solo como regla `RG-29`, con
+> `columna = "(tabla)"`, que es lo que `V-10` admite.
+>
+> La expresión es `SUM([Related PAU_Pausas][MinutosPausa])` y **no** la forma con `SELECT(...)` y
+> `[_THISROW]`: ver el aviso sobre `V-11` en 12.1.
+
+> **Cuatro cosas que NO están verificadas contra la documentación de Google, y hay que verificarlas
+> antes de configurar nada.** Se declaran, no se afirman, y se añaden a la tabla del final de
 > `BASE_CONOCIMIENTO_APPSHEET.md`:
 >
 > 1. **Que una acción agrupada pueda añadir una fila a otra tabla** en el plan gratuito, que es como
@@ -635,6 +794,14 @@ catálogo nuevo.
 >    tipo `Duration`** —`TIPOS` en `modelo_objetivo.py` no lo incluye—, así que `MinutosPausa` va
 >    como `Decimal` calculada. Si la conversión no es directa, hay que añadir `Duration` a `TIPOS`,
 >    y eso es un cambio del validador.
+> 4. **Que un `ChangeTimestamp` sea la hora del SERVIDOR y no la del dispositivo.** Comprobado con
+>    `grep ChangeTimestamp docs/BASE_CONOCIMIENTO_APPSHEET.md`: **cero apariciones.** No hay ni una
+>    cita oficial en toda la base de conocimiento. Y de esto cuelga todo: `RG-31`, `HoraAviso`,
+>    `HoraInicioTrabajos`, `EVT.FechaHora`, y también `FOT_Fotografias.FechaHora` y
+>    `MAN_Mantenimientos.FechaHoraRegistro`, **que ya están en el modelo desde antes de esta
+>    especificación**. Si `ChangeTimestamp` resultara ser el reloj del teléfono, la cadena de
+>    evidencia entera pierde su marca de tiempo fiable y no solo el correctivo. **Es el supuesto más
+>    caro de los cuatro y el que más lleva sin comprobarse.**
 >
 > Si la primera falla, el respaldo es un botón «Registrar inicio de trabajos» que el técnico pulsa.
 > Prueba menos —depende de que se acuerde— pero es real y no bloquea.
@@ -662,6 +829,32 @@ catálogo nuevo.
 >
 > Y el límite de siempre: **esto vive en la capa de aplicación.** Hay dos cuentas con permiso de
 > edición sobre el Sheets, y quien escriba ahí pone `Cerrada` sin pasar por ninguna regla.
+
+### 6.4 El motivo de la devolución: un solo sitio, y se retira el otro
+
+Una versión anterior de esta especificación dejaba **dos** sitios donde escribir por qué el
+supervisor devuelve el trabajo: la columna `MAN_Mantenimientos.ObservacionRechazo`, que ya existe y
+está vacía, y `EVT_EventosOrden.Observacion`, que se crea aquí. Es la falta que
+`FUNCIONAL_SGMC.md` §6 existe para impedir: dos sitios que dicen lo mismo acaban diciendo cosas
+distintas y no hay forma de saber cuál miente.
+
+**Se usa `EVT_EventosOrden.Observacion`. Se retira `MAN_Mantenimientos.ObservacionRechazo`.**
+
+El argumento no es de gusto, es de quién escribe dónde:
+
+- **La devolución es un acto del supervisor sobre la orden**, y `EVT_EventosOrden` es la tabla donde
+  quedan registrados los actos sobre la orden, con su autor y su hora.
+- **`MAN_Mantenimientos` es la tabla que edita el técnico.** Poner ahí el motivo del rechazo deja al
+  rechazado como dueño del texto que lo justifica. La misma lógica por la que el técnico no cierra
+  su propia orden.
+- Con una fila de `EVT` por devolución, **una orden devuelta dos veces conserva los dos motivos.**
+  Una columna única en `MAN` guarda solo el último.
+
+**Esto retira una columna más de las tres de 7.3, y rompe una segunda entrada de `V-13`.** Está
+verificado y medido en 12.4: `COBERTURA` clava `("MAN_Mantenimientos", "ObservacionRechazo")` bajo el
+flujo «Devolucion del supervisor». Son **dos** entradas a re-apuntar, no una.
+
+Queda anotado en `docs/FUNCIONAL_SGMC.md` §6 como fila 6.17.
 
 ---
 
@@ -728,24 +921,31 @@ entra en `CLAVE_GENERADA`.
 | `OTID` | `Ref` | `OT_OrdenesTrabajo` | **SIN `IsPartOf`**, por R-6b: la traza sobrevive a su orden |
 | `EstadoOrdenID` | `Ref` | `EOT_EstadosOrden` | El estado al que se entra |
 | `UsuarioID` | `Ref` | `USR_Usuarios` | `LOOKUP(USEREMAIL(), "USR_Usuarios", "Correo", "UsuarioID")` |
-| `FechaHora` | `ChangeTimestamp` | — | Marca de servidor, no del teléfono |
-| `Observacion` | `LongText` | — | Es donde escribe el supervisor al devolver |
+| `FechaHora` | `ChangeTimestamp` | — | Marca del servidor. **Supuesto sin cita: punto 4 del recuadro de 6.3** |
+| `Observacion` | `LongText` | — | **Único** sitio del motivo de la devolución (6.4) |
 
-**`EVT_EventosOrden`** — grupo `Transaccionales`. Clave `PausaID` por `UNIQUEID()` → **generada**.
+**`PAU_Pausas`** — grupo `Transaccionales`. Clave `PausaID` por `UNIQUEID()` → **generada**, entra
+en `CLAVE_GENERADA`.
+
+> **`EVT_EventosOrden` y `PAU_Pausas` son dos tablas distintas y no intercambiables.** Una registra
+> transiciones de estado; la otra, bloqueos que paran el reloj. Se confundieron una vez al editar
+> este documento y el resultado fueron dos tablas con el mismo nombre y claves distintas. Se deja
+> escrito para que no vuelva a pasar, y `PROPUESTAS` en `modelo_objetivo.py` las lleva declaradas por
+> separado.
 
 | Columna | Tipo | Destino | Nota |
 |---|---|---|---|
-| `PausaID` | `Text` | — | clave, `UNIQUEID()` |
-| `OTID` | `Ref` | `OT_OrdenesTrabajo` | Sin `IsPartOf`, misma razón |
-| `Inicio` | `DateTime` | — | Obligatoria |
-| `Fin` | `DateTime` | — | Vacía mientras la pausa sigue abierta |
+| `PausaID` | `Text` | — | clave, `Initial value = UNIQUEID()` |
+| `OTID` | `Ref` | `OT_OrdenesTrabajo` | Sin `IsPartOf`, misma razón que `EVT` |
+| `Inicio` | `DateTime` | — | Obligatoria. Se escribe al abrir la pausa |
+| `Fin` | `DateTime` | — | Vacía mientras la pausa sigue abierta. **Es un `UPDATE`**: ver 6.2 |
 | `MotivoPendienteID` | `Ref` | `MOT_MotivosPendiente` | Obligatoria. Reutiliza las 5 filas que ya existen |
 | `MinutosPausa` | `Decimal` | — | `App formula`, `RG-28`. Ver el supuesto de aritmética en 6.3 |
 
-> **`EVT_EventosOrden` y `EVT_EventosOrden` van a producir un aviso `V-06`**, del tipo «no es referenciada
-> por nadie. Confirma que es punto de entrada». Es correcto y está previsto: son hojas que cuelgan de
-> la orden sin `IsPartOf`, y el validador solo exime a las que lo llevan. Son avisos, no errores, y
-> ya hay dos así en el modelo vigente.
+> **`EVT_EventosOrden` y `PAU_Pausas` van a producir un aviso `V-06`** cada una, del tipo «no es
+> referenciada por nadie. Confirma que es punto de entrada». Es correcto y está previsto: son hojas
+> que cuelgan de la orden sin `IsPartOf`, y el validador solo exime a las que lo llevan. **Verificado
+> en la simulación de 12.4: cinco avisos en total, ninguno error.**
 
 ### 7.2 Columnas nuevas sobre tablas existentes
 
@@ -756,7 +956,6 @@ entra en `CLAVE_GENERADA`.
 | `OT_OrdenesTrabajo` | `HoraAviso` | `DateTime` | — | Cuándo se supo de la avería. No es `FechaProgramada` |
 | `OT_OrdenesTrabajo` | `CanalAviso` | `Enum` | — | `Telefono`, `Correo`, `Web`, `SCADA`, `App`. **`SCADA` es del Sisga**, no del PDF de ETRA |
 | `OT_OrdenesTrabajo` | `NivelAtencion` | `Enum` | — | `N1`, `N2`, `N3` |
-| `OT_OrdenesTrabajo` | `MinutosRelojParado` | `Decimal` | — | `App formula` sobre `EVT_EventosOrden` (`RG-29`) |
 | `ACT_Activos` | `RecintoID` | `Ref` | `SED_Sedes` | Opcional. **`alias_justificado`**; no se llama `SedeID` (R-7 y V-12) |
 | `ACT_Activos` | `EstructuraID` | `Ref` | `ETR_Estructuras` | Opcional |
 | `ACT_Activos` | `PK` | `Decimal` | — | Kilometraje lineal. Convive con `PR` |
@@ -767,7 +966,13 @@ entra en `CLAVE_GENERADA`.
 | `UNF_UnidadesFuncionales` | `PKInicial` | `Decimal` | — | `PRInicial` y `PRFinal` existen y están vacías |
 | `UNF_UnidadesFuncionales` | `PKFinal` | `Decimal` | — | |
 | `ROL_Roles` | `Clase` | `Enum` | — | `Acceso`, `Oficio`. Sin ella los doce oficios contaminan el perfil |
+| `USR_Usuarios` | `OficioID` | `Ref` | `ROL_Roles` | **Opcional.** `alias_justificado`. Sin ella los doce oficios no tienen dónde leerse: ver 5.4 |
+| `TIP_TiposActivo` | `SeVisita` | `Yes/No` | — | **No es `RequiereGPS`.** Inicial `TRUE`; `FALSE` solo en los cinco tipos sin lugar al que ir. Ver 5.3 |
 | `PLA_PlanMantenimiento` | `TareaID` | `Ref` | `TAR_Tareas` | Obligatoria. El plan es activo × tarea |
+
+**Y una columna que NO se declara aquí:** `MinutosRelojParado` de `OT_OrdenesTrabajo` es una
+**columna virtual**, no una columna de la hoja. Va solo como `RG-29`. El motivo, con la cita que lo
+sostiene, está en el recuadro de 6.3.
 
 > **Nota de nombre, para que no sorprenda al leer el código.** La columna de dominio se llama `PK`
 > (punto kilométrico) y en `modelo_objetivo.py` convive con el atributo `pk=True`, que marca la clave
@@ -777,14 +982,37 @@ entra en `CLAVE_GENERADA`.
 
 ### 7.3 Columnas que se retiran
 
-**Las tres van a `CAMPOS_RETIRADOS` y salen de `MODELO` a la vez.** `V-12` aborta si una columna
-está en los dos sitios.
+**Las cuatro van a `CAMPOS_RETIRADOS` y salen de `MODELO` a la vez.** `V-12` aborta si una columna
+está en los dos sitios. **Las cuatro se difieren a la Fase C**, por 7.4 y por 11.1.
 
 | Tabla | Columna | Por qué | Efecto colateral |
 |---|---|---|---|
-| `ACT_Activos` | `FrecuenciaID` | La periodicidad es de la tarea | **Hay que sacarla también de `RETIPADOS['ACT_Activos']`** o `V-16` falla: «figura como retipado pero no existe en el modelo» |
+| `ACT_Activos` | `FrecuenciaID` | La periodicidad es de la tarea | **Hay que sacarla también de `RETIPADOS['ACT_Activos']`** o `V-16` falla: «figura como retipado pero no existe en el modelo». **No se pierde información**: ver el recuadro |
 | `TIP_TiposActivo` | `FormularioID` | El formulario es de la tarea | **Rompe `V-13` y toca la Fase B.** Ver 7.4 |
 | `PLA_PlanMantenimiento` | `FrecuenciaID` | Se alcanza por `[TareaID].[FrecuenciaID]` (R-6) | `RG-11` cambia de expresión. `ESPEC-002` **ya la había aplazado** a esta especificación, así que no estaba cableada: retirarla no cuesta nada en la aplicación |
+| `MAN_Mantenimientos` | `ObservacionRechazo` | Un solo sitio para el motivo de la devolución, y no en la tabla que edita el técnico (6.4) | **Rompe la segunda entrada de `V-13`**, «Devolucion del supervisor». Está vacía: la tabla tiene 2 filas de prueba y ninguna la usa |
+
+> **Qué se pierde al retirar `ACT_Activos.FrecuenciaID`: nada, y está demostrado.**
+>
+> La columna está **poblada en las 34 filas**, así que retirarla parece tirar datos. No lo es. Los
+> valores son un **round-robin exacto de 1 a 8**, comprobado contra la hoja:
+>
+> ```
+> $ python -c "... [int(r[12]) for r in ACT_Activos] ..."
+> FrecuenciaID en orden: [1,2,3,4,5,6,7,8, 1,2,3,4,5,6,7,8, 1,2,3,4,5,6,7,8, 1,2,3,4,5,6,7,8, 1,2]
+> round-robin 1..8     : [1,2,3,4,5,6,7,8, 1,2,3,4,5,6,7,8, 1,2,3,4,5,6,7,8, 1,2,3,4,5,6,7,8, 1,2]
+> COINCIDE EXACTAMENTE: True
+> ```
+>
+> No hay ni una excepción en 34 filas. **No es la periodicidad de ningún activo: es el relleno que
+> alguien escribió para que la columna no quedara vacía.** `SOS-001` sale `Diario` y `SOS-002`
+> `Semanal`, cuando el Plan Maestro da `Mensual` a los 54 postes por igual.
+>
+> Así que no hay mapeo que declarar de las 34 a las tareas: **no hay origen que mapear.** La
+> periodicidad real de cada tarea se carga desde el Plan Maestro al crear `TAR_Tareas`, y esos son
+> los datos buenos. Se deja escrito porque «poblada en las 34 filas» invita a creer lo contrario, y
+> ese es exactamente el error del `CodigoQR` que `CLAUDE.md` documenta: un campo lleno que disfraza
+> un vacío.
 
 ### 7.4 El caso `TIP_TiposActivo.FormularioID`, que es el único que muerde
 
