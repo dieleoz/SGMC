@@ -138,11 +138,24 @@ manual de usuario.
 
 | # | Propósito | Camino A | Camino B |
 |---|---|---|---|
-| 6.15 | Cuándo se considera **recibido** el trabajo | `OT_OrdenesTrabajo` pasa a `Cerrada`, con `CerradaPor` | `MAN_Mantenimientos.AprobadoSupervisor` + `FechaAprobacion` | 
+| 6.16 | Que hace falta volver | `MAN.RequiereSegundaVisita` | `OT.OTOrigenID`, orden nueva encadenada | Sin resolver. Los dos existen |
 
-Las dos existen hoy, en tablas distintas, y **ninguna referencia a la otra**. Cerrar la orden y
-aprobar la ejecución son dos actos separados sin relación definida. **Hay que elegir uno como el
-acto de recepción**, o definir qué significa cada uno.
+### 6.15 — La recepción del trabajo: no se elige, se relaciona
+
+Parecía una duplicación y no lo es. `MAN_Mantenimientos.OTID` es una referencia, de modo que **una
+orden puede tener varias ejecuciones**: el técnico va, no puede terminar, vuelve otro día.
+
+| Acto | Dónde vive | Qué afirma |
+|---|---|---|
+| `AprobadoSupervisor` · `FechaAprobacion` | En la **ejecución** | «Acepto esta visita como evidencia válida» |
+| `EstadoOrdenID = Cerrada` · `CerradaPor` | En la **orden** | «El trabajo terminó, no hacen falta más visitas» |
+
+Son dos niveles distintos y los dos hacen falta. **Lo que falta es la regla que los une: una orden
+no se puede cerrar mientras alguna de sus ejecuciones esté sin aprobar.** Hoy nada lo impide, y por
+eso los dos campos parecían decir lo mismo.
+
+Queda como requisito para `ESPEC-003`, con su prueba negativa: intentar cerrar una orden con una
+ejecución no aprobada tiene que fallar.
 
 ---
 

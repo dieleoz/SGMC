@@ -1,138 +1,232 @@
-> # NO ENTREGAR. Describe un sistema que no es el actual.
->
-> Revisado contra `scripts/modelo_objetivo.py` el 2026-08-07. **Contiene al menos nueve
-> afirmaciones que contradicen el modelo vigente**, y tres de ellas darían instrucciones que
-> corrompen datos:
->
-> | # | Lo que dice el manual | Lo que es |
-> |---|---|---|
-> | 1 | Editar `CHD_ChecklistDetalle` para cambiar las preguntas | **`CHD` guarda respuestas.** Las preguntas viven en `FRM_Preguntas`. Editarlo corrompe el histórico |
-> | 2 | El filtro de seguridad usa `SedeID` | Usa `ASG_AsignacionZona` por unidad funcional (RG-05) |
-> | 3 | Geocierre con rango ≤ 1,0 km | 1 km no prueba nada. El radio va por tipo de activo, parametrizado |
-> | 4 | Bypass GPS = nota en `Observaciones` | Es `CierreConExcepcion` + `MotivoExcepcion` con umbral (RG-19) |
-> | 5 | Sección completa de escáner QR | **El QR se retiró del alcance** |
-> | 6 | `Latitud` y `Longitud` como atributos | Es `Ubicacion`, un solo campo LatLong |
-> | 7 | Correo automático al técnico al crear la OT | No existe esa regla, y el plan gratuito no ejecuta procesos programados |
-> | 8 | 15 atributos del activo | `ACT_Activos` tiene 17 columnas |
-> | 9 | El supervisor asigna la «Frecuencia» al crear la OT | La periodicidad es de la tarea, no de la orden |
->
-> Además lleva emojis, que no van en entregables.
->
-> **El documento funcional vigente es [`docs/FUNCIONAL_SGMC.md`](../docs/FUNCIONAL_SGMC.md).** Este
-> manual se reescribe contra él cuando el sistema esté construido, no antes: un manual escrito sobre
-> un sistema que aún cambia envejece antes de entregarse.
+# Manual de usuario y guía de operación — SGMC
 
-# MANUAL DE USUARIO Y GUÍA DE OPERACIÓN (MANUAL_DE_USUARIO.md)
+**Sistema de Gestión de Mantenimiento en Campo**
+Concesión Transversal del Sisga S.A.S. · Google AppSheet `SGMC-886843353`
 
-**Proyecto:** Sistema de Gestión de Mantenimiento en Campo (SGMC)  
-**Cliente:** Concesión Transversal del Sisga S.A.S.  
-**Plataforma:** Google AppSheet (`SGMC-886843353`)  
-**URL de Acceso Web:** [Portal SGMC en AppSheet](https://www.appsheet.com/start/060b99df-2037-4049-b94d-03c1eefc3219?platform=desktop#appName=SGMC-886843353&vss=H4sIAAAAAAAAA6XOvQ7CIBQF4Hc5M0_AahyM0cWfRTpguU2ILTQF1Ibw7t6qjbM6csh37sm4Wrrtoq4vkKf8ea1phERW2I89KUiFhXdx8K2CUNjq7hUeQtKD9UGhoFRi9pECZP6Oy_-uC1hDLtrG0jB1TZI73o6_J8XBbFAEuhT1uaXnYDalcNb4OgUyR57yw4Swcst7r53ZeMOVjW4DlQcPF0XqZQEAAA==&view=Usuarios)  
-**Destinatarios:** Técnicos de Campo, Supervisores CCO, Administradores de Sistema e Interventoría  
-**Fecha:** Agosto de 2026 | **Versión:** 1.0 Manual Completo  
+Reescrito el 2026-08-07 contra [`docs/FUNCIONAL_SGMC.md`](../docs/FUNCIONAL_SGMC.md) y verificado
+sobre `scripts/modelo_objetivo.py`. **La versión anterior describía un sistema que no existe** —
+incluía escáner QR, que se retiró del alcance, e indicaba editar la tabla de respuestas para cambiar
+las preguntas, lo que corrompe el histórico.
+
+> ## Antes de usar este manual
+>
+> **El sistema está en construcción.** Lo que sigue describe cómo se opera, y una parte todavía no
+> está montada. Cada apartado afectado lo dice en su sitio, y el resumen es este:
+>
+> | Función | Estado |
+> |---|---|
+> | Órdenes, checklist, fotografías, firmas, histórico | Modelo construido |
+> | Referencias entre tablas | **Pendiente** — Fase B |
+> | Geofencing operativo | **Pendiente** — el radio por tipo de activo está vacío |
+> | Que el técnico no pueda cerrar su propia orden | **Pendiente** — está definido, no impuesto |
+> | Coordenadas de los activos | **No existen.** Se levantan en campo |
+> | Creación automática de las órdenes del mes | **No cabe en el plan actual** |
 
 ---
 
-## 📌 1. Introducción y Roles de Usuario
+## 1. Para qué sirve
 
-El **SGMC** es la herramienta oficial para la gestión, inspección y mantenimiento preventivo/correctivo de la infraestructura vial de la Concesión Transversal del Sisga S.A.S.
+Para saber **cuánto de lo planeado se ejecutó**, y poder demostrarlo.
 
-El sistema contempla **4 Perfiles de Usuario (RBAC)**:
+Hoy esa cifra se lleva a mano: alguien recoge los partes, cuenta las tareas hechas contra las
+programadas y transcribe el porcentaje. Con el SGMC esa cuenta es una resta entre lo programado y
+lo cerrado, y sale del sistema.
 
-| Perfil / Rol | Tipo de Dispositivo | Funciones Principales |
+Todo lo demás —fotografías, coordenadas, firmas, histórico— existe para que esa cifra sea
+**defendible ante la interventoría**, no solo cierta.
+
+## 2. Quién usa el sistema
+
+| Perfil | Dispositivo | Qué hace |
 |---|---|---|
-| 📱 **Técnico de Campo** | Smartphone Móvil | Descarga de OTs, inspección offline, escáner QR, fotos, firmas y geocierre GPS |
-| 💻 **Supervisor CCO** | Computador Web / Tablet | Programación y asignación de OTs, revisión de alertas y monitoreo de KPIs |
-| 📊 **Consulta / Interventoría** | Computador Web | Auditoría de mantenimientos, exportación de reportes PDF/Excel y visualización |
-| ⚙️ **Administrador de Sistema** | Computador Web | Alta/baja de usuarios, gestión de sedes, activos, tarifas y plantillas de checklist |
+| **Técnico de campo** | Móvil, funciona sin cobertura | Ejecuta la orden, responde el checklist, toma fotografías, firma. **No cierra la orden** |
+| **Supervisor** | Web o tableta | Programa, asigna, revisa, **cierra** y suspende |
+| **Consulta / interventoría** | Web | Audita y exporta. No escribe |
+| **Administrador** | Web | Usuarios, activos, catálogos y plantillas de checklist |
 
----
+El Plan Maestro distingue además **doce especialidades** —técnico ITS, técnico de alturas, técnico
+de fibra, técnico de peaje, ayudante, ingenieros de ITS, redes, soporte y TI, auxiliar de TI,
+especialista y proveedor—. Hoy el sistema **no las usa para decidir quién puede hacer qué**: eso
+está previsto y no construido.
 
-## 📱 2. Guía Operativa para Técnicos de Campo (App Móvil)
+## 3. Guía del técnico de campo
 
-### 2.1 Primer Ingreso e Instalación
-1. Descargue e instale la aplicación **AppSheet** desde Google Play Store (Android) o App Store (iOS).
-2. Abra AppSheet y seleccione **"Sign in with Microsoft"** (o Google) e ingrese su correo corporativo M365 (ej. `tecnico.sisga@transversaldelsisga.com`).
-3. El sistema evaluará su `SedeID` asignada y descargará a su teléfono celular únicamente los activos y órdenes de su zona.
+### 3.1 Primer ingreso
 
-### 2.2 Flujo Diario de Trabajo en Campo
+1. Instale la aplicación **AppSheet** desde Google Play o App Store.
+2. Inicie sesión con su **cuenta corporativa**, la misma que figura en su ficha de usuario.
+3. El sistema descarga a su teléfono **solo los activos y las órdenes de las unidades funcionales
+   que tiene asignadas**. Si no ve un activo que espera ver, el problema está en su asignación de
+   zona, no en la aplicación — ver 6.2.
 
-```mermaid
-graph TD
-    A[1. Inicio de Jornada] --> B[2. Abrir 'Mis OT' o 'Escáner QR']
-    B --> C[3. Seleccionar Activo o Escanear Código en Vía]
-    C --> D[4. Iniciar Mantenimiento & Diligenciar Checklist Dinámico]
-    D --> E[5. Capturar Evidencias: Fotos + Firmas Manuscritas]
-    E --> F[6. Geocierre GPS: Verificar Rango <= 1.0 km]
-    F --> G[7. Guardado Local & Sincronización Automática al Detectar Red]
+### 3.2 El día de trabajo
+
+```
+1. Abrir "Mis órdenes"
+2. Elegir la orden del día              → la orden pasa a "En ejecución"
+3. Responder el checklist               → las preguntas dependen de la tarea
+4. Tomar fotografías                    → cada una guarda su coordenada y su hora
+5. Firmar
+6. Cerrar en sitio                      → se comprueba la distancia al activo
+7. La orden queda "En revisión"         → el supervisor la recibe
 ```
 
-### 2.3 Escáner de Códigos QR
-* En la pantalla principal, presione el icono flotante **`Escanear QR`**.
-* Apunte la cámara del celular al código QR ubicado en el poste SOS, armario de CCTV o báscula.
-* La aplicación abrirá automáticamente la **Ficha del Activo** mostrando sus 15 atributos e historial de mantenimientos.
+**Usted no cierra la orden.** Al terminar, la deja **En revisión** y el supervisor decide si la
+acepta. Quien hace el trabajo no certifica que se hizo: es lo que da valor a la evidencia frente a
+un tercero.
 
-### 2.4 Operación Offline (Sin Cobertura Móvil en Túneles / Montaña)
-* El sistema guarda todos los datos, checklists, fotos y firmas en la memoria interna de la aplicación sin requerir señal celular.
-* Al recuperar la cobertura móvil o conectarse a red WiFi en el peaje/CCO, AppSheet enviará los registros pendientes en segundo plano (**Background Sync**).
-* Para forzar la sincronización manual, presione el icono de flechas circulares **`Sync`** en la esquina superior derecha.
+> **Estado:** hoy la aplicación **no impide** que un técnico ponga la orden en «Cerrada». La
+> separación está definida en el catálogo de estados pero todavía no se aplica como regla.
 
-### 2.5 Protocolo de Excepción / Bypass GPS (Túneles o Sombra Satelital)
-* Si la señal satelital no logra fijar las coordenadas GPS en el interior de un túnel o corte de montaña:
-  1. Espere 5 segundos a que la antena busque posición.
-  2. Si persiste el error de rango, registre la coordenada del portal o boca del túnel.
-  3. Deje una nota obligatoria en la casilla **`Observaciones`**: *"Mantenimiento en túnel - Coordenada de portal registrada por falta de cobertura GPS"*.
+### 3.3 Trabajo sin cobertura
 
----
+Buena parte del corredor no tiene señal. La aplicación guarda **todo** —respuestas, fotografías,
+firmas— en el teléfono, sin red.
 
-## 💻 3. Guía Operativa para Supervisores CCO (Portal Web)
+- Al recuperar cobertura o conectarse al wifi del peaje o del CCO, envía lo pendiente en segundo
+  plano.
+- Para forzarlo, use el icono de sincronización en la esquina superior derecha.
+- **No desinstale la aplicación ni borre sus datos con trabajo sin sincronizar.** No hay copia en
+  ningún otro sitio hasta que suba.
 
-### 3.1 Programación y Asignación de Órdenes de Trabajo (OT)
-1. Ingrese desde el navegador web a la vista **`Órdenes de Trabajo`** ([#view=Usuarios](https://www.appsheet.com/start/060b99df-2037-4049-b94d-03c1eefc3219?platform=desktop#appName=SGMC-886843353&vss=H4sIAAAAAAAAA6XOvQ7CIBQF4Hc5M0_AahyM0cWfRTpguU2ILTQF1Ibw7t6qjbM6csh37sm4Wrrtoq4vkKf8ea1phERW2I89KUiFhXdx8K2CUNjq7hUeQtKD9UGhoFRi9pECZP6Oy_-uC1hDLtrG0jB1TZI73o6_J8XBbFAEuhT1uaXnYDalcNb4OgUyR57yw4Swcst7r53ZeMOVjW4DlQcPF0XqZQEAAA==&view=Usuarios)).
-2. Haga clic en **`+ Agregar OT`**.
-3. Seleccione el **Activo**, el **Técnico Asignado**, la **Fecha Programada** y la **Frecuencia** (Mensual, Trimestral, etc.).
-4. Presione **`Guardar`**. El sistema enviará un correo electrónico de notificación al técnico de forma automática.
+### 3.4 Cierre con excepción, cuando el GPS no alcanza
 
-### 3.2 Monitoreo del Tablero KPI
-* Ingrese a la vista **`Tablero KPI`**.
-* Visualice en tiempo real:
-  * Percentage de cumplimiento de mantenimientos del mes.
-  * Disponibilidad porcentual de activos por zona (`CCO Sutatenza`, `Peaje Machetá`, `Peaje SLG`, etc.).
-  * Activos marcados en estado crítico *Fuera de servicio*.
+En túnel, corte de montaña o bajo vegetación densa, el teléfono puede no fijar posición con
+precisión suficiente.
 
-### 3.3 Alertas por Correo Electrónico
-* Cuando un técnico guarde un mantenimiento registrando Estado Final = **`Fuera de servicio`**, el motor de automatización enviará inmediatamente un correo a la bandeja del CCO con la ficha técnica y el informe en PDF adjunto.
+1. Espere unos segundos a que la antena busque posición.
+2. Si la precisión sigue siendo insuficiente, marque **`Cierre con excepción`**.
+3. **Escriba el motivo** en `Motivo de excepción`. Es obligatorio.
 
----
+La excepción **no es un rodeo: queda registrada y es auditable**. El supervisor ve cuántos cierres
+con excepción tiene cada técnico y cada activo. Un activo que siempre se cierra con excepción
+señala que su coordenada está mal o que el sitio no tiene cobertura satelital, y eso se corrige.
 
-## ⚙️ 4. Guía de Administración del Sistema (Administrador)
+El umbral de precisión no está escondido en el código: lo ajusta el administrador en la tabla de
+parámetros.
 
-### 4.1 Crear o Modificar Usuarios (`USR_Usuarios`)
-1. Ingrese a la vista **`Usuarios`**.
-2. Al crear un nuevo usuario, diligencie obligatoriamente:
-   * `Nombres` y `Apellidos`
-   * `Correo` (exactamente igual a su cuenta de Microsoft 365)
-   * `RolID` (`1=Administrador`, `2=Supervisor`, `3=Técnico`, `4=Consulta`)
-   * `SedeID` (Zona asignada para filtrado de descarga por seguridad)
-3. Marque el campo `Activo` en `TRUE`.
+> **No use** el campo de observaciones para justificar un problema de GPS. Ese texto no se puede
+> contar ni auditar. Para eso está el cierre con excepción.
 
-### 4.2 Crear o Modificar Activos (`ACT_Activos`)
-* Diligencie los 15 atributos obligatorios: `CodigoActivo`, `Nombre`, `TipoActivoID`, `SedeID`, `PR` (Punto de Referencia), `CalzadaID`, `Sentido`, `Latitud`, `Longitud`, `CodigoQR` y `FrecuenciaID`.
+### 3.5 Distancia al activo
 
-### 4.3 Gestión de Checklists sin Modificar Código
-* Para modificar las preguntas de inspección de un activo, edite la tabla `CHD_ChecklistDetalle` asignando la sección y pregunta correspondiente al `FormularioID` (ej: `FRM_SOS`, `FRM_CCTV`, `FRM_SUBE`).
+Al cerrar se comprueba que usted esté cerca del activo. El radio **depende del tipo**: un poste SOS
+o una cámara admiten decenas de metros; un tramo de fibra, que es lineal, necesita kilómetros.
 
----
+Conviene saber qué prueba y qué no: **confirma que usted estaba cerca, no que estuviera
+trabajando**. Lo que sí aporta valor son las fotografías, porque cada una lleva su propia
+coordenada y su hora.
 
-## 🚨 5. Preguntas Frecuentes y Solución de Problemas (Troubleshooting)
+> **Estado:** el radio por tipo de activo **está vacío en los 24 tipos**, así que la comprobación
+> todavía no discrimina. Se configura antes del piloto.
 
-| Problema | Causa Probable | Solución Paso a Paso |
+## 4. Guía del supervisor
+
+### 4.1 Programar y asignar
+
+1. Entre a **Órdenes de trabajo** desde el navegador.
+2. Cree la orden indicando **activo**, **tarea**, **técnico** y **fecha programada**.
+3. Al asignarla, la orden pasa a **Asignada**.
+
+La **periodicidad no se elige aquí**: viene de la tarea. Un poste SOS tiene prueba semanal, prueba
+mensual con interventoría y mantenimiento trimestral, y cada una es una tarea distinta con su propia
+frecuencia y su propio checklist.
+
+> **Estado:** las órdenes se crean **una a una o por carga en la hoja**. La generación automática
+> del mes no está disponible en el plan actual del servicio, y no es cuestión de tiempo: depende de
+> la decisión de licenciamiento.
+
+### 4.2 Recibir el trabajo
+
+Cuando el técnico termina, la orden queda **En revisión**. Usted:
+
+- Revisa el checklist, las fotografías y la firma.
+- Si está conforme, **aprueba la ejecución** y **cierra la orden**.
+- Si no, deja la **observación de rechazo**.
+
+> **Estado:** nadie le avisa de que hay trabajo por recibir. Tiene que entrar a mirar — las
+> notificaciones automáticas dependen de la misma decisión de licenciamiento.
+>
+> **Y falta el camino de vuelta:** existe el campo de observación de rechazo, pero la orden **no
+> tiene un estado de rechazo** al que volver. Está pendiente de definir.
+
+### 4.3 Los estados de una orden
+
+| Estado | Quién lo pone |
+|---|---|
+| Programada | Sistema |
+| Asignada | Supervisor |
+| En ejecución | Técnico |
+| En revisión | Técnico |
+| Cerrada | **Supervisor** |
+| Suspendida | Supervisor |
+| Vencida | Sistema |
+
+## 5. Guía del administrador
+
+### 5.1 Usuarios
+
+Al crear un usuario diligencie nombres, correo —**exactamente el de su cuenta corporativa**—, cargo,
+rol y sede, y márquelo como activo.
+
+**El correo es lo que conecta la persona con la aplicación.** Si no coincide con la cuenta con la
+que inicia sesión, el usuario entra pero no ve nada.
+
+Después, **asígnele sus unidades funcionales** en la tabla de asignación de zona. Eso es lo que
+determina qué descarga a su teléfono, no la sede.
+
+### 5.2 Activos
+
+Diligencie código, nombre, tipo, unidad funcional, punto de referencia, calzada, sentido, ubicación
+y estado.
+
+- **La ubicación es un solo campo de coordenada**, no dos columnas de latitud y longitud.
+- **El código del activo no es su identificador interno.** Puede renombrarlo sin romper nada: las
+  órdenes y el histórico apuntan al identificador, no al código.
+- Para dar de baja un activo, marque la fecha y el motivo de baja y desmárquelo como activo. **No lo
+  borre**: su histórico de mantenimientos tiene que seguir consultable.
+
+### 5.3 Cambiar las preguntas de una inspección
+
+Las preguntas viven en la estructura de plantillas:
+
+```
+Formulario  →  Sección  →  Pregunta  →  Tipo de respuesta
+```
+
+Para añadir o cambiar una pregunta, edite **la plantilla**. No hace falta tocar la configuración de
+la aplicación.
+
+> **Nunca edite la tabla de detalle del checklist para cambiar preguntas.** Esa tabla guarda las
+> **respuestas ya dadas** por los técnicos. Modificarla reescribe el histórico de mantenimientos
+> ejecutados. El manual anterior daba esta instrucción y era incorrecta.
+
+### 5.4 Parámetros
+
+Umbrales como la precisión mínima de GPS o el radio de cierre se ajustan **en la tabla de
+parámetros**, sin abrir el editor de la aplicación.
+
+## 6. Problemas frecuentes
+
+| Problema | Causa | Qué hacer |
 |---|---|---|
-| **La app muestra "Error de Geofencing / Fuera de Rango"** | El técnico está a más de 1.0 km de la coordenada registrada del activo. | Acérquese al activo o verifique la ubicación GPS del celular. Si es un túnel, aplique el protocolo de Bypass. |
-| **No se cargan los activos de otra sede** | El `Security Filter` restringe la descarga según la sede asignada al usuario. | El supervisor debe verificar en `USR_Usuarios` que la `SedeID` del usuario sea la correcta. |
-| **Las fotos demoran en sincronizar** | Conexión lenta 2G/EDGE en zona de montaña. | No apague el celular. AppSheet enviará las fotos en segundo plano automáticamente. |
-| **No se leen los códigos QR** | Suciedad en la etiqueta o lente de cámara sucio. | Limpie el lente de la cámara o use la barra de búsqueda manual ingresando el número de activo o PR. |
+| «Fuera de rango» al cerrar | Está lejos de la coordenada registrada, **o la coordenada del activo está mal** | Acérquese. Si está junto al activo y sigue fallando, ciérrelo con excepción y avise: la coordenada hay que corregirla |
+| No veo activos de otra zona | Es correcto: solo descarga los de sus unidades funcionales asignadas | El administrador revisa su asignación de zona |
+| No aparece una orden que me asignaron | Falta sincronizar, o la orden no está en una de sus zonas | Sincronice. Si persiste, avise al supervisor |
+| Las fotografías tardan en subir | Conexión lenta en montaña | No apague el teléfono. Suben en segundo plano |
+| Cambié una pregunta y desaparecieron respuestas anteriores | Se editó la tabla de respuestas en vez de la plantilla | Ver 5.3. Avise de inmediato: hay histórico afectado |
+
+## 7. Lo que el sistema no hace
+
+Conviene decirlo, porque de otro modo se descubre en campo:
+
+- **No prueba que usted estuviera trabajando**, solo que estaba cerca.
+- **No avisa a nadie automáticamente** de que hay trabajo por recibir.
+- **No genera las órdenes del mes solo.**
+- **No protege contra quien edite la hoja de cálculo directamente.** Todas las validaciones viven en
+  la aplicación; quien escriba en la hoja se las salta.
 
 ---
-*Manual de usuario y guía de operación completa del SGMC.*  
-*Referencias Cruzadas:* [README.md](../README.md) | [MAP.md](../MAP.md) | [especificaciones.md](../docs/especificaciones.md) | [plan_de_trabajo.md](../docs/plan_de_trabajo.md)
+
+*Documento derivado de [`docs/FUNCIONAL_SGMC.md`](../docs/FUNCIONAL_SGMC.md), que es la fuente. Si*
+*ambos discrepan, manda el funcional.*

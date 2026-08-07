@@ -1,4 +1,16 @@
-# 📱 MANUAL DE USUARIO ILUSTRADO Y GUÍA DE OPERACIÓN (SGMC)
+> # NO ENTREGAR. Versión superada.
+>
+> Este documento arrastra los mismos errores que tenía `MANUAL_DE_USUARIO.md` antes de reescribirse
+> el 2026-08-07: escáner QR —retirado del alcance—, filtro de seguridad por `SedeID` —es por unidad
+> funcional—, geofencing fijo de 1 km —el radio va por tipo de activo—, y bypass de GPS con nota
+> libre —es cierre con excepción—.
+>
+> **El manual vigente es [`MANUAL_DE_USUARIO.md`](MANUAL_DE_USUARIO.md).** Los diagramas y las
+> pantallas de este archivo se rehacen cuando la aplicación esté construida, para que retraten lo
+> que el técnico ve de verdad. Lo mismo vale para `Manual_de_Usuario_SGMC_Con_Diagramas.docx` y para
+> las seis imágenes de `images/`, que ilustran el flujo antiguo con QR.
+
+# MANUAL DE USUARIO ILUSTRADO Y GUÍA DE OPERACIÓN (SGMC)
 
 **Proyecto:** Sistema de Gestión de Mantenimiento en Campo (SGMC)  
 **Cliente:** Concesión Transversal del Sisga S.A.S.  
