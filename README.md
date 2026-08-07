@@ -238,7 +238,8 @@ archivo/       Material de origen, no versionado
 | [sdd/ACTA-002-cierre-definitivo-de-la-fase-a.md](docs/sdd/ACTA-002-cierre-definitivo-de-la-fase-a.md) | Cierre de la Fase A, con la integridad referencial comprobada relación por relación |
 | [sdd/ACTA-003-cierre-de-la-hoja.md](docs/sdd/ACTA-003-cierre-de-la-hoja.md) | **Cierre definitivo de la hoja.** Ya no se toca desde Google Sheets |
 | [prompts/PROMPT_AGENTE_HOJA_ESPEC_001C.md](docs/prompts/PROMPT_AGENTE_HOJA_ESPEC_001C.md) | Prompt autocontenido para el agente que aplica los cambios sobre la hoja |
-| [prompts/PROMPT_AGENTE_HOJA_CIERRE_FASE_A.md](docs/prompts/PROMPT_AGENTE_HOJA_CIERRE_FASE_A.md) | **Frente activo.** Las cuatro ediciones que faltan en la hoja, consolidadas en una pasada |
+| [prompts/PROMPT_AGENTE_HOJA_CIERRE_FASE_A.md](docs/prompts/PROMPT_AGENTE_HOJA_CIERRE_FASE_A.md) | Las cuatro ediciones de contenido de la hoja. Aplicado |
+| [prompts/PROMPT_AGENTE_HOJA_FORMATOS.md](docs/prompts/PROMPT_AGENTE_HOJA_FORMATOS.md) | **Frente activo.** Normalizar formatos antes del cableado: 8 puntos que detectaron F-16 y F-17 |
 | [sdd/ESPEC-002-cableado-en-appsheet.md](docs/sdd/ESPEC-002-cableado-en-appsheet.md) | **Frente activo.** Fase B: el cableado en AppSheet, paso a paso |
 | [scripts/verificar_faseA.py](scripts/verificar_faseA.py) | Verifica un `.xlsx` exportado contra el modelo objetivo, encabezado por encabezado. No cierra nada por reporte |
 | [ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md) | Alcance del sistema completo y los 14 supuestos adoptados |

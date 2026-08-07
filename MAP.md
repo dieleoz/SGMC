@@ -107,7 +107,8 @@ D:\@Proyect\Sisga\
 | [docs/sdd/ACTA-002-cierre-definitivo-de-la-fase-a.md](docs/sdd/ACTA-002-cierre-definitivo-de-la-fase-a.md) | Cierre de la Fase A y el incidente de método del verificador editado | Vigente |
 | [docs/sdd/ACTA-003-cierre-de-la-hoja.md](docs/sdd/ACTA-003-cierre-de-la-hoja.md) | Cierre definitivo de la hoja, y las dos alucinaciones que paró el verificador | Vigente |
 | [docs/prompts/PROMPT_AGENTE_HOJA_ESPEC_001C.md](docs/prompts/PROMPT_AGENTE_HOJA_ESPEC_001C.md) | Prompt autocontenido para el agente que trabaja sobre la hoja | Aplicado |
-| [docs/prompts/PROMPT_AGENTE_HOJA_CIERRE_FASE_A.md](docs/prompts/PROMPT_AGENTE_HOJA_CIERRE_FASE_A.md) | Las cuatro ediciones que faltan en la hoja, en una sola pasada | **Vigente. Pendiente de aplicar** |
+| [docs/prompts/PROMPT_AGENTE_HOJA_CIERRE_FASE_A.md](docs/prompts/PROMPT_AGENTE_HOJA_CIERRE_FASE_A.md) | Las cuatro ediciones de contenido de la hoja | Aplicado |
+| [docs/prompts/PROMPT_AGENTE_HOJA_FORMATOS.md](docs/prompts/PROMPT_AGENTE_HOJA_FORMATOS.md) | Normalizar formatos: identificadores como texto y quitar las fórmulas de `FormularioID` | **Vigente. Pendiente de aplicar** |
 | [docs/sdd/ESPEC-002-cableado-en-appsheet.md](docs/sdd/ESPEC-002-cableado-en-appsheet.md) | Fase B: cableado en AppSheet, con orden obligatorio, verificación y reversión | **Vigente. Es el frente activo** |
 | [docs/ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md) | Alcance del sistema completo y los 14 supuestos adoptados | Vigente |
 | [docs/prompts/PROMPT_CONSTRUCCION_SGMC.md](docs/prompts/PROMPT_CONSTRUCCION_SGMC.md) | Directiva de construcción en 7 pasos con criterios de aceptación | Vigente |

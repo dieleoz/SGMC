@@ -55,13 +55,23 @@ No la deduzcas del nombre. `OT_OrdenesTrabajo` no tiene columna `OTID`: su clave
 con valores `OT-0001`. Otras tablas la referencian como `OTID`. Ese desajuste produjo el checklist
 huérfano `d02d8a3d`.
 
-### 3. ¿Los valores actuales resuelven contra esa clave?
+### 3. ¿La clave y quien la apunta están guardadas en el MISMO formato?
+
+No basta con que los valores coincidan al leerlos: tienen que coincidir **como los guarda la hoja**.
+`ACT_Activos.ActivoID` guardaba `2.0` como número y `OT_OrdenesTrabajo.ActivoID` guardaba `'2'` como
+texto. El mismo valor, dos representaciones — y al tipar ambas, de cómo convierta AppSheet depende
+que la referencia resuelva o quede rota sin avisar. La regla **F-16** lo comprueba.
+
+Peor todavía si una sola columna mezcla los dos: `OT.SupervisorID` tenía `8.0` y `'8'` en filas
+distintas. Ahí unas filas resuelven y otras no.
+
+### 4. ¿Los valores actuales resuelven contra esa clave?
 
 Es la comprobación que decide si la conversión es limpia o deja huérfanos. Cuenta cuántos valores
 de la columna origen **no** existen en la clave destino. Si el número no es cero, la conversión
 tiene un paso previo de limpieza.
 
-### 4. ¿Cuántas filas hay en juego?
+### 5. ¿Cuántas filas hay en juego?
 
 Determina el costo, y a veces el calendario. `MAN_Mantenimientos` tiene 0 filas: convertir `OTID`
 hoy no arrastra ningún dato. Después de poblar, la misma conversión obliga a migrar y reconciliar.

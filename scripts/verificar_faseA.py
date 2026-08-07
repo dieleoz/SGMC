@@ -411,6 +411,66 @@ if "ACT_Activos" in wb.sheetnames:
                 else:
                     oks.append("ACT_Activos fila 34 (SUBE-001) tiene Activo=FALSE correctamente")
 
+# ------- F-16 la clave y quien la apunta se guardan en el mismo formato
+# Un Ref guarda el VALOR de la clave. Si la clave esta como numero (2.0) y quien
+# la apunta como texto ('2'), al tipar ambas AppSheet tiene que convertir, y de
+# como convierta depende que la referencia resuelva. No es hipotetico: es la
+# clase de huerfano silencioso que este proyecto lleva meses arrastrando.
+def _tipos_de(hoja, columna):
+    h = encabezados(hoja)
+    if columna not in h:
+        return None
+    i = h.index(columna)
+    ws = wb[hoja]
+    t = set()
+    for r in ws.iter_rows(min_row=2, values_only=True):
+        if r and len(r) > i and r[i] not in (None, ""):
+            t.add("numero" if isinstance(r[i], (int, float)) and not isinstance(r[i], bool)
+                  else type(r[i]).__name__)
+    return t
+
+
+for tabla, d in MODELO.items():
+    if tabla not in wb.sheetnames:
+        continue
+    for c in d["columnas"]:
+        if c["tipo"] != "Ref" or not c.get("ref") or c["ref"] not in wb.sheetnames:
+            continue
+        destino = c["ref"]
+        pk = next((x["nombre"] for x in MODELO[destino]["columnas"] if x.get("pk")), None)
+        if not pk:
+            continue
+        t_ref, t_pk = _tipos_de(tabla, c["nombre"]), _tipos_de(destino, pk)
+        if not t_ref or not t_pk:
+            continue
+        if len(t_ref) > 1:
+            falla("F-16", "%s.%s mezcla %s en la misma columna. Al tipar como Ref, unas filas "
+                          "resolveran y otras no" % (tabla, c["nombre"], sorted(t_ref)))
+        elif t_ref != t_pk:
+            falla("F-16", "%s.%s guarda %s y la clave %s.%s guarda %s. Un Ref guarda el valor de "
+                          "la clave: si no comparten formato, la conversion decide si resuelve"
+                  % (tabla, c["nombre"], sorted(t_ref), destino, pk, sorted(t_pk)))
+
+# ------- F-17 ninguna columna que AppSheet vaya a gestionar contiene formulas
+# Una formula de la hoja produce un valor que AppSheet puede leer, pero que
+# cambia solo si cambia su origen. TIP_TiposActivo.FormularioID sale de
+# =CONCAT("FRM_",MID(B2,1,4)): renombrar un tipo de activo repunta en silencio
+# el checklist que abre la aplicacion.
+for hoja in wb.sheetnames:
+    if hoja not in MODELO:
+        continue
+    h = encabezados(hoja)
+    ws = wb[hoja]
+    for i, nombre in enumerate(h):
+        formulas = 0
+        for r in ws.iter_rows(min_row=2, values_only=True):
+            if r and len(r) > i and isinstance(r[i], str) and r[i].startswith("="):
+                formulas += 1
+        if formulas:
+            falla("F-17", "%s.%s contiene %d formulas de hoja de calculo. Su valor cambia si cambia "
+                          "el origen, y AppSheet lo sobreescribe al escribir la fila"
+                  % (hoja, nombre, formulas))
+
 # ------------------------------------------------------------------- informe
 print("=" * 78)
 print("VERIFICACION DE LA FASE A")
