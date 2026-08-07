@@ -70,6 +70,9 @@ rompe datos correctos:
    `Numero_OT`, `Activo` como vínculo al activo, `Tecnico`, `SupervidorID`, `Estado`, `MttoID`,
    `Tecnico_Asignado`, **`EstadoID`** y **`SedeID`**. Las dos últimas se ven ya en las acciones
    `View Ref (EstadoID)` y `View Ref (SedeID)` de `ACT_Activos`. Se reparan en el bloque 5.
+5. **Buscar filtros por la bandera `Activo` del activo.** Cualquier vista, slice o reporte que use
+   `[ActivoID].[Activo]` o equivalente sobre datos históricos. Es RG-18, y con RG-16 corregida deja
+   de ser hipotético: el activo 34 pasará a `Activo = FALSE`.
 
 ---
 
@@ -190,6 +193,12 @@ seis órdenes quedarían inactivas.
 **En el Sheets, poner `TRUE` en las 6 filas.** Se hace antes de configurar RG-14, porque esa regla
 retira el borrado y deja `Activo = FALSE` como única vía de anulación. Retirar el borrado sin que
 exista el sustituto deja la orden sin forma de anularse.
+
+**`ACT_Activos.Activo` se contradirá consigo misma si no se toca.** La hoja guarda el texto `TRUE`
+en las 34 filas, incluida la 34, que está `Retirado` y tiene `FechaBaja`. Con RG-16 como
+`App formula`, la aplicación calculará `FALSE` y el Sheets seguirá diciendo `TRUE` hasta que alguien
+escriba esa fila. **Poner `FALSE` en `ACT_Activos.Activo` de la fila 34**, en la misma pasada. Es
+una celda.
 
 **`EST_Activo.Activo` está en la misma situación:** vacía en sus 4 filas. Hoy no la usa ninguna
 regla, pero es el catálogo del que dependen RG-16 y RG-17, y un `Valid_If` de catálogo sobre
@@ -364,6 +373,18 @@ y es trabajo de una `ESPEC-003`.
 
 **Solo después de haber poblado `OT.Activo = TRUE` en las 6 órdenes** (paso 5.1).
 
+**RG-18 — prohibición, no configuración.** No se «activa»: es lo que **no** hay que hacer.
+
+> **Un reporte o una vista NUNCA filtra el histórico por la bandera `Activo` del activo padre.**
+
+Hasta ahora el peligro estaba dormido, porque RG-16 mal escrita era siempre cierta y ningún activo
+llegaba a `Activo = FALSE`. **Con RG-16 corregida, el activo 34 pasará a `FALSE`** — y cualquier
+vista que filtre por `[ActivoID].[Activo] = TRUE` hará desaparecer retroactivamente todos sus
+mantenimientos pasados. Corregir RG-16 es lo que vuelve urgente a RG-18.
+
+Por eso el inventario del punto 3.4 y el bloque 5 incluyen **buscar ese filtro en las vistas que ya
+existen**, y P-13 lo comprueba.
+
 ### Las reglas que NO entran en esta fase, y por qué
 
 Agruparlas todas como «bots» sería inexacto y llevaría a configurar cosas que no pueden funcionar:
@@ -373,7 +394,7 @@ Agruparlas todas como «bots» sería inexacto y llevaría a configurar cosas qu
 | RG-08, RG-12 | **Bot programado** | En el plan gratuito los procesos programados **no se ejecutan**. Decisión D-B |
 | RG-06, RG-07, RG-10 | **Bot por evento** | Dependen del mismo plan. Se configuran cuando se resuelva D-B |
 | RG-11 | **`App formula`**, no un bot | Usa `[FrecuenciaID].[Dias]`, y `PLA_PlanMantenimiento.FrecuenciaID` está **aplazada a `ESPEC-003`**. Va con ella |
-| RG-13 | **Verificación de evidencia**, no un bot | `DISTANCE([UbicacionEscaneo], [Coordenadas_Cierre]) <= 0.5`. No necesita ninguna referencia y sí podría entrar, pero es un contraste que **se reporta y no bloquea**: pertenece a los reportes, que son otro frente |
+| RG-13 | **Verificación de evidencia**, no un bot | Se excluye **por alcance, no por falta de dato**: `MAN.UbicacionEscaneo` está poblada en las 2 filas y en `TEST-MTTO-002` la distancia escaneo-cierre es 8,88 km, así que discriminaría hoy mismo. Pero es un contraste que **se reporta y no bloquea**, y pertenece a los reportes |
 
 RG-11 es el caso que importa: **aplazar una referencia arrastra la regla que la usa.** Si se
 configurase RG-11 con `FrecuenciaID` todavía como texto, la fórmula no resolvería y `ProximaFecha`
@@ -387,13 +408,15 @@ Corregir cada vista, fórmula y acción anotada en el punto 3.4 que citara `Nume
 vínculo al activo, `Tecnico`, `SupervidorID`, `Estado`, `MttoID`, `Tecnico_Asignado`, `EstadoID` o
 `SedeID`.
 
+**Y retirar todo filtro por `[ActivoID].[Activo]` sobre datos históricos** (RG-18, punto 3.5).
+
 Es la misma lista que comprueba `PRUEBA-002` P-13.
 
 ---
 
 ## 9. Criterio de cierre
 
-El de `PRUEBA-002`: **pasan P-01 a P-13**. P-14 y P-15 quedan bloqueadas por D-01 y D-B.
+El de `PRUEBA-002`: **pasan P-01 a P-17**. P-14 y P-15 quedan bloqueadas por D-01 y D-B.
 
 Tres son innegociables: **P-05** (la cadena resuelve), **P-09** (el cierre a 8,89 km es rechazado
 con el mensaje escrito) y **P-12** (el dato llegó al Sheets, no solo a la pantalla).

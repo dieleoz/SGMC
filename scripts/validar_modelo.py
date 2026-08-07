@@ -15,7 +15,7 @@ from collections import defaultdict
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from modelo_objetivo import (MODELO, TIPOS, GRUPOS, RETIRADAS, CAMPOS_RETIRADOS, REGLAS,
-                             RENOMBRADOS, RETIPADOS)
+                             RENOMBRADOS, RETIPADOS, CLAVE_LEGIBLE)
 
 errores, avisos = [], []
 
@@ -177,22 +177,39 @@ for r in REGLAS:
 # EST_Activo con claves 1 a 4. Siempre cierto, y al ser App formula habria
 # repuesto Activo=TRUE sobre el activo que acababa de darse de baja.
 # V-11 no lo veia: solo comprueba cadenas de mas de un salto.
-COMPARA_LITERAL = re.compile(r'\[(\w+)\](?!\s*\.\s*\[)\s*(?:=|<>|<=|>=|<|>)\s*"([^"]*)"')
+# Cuatro formas de escribir la misma comparacion. Las cuatro se cazan.
+_LIT = r'"[^"]*"' + "|" + r"'[^']*'"
+COMPARA = [
+    re.compile(r'\[(\w+)\](?!\s*\.\s*\[)\s*(?:=|<>|<=|>=|<|>)\s*(' + _LIT + ')'),   # [Col] = "x"
+    re.compile(r'(' + _LIT + r')\s*(?:=|<>|<=|>=|<|>)\s*\[(\w+)\](?!\s*\.\s*\[)'),   # "x" = [Col]
+    re.compile(r'(?:IN|CONTAINS)\(\s*\[(\w+)\](?!\s*\.\s*\[)\s*,([^)]*)'),          # IN([Col], LIST("x"))
+]
 
 
 def _revisar_literales(ident, tabla, expresion):
     if tabla not in MODELO:
         return
     cols = {c["nombre"]: c for c in MODELO[tabla]["columnas"]}
-    for columna, literal in COMPARA_LITERAL.findall(expresion):
+    encontrados = []
+    for i, patron in enumerate(COMPARA):
+        for m in patron.findall(expresion):
+            columna, resto = (m[1], m[0]) if i == 1 else (m[0], m[1])
+            literales = re.findall(_LIT, resto) if i == 2 else [resto]
+            for lit in literales:
+                encontrados.append((columna, lit[1:-1] if len(lit)>1 else lit))
+    for columna, literal in encontrados:
         c = cols.get(columna)
         if not c or c["tipo"] != "Ref":
             continue
         destino = c.get("ref")
+        # Contra un catalogo de clave legible la comparacion es CORRECTA: la
+        # clave es la palabra. EOT_EstadosOrden se construyo asi a proposito.
+        if destino in CLAVE_LEGIBLE:
+            continue
         pk = next((x["nombre"] for x in MODELO[destino]["columnas"] if x.get("pk")), "?")
         error("V-17", f"{ident}: compara {tabla}.{columna} con el literal '{literal}'. "
-                      f"Es un Ref a {destino} y guarda su clave {pk}, no un texto legible. "
-                      f"Prueba con [{columna}].[Nombre]")
+                      f"Es un Ref a {destino}, cuya clave {pk} NO es texto legible: "
+                      f"guarda un identificador. Prueba con [{columna}].[Nombre]")
 
 
 for r in REGLAS:

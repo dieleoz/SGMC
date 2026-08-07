@@ -137,13 +137,21 @@ Excel*). No es el Excel local histórico, que describe otro modelo:
 - **Cómo se distingue el fallo:** cero activos es el bloqueante B-03 sin resolver. Los 34 significa
   que el filtro no se aplica.
 
-### P-11 — El histórico no se puede borrar
+### P-11 — El histórico no se puede borrar, y la asimetría es la prueba
 
 - **Precondición:** RG-14 y RG-15 configuradas.
 - **Acción:** abrir una orden y un mantenimiento en la vista previa.
-- **Resultado esperado:** **no aparece la acción de borrar** en ninguna de las dos.
-- **Cómo se distingue el fallo:** si el botón está, la puerta trasera sigue abierta: un clic
-  elimina la prueba de que un técnico estuvo frente a un equipo.
+- **Resultado esperado**, y son tres cosas distintas:
+
+  | Tabla | Borrar | Añadir |
+  |---|---|---|
+  | `OT_OrdenesTrabajo` | **No aparece** | **No aparece** |
+  | `MAN_Mantenimientos` | **No aparece** | **Sí aparece** |
+
+- **Cómo se distingue el fallo:** si el botón de borrar está, la puerta trasera sigue abierta.
+  Pero ojo con la otra mitad: **si `MAN_Mantenimientos` pierde también `Adds`, P-04 y P-12 quedan
+  inejecutables**, porque no habría forma de crear un registro desde la aplicación. La asimetría no
+  es un descuido: es lo que hay que demostrar.
 
 ### P-12 — LECTURA DE VUELTA: el dato llegó al Sheets
 
@@ -162,8 +170,33 @@ Excel*). No es el Excel local histórico, que describe otro modelo:
   `Tecnico`, `SupervidorID`, `Estado`, `MttoID`, `Tecnico_Asignado`, `EstadoID` ni `SedeID`. Es la
   misma lista del punto 3.4 y del bloque 5 de `ESPEC-002`: si divergen, el ejecutor repara una cosa
   y el probador mide otra.
+- **Y ninguna vista, slice o reporte filtra por `[ActivoID].[Activo]`** sobre datos históricos
+  (RG-18). Con RG-16 corregida el activo 34 pasa a `Activo = FALSE`, así que un filtro así haría
+  desaparecer sus mantenimientos pasados de los informes.
 - **Cómo se distingue el fallo:** cualquier vista que cite un nombre viejo. La app lleva rota desde
   la Fase A y esto es lo que la devuelve a funcionar.
+
+---
+
+### P-16 — POSITIVA Y NEGATIVA: la baja de activos se deriva bien (RG-16)
+
+- **Qué comprueba:** la regla que motivó el tercer bloqueo. `ACT_Activos.Activo` se calcula desde el
+  estado y **no** se edita. El fixture ya está servido: 33 activos en `Operativo` y **el 34 en
+  `Retirado`**.
+- **Precondición:** RG-16 configurada como `App formula` = `[EstadoActivoID].[Nombre] <> "Retirado"`.
+- **Acción:** abrir en la vista previa el activo `34` y cualquiera de los otros 33.
+- **Resultado esperado:** el 34 muestra `Activo` en **FALSE**; los demás, en **TRUE**.
+- **Cómo se distingue el fallo:** si el 34 sale `TRUE`, la comparación va contra la clave y no
+  contra `[Nombre]` — el defecto exacto del 2026-08-07. **Y no es inocuo: al ser `App formula`,
+  escribe**, así que estaría reponiendo la bandera sobre un activo dado de baja.
+
+### P-17 — La baja exige fecha (RG-17)
+
+- **Precondición:** RG-17 configurada como `Required_If` = `[EstadoActivoID].[Nombre] = "Retirado"`.
+- **Acción:** en la vista previa, poner un activo en estado `Retirado` y dejar `FechaBaja` vacía.
+- **Resultado esperado:** **no deja guardar** hasta rellenar `FechaBaja`.
+- **Cómo se distingue el fallo:** si guarda, la condición nunca se cumple —mismo defecto que P-16—
+  y el histórico no podrá explicar por qué el activo dejó de recibir mantenimiento.
 
 ---
 
@@ -177,16 +210,18 @@ cierre real en la vía quedará fuera de rango y cualquier cierre en Bogotá que
 **No es un fallo de la Fase B.** P-08 y P-09 demuestran que **la regla funciona**; esta demostraría
 que **el dato es correcto**, y para eso hace falta el levantamiento de campo.
 
-### P-15 — Bots y procesos programados · **BLOQUEADA POR D-B**
+### P-15 — Reglas fuera de alcance · **NO SE PRUEBAN EN ESTA FASE**
 
-RG-06 a RG-08 y RG-10 a RG-13 son bots. En el plan gratuito los procesos programados no se
-ejecutan. Se configuran, no se prueban.
+La clasificación es la de `ESPEC-002` §7, y **no son todas bots**: RG-11 es una `App formula` que
+depende de una referencia aplazada, y RG-13 una verificación de evidencia excluida por alcance.
+Si esta lista y la de `ESPEC-002` divergen, el ejecutor configura una cosa y el probador mide otra.
+
 
 ---
 
 ## 4. Criterio de cierre
 
-**Deben pasar P-01 a P-13, las trece.** P-14 y P-15 quedan bloqueadas por decisiones ajenas a esta
+**Deben pasar P-01 a P-13 y P-16 a P-17, las quince.** P-14 y P-15 quedan bloqueadas por decisiones ajenas a esta
 fase.
 
 Tres son innegociables, y conviene decir por qué antes de que alguien proponga cerrar sin ellas:
@@ -195,5 +230,7 @@ Tres son innegociables, y conviene decir por qué antes de que alguien proponga 
 - **P-09**, porque una validación que nunca ha rechazado nada no está probada. Es la única prueba
   que distingue «la regla funciona» de «la regla no se aplica».
 - **P-12**, porque sin lectura de vuelta no hay constancia de que el dato salió de la pantalla.
+- **P-16**, porque corregir una regla y no probarla deja el arreglo sin constancia. Es el bucle que
+  `ACTA-002` §3 dejó por escrito, y RG-16 **escribe** sobre los datos.
 
 Si alguna de las tres falla, la Fase B **no se cierra**, por muchas de las otras que pasen.

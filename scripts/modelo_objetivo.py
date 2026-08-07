@@ -669,6 +669,41 @@ RETIPADOS = {
     },
 }
 
+# ----------------------------------------- catalogos con clave legible
+#
+# Tablas cuya CLAVE es texto legible, no un numero. Solo contra estas es
+# legitimo comparar una columna Ref con un literal de texto: la referencia
+# guarda la clave, y aqui la clave ES la palabra.
+#
+# EOT_EstadosOrden es el caso central: ESPEC-001B le puso 'Asignada', 'Cerrada'
+# y 'Suspendida' como clave A PROPOSITO, siguiendo la regla R-8, para que las 6
+# ordenes existentes resolvieran sin migrar nada. Escribir
+# [EstadoOrdenID] = "Cerrada" es correcto.
+#
+# EST_Activo NO esta aqui: su clave es 1 a 4 y el nombre vive en Nombre. Por eso
+# [EstadoActivoID] <> "Retirado" es siempre cierto y hay que escribir
+# [EstadoActivoID].[Nombre].
+#
+# Derivado del dato el 2026-08-07 sobre BD/Modelo de Datos (7).xlsx, no de una
+# impresion. Si una tabla cambia de clave numerica a legible, se actualiza aqui.
+CLAVE_LEGIBLE = {
+    "OT_OrdenesTrabajo",       # OT-0001
+    "MAN_Mantenimientos",      # TEST-MTTO-001
+    "EOT_EstadosOrden",        # Asignada, Cerrada
+    "MOT_MotivosPendiente",    # MOT-01
+    "FAL_ModosFalla",          # FAL-01
+    "ASG_AsignacionZona",      # ASG-01
+    "SEN_Sentidos",            # SA, AS
+    "FRM_Formularios",         # FRM_SOS
+    "FRM_Preguntas",           # SOS001
+    "CHK_Checklists",          # TEST-CHK-001
+    "CHD_ChecklistDetalle",    # TEST-CHD-001
+    "FOT_Fotografias",         # TEST-FOT-001
+    "FIR_Firmas",              # TEST-FIR-001
+    "NOV_Novedades",           # TEST-NOV-001
+    "PLA_PlanMantenimiento",   # PLA-001
+}
+
 # --------------------------------------------------------- reglas de la app
 REGLAS = [
     dict(id="RG-01", tabla="MAN_Mantenimientos", columna="Coordenadas_Cierre",

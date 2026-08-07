@@ -94,7 +94,7 @@ Las reglas que te van a frenar:
 | V-14 | El renombrado aterriza en una columna que existe. Avisa si reutiliza el nombre viejo |
 | V-15 | Toda referencia declara de dónde sale: renombrado, retipado o columna nueva |
 | V-16 | Lo retipado coincide en tipo y destino con lo que declara el modelo |
-| V-17 | Ninguna expresión compara una columna `Ref` contra un literal de texto |
+| V-17 | Ninguna expresión compara una columna `Ref` contra un literal de texto, **salvo que el destino esté en `CLAVE_LEGIBLE`** |
 
 **V-11 es la que habría ahorrado meses.** Comprueba lo que AppSheet comprueba, sin abrir AppSheet.
 
@@ -133,6 +133,14 @@ cierto** — y si la expresión es una `App formula`, **escribe** ese resultado 
 datos. Ocurrió el 2026-08-07: RG-16 habría repuesto `Activo = TRUE` sobre el activo recién dado de
 baja, deshaciendo la Fase A en silencio. Se escribe `[EstadoActivoID].[Nombre]`. La regla **V-17**
 lo detiene ahora, porque **V-11 era ciega a esto**: solo comprueba cadenas de más de un salto.
+
+**Pero no toda comparación contra un literal está mal, y ahí estuvo el segundo error.** Si el
+catálogo tiene la clave legible, la palabra **es** la clave: `[EstadoOrdenID] = "Cerrada"` es
+correcto, porque `ESPEC-001B` construyó `EOT_EstadosOrden` así a propósito siguiendo R-8. La primera
+versión de V-17 prohibía la clase entera y daba falso positivo sobre esa regla, contradiciendo la
+doctrina del propio proyecto. Por eso existe `CLAVE_LEGIBLE` en `modelo_objetivo.py`, **derivada del
+dato y no de una impresión**: lista las 15 tablas cuya clave es texto legible. Si una tabla cambia
+de clave numérica a legible, se actualiza ahí.
 
 **El texto como clave ajena.** `CHD_ChecklistDetalle` referenciaba la pregunta por su **enunciado**.
 Corregir una tilde rompía la agrupación histórica. Si ves una columna que guarda texto legible y
