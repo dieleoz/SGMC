@@ -153,7 +153,9 @@ Mientras esto no se resuelva, cualquier trabajo de configuración se hace sobre 
       no hay `Show_If` ni `Required_If` que lo imponga —depende de `OT.Tipo`, hoy vacía—, y
       `ObservacionRechazo` es la traza de la devolución del supervisor, sin regla. Un campo que
       existe y nada puebla es la misma patología que `CodigoQR`: estructura sin comportamiento
-- [ ] **Cerrar la hoja de una pasada: las cuatro ediciones que faltan.** `PAR_Parametros` con sus
+- [x] **HOJA CERRADA DEFINITIVAMENTE el 7 de agosto de 2026.** `Modelo de Datos (9).xlsx`, 0 fallos,
+      acta en `ACTA-003`. Ya no se toca desde Google Sheets
+- [ ] ~~Cerrar la hoja de una pasada: las cuatro ediciones que faltan.~~ `PAR_Parametros` con sus
       tres umbrales calibrables, `OT_OrdenesTrabajo.Activo` y `EST_Activo.Activo` a `TRUE` —vacías
       hoy, y un blanco se lee como falso—, y `ACT_Activos.Activo` a `FALSE` en la fila 34, que está
       retirada y dice lo contrario. Prompt en `docs/prompts/PROMPT_AGENTE_HOJA_CIERRE_FASE_A.md`

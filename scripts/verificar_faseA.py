@@ -363,6 +363,42 @@ if "MAN_Mantenimientos" in wb.sheetnames:
             oks.append("Las %d filas de MAN_Mantenimientos coinciden con RG-19 (umbral %d m)"
                        % (revisadas, UMBRAL_GPS))
 
+# ------------- F-14 OT_OrdenesTrabajo y EST_Activo tienen Activo = TRUE
+for tabla in ("OT_OrdenesTrabajo", "EST_Activo"):
+    if tabla in wb.sheetnames:
+        h = encabezados(tabla)
+        if "Activo" in h:
+            idx = h.index("Activo")
+            ws = wb[tabla]
+            falsos = 0
+            total = 0
+            for r in ws.iter_rows(min_row=2, values_only=True):
+                if not r or r[0] in (None, ""): continue
+                total += 1
+                val = r[idx]
+                if str(val).strip().upper() not in ("TRUE", "VERDADERO", "1", "SI"):
+                    falsos += 1
+            if falsos > 0:
+                falla("F-14", "%s.Activo tiene %d filas sin TRUE. Deben estar activas." % (tabla, falsos))
+            else:
+                oks.append("%s.Activo tiene TRUE en sus %d filas" % (tabla, total))
+
+# ------------- F-15 ACT_Activos fila 34 esta dado de baja
+if "ACT_Activos" in wb.sheetnames:
+    h = encabezados("ACT_Activos")
+    if "ActivoID" in h and "Activo" in h:
+        id_idx = h.index("ActivoID")
+        act_idx = h.index("Activo")
+        ws = wb["ACT_Activos"]
+        for r in ws.iter_rows(min_row=2, values_only=True):
+            if not r or r[0] in (None, ""): continue
+            if str(r[id_idx]).strip() == "34":
+                val = r[act_idx]
+                if str(val).strip().upper() in ("TRUE", "VERDADERO", "1", "SI"):
+                    falla("F-15", "ACT_Activos fila 34 dice Activo=TRUE pero esta Retirado. Debe ser FALSE.")
+                else:
+                    oks.append("ACT_Activos fila 34 (SUBE-001) tiene Activo=FALSE correctamente")
+
 # ------------------------------------------------------------------- informe
 print("=" * 78)
 print("VERIFICACION DE LA FASE A")

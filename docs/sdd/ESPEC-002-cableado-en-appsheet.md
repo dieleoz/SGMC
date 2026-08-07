@@ -221,23 +221,28 @@ La regla se cumpliría y la presencia no quedaría probada. Es RG-20.
 Si `Coordenadas_Cierre` queda como `Text`, `DISTANCE()` no opera y el bloque 4 falla sin explicar
 por qué.
 
-### 5.1 Precondiciones de datos — SE HACEN EN LA HOJA, NO AQUÍ
+### 5.1 Precondiciones de datos — **YA CUMPLIDAS. No vuelvas a la hoja**
 
 `OT.Activo` está **vacía en las 6 filas**. Tipada como `Yes/No`, un blanco se lee como falso: las
 seis órdenes quedarían inactivas.
 
-Tres columnas tienen que estar pobladas **antes** de tipar nada, y las tres son ediciones del
-Google Sheets, no configuración de AppSheet. Van en la misma pasada que la pestaña
-`PAR_Parametros`, con el prompt de `docs/prompts/PROMPT_AGENTE_HOJA_CIERRE_FASE_A.md`.
+**Esto es contexto, no trabajo pendiente.** Se aplicó el 7 de agosto de 2026 y está verificado en
+`ACTA-003` sobre `BD/Modelo de Datos (9).xlsx`, con `FASE A CERRADA` y 0 fallos.
 
-| Qué | Por qué antes |
+**No vuelvas al Google Sheets a «aplicarlo».** Ya está. Reeditar lo que ya es correcto es como se
+rompen las cosas en este proyecto.
+
+Se documenta aquí porque **explica por qué la hoja está como está**, y eso importa al tipar:
+
+| Estado de la hoja | Por qué es así |
 |---|---|
-| `OT_OrdenesTrabajo.Activo = TRUE` en las 6 filas | Tipada `Yes/No`, un blanco se lee como falso: las 6 órdenes quedarían inactivas. Y RG-14 retira el borrado dejando `Activo = FALSE` como única vía de anulación: se quitaría el borrado sin que exista el sustituto |
+| `OT_OrdenesTrabajo.Activo = TRUE` en las 6 filas | Al tiparla `Yes/No`, un blanco se leería como falso y las 6 órdenes quedarían inactivas. Y RG-14 retira el borrado dejando `Activo = FALSE` como única vía de anulación |
 | `EST_Activo.Activo = TRUE` en las 4 filas | Es el catálogo del que dependen RG-16 y RG-17 |
-| `ACT_Activos.Activo = FALSE` en la fila 34 | Está `Retirado` y la columna dice `TRUE`. RG-16 la calculará `FALSE`; la hoja debe decir lo mismo antes |
+| `ACT_Activos.Activo = FALSE` en la fila 34 | Está `Retirado`. RG-16 lo calculará `FALSE`, y la hoja ya dice lo mismo |
+| `PAR_Parametros` con `UMBRAL_GPS = 40` | RG-19 lo lee con `LOOKUP()`. El administrador lo calibra ahí, en una celda |
 
-**`verificar_faseA.py` no dará `FASE A CERRADA` hasta que estén las cuatro.** Ese es el gate de
-entrada a esta fase.
+**Lo único que sí debes hacer antes de empezar:** correr `verificar_faseA.py` sobre la descarga más
+reciente y comprobar que sigue diciendo `FASE A CERRADA`. La hoja la editan dos personas más.
 
 **`ACT_Activos.Activo` se contradirá consigo misma si no se toca.** La hoja guarda el texto `TRUE`
 en las 34 filas, incluida la 34, que está `Retirado` y tiene `FechaBaja`. Con RG-16 como

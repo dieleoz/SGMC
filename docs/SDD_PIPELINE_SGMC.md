@@ -156,7 +156,7 @@ en `scripts/modelo_objetivo.py`.**
 
 | Frente | Estado |
 |---|---|
-| Fase A, las tres tandas | **CERRADA, verificada y poblada** el 7 de agosto. 42 conformes, 0 fallos. Actas `ACTA-001` y `ACTA-002` |
+| Fase A, la hoja | **CERRADA DEFINITIVAMENTE** el 7 de agosto. `Modelo de Datos (9).xlsx`, 0 fallos. Actas `ACTA-001`, `ACTA-002` y `ACTA-003`. **La hoja no se vuelve a tocar** |
 | Fase B (navegador) | **Frente activo.** `ESPEC-002`, cableado en AppSheet |
 | Coordenadas reales (D-01) | Bloqueado por levantamiento en campo |
 | Código QR | **Fuera de alcance por decisión del 2026-08-07.** Ver sección 8 |

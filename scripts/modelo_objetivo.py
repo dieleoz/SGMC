@@ -741,6 +741,7 @@ CLAVE_LEGIBLE = {
     "FRM_Formularios",         # FRM_SOS
     "FRM_Preguntas",           # SOS001
     "PLA_PlanMantenimiento",   # PLA-001
+    "PAR_Parametros",          # UMBRAL_GPS
 }
 
 # ------------------------------------------- catalogos de clave GENERADA

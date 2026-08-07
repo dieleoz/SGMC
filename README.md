@@ -235,7 +235,8 @@ archivo/       Material de origen, no versionado
 | [sdd/ESPEC-001B-cierre-de-la-fase-a.md](docs/sdd/ESPEC-001B-cierre-de-la-fase-a.md) | Los 23 fallos que faltaban para cerrar la Fase A. Aplicados |
 | [sdd/ACTA-001-cierre-de-la-fase-a.md](docs/sdd/ACTA-001-cierre-de-la-fase-a.md) | Acta de cierre de la Fase A, con la verificación y las lecciones de método |
 | [sdd/ESPEC-001C-baja-de-activos-y-datos-de-prueba.md](docs/sdd/ESPEC-001C-baja-de-activos-y-datos-de-prueba.md) | Baja de activos, huérfanos y poblado de prueba. Aplicado y verificado |
-| [sdd/ACTA-002-cierre-definitivo-de-la-fase-a.md](docs/sdd/ACTA-002-cierre-definitivo-de-la-fase-a.md) | Cierre definitivo de la Fase A, con la integridad referencial comprobada relación por relación |
+| [sdd/ACTA-002-cierre-definitivo-de-la-fase-a.md](docs/sdd/ACTA-002-cierre-definitivo-de-la-fase-a.md) | Cierre de la Fase A, con la integridad referencial comprobada relación por relación |
+| [sdd/ACTA-003-cierre-de-la-hoja.md](docs/sdd/ACTA-003-cierre-de-la-hoja.md) | **Cierre definitivo de la hoja.** Ya no se toca desde Google Sheets |
 | [prompts/PROMPT_AGENTE_HOJA_ESPEC_001C.md](docs/prompts/PROMPT_AGENTE_HOJA_ESPEC_001C.md) | Prompt autocontenido para el agente que aplica los cambios sobre la hoja |
 | [prompts/PROMPT_AGENTE_HOJA_CIERRE_FASE_A.md](docs/prompts/PROMPT_AGENTE_HOJA_CIERRE_FASE_A.md) | **Frente activo.** Las cuatro ediciones que faltan en la hoja, consolidadas en una pasada |
 | [sdd/ESPEC-002-cableado-en-appsheet.md](docs/sdd/ESPEC-002-cableado-en-appsheet.md) | **Frente activo.** Fase B: el cableado en AppSheet, paso a paso |
