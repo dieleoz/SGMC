@@ -322,9 +322,40 @@ Reglas de ubicación al crear archivos:
 - Las figuras de un documento van en `docs/images/`; las del manual, en `Manuales/images/`.
 - Todo documento nuevo se enlaza en `MAP.md` y en la tabla de `README.md`.
 
-## 10. Alcance
+## 10. Alcance y método de construcción
 
-El agente no tiene acceso al editor de AppSheet ni al Google Sheets de producción. Puede auditar
-y corregir el Excel maestro y la documentación; las configuraciones en AppSheet se **especifican**
-aquí para que un operador humano las aplique, y se marcan como pendientes de verificación hasta
-que alguien confirme la aplicación con evidencia.
+> **CORRECCIÓN DEL 2026-08-07.** Este apartado afirmaba que el agente no tenía acceso al editor de
+> AppSheet ni al Sheets de producción. **Es falso.** El 6 de agosto de 2026 se agregaron
+> `Coordenadas_Cierre` y `Precision_GPS` al Sheets y se ejecutó *Regenerate Structure* en AppSheet.
+> El acceso existe y ya se usó.
+
+El acceso existe, pero es **caro y frágil**: manejar el editor de AppSheet clic a clic consume
+muchos tokens, los desplegables no siempre abren y el viewport cambia de tamaño entre llamadas,
+desplazando las coordenadas. Por eso el acceso no es la vía por defecto sino el último paso de un
+pipeline.
+
+### Nada se ejecuta contra producción sin las tres firmas
+
+El método vigente es SDD, descrito en `docs/SDD_PIPELINE_SGMC.md`. Cinco agentes en
+`.claude/agents/`, y un gate antes del paso caro:
+
+| # | Agente | Produce | Toca producción |
+|---|---|---|---|
+| 1 | `sgmc-especificador` | `ESPEC-NNN` contra el archivo, no contra otro documento | No |
+| 2 | `sgmc-verificador` | `PRUEBA-NNN`: positiva, negativa y lectura de vuelta | No |
+| 3 | `sgmc-arquitecto` | Veredicto adversarial. Presunción de rechazo | No |
+| 4 | `sgmc-ejecutor` | Aplica en Sheets y AppSheet | **Sí** |
+| 5 | `sgmc-probador` | `ACTA` con el resultado real, pase o falle | Lectura |
+
+**`python scripts/validar_modelo.py` en 0 errores es el único gate objetivo.** Si devuelve errores,
+no hay veredicto que valga.
+
+Pasa por el pipeline todo lo que escriba en el Sheets de producción, en el editor de AppSheet o en
+`scripts/modelo_objetivo.py`. No pasan las correcciones de redacción, las auditorías de solo
+lectura ni los cambios en `scripts/` que no alteren el modelo.
+
+### Fuera de alcance
+
+**El código QR, por decisión del 2026-08-07.** Primero tiene que funcionar el ciclo básico. El
+activo se abre por lista, no por escaneo, y `OrigenApertura = Lista` deja de ser una excepción.
+Detalle y consecuencias en `docs/SDD_PIPELINE_SGMC.md` sección 8.

@@ -53,8 +53,9 @@ Verificado el 6 de agosto de 2026 leyendo `BD/Modelo de Datos (2).xlsx` con `ope
   aplicación las reconozca. Ver Fase 0.5.
 - En producción, el mapeo de cada tipo de activo a su formulario está completo en los 18 tipos, y
   el detalle de checklist es relacional mediante `PreguntaID`.
-- Catálogos poblados: 34 activos con código QR, 18 tipos de activo, 10 sedes, 4 roles,
-  11 usuarios, y catálogos viales de calzada, sentido, estado y frecuencia.
+- Catálogos poblados: 34 activos, 18 tipos de activo, 10 sedes, 4 roles, 11 usuarios, y catálogos
+  viales de calzada, sentido, estado y frecuencia. El campo `CodigoQR` está lleno, pero repite el
+  `CodigoActivo`: no hay etiqueta física detrás, y el QR quedó fuera de alcance (B-10).
 - 6 órdenes de trabajo registradas y 1 checklist de inspección SOS con su detalle.
 - Banco de preguntas del formulario de postes SOS: 15 preguntas con secciones, tipos de
   respuesta, rangos y unidades.
@@ -112,9 +113,12 @@ Mientras esto no se resuelva, cualquier trabajo de configuración se hace sobre 
 - [x] **Especificar el cableado de referencias.** Hecho el 7 de agosto de 2026. Procedimiento en
       `CABLEADO_REFERENCIAS_SGMC.md`, declarado en `scripts/modelo_objetivo.py` (`RETIPADOS` y
       `RENOMBRADOS`) y validado con 0 errores por `validar_modelo.py`, reglas V-14 a V-16
-- [ ] **Ejecutar el cableado en producción.** Requiere el editor de AppSheet: lo aplica un operador
-      humano siguiendo `CABLEADO_REFERENCIAS_SGMC.md`. `MAN_Mantenimientos` tiene 0 filas, de modo
-      que hoy la conversión no arrastra datos; después de poblar obliga a migrar
+- [ ] **Ejecutar el cableado en producción.** Lo aplica `sgmc-ejecutor` por navegador, siguiendo
+      `CABLEADO_REFERENCIAS_SGMC.md`, y **solo con las tres firmas** del pipeline SDD.
+      `MAN_Mantenimientos` tiene 0 filas, de modo que hoy la conversión no arrastra datos; después
+      de poblar obliga a migrar
+- [ ] **Escribir `PRUEBA-001` del cableado** y pasarla por el arquitecto. Es el paso que falta para
+      poder encender al ejecutor
 - [ ] **Decidir si `IsPartOf` sobre `MAN_Mantenimientos.OTID` es lo que se quiere.** Implica que
       borrar una orden borre su ejecución, sus fotografías y sus firmas. En un sistema cuyo
       propósito es que la evidencia sea difícil de falsificar, se decide, no se hereda
@@ -190,13 +194,13 @@ Es la fase más larga y la que fija el cronograma. Su contenido depende de las d
 
 - [ ] **D-01.** Levantamiento en campo de las coordenadas reales de los 34 activos y carga en
       `ACT_Activos.Ubicacion`
-- [ ] **B-10. Resolver el código QR, que hoy no existe como objeto físico.** `ACT_Activos.CodigoQR`
-      está poblado en los 34 activos, pero su valor es una copia literal de `CodigoActivo`. AppSheet
-      **lee** códigos, no los genera ni los imprime. Falta decidir y ejecutar: qué se codifica en la
-      etiqueta, quién genera las imágenes, en qué material se imprime para que aguante a la
-      intemperie, quién las instala y cómo se verifica que cada etiqueta quedó en su equipo. El
-      escaneo del QR es el primer eslabón de la cadena de presencia ofrecida a Dirección, de modo
-      que sin esto esa cadena tiene un eslabón declarado y no construido
+- [~] **B-10. Código QR: FUERA DE ALCANCE por decisión del 7 de agosto de 2026.** Primero tiene que
+      funcionar el ciclo básico. Lo verificado se conserva porque el hallazgo es real:
+      `ACT_Activos.CodigoQR` está poblado en los 34 activos, pero su valor es una copia literal de
+      `CodigoActivo`, y AppSheet lee códigos pero no los genera ni los imprime. **Consecuencia que
+      se asume:** el activo se abre por lista y `OrigenApertura = Lista` deja de ser excepción. Si
+      se retoma, falta decidir qué se codifica, quién genera las imágenes, en qué material se
+      imprime, quién las instala y cómo se verifica que cada etiqueta quedó en su equipo
 - [ ] **D-09.** Construcción de los bancos de preguntas de los tipos priorizados en
       `FRM_Preguntas`
 - [ ] Mapeo de `TIP_TiposActivo.FormularioID` para los 18 tipos

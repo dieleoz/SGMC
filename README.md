@@ -180,7 +180,7 @@ Lo que corre la app es el Sheets.
 | B-03 | Todos los usuarios están en la sede 1 y todos los activos en las sedes 7 a 10. El Security Filter dejaría a cada técnico sin activos |
 | B-04 | Solo 1 de 18 formularios tiene banco de preguntas |
 | B-09 | La fórmula de geofencing documentada durante meses, con `[ActivoID].[Ubicacion]`, no funciona: esa columna no existe en `MAN_Mantenimientos` |
-| B-10 | **El código QR no existe como objeto físico.** `ACT_Activos.CodigoQR` está poblado en los 34 activos, pero su valor es una copia literal de `CodigoActivo` (`SOS-001`, `CCTV-001`). Nada en el repositorio genera, imprime ni asigna una etiqueta, y el escaneo del QR es el primer eslabón de la cadena de presencia ofrecida a Dirección |
+| B-10 | **El código QR no existe como objeto físico.** `ACT_Activos.CodigoQR` está poblado en los 34 activos, pero su valor es una copia literal de `CodigoActivo` (`SOS-001`, `CCTV-001`). Nada genera, imprime ni asigna una etiqueta, y AppSheet lee códigos pero no los produce. **Fuera de alcance por decisión del 7 de agosto de 2026:** el activo se abre por lista. La propuesta enviada a Dirección lo marca «Incluido», discrepancia abierta |
 | B-05 | La entrega del backend de Valentín a la Concesión está pendiente de fecha |
 | B-06 | Fotografías, firmas y GPS están modelados dos veces: campos en `MAN_Mantenimientos` y tablas hijas vacías |
 | B-07 | `MAN_Mantenimientos` está vacía: ningún mantenimiento se ha ejecutado nunca de extremo a extremo |
@@ -217,6 +217,9 @@ entregables/   Documentos Word y Excel listos para enviar al cliente
 scripts/       Generadores de figuras y documentos
 .claude/skills/ Skills: auditar-modelo, generar-entregables, revisar-arquitectura
                y cablear-referencias
+.claude/agents/ Agentes del pipeline SDD: especificador, verificador, arquitecto,
+               ejecutor y probador
+docs/sdd/      Artefactos del pipeline: ESPEC, PRUEBA, ORDEN y ACTA
 archivo/       Material de origen, no versionado
 ```
 
@@ -224,6 +227,7 @@ archivo/       Material de origen, no versionado
 |---|---|
 | [ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) | **Frente activo.** Modelo objetivo: 27 tablas, 192 columnas, 38 referencias, 13 reglas. Generado desde `scripts/modelo_objetivo.py` y validado automáticamente |
 | [CABLEADO_REFERENCIAS_SGMC.md](docs/CABLEADO_REFERENCIAS_SGMC.md) | **Frente activo.** Procedimiento para convertir en referencias reales las que hoy son texto. Es lo que desbloquea el geofencing |
+| [SDD_PIPELINE_SGMC.md](docs/SDD_PIPELINE_SGMC.md) | **Método vigente.** Cómo se construye cualquier cambio: especificado y probado antes de tocar producción. Los cinco agentes y el gate |
 | [ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md) | Alcance del sistema completo y los 14 supuestos adoptados |
 | [prompts/PROMPT_CONSTRUCCION_SGMC.md](docs/prompts/PROMPT_CONSTRUCCION_SGMC.md) | Directiva de construcción en 7 pasos con criterios de aceptación |
 | [DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md) | Flujos funcionales por actor y las 14 decisiones, ya enviadas al funcional |
