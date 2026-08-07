@@ -241,6 +241,14 @@ MODELO = {
                 valor_inicial='LOOKUP(USEREMAIL(), "USR_Usuarios", "Correo", "UsuarioID")'),
             col("FechaHoraInicio", "DateTime", obligatoria=True, valor_inicial="NOW()"),
             col("FechaHoraFin", "DateTime"),
+            col("OrigenApertura", "Enum", obligatoria=True, valor_inicial="QR",
+                nota="QR o Lista. Abrir por lista no prueba presencia; se marca para poder exigir "
+                     "QR donde importe y para medir cuantos cierres carecen de escaneo"),
+            col("UbicacionEscaneo", "LatLong",
+                nota="Donde estaba el tecnico al escanear. Junto con Coordenadas_Cierre permite "
+                     "comprobar que llego y se quedo, no que paso cerca"),
+            col("FechaHoraEscaneo", "DateTime",
+                nota="Con FechaHoraFin da la duracion real de la intervencion"),
             col("EstadoActivoID", "Ref", ref="EST_Activo", obligatoria=True,
                 nota="Estado en que queda el activo tras la intervencion"),
             col("Coordenadas_Cierre", "LatLong", obligatoria=True, valor_inicial="HERE()",
@@ -252,6 +260,9 @@ MODELO = {
             col("MotivoExcepcion", "LongText", nota="Obligatorio si CierreConExcepcion es verdadero"),
             col("RequiereSegundaVisita", "Yes/No", valor_inicial="FALSE"),
             col("MotivoPendienteID", "Ref", ref="MOT_MotivosPendiente"),
+            col("ModoFallaID", "Ref", ref="FAL_ModosFalla",
+                nota="Solo en correctivos. Alimenta el tiempo medio entre fallas y el analisis "
+                     "de que componente falla mas"),
             col("Observaciones", "LongText"),
             col("AprobadoSupervisor", "Yes/No", valor_inicial="FALSE"),
             col("FechaAprobacion", "DateTime"),
@@ -280,6 +291,38 @@ MODELO = {
             col("FechaHora", "ChangeTimestamp"),
         ]),
 
+    "PLA_PlanMantenimiento": dict(
+        grupo="Transaccionales",
+        proposito=("Que tarea preventiva toca a cada activo y cada cuanto. Es lo que convierte al "
+                   "sistema en gestion de mantenimiento y no en un registro de formularios: de "
+                   "aqui salen las ordenes, en lugar de crearlas a mano una por una."),
+        nueva=True,
+        columnas=[
+            col("PlanID", "Text", pk=True),
+            col("ActivoID", "Ref", ref="ACT_Activos", obligatoria=True),
+            col("FrecuenciaID", "Ref", ref="FRE_Frecuencias", obligatoria=True),
+            col("UltimaEjecucion", "Date"),
+            col("ProximaFecha", "Date", obligatoria=True,
+                nota="Formula: [UltimaEjecucion] + [FrecuenciaID].[Dias]"),
+            col("ResponsableID", "Ref", ref="USR_Usuarios", alias_justificado="Rol: tecnico habitual"),
+            col("Activo", "Yes/No", valor_inicial="TRUE"),
+        ]),
+
+    "FAL_ModosFalla": dict(
+        grupo="Catalogos",
+        proposito=("Taxonomia de fallas por tipo de activo. Sin clasificar la falla no hay "
+                   "ingenieria de mantenimiento posible: no se puede calcular tiempo medio entre "
+                   "fallas, ni saber que componente falla mas, ni pasar de correctivo a predictivo."),
+        nueva=True,
+        columnas=[
+            col("ModoFallaID", "Text", pk=True),
+            col("TipoActivoID", "Ref", ref="TIP_TiposActivo", obligatoria=True),
+            col("Nombre", "Text", obligatoria=True),
+            col("Componente", "Text"),
+            col("Criticidad", "Enum", nota="Alta, Media, Baja"),
+            col("Activo", "Yes/No", valor_inicial="TRUE"),
+        ]),
+
     # ============================================================== EVIDENCIAS
     "FOT_Fotografias": dict(
         grupo="Evidencias",
@@ -289,8 +332,15 @@ MODELO = {
             col("FotoID", "Text", pk=True),
             col("MantenimientoID", "Ref", ref="MAN_Mantenimientos", obligatoria=True, es_parte_de=True),
             col("Tipo", "Enum", obligatoria=True, nota="Antes, Despues, Novedad"),
-            col("Archivo", "Image", obligatoria=True, nota="Calidad baja, 600 px"),
-            col("FechaHora", "ChangeTimestamp"),
+            col("Archivo", "Image", obligatoria=True,
+                nota="Calidad baja, 600 px. La camara debe forzarse en la app: si permite elegir "
+                     "de la galeria, toda la cadena de evidencia pierde valor"),
+            col("Ubicacion", "LatLong", obligatoria=True, valor_inicial="HERE()",
+                nota="Coordenada de CADA fotografia. La compresion a 600 px descarta el EXIF, "
+                     "asi que la geolocalizacion debe guardarse como dato, no confiarse a la imagen"),
+            col("PrecisionGPS", "Number", valor_inicial="USERLOCATIONACCURACY()"),
+            col("FechaHora", "ChangeTimestamp",
+                nota="Marca del servidor, no del reloj del telefono, que el usuario puede alterar"),
             col("Usuario", "Text", valor_inicial="USEREMAIL()"),
         ]),
 
@@ -475,6 +525,21 @@ REGLAS = [
          tipo="Initial value", cubre="D-11",
          expresion="[FormularioID].[Version]",
          descripcion="Congela la version del formulario con que se respondio, para comparar historico."),
+    dict(id="RG-11", tabla="PLA_PlanMantenimiento", columna="ProximaFecha",
+         tipo="App formula", cubre="Plan de mantenimiento",
+         expresion="[UltimaEjecucion] + [FrecuenciaID].[Dias]",
+         descripcion="Calcula cuando vuelve a tocar el preventivo de ese activo."),
+    dict(id="RG-12", tabla="PLA_PlanMantenimiento", columna="(tabla)",
+         tipo="Bot programado", cubre="Plan de mantenimiento",
+         expresion="[ProximaFecha] <= TODAY() + 7",
+         descripcion=("Genera las ordenes de la semana a partir del plan y notifica al tecnico "
+                      "responsable. REQUIERE PLAN PAGADO: en el gratuito los bots programados no "
+                      "se ejecutan.")),
+    dict(id="RG-13", tabla="MAN_Mantenimientos", columna="(tabla)",
+         tipo="Verificacion de evidencia", cubre="Prueba de presencia",
+         expresion="DISTANCE([UbicacionEscaneo], [Coordenadas_Cierre]) <= 0.5",
+         descripcion=("Contrasta donde escaneo con donde cerro. Una diferencia grande indica que "
+                      "escaneo en un sitio y cerro en otro. No bloquea: se reporta.")),
     dict(id="RG-10", tabla="MAN_Mantenimientos", columna="(tabla)",
          tipo="Bot", cubre="D-07",
          expresion='[RequiereSegundaVisita] = TRUE',

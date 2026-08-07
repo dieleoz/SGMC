@@ -12,8 +12,10 @@ sesión con su cuenta corporativa.
 > cerrada, la definición funcional no ha sido validada con el líder funcional, y el 6 de agosto de
 > 2026 se detectó que **el Excel local y el backend de producción son modelos distintos**. Ver [Estado real](#estado-real-verificado) y
 > [AUDITORIA_PLAN_Y_ROADMAP.md](docs/AUDITORIA_PLAN_Y_ROADMAP.md).
-> Las 14 decisiones se enviaron al líder funcional, pero el proyecto **no espera su respuesta**:
-> se adoptaron como supuestos vinculantes y se construye sobre ellos. Ver
+> La arquitectura objetivo está definida y validada automáticamente. La propuesta se envió a
+> Dirección y al líder funcional, a la espera de tres decisiones: propiedad del backend, plan de
+> licenciamiento y definición contractual de disponibilidad. Ver
+> [ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) y
 > [ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md).
 > No desplegar a campo hasta cerrar
 > [DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md).
@@ -233,7 +235,8 @@ archivo/       Material de origen, no versionado
 
 | Archivo | Estado |
 |---|---|
-| `entregables/Definicion_Funcional_SGMC_Mesa_de_Trabajo.docx` | Para enviar. 14 decisiones con propuesta marcada y 5 esquemas |
+| `entregables/Propuesta_Arquitectura_SGMC.docx` | **Enviado a Dirección y al funcional.** Qué se va a construir, validado desde 6 roles, con 3 decisiones que pide |
+| `entregables/Definicion_Funcional_SGMC_Mesa_de_Trabajo.docx` | Enviado. 14 decisiones con propuesta marcada |
 | `entregables/CORREO_ENVIO_MESA_DE_TRABAJO.md` | Texto del correo de envío, listo para copiar |
 | `entregables/Especificaciones_Tecnicas_SGMC_AsBuilt.docx` | v2.0. Qué hace, qué ofrece y cómo funciona, con el modelo real de 24 tablas y el estado verificado de los 16 requerimientos |
 | `entregables/Modelo_Datos_SGMC_AsBuilt.xlsx` | Copia publicada del maestro. No editar: se edita `BD/` y se replica |

@@ -173,6 +173,35 @@ semanas.
 
 La directiva de ejecución es `docs/prompts/PROMPT_CONSTRUCCION_SGMC.md`.
 
+## Para qué existe el sistema
+
+Antes de decidir nada, ancla contra esto:
+
+> Garantizar que el mantenimiento se hizo, que quien lo hizo estuvo físicamente frente al equipo,
+> y que la evidencia que lo respalda es difícil de falsificar.
+
+Todo lo demás sirve a eso o sobra. La presencia se garantiza encadenando evidencias
+independientes: escaneo del QR físico con hora y coordenada, fotografías tomadas con la cámara de
+la app y no de la galería —cada una con su propia coordenada—, cierre dentro del radio del activo,
+y marca de tiempo del servidor y no del teléfono. La cadena no es infalsificable: eleva el costo
+de falsificar por encima del de hacer el trabajo, que es el objetivo realista.
+
+Detalle con consecuencia: la compresión a 600 px descarta los metadatos de la imagen, así que
+fecha, hora y coordenada se guardan **como datos de cada fotografía**, nunca confiados al archivo.
+
+## Restricciones de plataforma que condicionan el diseño
+
+Verificadas el 2026-08-06. Repásalas antes de proponer nada:
+
+| Restricción | Consecuencia |
+|---|---|
+| En el plan gratuito **los procesos programados no se ejecutan** | Sin plan pagado no hay generación automática de órdenes, ni correo semanal de tareas, ni marcado de vencidas |
+| Las imágenes se guardan en el Drive del **propietario** del documento | Hoy es una cuenta personal de Gmail con 15 GB compartidos. Con el inventario completo la cuota se agota antes de la retención exigida |
+| 10 millones de celdas por hoja | Rara vez muerde. Se degrada antes la sincronización, por encima de ~50.000 filas por tabla |
+| API REST | Requiere plan Core o superior |
+
+Las cifras de crecimiento se calculan con `python scripts/capacidad.py`, no a ojo.
+
 ## El modelo objetivo se edita en un solo sitio
 
 La arquitectura correcta está codificada como datos en `scripts/modelo_objetivo.py`. De ahí salen

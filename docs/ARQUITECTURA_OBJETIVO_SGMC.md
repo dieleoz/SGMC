@@ -8,7 +8,7 @@ Este documento define el sistema que se va a construir, no el que existe. El act
 descrito en `AUDITORIA_PLAN_Y_ROADMAP.md` y no sirve como base: sus referencias no están
 cableadas, cuatro tablas están vacías y la cadena relacional existe solo en el papel.
 
-**25 tablas · 173 columnas · 33 referencias · 10 reglas**
+**27 tablas · 192 columnas · 38 referencias · 13 reglas**
 
 ---
 
@@ -36,6 +36,8 @@ Cinco reglas que el modelo anterior no tenía, y cuya ausencia explica sus fallo
 | `EOT_EstadosOrden` | Ciclo de vida de la orden segun el supuesto D-06. Declararlo como catalogo, y no como texto libre, es lo que permite medir cumplimiento. |
 | `MOT_MotivosPendiente` | Motivos tipificados de trabajo incompleto, supuesto D-07. Si el tecnico no tiene donde declarar por que no pudo terminar, fuerza un cierre falso. |
 | `NOV_Novedades` | Hallazgos del tecnico en ruta: activos no inventariados o fallas fuera de programacion. Supuesto D-08. Sin esta via los hallazgos se pierden o acaban en WhatsApp, que es lo que el sistema viene a reemplazar. |
+| `PLA_PlanMantenimiento` | Que tarea preventiva toca a cada activo y cada cuanto. Es lo que convierte al sistema en gestion de mantenimiento y no en un registro de formularios: de aqui salen las ordenes, en lugar de crearlas a mano una por una. |
+| `FAL_ModosFalla` | Taxonomia de fallas por tipo de activo. Sin clasificar la falla no hay ingenieria de mantenimiento posible: no se puede calcular tiempo medio entre fallas, ni saber que componente falla mas, ni pasar de correctivo a predictivo. |
 
 ### 2.2 Tablas que se retiran
 
@@ -92,8 +94,13 @@ erDiagram
     MAN_Mantenimientos }o--|| USR_Usuarios : "TecnicoID"
     MAN_Mantenimientos }o--|| EST_Activo : "EstadoActivoID"
     MAN_Mantenimientos }o--|| MOT_MotivosPendiente : "MotivoPendienteID"
+    MAN_Mantenimientos }o--|| FAL_ModosFalla : "ModoFallaID"
     NOV_Novedades }o--|| USR_Usuarios : "UsuarioID"
     NOV_Novedades }o--|| ACT_Activos : "ActivoID"
+    PLA_PlanMantenimiento }o--|| ACT_Activos : "ActivoID"
+    PLA_PlanMantenimiento }o--|| FRE_Frecuencias : "FrecuenciaID"
+    PLA_PlanMantenimiento }o--|| USR_Usuarios : "ResponsableID"
+    FAL_ModosFalla }o--|| TIP_TiposActivo : "TipoActivoID"
     MAN_Mantenimientos ||--o{ FOT_Fotografias : "MantenimientoID"
     MAN_Mantenimientos ||--o{ FIR_Firmas : "MantenimientoID"
     MAN_Mantenimientos ||--o{ CHK_Checklists : "MantenimientoID"
@@ -108,7 +115,7 @@ erDiagram
 
 ## 4. Definición de las tablas
 
-### 4.1 Catalogos (12)
+### 4.1 Catalogos (13)
 
 #### `SED_Sedes`
 
@@ -253,6 +260,19 @@ Sentidos de circulacion.
 | `Nombre` | Text |  |  | Sí |  |
 | `Activo` | Yes/No |  |  |  | Valor inicial: `TRUE` |
 
+#### `FAL_ModosFalla` · **NUEVA**
+
+Taxonomia de fallas por tipo de activo. Sin clasificar la falla no hay ingenieria de mantenimiento posible: no se puede calcular tiempo medio entre fallas, ni saber que componente falla mas, ni pasar de correctivo a predictivo.
+
+| Columna | Tipo | Clave | Referencia | Obligatoria | Nota |
+|---|---|---|---|---|---|
+| `ModoFallaID` | Text | PK |  |  |  |
+| `TipoActivoID` | Ref |  | `TIP_TiposActivo` | Sí |  |
+| `Nombre` | Text |  |  | Sí |  |
+| `Componente` | Text |  |  |  |  |
+| `Criticidad` | Enum |  |  |  | Alta, Media, Baja |
+| `Activo` | Yes/No |  |  |  | Valor inicial: `TRUE` |
+
 ### 4.2 Maestras (1)
 
 #### `ACT_Activos`
@@ -277,7 +297,7 @@ Inventario de los activos del corredor. Es el eje del sistema.
 | `Activo` | Yes/No |  |  |  | Valor inicial: `TRUE` |
 | `Observaciones` | LongText |  |  |  |  |
 
-### 4.3 Transaccionales (3)
+### 4.3 Transaccionales (4)
 
 #### `OT_OrdenesTrabajo`
 
@@ -309,6 +329,9 @@ Ejecucion real en campo. Cuelga de la orden y es padre de la evidencia.
 | `TecnicoID` | Ref |  | `USR_Usuarios` | Sí | Valor inicial: `LOOKUP(USEREMAIL(), "USR_Usuarios", "Correo", "UsuarioID")`. Rol: quien ejecuta |
 | `FechaHoraInicio` | DateTime |  |  | Sí | Valor inicial: `NOW()` |
 | `FechaHoraFin` | DateTime |  |  |  |  |
+| `OrigenApertura` | Enum |  |  | Sí | QR o Lista. Abrir por lista no prueba presencia; se marca para poder exigir QR donde importe y para medir cuantos cierres carecen de escaneo. Valor inicial: `QR` |
+| `UbicacionEscaneo` | LatLong |  |  |  | Donde estaba el tecnico al escanear. Junto con Coordenadas_Cierre permite comprobar que llego y se quedo, no que paso cerca |
+| `FechaHoraEscaneo` | DateTime |  |  |  | Con FechaHoraFin da la duracion real de la intervencion |
 | `EstadoActivoID` | Ref |  | `EST_Activo` | Sí | Estado en que queda el activo tras la intervencion |
 | `Coordenadas_Cierre` | LatLong |  |  | Sí | Valor inicial: `HERE()` |
 | `Precision_GPS` | Number |  |  |  | Valor inicial: `USERLOCATIONACCURACY()` |
@@ -316,6 +339,7 @@ Ejecucion real en campo. Cuelga de la orden y es padre de la evidencia.
 | `MotivoExcepcion` | LongText |  |  |  | Obligatorio si CierreConExcepcion es verdadero |
 | `RequiereSegundaVisita` | Yes/No |  |  |  | Valor inicial: `FALSE` |
 | `MotivoPendienteID` | Ref |  | `MOT_MotivosPendiente` |  |  |
+| `ModoFallaID` | Ref |  | `FAL_ModosFalla` |  | Solo en correctivos. Alimenta el tiempo medio entre fallas y el analisis de que componente falla mas |
 | `Observaciones` | LongText |  |  |  |  |
 | `AprobadoSupervisor` | Yes/No |  |  |  | Valor inicial: `FALSE` |
 | `FechaAprobacion` | DateTime |  |  |  |  |
@@ -340,6 +364,20 @@ Hallazgos del tecnico en ruta: activos no inventariados o fallas fuera de progra
 | `Estado` | Enum |  |  |  | Reportada, Aceptada, Descartada. Valor inicial: `Reportada` |
 | `FechaHora` | ChangeTimestamp |  |  |  |  |
 
+#### `PLA_PlanMantenimiento` · **NUEVA**
+
+Que tarea preventiva toca a cada activo y cada cuanto. Es lo que convierte al sistema en gestion de mantenimiento y no en un registro de formularios: de aqui salen las ordenes, en lugar de crearlas a mano una por una.
+
+| Columna | Tipo | Clave | Referencia | Obligatoria | Nota |
+|---|---|---|---|---|---|
+| `PlanID` | Text | PK |  |  |  |
+| `ActivoID` | Ref |  | `ACT_Activos` | Sí |  |
+| `FrecuenciaID` | Ref |  | `FRE_Frecuencias` | Sí |  |
+| `UltimaEjecucion` | Date |  |  |  |  |
+| `ProximaFecha` | Date |  |  | Sí | Formula: [UltimaEjecucion] + [FrecuenciaID].[Dias] |
+| `ResponsableID` | Ref |  | `USR_Usuarios` |  | Rol: tecnico habitual |
+| `Activo` | Yes/No |  |  |  | Valor inicial: `TRUE` |
+
 ### 4.4 Evidencias (2)
 
 #### `FOT_Fotografias`
@@ -351,8 +389,10 @@ Fotografias del mantenimiento. Supuesto D-10: minimo 3, maximo 6, tipificadas. S
 | `FotoID` | Text | PK |  |  |  |
 | `MantenimientoID` | Ref |  | `MAN_Mantenimientos` · IsPartOf | Sí |  |
 | `Tipo` | Enum |  |  | Sí | Antes, Despues, Novedad |
-| `Archivo` | Image |  |  | Sí | Calidad baja, 600 px |
-| `FechaHora` | ChangeTimestamp |  |  |  |  |
+| `Archivo` | Image |  |  | Sí | Calidad baja, 600 px. La camara debe forzarse en la app: si permite elegir de la galeria, toda la cadena de evidencia pierde valor |
+| `Ubicacion` | LatLong |  |  | Sí | Coordenada de CADA fotografia. La compresion a 600 px descarta el EXIF, asi que la geolocalizacion debe guardarse como dato, no confiarse a la imagen. Valor inicial: `HERE()` |
+| `PrecisionGPS` | Number |  |  |  | Valor inicial: `USERLOCATIONACCURACY()` |
+| `FechaHora` | ChangeTimestamp |  |  |  | Marca del servidor, no del reloj del telefono, que el usuario puede alterar |
 | `Usuario` | Text |  |  |  | Valor inicial: `USEREMAIL()` |
 
 #### `FIR_Firmas`
@@ -559,6 +599,36 @@ Congela la version del formulario con que se respondio, para comparar historico.
 ```
 
 Cubre: D-11
+
+### RG-11 · App formula sobre `PLA_PlanMantenimiento`.`ProximaFecha`
+
+Calcula cuando vuelve a tocar el preventivo de ese activo.
+
+```
+[UltimaEjecucion] + [FrecuenciaID].[Dias]
+```
+
+Cubre: Plan de mantenimiento
+
+### RG-12 · Bot programado sobre `PLA_PlanMantenimiento`
+
+Genera las ordenes de la semana a partir del plan y notifica al tecnico responsable. REQUIERE PLAN PAGADO: en el gratuito los bots programados no se ejecutan.
+
+```
+[ProximaFecha] <= TODAY() + 7
+```
+
+Cubre: Plan de mantenimiento
+
+### RG-13 · Verificacion de evidencia sobre `MAN_Mantenimientos`
+
+Contrasta donde escaneo con donde cerro. Una diferencia grande indica que escaneo en un sitio y cerro en otro. No bloquea: se reporta.
+
+```
+DISTANCE([UbicacionEscaneo], [Coordenadas_Cierre]) <= 0.5
+```
+
+Cubre: Prueba de presencia
 
 ### RG-10 · Bot sobre `MAN_Mantenimientos`
 

@@ -13,6 +13,7 @@
 |---|---|
 | Entender qué es el proyecto | [README.md](README.md) |
 | Ver la arquitectura correcta que se va a construir | [docs/ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) |
+| Saber hasta dónde aguanta el sistema | `python scripts/capacidad.py` |
 | Saber con qué supuestos se construye | [docs/ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md) |
 | Ejecutar la construcción | [docs/prompts/PROMPT_CONSTRUCCION_SGMC.md](docs/prompts/PROMPT_CONSTRUCCION_SGMC.md) |
 | Saber el estado real y qué está bloqueado | [docs/AUDITORIA_PLAN_Y_ROADMAP.md](docs/AUDITORIA_PLAN_Y_ROADMAP.md) |
@@ -56,6 +57,7 @@ D:\@Proyect\Sisga\
 │   └── images/                   img_01 a img_06, maquetas del manual
 │
 ├── entregables/                  Listos para enviar al cliente
+│   ├── Propuesta_Arquitectura_SGMC.docx
 │   ├── Definicion_Funcional_SGMC_Mesa_de_Trabajo.docx
 │   ├── CORREO_ENVIO_MESA_DE_TRABAJO.md
 │   ├── Especificaciones_Tecnicas_SGMC_AsBuilt.docx
@@ -63,13 +65,16 @@ D:\@Proyect\Sisga\
 │
 ├── .claude/skills/               Skills del proyecto
 │   ├── auditar-modelo/           Verificar producción vs Excel antes de afirmar nada
+│   ├── revisar-arquitectura/     Validar el diseño desde 6 ángulos antes de construir
 │   └── generar-entregables/      Regenerar figuras y documentos Word
 │
 ├── scripts/                      Generadores
 │   ├── _helpers_docx.py
 │   ├── generate_figuras.py
+│   ├── capacidad.py
 │   ├── generar_doc_arquitectura.py
 │   ├── generate_especificaciones_docx.py
+│   ├── generate_propuesta_docx.py
 │   ├── modelo_objetivo.py
 │   ├── validar_modelo.py
 │   ├── generate_mesa_trabajo_docx.py

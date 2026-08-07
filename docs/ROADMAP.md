@@ -3,7 +3,7 @@
 **Proyecto:** Sistema de Gestión de Mantenimiento en Campo
 **Cliente:** Concesión Transversal del Sisga S.A.S.
 **Actualizado:** 6 de agosto de 2026 | **Versión:** 3.0
-**Estado actual:** Construcción bajo supuestos adoptados. No se espera respuesta del funcional para avanzar
+**Estado actual:** Arquitectura objetivo definida y validada. Propuesta enviada a Dirección y al líder funcional, a la espera de tres decisiones
 
 > Esta versión corrige la anterior, que declaraba completadas al 100 % la Fase 0 y la Fase 1.
 > La auditoría del 6 de agosto de 2026 verificó contra el archivo que esa declaración era falsa.
@@ -75,6 +75,22 @@ esperar su respuesta: las catorce decisiones se adoptaron como supuestos en
 **Por qué cambió.** Un cuestionario en abstracto a quien no tiene todavía el modelo mental produce
 silencio, y el sistema actual no permite formarse criterio: no hay nada que mirar. Es más rápido
 construir completo, poblar con datos, entregar con manual, y corregir con lo que diga el campo.
+
+---
+
+## 4.4 Decisiones pendientes de Dirección
+
+La propuesta `entregables/Propuesta_Arquitectura_SGMC.docx` pide tres decisiones. Las dos primeras
+condicionan la salida a producción y ninguna es técnica:
+
+- **D-A. Propiedad del backend.** El documento y las fotografías pertenecen a una cuenta personal
+  de Gmail. Las imágenes consumen su cuota de 15 GB. Con el inventario completo se agota antes de
+  cumplir la retención de cinco años.
+- **D-B. Plan de licenciamiento.** En el plan gratuito los procesos programados no se ejecutan. Sin
+  plan pagado no hay generación automática de órdenes ni notificaciones, que es lo que convierte el
+  sistema en gestión y no en registro.
+- **D-C. Definición contractual de disponibilidad.** Si el contrato o interventoría la definen de
+  otra forma, esa prima sobre la propuesta.
 
 ---
 
