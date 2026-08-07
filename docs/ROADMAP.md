@@ -153,9 +153,10 @@ Mientras esto no se resuelva, cualquier trabajo de configuración se hace sobre 
       no hay `Show_If` ni `Required_If` que lo imponga —depende de `OT.Tipo`, hoy vacía—, y
       `ObservacionRechazo` es la traza de la devolución del supervisor, sin regla. Un campo que
       existe y nada puebla es la misma patología que `CodigoQR`: estructura sin comportamiento
-- [ ] **Crear la pestaña `PAR_Parametros` en la hoja.** Tres filas. Prompt listo en
-      `docs/prompts/PROMPT_AGENTE_HOJA_PAR_PARAMETROS.md`. Los umbrales dejan de estar escondidos
-      en las expresiones y pasan a ser celdas que el administrador calibra con las pruebas de campo
+- [ ] **Cerrar la hoja de una pasada: las cuatro ediciones que faltan.** `PAR_Parametros` con sus
+      tres umbrales calibrables, `OT_OrdenesTrabajo.Activo` y `EST_Activo.Activo` a `TRUE` —vacías
+      hoy, y un blanco se lee como falso—, y `ACT_Activos.Activo` a `FALSE` en la fila 34, que está
+      retirada y dice lo contrario. Prompt en `docs/prompts/PROMPT_AGENTE_HOJA_CIERRE_FASE_A.md`
 - [ ] **Fase B: cablear en AppSheet** siguiendo `ESPEC-002`. Arranca cuando `verificar_faseA.py`
       vuelva a imprimir `FASE A CERRADA`
 - [x] **`IsPartOf` sobre `MAN_Mantenimientos.OTID`: DECIDIDO el 7 de agosto de 2026. Va sin él.**
