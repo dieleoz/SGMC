@@ -133,7 +133,14 @@ del activo; en el modelo objetivo `Activo` es la bandera `Yes/No` de todas las t
 renombra la vieja **antes** de crear la nueva, o el Sheets queda con dos columnas iguales y
 AppSheet resuelve una sin decir cuál.
 
-**R-8. La cadena se prueba en el Asistente de Expresiones, no en la aplicación.** Escribir
+**R-8. Al crear un catálogo nuevo, su clave debe ser el valor que ya guardan los datos.** No un
+identificador nuevo y ordenado. `EOT_EstadosOrden` se creó con claves `1..7` mientras
+`OT_OrdenesTrabajo.EstadoOrdenID` guardaba `Asignada`, `Cerrada` y `Suspendida`: se ve bien en la
+hoja y deja las 6 órdenes huérfanas en cuanto se cablea. `UNF_UnidadesFuncionales` se hizo al revés
+—claves 7 a 10, las que ya usaba `ACT_Activos`— y por eso las 34 filas siguen resolviendo sin tocar
+ninguna. **Un catálogo se diseña mirando los datos que va a tener que resolver.**
+
+**R-9. La cadena se prueba en el Asistente de Expresiones, no en la aplicación.** Escribir
 `[OTID].[ActivoID].[Ubicacion]` sobre `MAN_Mantenimientos` y ver que resuelve es la prueba de que
 la referencia quedó. Es más rápido y más seguro que ejercitar la app.
 

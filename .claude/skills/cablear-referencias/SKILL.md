@@ -113,6 +113,13 @@ forma de saber cuál miente.
 borrar una orden borra su ejecución, sus fotografías y sus firmas. En un sistema cuyo propósito es
 que la evidencia sea difícil de falsificar, eso se decide, no se hereda del ejemplo.
 
+**El catálogo nuevo con claves nuevas.** Al crear un catálogo para una columna que ya tiene datos,
+la clave debe ser **el valor que esos datos ya guardan**, no un identificador ordenado. Ocurrió el
+2026-08-07: `EOT_EstadosOrden` se creó con `1..7` mientras la orden guardaba `Asignada` y `Cerrada`.
+Se ve impecable en la hoja y deja las 6 órdenes huérfanas al cablear. La misma tarde,
+`UNF_UnidadesFuncionales` se hizo bien —claves 7 a 10, las que ya usaba `ACT_Activos`— y las 34
+filas siguieron resolviendo solas.
+
 **El texto como clave ajena.** `CHD_ChecklistDetalle` referenciaba la pregunta por su **enunciado**.
 Corregir una tilde rompía la agrupación histórica. Si ves una columna que guarda texto legible y
 hace de clave, es un defecto, no una comodidad.
@@ -136,6 +143,18 @@ especificación que un operador humano aplica. Por tanto:
 Marca cada punto como **hecho y verificado**, con qué comando lo verificaste, o como **pendiente de
 aplicar**. No hay estado intermedio: este proyecto arrastra un historial de subsanaciones reportadas
 como cerradas que no lo estaban.
+
+## Verificar lo que otro aplicó
+
+Cuando el cambio lo aplique otra persona u otro asistente, **no cierres por su reporte**. Exporta el
+Sheets a `.xlsx` —*Archivo → Descargar → Microsoft Excel*, guardar en `BD/`— y corre:
+
+```
+python scripts/verificar_faseA.py "BD/Modelo de Datos (N).xlsx"
+```
+
+Compara encabezado por encabezado contra `modelo_objetivo.py`. La primera vez que se usó, sobre un
+trabajo reportado como «100% cerrado y validado», encontró 23 fallos.
 
 ## Regla final
 

@@ -152,6 +152,7 @@ Los nombres actuales se verificaron el 2026-08-07 leyendo `BD/Modelo de Datos (2
 | `USR_Usuarios` | `RolID` | Number | **Ref** | `ROL_Roles` | Guarda enteros 2 a 5. Por confirmar el tipo. |
 | `USR_Usuarios` | `SedeID` | Number | **Ref** | `SED_Sedes` | Guarda 1 en los 11 usuarios. |
 | `TIP_TiposActivo` | `FormularioID` | Text | **Ref** | `FRM_Formularios` | Poblado en los 18 tipos con valores FRM_SOS a FRM_SUBE, que si existen en FRM_Formularios. La conversion no produce huerfanos. |
+| `LST_ValoresLista` | `PreguntaID` | Text | **Ref** | `FRM_Preguntas` | PELIGRO: sus 4 filas guardan el TEXTO 'Estado encontrado', no una clave. Convertir a Ref las deja huerfanas a las cuatro. Corregir los valores antes, o dejarla como Text y anotarlo como deuda. |
 | `FRM_Preguntas` | `FormularioID` | Text | **Ref** | `FRM_Formularios` | Por confirmar el tipo. |
 | `FRM_Preguntas` | `SeccionID` | Number | **Ref** | `FRM_Secciones` | Por confirmar el tipo. |
 | `FRM_Preguntas` | `TipoRespuestaID` | Number | **Ref** | `TPR_TiposRespuesta` | Por confirmar el tipo. |
@@ -183,6 +184,10 @@ Los nombres actuales se verificaron el 2026-08-07 leyendo `BD/Modelo de Datos (2
 | `MAN_Mantenimientos` | `Fecha_Hora_Registro` | **`FechaHoraRegistro`** | Convencion de nombres. |
 | `CHK_Checklists` | `OTID` | **`MantenimientoID`** | Cambia de padre: el checklist cuelga de la ejecucion, no de la orden. La inspeccion es parte de ejecutar. |
 | `CHD_ChecklistDetalle` | `Observaciones` | **`Observacion`** | Singular: es la observacion de una respuesta, no de la tabla. |
+| `LST_ValoresLista` | `ListaID` | **`ValorListaID`** | La clave se llamaba distinto de la convencion. Detectado el 2026-08-07 al verificar la Fase A, no antes. |
+| `ROL_Roles` | `Descripción` | **`Descripcion`** | AppSheet resuelve por nombre literal: la tilde obliga a escribirla en cada expresion. |
+| `FRM_Formularios` | `Descripción` | **`Descripcion`** | Idem. |
+| `FRM_Formularios` | `Versión` | **`Version`** | Idem. |
 
 #### La trampa del nombre reutilizado
 

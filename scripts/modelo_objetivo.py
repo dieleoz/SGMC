@@ -590,6 +590,18 @@ RENOMBRADOS = {
         "Observaciones": ("Observacion", "Singular: es la observacion de una respuesta, no de la "
                                          "tabla."),
     },
+    "LST_ValoresLista": {
+        "ListaID": ("ValorListaID", "La clave se llamaba distinto de la convencion. Detectado el "
+                                    "2026-08-07 al verificar la Fase A, no antes."),
+    },
+    "ROL_Roles": {
+        "Descripción": ("Descripcion", "AppSheet resuelve por nombre literal: la tilde obliga "
+                                        "a escribirla en cada expresion."),
+    },
+    "FRM_Formularios": {
+        "Descripción": ("Descripcion", "Idem."),
+        "Versión": ("Version", "Idem."),
+    },
 }
 
 # ------------------------- retipados: conservan el nombre, cambian de tipo
@@ -632,6 +644,12 @@ RETIPADOS = {
         "FormularioID": ("Text", "Ref", "FRM_Formularios",
                          "Poblado en los 18 tipos con valores FRM_SOS a FRM_SUBE, que si existen "
                          "en FRM_Formularios. La conversion no produce huerfanos."),
+    },
+    "LST_ValoresLista": {
+        "PreguntaID": ("Text", "Ref", "FRM_Preguntas",
+                       "PELIGRO: sus 4 filas guardan el TEXTO 'Estado encontrado', no una clave. "
+                       "Convertir a Ref las deja huerfanas a las cuatro. Corregir los valores "
+                       "antes, o dejarla como Text y anotarlo como deuda."),
     },
     "FRM_Preguntas": {
         "FormularioID": ("Text", "Ref", "FRM_Formularios", "Por confirmar el tipo."),

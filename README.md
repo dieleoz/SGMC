@@ -229,7 +229,9 @@ archivo/       Material de origen, no versionado
 | [CABLEADO_REFERENCIAS_SGMC.md](docs/CABLEADO_REFERENCIAS_SGMC.md) | **Frente activo.** Procedimiento para convertir en referencias reales las que hoy son texto. Es lo que desbloquea el geofencing |
 | [SDD_PIPELINE_SGMC.md](docs/SDD_PIPELINE_SGMC.md) | **Método vigente.** Cómo se construye cualquier cambio: especificado y probado antes de tocar producción. Los cinco agentes, las dos fases y el gate |
 | [sdd/ESPEC-001-preparacion-del-sheets.md](docs/sdd/ESPEC-001-preparacion-del-sheets.md) | **Frente activo.** Fase A del cableado, verificada contra producción |
-| [scripts/faseA_sheets.gs](scripts/faseA_sheets.gs) | **Frente activo.** La Fase A como Apps Script: simula, aplica, verifica y sabe borrar sus propios datos de prueba |
+| [scripts/faseA_sheets.gs](scripts/faseA_sheets.gs) | La Fase A como Apps Script. La cuenta de Google bloqueó su ejecución |
+| [sdd/ESPEC-001B-cierre-de-la-fase-a.md](docs/sdd/ESPEC-001B-cierre-de-la-fase-a.md) | **Frente activo.** Los 23 fallos que faltan para cerrar de verdad la Fase A |
+| [sdd/ESPEC-002-cableado-en-appsheet.md](docs/sdd/ESPEC-002-cableado-en-appsheet.md) | **Frente activo.** Fase B: el cableado en AppSheet. Bloqueada hasta cerrar la Fase A |
 | [ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md) | Alcance del sistema completo y los 14 supuestos adoptados |
 | [prompts/PROMPT_CONSTRUCCION_SGMC.md](docs/prompts/PROMPT_CONSTRUCCION_SGMC.md) | Directiva de construcción en 7 pasos con criterios de aceptación |
 | [DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md) | Flujos funcionales por actor y las 14 decisiones, ya enviadas al funcional |

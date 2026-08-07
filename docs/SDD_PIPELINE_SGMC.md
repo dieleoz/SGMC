@@ -150,8 +150,8 @@ en `scripts/modelo_objetivo.py`.**
 
 | Frente | Estado |
 |---|---|
-| Cableado, Fase A (Sheets) | `ESPEC-001` escrita contra producción. Implementada en `scripts/faseA_sheets.gs`. **Pendiente de correr en simulación** |
-| Cableado, Fase B (navegador) | Pendiente de `ESPEC-002`. No arranca hasta cerrar la Fase A |
+| Cableado, Fase A (Sheets) | **Aplicada el 7 de agosto, reportada como cerrada al 100%. No lo está:** 27 conformes y 23 fallos. Corrección en `ESPEC-001B` |
+| Cableado, Fase B (navegador) | `ESPEC-002` escrita. **Bloqueada** hasta que `verificar_faseA.py` imprima `FASE A CERRADA` |
 | Coordenadas reales (D-01) | Bloqueado por levantamiento en campo |
 | Código QR | **Fuera de alcance por decisión del 2026-08-07.** Ver sección 8 |
 

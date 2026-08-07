@@ -117,8 +117,20 @@ Mientras esto no se resuelva, cualquier trabajo de configuración se hace sobre 
       `CABLEADO_REFERENCIAS_SGMC.md`, y **solo con las tres firmas** del pipeline SDD.
       `MAN_Mantenimientos` tiene 0 filas, de modo que hoy la conversión no arrastra datos; después
       de poblar obliga a migrar
-- [ ] **Escribir `PRUEBA-001` del cableado** y pasarla por el arquitecto. Es el paso que falta para
-      poder encender al ejecutor
+- [~] **Fase A aplicada en produccion el 7 de agosto de 2026**, a mano sobre la hoja. Se reporto
+      como cerrada al 100%: **no lo esta.** `python scripts/verificar_faseA.py` da 27 conformes y
+      **19 fallos**. Correccion en `ESPEC-001B`
+- [ ] **Corregir `EOT_EstadosOrden`, que es el fallo grave.** Sus claves son `1..7` y
+      `OT_OrdenesTrabajo.EstadoOrdenID` guarda `Asignada`, `Cerrada`, `Suspendida`. Convertir a
+      `Ref` asi dejaria las 6 ordenes huerfanas y en silencio: el mismo defecto de `OTID`,
+      reproducido en una tabla creada ayer
+- [ ] **Poblar `ASG_AsignacionZona`**, hoy vacia y con 2 columnas en vez de 4. Sin ella el Security
+      Filter deja a cada tecnico con cero activos
+- [ ] **Completar las 4 tablas nuevas que quedaron como cascara** y las columnas que faltan, en
+      particular `FOT_Fotografias.Ubicacion`, `PrecisionGPS` y `FechaHora`, que son la cadena de
+      evidencia
+- [ ] **Fase B: cablear en AppSheet** siguiendo `ESPEC-002`. **Bloqueada** hasta que
+      `verificar_faseA.py` imprima `FASE A CERRADA`
 - [ ] **Decidir si `IsPartOf` sobre `MAN_Mantenimientos.OTID` es lo que se quiere.** Implica que
       borrar una orden borre su ejecución, sus fotografías y sus firmas. En un sistema cuyo
       propósito es que la evidencia sea difícil de falsificar, se decide, no se hereda
