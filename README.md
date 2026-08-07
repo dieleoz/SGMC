@@ -245,7 +245,7 @@ archivo/       Material de origen, no versionado
 | [prompts/PROMPT_CONSTRUCCION_SGMC.md](docs/prompts/PROMPT_CONSTRUCCION_SGMC.md) | Directiva de construcción en 7 pasos con criterios de aceptación |
 | [DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md) | Flujos funcionales por actor y las 14 decisiones, ya enviadas al funcional |
 | [AUDITORIA_PLAN_Y_ROADMAP.md](docs/AUDITORIA_PLAN_Y_ROADMAP.md) | Dictamen vigente: hallazgos, evidencia y Fase 0 corregida |
-| [bd.md](docs/bd.md) | Diccionario de datos de las 24 tablas |
+| [bd.md](docs/bd.md) | **Diccionario As-Built, generado.** Las 32 hojas reales, con el estado de cada columna: pendiente de `Ref`, retirada, renombrada o fuera del modelo |
 | [especificaciones.md](docs/especificaciones.md) | Requerimientos funcionales RF-001 a RF-016 |
 | [especificaciones_visuales.md](docs/especificaciones_visuales.md) | Pantallas, vistas y elementos de interfaz |
 | [plan_de_trabajo.md](docs/plan_de_trabajo.md) | Plan operativo, supeditado a la mesa de trabajo |

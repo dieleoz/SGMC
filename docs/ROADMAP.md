@@ -249,6 +249,8 @@ Es la fase más larga y la que fija el cronograma. Su contenido depende de las d
 - [ ] Mapeo de `TIP_TiposActivo.FormularioID` para los 18 tipos
 - [ ] Realineación de `SedeID` entre `USR_Usuarios` y `ACT_Activos` según lo decidido en D-03
 - [ ] Remediación del checklist huérfano `d02d8a3d`, cuyo `OTID` no corresponde a ninguna orden
+- [x] **Diccionario de datos regenerado el 7 de agosto de 2026.** `docs/bd.md` ya no se escribe:
+      sale de `generar_diccionario_bd.py` leyendo la hoja. Decía 24 tablas cuando hay 32
 - [ ] Corrección de los encabezados con codificación corrupta en el Excel
 
 **Cierra cuando:** las 34 coordenadas son distintas y están sobre el corredor; los tipos

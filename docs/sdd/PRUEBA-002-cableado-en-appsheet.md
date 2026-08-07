@@ -9,14 +9,14 @@ aceptación, y se llaman por su nombre.
 | | |
 |---|---|
 | Cubre | `ESPEC-002` |
-| Estado de partida | Fase A cerrada y verificada, `ACTA-002`. **52 conformes**, 0 fallos |
+| Estado de partida | Hoja cerrada y verificada, `ACTA-003`. **57 conformes**, 0 fallos |
 | Punto de restauración | AppSheet versión `1.000238`; Sheets `SGMC_backup_2026-08-07_antes_cableado_FaseA` |
 
 ## 1. Estado de partida
 
-Verificado el 2026-08-07 sobre **`BD/Modelo de Datos (7).xlsx`**, que es una **descarga del Sheets
-de producción** hecha ese mismo día tras aplicar `ESPEC-001C` (*Archivo → Descargar → Microsoft
-Excel*). No es el Excel local histórico, que describe otro modelo:
+Verificado el 2026-08-07 sobre **`BD/Modelo de Datos (9).xlsx`**, la última **descarga del Sheets de
+producción**, con la hoja ya cerrada (`ACTA-003`, 57 conformes y 0 fallos). No es el Excel local
+histórico, que describe otro modelo:
 
 | Tabla | Filas | Relevancia |
 |---|---|---|
@@ -49,9 +49,11 @@ Excel*). No es el Excel local histórico, que describe otro modelo:
 
 - **Acción:** *Data > Tables*, buscar `UNF_UnidadesFuncionales`, `ASG_AsignacionZona`,
   `EOT_EstadosOrden`, `MOT_MotivosPendiente`, `FAL_ModosFalla`, `NOV_Novedades`,
-  `PLA_PlanMantenimiento`.
-- **Resultado esperado:** las **siete**, con el número de columnas que tiene cada hoja.
-- **Cómo se distingue el fallo:** con seis no se sigue. La que falte rompe una referencia del paso 4.
+  `PLA_PlanMantenimiento` y **`PAR_Parametros`**.
+- **Resultado esperado:** las **ocho**, con el número de columnas que tiene cada hoja.
+- **Cómo se distingue el fallo:** con siete no se sigue. La que falte rompe una referencia del
+  bloque 3, y si falta `PAR_Parametros` **RG-19 ni siquiera se puede guardar**: su `LOOKUP()` no
+  resolvería.
 
 ### P-03 — Las claves son las correctas
 
@@ -166,7 +168,11 @@ Excel*). No es el Excel local histórico, que describe otro modelo:
   llegó al backend**, y sin esta prueba no hay forma de saberlo.
 - **Acción:** tras P-08, leer `MAN_Mantenimientos` en producción con el conector de Drive,
   `fileId = 1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc`.
-- **Resultado esperado:** la fila con valor en `Coordenadas_Cierre` y `Precision_GPS`.
+- **Resultado esperado:** la fila con valor en `Coordenadas_Cierre`, `Precision_GPS`,
+  `UbicacionEscaneo` y `FechaHoraEscaneo`. **Las cuatro con dato, no vacías.** Es la otra mitad de
+  RG-20: `Editable_If = FALSE` impide que el técnico las toque, pero hay que demostrar que el
+  `Initial value` **sigue capturando**. Si además dejaran de escribirse, el geofencing se quedaría
+  sin dato y la regla validaría contra vacío.
 - **Cómo se distingue el fallo:** si la app lo muestra y el Sheets no lo tiene, hay un problema de
   sincronización que ninguna otra prueba detecta.
 
@@ -200,6 +206,22 @@ Excel*). No es el Excel local histórico, que describe otro modelo:
 - **Prueba del parámetro:** cambiar `UMBRAL_GPS` a `50` en `PAR_Parametros` y comprobar que
   `TEST-MTTO-002` pasa a `FALSE` sin tocar la aplicación. Devolverlo a `40`. Es lo que demuestra que
   el administrador puede calibrarlo con las pruebas de campo sin abrir el editor.
+
+### P-19 — Las columnas de captura no se pueden editar (RG-20)
+
+- **Qué comprueba:** el hallazgo más grave de las ocho rondas de revisión. `HERE()` y
+  `USERLOCATIONACCURACY()` son `Initial value`, no `App formula`, y **un valor inicial sí se puede
+  editar**. Sin RG-20, el técnico arrastra el pin del mapa encima del activo y RG-01 valida sin
+  protestar: la regla se cumple y la presencia no queda probada.
+- **Precondición:** RG-20 configurada, `Editable_If = FALSE` en las cuatro columnas.
+- **Acción:** abrir un mantenimiento en el formulario de la vista previa.
+- **Resultado esperado:** `Coordenadas_Cierre`, `Precision_GPS`, `UbicacionEscaneo` y
+  `FechaHoraEscaneo` se muestran **sin control de edición**.
+- **Cómo se distingue el fallo, y es concreto:** en `Coordenadas_Cierre` **no debe aparecer el pin
+  arrastrable sobre el mapa**, solo el valor. Si el pin está, la columna es editable y el geofencing
+  es decorativo.
+- **La otra mitad la comprueba P-12:** que las cuatro sigan llegando **con dato** al Sheets. No
+  editable y sin capturar sería igual de inútil.
 
 ### P-16 — POSITIVA Y NEGATIVA: la baja de activos se deriva bien (RG-16)
 
@@ -273,7 +295,7 @@ Si esta lista y la de `ESPEC-002` divergen, el ejecutor configura una cosa y el 
 
 ## 4. Criterio de cierre
 
-**Deben pasar P-01 a P-13 y P-16 a P-18, las dieciséis.** P-14 y P-15 quedan bloqueadas por decisiones ajenas a esta
+**Deben pasar P-01 a P-13 y P-16 a P-19, las diecisiete.** P-14 y P-15 quedan bloqueadas por decisiones ajenas a esta
 fase.
 
 **Cuatro** son innegociables, y conviene decir por qué antes de que alguien proponga cerrar sin ellas:

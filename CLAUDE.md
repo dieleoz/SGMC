@@ -344,6 +344,18 @@ Verificadas el 2026-08-06. Repásalas antes de proponer nada:
 
 Las cifras de crecimiento se calculan con `python scripts/capacidad.py`, no a ojo.
 
+## Los dos documentos que se generan, y por qué
+
+Ninguno se edita a mano. Los dos existen porque su versión escrita derivó:
+
+| Documento | Sale de | Describe |
+|---|---|---|
+| `docs/ARQUITECTURA_OBJETIVO_SGMC.md` | `scripts/modelo_objetivo.py` | El sistema que se va a construir |
+| `docs/bd.md` | `scripts/generar_diccionario_bd.py` sobre el `.xlsx` | El sistema que existe hoy, y su distancia al objetivo |
+
+**Si un documento describe un estado, se genera.** Escribirlo a mano garantiza que dentro de dos
+días diga otra cosa que el archivo, y este proyecto ya perdió meses por eso exactamente.
+
 ## El modelo objetivo se edita en un solo sitio
 
 La arquitectura correcta está codificada como datos en `scripts/modelo_objetivo.py`. De ahí salen
@@ -379,7 +391,12 @@ Lo que sí está verificado como resuelto: `Coordenadas_Cierre` y `Precision_GPS
 Estos documentos contienen afirmaciones que no corresponden al archivo real. No los uses como
 fuente sin contrastar:
 
-- `docs/bd.md` — **corrección**: una revisión anterior marcó su sección 3.1 como inventada por
+- ~~`docs/bd.md`~~ — **resuelto el 2026-08-07: ahora se genera.** Decía «24 hojas» cuando había 32,
+  apuntaba a un Excel maestro de tres días atrás y describía columnas renombradas. Ya no se escribe
+  a mano: sale de `scripts/generar_diccionario_bd.py`, que lee la hoja y la cruza contra el modelo.
+  Lo de abajo queda como registro de lo que fue.
+
+  Una revisión anterior marcó su sección 3.1 como inventada por
   describir un `MAN_Mantenimientos` de 25 columnas con `MttoID`, `Diagnostico`,
   `Trabajo_Realizado` y `Duracion_Minutos`. Estaba describiendo **producción**, y es correcta.
   Lo mismo su conteo de 21 columnas para `CHK`/`CHD`. Lo desactualizado es el Excel local.

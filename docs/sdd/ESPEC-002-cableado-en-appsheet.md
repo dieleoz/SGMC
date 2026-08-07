@@ -15,16 +15,16 @@ al terminar hay referencias reales, geofencing y navegación entre tablas.
 
 ## 1. Verificación previa, obligatoria
 
-La Fase A está cerrada. Constancia en `ACTA-002`, verificada sobre **`BD/Modelo de Datos (7).xlsx`**,
-descarga del Sheets de producción del 2026-08-07:
+La hoja está cerrada de forma definitiva. Constancia en **`ACTA-003`**, verificada sobre
+**`BD/Modelo de Datos (9).xlsx`**, la última descarga del Sheets de producción:
 
 ```
-python scripts/verificar_faseA.py "BD/Modelo de Datos (7).xlsx"
--> CONFORMES (43), AVISOS (6), FASE A CERRADA
+python scripts/verificar_faseA.py "BD/Modelo de Datos (9).xlsx"
+-> CONFORMES (57), AVISOS (6), FASE A CERRADA
 ```
 
 **Vuelve a correrlo antes de empezar, sobre la descarga más reciente.** La hoja la editan dos
-personas más, y los archivos anteriores ya no pasan: `Modelo de Datos (6).xlsx` da hoy
+personas más, y los archivos anteriores ya no pasan: el `(6)` y el `(7)` dan hoy
 `FASE A INCOMPLETA` porque el verificador se endureció después.
 
 ### Lo que ya está resuelto y NO hay que tocar
@@ -108,9 +108,13 @@ existen `View Ref (SedeID)` y `View Ref (EstadoID)` con los nombres viejos.
 `FRM_Secciones`, `LST_ValoresLista`, `ROL_Roles`, `SED_Sedes`, `CAL_Calzadas`, `SEN_Sentidos`,
 `FRE_Frecuencias`, `TPR_TiposRespuesta`.
 
-**Añadir como tablas nuevas** las siete que la Fase A creó: `UNF_UnidadesFuncionales`,
+**Añadir como tablas nuevas** las **ocho** que la Fase A creó: `UNF_UnidadesFuncionales`,
 `ASG_AsignacionZona`, `EOT_EstadosOrden`, `MOT_MotivosPendiente`, `FAL_ModosFalla`, `NOV_Novedades`,
-`PLA_PlanMantenimiento`.
+`PLA_PlanMantenimiento` y **`PAR_Parametros`**.
+
+**`PAR_Parametros` no es opcional aunque no la referencie nadie.** RG-19 la lee con `LOOKUP()`: si
+no está dada de alta, la expresión no resuelve, AppSheet la rechaza al guardarla y P-18 no se puede
+ejecutar.
 
 ### 4.2 Leer qué clave fijó AppSheet, y corregirla
 
@@ -146,6 +150,7 @@ con esta tabla. El tipo importa tanto como el nombre.
 | `PLA_PlanMantenimiento` | `PlanID` | `Text` | |
 | `FOT_Fotografias` | `FotoID` | `Text` | Se le asigna `UNIQUEID()` en 4.3: sin clave declarada quedaría a lo que adivine AppSheet |
 | `FIR_Firmas` | `FirmaID` | `Text` | Igual |
+| `PAR_Parametros` | `ParametroID` | `Text` | Valores `UMBRAL_GPS`, `RADIO_GEOFENCING_KM`… No la referencia nadie: se lee con `LOOKUP()` |
 
 **Todas `Text`, y no por comodidad:** es la convención del modelo y evita que AppSheet infiera
 `Number` sobre una columna con un valor alfanumérico y deje esa fila con clave inválida. Es la regla
@@ -244,16 +249,6 @@ Se documenta aquí porque **explica por qué la hoja está como está**, y eso i
 **Lo único que sí debes hacer antes de empezar:** correr `verificar_faseA.py` sobre la descarga más
 reciente y comprobar que sigue diciendo `FASE A CERRADA`. La hoja la editan dos personas más.
 
-**`ACT_Activos.Activo` se contradirá consigo misma si no se toca.** La hoja guarda el texto `TRUE`
-en las 34 filas, incluida la 34, que está `Retirado` y tiene `FechaBaja`. Con RG-16 como
-`App formula`, la aplicación calculará `FALSE` y el Sheets seguirá diciendo `TRUE` hasta que alguien
-escriba esa fila. **Poner `FALSE` en `ACT_Activos.Activo` de la fila 34**, en la misma pasada. Es
-una celda.
-
-**`EST_Activo.Activo` está en la misma situación:** vacía en sus 4 filas. Hoy no la usa ninguna
-regla, pero es el catálogo del que dependen RG-16 y RG-17, y un `Valid_If` de catálogo sobre
-`[Activo] = TRUE` dejaría el desplegable de estados vacío. **Poner `TRUE` en las 4 filas**, en la
-misma pasada.
 
 ### 5.2 Confirmar el formato de la coordenada
 
@@ -387,9 +382,23 @@ La versión con radio por tipo entra cuando se pueblen los 18. Queda anotado com
 **RG-19:** `MAN_Mantenimientos.CierreConExcepcion`, `App formula`:
 
 ```
-[Precision_GPS] > LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor")
+OR(
+  ISBLANK(LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor")),
+  [Precision_GPS] > LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor")
+)
 ```
 
+**El `OR` con `ISBLANK` no es defensivo por costumbre: hace que la regla falle de forma ruidosa.**
+Si alguien borra la fila del parámetro, el `LOOKUP` devuelve vacío y la comparación sola daría
+`FALSE` — es decir, **marcaría todos los cierres como limpios** y nadie se enteraría. Escrito así,
+un umbral ilegible marca el cierre **como excepcional**: molesto y visible, en lugar de silencioso
+y falso. Es la lección de RG-16, aplicada antes de que muerda.
+
+> **`PAR_Parametros.Activo` no tiene efecto.** `LOOKUP()` no filtra por esa columna, así que
+> «desactivar» un parámetro no lo desactiva: seguiría leyéndose igual. Se conserva por coherencia
+> con el resto de catálogos, pero **no es un interruptor**. Para dejar de aplicar un umbral hay que
+> cambiar su valor, no su bandera.
+>
 > **El umbral es un parámetro, no un número en la expresión.** Vive en `PAR_Parametros` y el
 > administrador lo ajusta en una celda tras las pruebas de campo, sin abrir el editor ni arriesgarse
 > a romper la regla. Provisional: **40 m**.
@@ -500,7 +509,7 @@ Es la misma lista que comprueba `PRUEBA-002` P-13.
 
 ## 9. Criterio de cierre
 
-El de `PRUEBA-002`: **pasan P-01 a P-13 y P-16 a P-18, las dieciséis.** P-14 y P-15 quedan fuera,
+El de `PRUEBA-002`: **pasan P-01 a P-13 y P-16 a P-19, las diecisiete.** P-14 y P-15 quedan fuera,
 bloqueadas por D-01 y D-B.
 
 **Cuatro son innegociables**, y si alguna de las cuatro falla la Fase B no se cierra por muchas de

@@ -173,7 +173,11 @@ MODELO = {
             col("Valor", "Decimal", obligatoria=True),
             col("Unidad", "Text"),
             col("Descripcion", "LongText"),
-            col("Activo", "Yes/No", valor_inicial="TRUE"),
+            col("Activo", "Yes/No", valor_inicial="TRUE",
+                nota="DECORATIVA: LOOKUP() no filtra por esta columna, asi que desactivar un "
+                     "parametro no lo desactiva. Se conserva por coherencia con los demas "
+                     "catalogos, pero no es un interruptor: para dejar de aplicar un umbral se "
+                     "cambia su valor, no su bandera"),
         ]),
 
     "FRE_Frecuencias": dict(
@@ -835,13 +839,18 @@ REGLAS = [
                       "presencia no quedaba probada.")),
     dict(id="RG-19", tabla="MAN_Mantenimientos", columna="CierreConExcepcion",
          tipo="App formula", cubre="D-04",
-         expresion='[Precision_GPS] > LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor")',
+         expresion=('OR(ISBLANK(LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor")), '
+                    '[Precision_GPS] > LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor"))'),
          descripcion=("Marca el cierre como excepcional cuando el error del satelite supera el "
                       "umbral. Sin ella la columna existe y nadie la puebla: un cierre con 45 m de "
                       "error seria indistinguible de uno con 8 m, y ahi se cae la cadena de "
                       "evidencia. EL UMBRAL ES UN PARAMETRO, no un numero en la expresion: se "
                       "calibra con las pruebas de campo y lo ajusta el administrador en una celda, "
-                      "sin abrir el editor. Provisional 40 m, que es unas ocho veces la precision "
+                      "sin abrir el editor. FALLA DE FORMA RUIDOSA: si el umbral no se puede "
+                      "leer, el OR con ISBLANK marca el cierre COMO EXCEPCIONAL. Sin eso, borrar la "
+                      "fila del parametro haria que todos los cierres saliesen limpios y nadie se "
+                      "enterase, que es la forma exacta del defecto de RG-16. Provisional 40 m, "
+                      "unas ocho veces la precision "
                       "tipica de un movil a cielo abierto (4,9 m segun GPS.gov) y deja margen para "
                       "montana y estructuras. D-04 decia 50; se baja a 40 tras comprobar que 45 m "
                       "ya es nueve veces la norma.")),

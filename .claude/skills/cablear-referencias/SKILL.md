@@ -187,6 +187,16 @@ Marca cada punto como **hecho y verificado**, con qué comando lo verificaste, o
 aplicar**. No hay estado intermedio: este proyecto arrastra un historial de subsanaciones reportadas
 como cerradas que no lo estaban.
 
+## Dónde mirar el estado real de una columna
+
+`docs/bd.md` se genera desde la hoja y marca, columna por columna, si está **pendiente de `Ref`**,
+**retirada**, **renombrada** o **fuera del modelo**. Es más rápido que abrir el `.xlsx` y no puede
+estar desactualizado: si la hoja cambia, se regenera con
+
+```
+python scripts/generar_diccionario_bd.py "BD/Modelo de Datos (N).xlsx"
+```
+
 ## Verificar lo que otro aplicó
 
 Cuando el cambio lo aplique otra persona u otro asistente, **no cierres por su reporte**. Exporta el

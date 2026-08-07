@@ -321,12 +321,24 @@ if "PAR_Parametros" in wb.sheetnames:
                 continue
             esperado = PARAMETROS[clave][0]
             actual = r[iv]
-            if clave == "UMBRAL_GPS" and actual is not None:
+            # El umbral solo se adopta si es un numero: adoptarlo antes de
+            # comprobarlo hacia que F-12 comparase float contra str y reventara.
+            if clave == "UMBRAL_GPS" and isinstance(actual, (int, float))                     and not isinstance(actual, bool):
                 UMBRAL_GPS = actual
             if actual is None:
                 falla("F-13", "PAR_Parametros '%s' esta vacio. Las reglas que lo leen no "
                               "resolveran" % clave)
-            elif float(actual) != float(esperado):
+                continue
+            # El TIPO importa tanto como el valor: si la celda guarda "40" como
+            # texto, LOOKUP() devuelve una cadena y [Precision_GPS] > "40" no es
+            # la misma comparacion. Y un texto no numerico reventaba este script
+            # con un traceback en vez de reportar el fallo.
+            if not isinstance(actual, (int, float)) or isinstance(actual, bool):
+                falla("F-13", "PAR_Parametros '%s' guarda %r, que no es un numero sino %s. "
+                              "LOOKUP() devolvera texto y la comparacion de la regla no operara"
+                      % (clave, actual, type(actual).__name__))
+                continue
+            if float(actual) != float(esperado):
                 aviso("F-13", "PAR_Parametros '%s' vale %s en la hoja y %s en el modelo. Si es un "
                               "ajuste de campo, actualiza PARAMETROS en modelo_objetivo.py"
                       % (clave, actual, esperado))

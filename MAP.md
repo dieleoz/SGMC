@@ -22,7 +22,7 @@
 | Saber el estado real y qué está bloqueado | [docs/AUDITORIA_PLAN_Y_ROADMAP.md](docs/AUDITORIA_PLAN_Y_ROADMAP.md) |
 | Enviar la definición funcional al cliente | [entregables/CORREO_ENVIO_MESA_DE_TRABAJO.md](entregables/CORREO_ENVIO_MESA_DE_TRABAJO.md) y el .docx adjunto |
 | Trabajar sobre el repositorio como agente | [CLAUDE.md](CLAUDE.md) y las skills de `.claude/skills/` |
-| Consultar la estructura de datos | [docs/bd.md](docs/bd.md) y `BD/Modelo de Datos (2).xlsx` |
+| Consultar la estructura de datos real | [docs/bd.md](docs/bd.md), generado desde `BD/Modelo de Datos (9).xlsx` |
 
 ---
 
@@ -120,7 +120,7 @@ D:\@Proyect\Sisga\
 
 | Documento | Contenido | Vigencia |
 |---|---|---|
-| [docs/bd.md](docs/bd.md) | Diccionario de datos de las 24 tablas | Sección 3.1 desactualizada, ver CLAUDE.md |
+| [docs/bd.md](docs/bd.md) | **Diccionario As-Built, generado.** Las 32 hojas reales, con el estado de cada columna | Vigente. Se regenera, no se edita |
 | [docs/especificaciones.md](docs/especificaciones.md) | Requerimientos RF-001 a RF-016 | Vigente |
 | [docs/especificaciones_visuales.md](docs/especificaciones_visuales.md) | Pantallas, vistas y elementos de interfaz | Vigente |
 | [docs/GUIA_SVG_BOTONES_DINAMICOS_APPSHEET.md](docs/GUIA_SVG_BOTONES_DINAMICOS_APPSHEET.md) | Fórmulas SVG, botones y colores dinámicos | Vigente |
@@ -163,6 +163,7 @@ D:\@Proyect\Sisga\
 | Fases y criterios de cierre | [docs/ROADMAP.md](docs/ROADMAP.md) | — |
 | Cableado de referencias | [docs/sdd/ESPEC-002-cableado-en-appsheet.md](docs/sdd/ESPEC-002-cableado-en-appsheet.md) | `python scripts/validar_modelo.py`, reglas V-14 a V-17 |
 | Comportamiento de la plataforma | [docs/BASE_CONOCIMIENTO_APPSHEET.md](docs/BASE_CONOCIMIENTO_APPSHEET.md) | Cita textual y URL oficial por cada afirmación |
+| Estado real de una columna | [docs/bd.md](docs/bd.md) | `python scripts/generar_diccionario_bd.py` |
 | Pantallas y vistas | [docs/especificaciones_visuales.md](docs/especificaciones_visuales.md) | Aplicación AppSheet |
 | Deriva documental conocida | [CLAUDE.md](CLAUDE.md) sección 8 | — |
 
