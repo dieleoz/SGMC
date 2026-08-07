@@ -31,7 +31,12 @@ ruta = sys.argv[1] if len(sys.argv) > 1 else os.path.join(RAIZ, "BD", "Modelo de
 if not os.path.isabs(ruta):
     ruta = os.path.join(RAIZ, ruta)
 
-wb = openpyxl.load_workbook(ruta, read_only=True)
+# DOS libros a proposito. Sin data_only, openpyxl devuelve el TEXTO de la
+# formula, no su valor: TIP_TiposActivo.FormularioID daba 18 huerfanos contra
+# FRM_Formularios y ninguna regla lo veia. Con data_only, en cambio, la formula
+# desaparece y F-17 no tendria nada que detectar. Hacen falta los dos.
+wb = openpyxl.load_workbook(ruta, read_only=True, data_only=True)    # valores
+wb_formulas = openpyxl.load_workbook(ruta, read_only=True)           # formulas
 
 fallos, avisos, oks = [], [], []
 
@@ -223,6 +228,7 @@ CADENA = [
     ("MAN_Mantenimientos", "OTID", "OT_OrdenesTrabajo"),
     ("OT_OrdenesTrabajo", "ActivoID", "ACT_Activos"),
     ("LST_ValoresLista", "PreguntaID", "FRM_Preguntas"),
+    ("TIP_TiposActivo", "FormularioID", "FRM_Formularios"),
 ]
 for tabla, columna, destino in CADENA:
     if tabla not in wb.sheetnames or destino not in wb.sheetnames:
@@ -447,29 +453,47 @@ for tabla, d in MODELO.items():
             falla("F-16", "%s.%s mezcla %s en la misma columna. Al tipar como Ref, unas filas "
                           "resolveran y otras no" % (tabla, c["nombre"], sorted(t_ref)))
         elif t_ref != t_pk:
-            falla("F-16", "%s.%s guarda %s y la clave %s.%s guarda %s. Un Ref guarda el valor de "
-                          "la clave: si no comparten formato, la conversion decide si resuelve"
-                  % (tabla, c["nombre"], sorted(t_ref), destino, pk, sorted(t_pk)))
+            # Si lo mezclado es la CLAVE del destino y todos los valores que la
+            # apuntan resuelven, no hay ninguna fila rota: es una anomalia de la
+            # clave, no de esta referencia. Fallar aqui era contar cinco veces el
+            # mismo defecto -una celda de USR_Usuarios- y bloquear ademas
+            # referencias aplazadas a ESPEC-003.
+            usados = _usados(tabla, c["nombre"]) or set()
+            huerfanos = usados - _claves(destino)
+            if len(t_pk) > 1 and not huerfanos:
+                aviso("F-16", "%s.%s guarda %s y la clave %s.%s esta mezclada (%s), pero las %d "
+                              "filas resuelven. Se arregla en la clave, no aqui"
+                      % (tabla, c["nombre"], sorted(t_ref), destino, pk, sorted(t_pk), len(usados)))
+            else:
+                falla("F-16", "%s.%s guarda %s y la clave %s.%s guarda %s. Un Ref guarda el valor "
+                              "de la clave: si no comparten formato, la conversion decide si "
+                              "resuelve" % (tabla, c["nombre"], sorted(t_ref), destino, pk,
+                                            sorted(t_pk)))
 
 # ------- F-17 ninguna columna que AppSheet vaya a gestionar contiene formulas
 # Una formula de la hoja produce un valor que AppSheet puede leer, pero que
 # cambia solo si cambia su origen. TIP_TiposActivo.FormularioID sale de
 # =CONCAT("FRM_",MID(B2,1,4)): renombrar un tipo de activo repunta en silencio
 # el checklist que abre la aplicacion.
-for hoja in wb.sheetnames:
+for hoja in wb_formulas.sheetnames:
     if hoja not in MODELO:
         continue
     h = encabezados(hoja)
-    ws = wb[hoja]
+    ws_f = wb_formulas[hoja]
     for i, nombre in enumerate(h):
         formulas = 0
-        for r in ws.iter_rows(min_row=2, values_only=True):
+        for r in ws_f.iter_rows(min_row=2, values_only=True):
             if r and len(r) > i and isinstance(r[i], str) and r[i].startswith("="):
                 formulas += 1
-        if formulas:
-            falla("F-17", "%s.%s contiene %d formulas de hoja de calculo. Su valor cambia si cambia "
-                          "el origen, y AppSheet lo sobreescribe al escribir la fila"
-                  % (hoja, nombre, formulas))
+        if not formulas:
+            continue
+        # El valor cacheado es lo que hay que escribir literalmente al sustituir
+        # la formula. Sin el, quien la borre se queda sin el dato.
+        primero = next((r[i] for r in wb[hoja].iter_rows(min_row=2, values_only=True)
+                        if r and len(r) > i and r[i] not in (None, "")), None)
+        falla("F-17", "%s.%s contiene %d formulas de hoja de calculo. Su valor cambia si cambia el "
+                      "origen, y AppSheet lo sobreescribe al escribir la fila. Primer valor "
+                      "calculado: %r" % (hoja, nombre, formulas, primero))
 
 # ------------------------------------------------------------------- informe
 print("=" * 78)

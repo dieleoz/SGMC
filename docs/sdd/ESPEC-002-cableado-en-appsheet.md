@@ -15,13 +15,23 @@ al terminar hay referencias reales, geofencing y navegación entre tablas.
 
 ## 1. Verificación previa, obligatoria
 
-La hoja está cerrada de forma definitiva. Constancia en **`ACTA-003`**, verificada sobre
-**`BD/Modelo de Datos (9).xlsx`**, la última descarga del Sheets de producción:
+**La hoja está REABIERTA.** Se cerró en contenido el 7 de agosto (`ACTA-003`), pero dos
+comprobaciones nuevas —`F-16` y `F-17`— encontraron después problemas de **formato** que ninguna
+regla anterior veía. Sobre la última descarga:
 
 ```
 python scripts/verificar_faseA.py "BD/Modelo de Datos (9).xlsx"
--> CONFORMES (57), AVISOS (6), FASE A CERRADA
+-> FALLOS (3), AVISOS (11), FASE A INCOMPLETA
 ```
+
+Los tres: `OT.SupervisorID` mezcla número y texto en la misma columna, `ACT.ActivoID` guarda números
+mientras las órdenes lo apuntan como texto, y `TIP_TiposActivo.FormularioID` contiene 18 fórmulas de
+hoja de cálculo en lugar de datos.
+
+**Esta fase no arranca hasta que vuelva a decir `FASE A CERRADA`.** Se corrige en la hoja con
+`docs/prompts/PROMPT_AGENTE_HOJA_FORMATOS.md`, y se hace antes del cableado por R-4: una conversión
+`Text` a `Ref` conserva solo las filas que coinciden, así que arreglarlo después no es un arreglo,
+es una migración.
 
 **Vuelve a correrlo antes de empezar, sobre la descarga más reciente.** La hoja la editan dos
 personas más, y los archivos anteriores ya no pasan: el `(6)` y el `(7)` dan hoy

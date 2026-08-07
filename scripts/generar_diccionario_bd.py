@@ -37,7 +37,7 @@ if not os.path.isabs(ruta):
     ruta = os.path.join(RAIZ, ruta)
 SALIDA = os.path.join(RAIZ, "docs", "bd.md")
 
-wb = openpyxl.load_workbook(ruta, read_only=True)
+wb = openpyxl.load_workbook(ruta, read_only=True, data_only=True)
 
 # ------------------------------------------------------------------ indices
 # De donde viene cada columna: renombrada, retipada, retirada o del modelo.

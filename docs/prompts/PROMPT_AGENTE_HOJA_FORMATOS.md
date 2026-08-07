@@ -3,7 +3,8 @@
 Autocontenido. Cópialo íntegro desde la línea siguiente.
 
 Son **dos cosas**, y las dos son de formato: no cambia ningún valor, solo cómo está guardado. Salen
-de una comprobación automática (`F-16` y `F-17` de `verificar_faseA.py`) que detectó ocho puntos.
+de dos comprobaciones automáticas, `F-16` y `F-17` de `verificar_faseA.py`, que hoy dan **3 fallos**
+y 5 avisos.
 
 ---
 
@@ -39,7 +40,9 @@ estar todas como texto**.
 3. **Después** vuelve a escribir los valores, o córtalos y pégalos como valores. Cambiar el formato
    de una celda que ya tiene un número **no siempre lo convierte**: Google puede seguir guardándolo
    como número por debajo.
-4. Comprueba que quedan **alineados a la izquierda**. Si siguen a la derecha, siguen siendo números.
+4. La alineación a la izquierda es una pista útil, **pero no es el criterio de aceptación**. El
+   criterio es que `verificar_faseA.py` deje de dar `F-16`: eso es lo único que lo comprueba de
+   verdad, y lo hace sobre la descarga siguiente.
 
 **Cuidado con dos cosas:**
 
@@ -59,6 +62,10 @@ Esa columna no contiene datos: contiene una fórmula en las 18 filas.
 Toma los cuatro primeros caracteres del nombre del tipo de activo. **Funciona hoy por casualidad del
 nombrado**, y si alguien renombra un tipo, el mapeo al formulario cambia solo y en silencio — y ese
 mapeo es lo que decide qué checklist abre la aplicación en campo.
+
+**Los valores que debe conservar**, en orden: `FRM_SOS`, `FRM_CCTV`, `FRM_PMVF`, `FRM_PMVM`,
+`FRM_SGM`, `FRM_SGE`, `FRM_SSA`, `FRM_GENE`, `FRM_BASC`, `FRM_FO`, `FRM_VW`, `FRM_SWIT`,
+`FRM_ROUT`, `FRM_FIRE`, `FRM_UPS`, `FRM_SERV`, `FRM_NAS`, `FRM_SUBE`.
 
 **Qué hacer:** copiar la columna `FormularioID` completa y **pegarla sobre sí misma como valores**
 (*Editar → Pegado especial → Pegar solo los valores*). Los valores no cambian: siguen siendo
@@ -82,8 +89,9 @@ nombre del archivo. Se verifica con:
 python scripts/verificar_faseA.py "BD/Modelo de Datos (N).xlsx"
 ```
 
-Debe imprimir **`FASE A CERRADA`** con 0 fallos. Ahora mismo da **8 fallos**: siete de formato de
-identificadores y uno de la fórmula.
+Debe imprimir **`FASE A CERRADA`** con 0 fallos. Ahora mismo da **3 fallos** —`OT.SupervisorID`
+mezclado, `ACT.ActivoID` contra las órdenes, y la fórmula de `FormularioID`— más 5 avisos que se van
+solos al normalizar `USR_Usuarios.UsuarioID`.
 
 **No lo des por cerrado tú.** En las tandas anteriores se reportó como cerrado y la verificación
 encontró fallos las tres veces. Deja que lo diga el script.
