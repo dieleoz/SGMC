@@ -13,6 +13,7 @@
 |---|---|
 | Entender qué es el proyecto | [README.md](README.md) |
 | Ver la arquitectura correcta que se va a construir | [docs/ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) |
+| Cablear una referencia, o entender por qué el geofencing no funciona | [docs/CABLEADO_REFERENCIAS_SGMC.md](docs/CABLEADO_REFERENCIAS_SGMC.md) |
 | Saber hasta dónde aguanta el sistema | `python scripts/capacidad.py` |
 | Saber con qué supuestos se construye | [docs/ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md) |
 | Ejecutar la construcción | [docs/prompts/PROMPT_CONSTRUCCION_SGMC.md](docs/prompts/PROMPT_CONSTRUCCION_SGMC.md) |
@@ -36,6 +37,7 @@ D:\@Proyect\Sisga\
 │
 ├── docs/                         Documentación técnica y funcional
 │   ├── ARQUITECTURA_OBJETIVO_SGMC.md
+│   ├── CABLEADO_REFERENCIAS_SGMC.md
 │   ├── ALCANCE_Y_SUPUESTOS_SGMC.md
 │   ├── DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md
 │   ├── AUDITORIA_PLAN_Y_ROADMAP.md
@@ -92,7 +94,8 @@ D:\@Proyect\Sisga\
 
 | Documento | Contenido | Vigencia |
 |---|---|---|
-| [docs/ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) | Modelo objetivo: 25 tablas, 173 columnas, 33 referencias, 10 reglas. Generado y validado | **Vigente. Es el frente activo** |
+| [docs/ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) | Modelo objetivo: 27 tablas, 192 columnas, 38 referencias, 13 reglas. Generado y validado | **Vigente. Es el frente activo** |
+| [docs/CABLEADO_REFERENCIAS_SGMC.md](docs/CABLEADO_REFERENCIAS_SGMC.md) | Procedimiento para convertir en referencias reales las que hoy son texto, con orden, verificación y reversión | **Vigente. Es el frente activo** |
 | [docs/ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md) | Alcance del sistema completo y los 14 supuestos adoptados | Vigente |
 | [docs/prompts/PROMPT_CONSTRUCCION_SGMC.md](docs/prompts/PROMPT_CONSTRUCCION_SGMC.md) | Directiva de construcción en 7 pasos con criterios de aceptación | Vigente |
 | [docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md) | 6 casos de uso estilo ISTQB y 14 decisiones | Enviado. Sus propuestas son ahora los supuestos adoptados |
@@ -145,6 +148,7 @@ D:\@Proyect\Sisga\
 | Decisiones pendientes del funcional | [docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md) parte III | — |
 | Bloqueantes verificados | [docs/AUDITORIA_PLAN_Y_ROADMAP.md](docs/AUDITORIA_PLAN_Y_ROADMAP.md) sección 3 | Verificable con `openpyxl` sobre `BD/` |
 | Fases y criterios de cierre | [docs/ROADMAP.md](docs/ROADMAP.md) | — |
+| Cableado de referencias | [docs/CABLEADO_REFERENCIAS_SGMC.md](docs/CABLEADO_REFERENCIAS_SGMC.md) | `python scripts/validar_modelo.py`, reglas V-14 a V-16 |
 | Pantallas y vistas | [docs/especificaciones_visuales.md](docs/especificaciones_visuales.md) | Aplicación AppSheet |
 | Deriva documental conocida | [CLAUDE.md](CLAUDE.md) sección 8 | — |
 

@@ -109,11 +109,18 @@ Mientras esto no se resuelva, cualquier trabajo de configuración se hace sobre 
       en `Z1` y `AA1` de `MAN_Mantenimientos`, verificado celda por celda
 - [x] **Hacerlas visibles en la aplicación:** *Regenerate Structure* ejecutado el 6 de agosto de
       2026, la tabla pasó de 26 a 28 columnas; tipadas `LatLong` y `Number`; aplicación guardada
-- [ ] **POR AJUSTAR — cablear las referencias del modelo.** `MAN_Mantenimientos.OTID` es `Text` y
-      debe ser `Ref` a `OT_OrdenesTrabajo`; confirmar que `OT_OrdenesTrabajo.Activo` sea `Ref` a
-      `ACT_Activos`. Sin esto no hay geofencing, ni navegación padre-hijo, ni reportes por activo
-- [ ] **POR AJUSTAR — escribir la regla de geofencing** una vez cableadas las referencias:
-      `DISTANCE([Coordenadas_Cierre], [OTID].[Activo].[Ubicacion]) <= 1.0`, con su mensaje de error
+- [x] **Especificar el cableado de referencias.** Hecho el 7 de agosto de 2026. Procedimiento en
+      `CABLEADO_REFERENCIAS_SGMC.md`, declarado en `scripts/modelo_objetivo.py` (`RETIPADOS` y
+      `RENOMBRADOS`) y validado con 0 errores por `validar_modelo.py`, reglas V-14 a V-16
+- [ ] **Ejecutar el cableado en producción.** Requiere el editor de AppSheet: lo aplica un operador
+      humano siguiendo `CABLEADO_REFERENCIAS_SGMC.md`. `MAN_Mantenimientos` tiene 0 filas, de modo
+      que hoy la conversión no arrastra datos; después de poblar obliga a migrar
+- [ ] **Decidir si `IsPartOf` sobre `MAN_Mantenimientos.OTID` es lo que se quiere.** Implica que
+      borrar una orden borre su ejecución, sus fotografías y sus firmas. En un sistema cuyo
+      propósito es que la evidencia sea difícil de falsificar, se decide, no se hereda
+- [ ] **Escribir la regla de geofencing (RG-01)** una vez cableadas las referencias:
+      `DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]`,
+      con su mensaje de error. Mientras `RadioGeofencingKm` no exista, el literal `1.0` como provisional
 - [ ] **POR REVISAR — cargar coordenadas reales de la vía de la Concesión**, al menos un subconjunto
       para poder validar el geofencing antes del levantamiento completo de D-01
 - [ ] **POR REVISAR — poblar la base con datos de prueba** y ejercitar la aplicación, para
@@ -157,16 +164,17 @@ ve, y todo lo demás falla en silencio.
 
 ```
 Initial value:  HERE()
-Valid_If:       DISTANCE([Coordenadas_Cierre], [OTID].[Activo].[Ubicacion]) <= 1.0
-Invalid text:   Ubicación fuera de rango: debe estar a menos de 1.0 km del activo.
+Valid_If:       DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]
+Invalid text:   Ubicación fuera de rango: debe estar junto al activo para cerrar.
 ```
 
 Y sobre `Precision_GPS`, valor inicial `USERLOCATIONACCURACY()`.
 
 **Advertencia sobre el alcance de este cambio.** Los pasos 1 a 3 están hechos. El paso 4 **no se
-pudo ejecutar**: al escribir la regla, AppSheet reveló que `MAN_Mantenimientos` no tiene ninguna
-columna que apunte al activo, y que `OTID` no es una referencia sino texto. Ver la sección 10 del
-dictamen de auditoría. La regla queda pendiente del cableado de referencias.
+pudo ejecutar**: al escribir la regla, AppSheet reveló que `OTID` no es una referencia sino texto.
+Ver la sección 10 del dictamen de auditoría. La regla queda pendiente del cableado de referencias,
+cuyo procedimiento completo —con su orden, sus verificaciones y su reversión— está en
+`CABLEADO_REFERENCIAS_SGMC.md`.
 
 Aunque se cablee, el geofencing seguirá sin funcionar mientras los 34 activos compartan la
 coordenada de Bogotá (D-01) y el radio esté sin confirmar (D-02).
@@ -181,7 +189,14 @@ aplicación, con valor en las dos columnas nuevas, verificada leyendo el Sheets.
 Es la fase más larga y la que fija el cronograma. Su contenido depende de las decisiones tomadas.
 
 - [ ] **D-01.** Levantamiento en campo de las coordenadas reales de los 34 activos y carga en
-      `ACT_Activos.Ubicacion`. Verificar de paso que el QR físico esté instalado y legible
+      `ACT_Activos.Ubicacion`
+- [ ] **B-10. Resolver el código QR, que hoy no existe como objeto físico.** `ACT_Activos.CodigoQR`
+      está poblado en los 34 activos, pero su valor es una copia literal de `CodigoActivo`. AppSheet
+      **lee** códigos, no los genera ni los imprime. Falta decidir y ejecutar: qué se codifica en la
+      etiqueta, quién genera las imágenes, en qué material se imprime para que aguante a la
+      intemperie, quién las instala y cómo se verifica que cada etiqueta quedó en su equipo. El
+      escaneo del QR es el primer eslabón de la cadena de presencia ofrecida a Dirección, de modo
+      que sin esto esa cadena tiene un eslabón declarado y no construido
 - [ ] **D-09.** Construcción de los bancos de preguntas de los tipos priorizados en
       `FRM_Preguntas`
 - [ ] Mapeo de `TIP_TiposActivo.FormularioID` para los 18 tipos

@@ -222,7 +222,7 @@ MODELO = {
             col("Tipo", "Enum", obligatoria=True, nota="Preventivo, Correctivo"),
             col("FechaProgramada", "DateTime", obligatoria=True),
             col("EstadoOrdenID", "Ref", ref="EOT_EstadosOrden", obligatoria=True),
-            col("OTOrigenID", "Ref", ref="OT_OrdenesTrabajo", alias_justificado="Autorreferencia: la orden que origino esta",
+            col("OTOrigenID", "Ref", ref="OT_OrdenesTrabajo", nueva=True, alias_justificado="Autorreferencia: la orden que origino esta",
                 nota="Orden que la origino, cuando es seguimiento de una segunda visita"),
             col("Observaciones", "LongText"),
             col("FechaCierre", "DateTime"),
@@ -466,9 +466,13 @@ RETIRADAS = {
     "SEC_Secciones": "Duplicada con FRM_Secciones. Se consolida en una sola.",
 }
 
-# ------------------------------------------- campos que se retiran de MAN
+# ------------------------------------------- campos que se retiran
 CAMPOS_RETIRADOS = {
     "MAN_Mantenimientos": {
+        "ActivoID": ("El activo se alcanza por [OTID].[ActivoID]. Guardarlo tambien aqui "
+                     "permite que la ejecucion diga un activo y su orden diga otro, y no "
+                     "hay forma de saber cual miente. Existe en el Excel local; AppSheet "
+                     "confirmo que en produccion no esta."),
         "Imagen_Inicio": "Sustituido por FOT_Fotografias con Tipo=Antes.",
         "Imagen_Final": "Sustituido por FOT_Fotografias con Tipo=Despues.",
         "Firma_Tecnico": "Sustituido por FIR_Firmas.",
@@ -482,6 +486,107 @@ CAMPOS_RETIRADOS = {
         "Tipo": "El tipo es de la orden, no de la ejecucion.",
         "Fecha": "Redundante con FechaHoraInicio.",
         "Estado_Intervencion": "Redundante con el estado de la orden.",
+    },
+    "OT_OrdenesTrabajo": {
+        "FormularioID": "El formulario lo determina el tipo del activo, no la orden.",
+        "Motivo_Cierre": "Se tipifica en MOT_MotivosPendiente desde la ejecucion.",
+        "Informe_Final": "Se genera del mantenimiento y su checklist, no se transcribe.",
+    },
+    "ACT_Activos": {
+        "SedeID": ("Se sustituye por UnidadFuncionalID. Mezclar donde trabaja la persona con "
+                   "donde esta el activo es lo que dejo a los usuarios en la sede 1 y a los "
+                   "activos en las sedes 7 a 10, es decir en conjuntos disjuntos."),
+    },
+    "CHK_Checklists": {
+        "ActivoID": "Se alcanza por [MantenimientoID].[OTID].[ActivoID].",
+        "TecnicoID": ("Se alcanza por [MantenimientoID].[TecnicoID]. Es el campo donde el dato "
+                      "de prueba dejo 'Santiago Moreno' en lugar de un identificador."),
+        "Observaciones": "La observacion es de la ejecucion o de la respuesta, no del encabezado.",
+    },
+    "CHD_ChecklistDetalle": {
+        "Seccion": "Se alcanza por [PreguntaID].[SeccionID].",
+    },
+}
+
+# ------------------------------------- renombrados: nombre actual -> objetivo
+#
+# Cableado de referencias. Una referencia de AppSheet guarda el valor de la CLAVE
+# de la tabla destino, de modo que renombrar y retipar no son dos tareas: son la
+# misma. Se declaran aqui para que la migracion sea verificable y no dependa de
+# que alguien recuerde el mapeo.
+#
+# Verificado el 2026-08-07 leyendo BD/Modelo de Datos (2).xlsx con openpyxl.
+# Solo se declaran las cinco tablas cuyos encabezados se leyeron uno por uno.
+RENOMBRADOS = {
+    "OT_OrdenesTrabajo": {
+        "Numero_OT": ("OTID", "La clave se llamaba distinto de la referencia que la apunta. "
+                              "Ese solo desajuste produjo el checklist huerfano d02d8a3d."),
+        "Activo": ("ActivoID", "Guarda enteros que son ActivoID (2, 26, 5, 9, 27, 3). Es la "
+                               "referencia al activo, con nombre que parece una bandera."),
+        "Tecnico": ("TecnicoID", "Guarda enteros que son UsuarioID."),
+        "SupervidorID": ("SupervisorID", "Error de escritura en el encabezado de produccion."),
+        "Fecha Programada": ("FechaProgramada", "Los espacios en el nombre obligan a citarlo."),
+        "Estado": ("EstadoOrdenID", "Pasa de texto libre a referencia contra EOT_EstadosOrden."),
+        "Fecha_Cierre": ("FechaCierre", "Convencion de nombres."),
+        "Cerrada_Por": ("CerradaPor", "Convencion de nombres."),
+    },
+    "ACT_Activos": {
+        "EstadoID": ("EstadoActivoID", "La referencia se llama como la clave destino."),
+    },
+    "MAN_Mantenimientos": {
+        "T�cnicoID": ("TecnicoID", "Encabezado con la tilde corrupta por codificacion."),
+        "Hora Inicio": ("FechaHoraInicio", "Fecha y hora en una sola columna DateTime."),
+        "Hora Fin": ("FechaHoraFin", "Fecha y hora en una sola columna DateTime."),
+        "Estado Final": ("EstadoActivoID", "Pasa a referencia contra EST_Activo."),
+        "Requiere_Segunda_Visita": ("RequiereSegundaVisita", "Convencion de nombres."),
+        "Motivo_Pendiente": ("MotivoPendienteID", "Pasa a referencia contra MOT_MotivosPendiente."),
+        "Aprobado_Supervisor": ("AprobadoSupervisor", "Convencion de nombres."),
+        "Usuario_Registro": ("UsuarioRegistro", "Convencion de nombres."),
+        "Fecha_Hora_Registro": ("FechaHoraRegistro", "Convencion de nombres."),
+    },
+    "CHK_Checklists": {
+        "OTID": ("MantenimientoID", "Cambia de padre: el checklist cuelga de la ejecucion, no "
+                                    "de la orden. La inspeccion es parte de ejecutar."),
+        "T�cnicoID": ("TecnicoID", "Encabezado con la tilde corrupta. Se retira despues."),
+        "Estado": ("Finalizado", "Un booleano en lugar de texto libre."),
+    },
+    "CHD_ChecklistDetalle": {
+        "Secci�n": ("Seccion", "Encabezado con la tilde corrupta. Se retira despues."),
+        "PreguntaItem": ("PreguntaID", "Guardaba el TEXTO de la pregunta. Sin la clave no hay "
+                                       "comparacion historica posible."),
+        "EstadoRespuesta": ("RespuestaLista", "El tipo de respuesta lo fija la pregunta."),
+        "Observaci�n": ("Observacion", "Encabezado con la tilde corrupta."),
+    },
+}
+
+# ------------------------- retipados: conservan el nombre, cambian de tipo
+#
+# El defecto raiz del sistema actual. La columna existe y se llama bien, pero es
+# Text, de modo que no se puede desreferenciar: AppSheet responde "Invalid
+# dereference. Column OTID is not a Ref". No hay nada que renombrar, solo que
+# retipar, y por eso es el error que lleva meses pasando desapercibido.
+#
+# Una conversion Text -> Ref solo conserva las filas cuyo valor coincide con la
+# CLAVE del destino. Las que no coincidan quedan huerfanas y en silencio.
+RETIPADOS = {
+    "MAN_Mantenimientos": {
+        "OTID": ("Text", "Ref", "OT_OrdenesTrabajo",
+                 "Verificado: AppSheet rechaza la desreferencia porque es Text. La tabla tiene "
+                 "0 filas, asi que hoy la conversion no arrastra ningun dato. Es el momento "
+                 "mas barato en que se podra hacer."),
+    },
+    "ACT_Activos": {
+        "TipoActivoID": ("Number", "Ref", "TIP_TiposActivo", "Guarda enteros 1 a 18. Por confirmar en produccion."),
+        "CalzadaID": ("Number", "Ref", "CAL_Calzadas", "Por confirmar en produccion."),
+        "SentidoID": ("Number", "Ref", "SEN_Sentidos", "Por confirmar en produccion."),
+        "FrecuenciaID": ("Number", "Ref", "FRE_Frecuencias", "Por confirmar en produccion."),
+    },
+    "CHK_Checklists": {
+        "FormularioID": ("Text", "Ref", "FRM_Formularios", "Por confirmar en produccion."),
+    },
+    "CHD_ChecklistDetalle": {
+        "ChecklistID": ("Text", "Ref", "CHK_Checklists",
+                        "Ademas IsPartOf: el detalle vive y muere con su encabezado."),
     },
 }
 

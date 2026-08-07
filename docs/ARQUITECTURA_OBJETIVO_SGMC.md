@@ -49,12 +49,16 @@ Cinco reglas que el modelo anterior no tenía, y cuya ausencia explica sus fallo
 | `FRM_PMVF` | Hoja plana en paralelo al motor FRM_Preguntas. Se migra y se retira. |
 | `SEC_Secciones` | Duplicada con FRM_Secciones. Se consolida en una sola. |
 
-### 2.3 Campos que se retiran de `MAN_Mantenimientos`
+### 2.3 Campos que se retiran
 
-La tabla pasaba de 25 columnas heterogéneas a un registro de ejecución limpio.
+`MAN_Mantenimientos` pasa de 24 columnas heterogéneas a un registro de ejecución limpio. El
+resto son campos que guardaban por segunda vez un dato alcanzable por referencia.
+
+**`MAN_Mantenimientos`**
 
 | Campo | Motivo |
 |---|---|
+| `ActivoID` | El activo se alcanza por [OTID].[ActivoID]. Guardarlo tambien aqui permite que la ejecucion diga un activo y su orden diga otro, y no hay forma de saber cual miente. Existe en el Excel local; AppSheet confirmo que en produccion no esta. |
 | `Imagen_Inicio` | Sustituido por FOT_Fotografias con Tipo=Antes. |
 | `Imagen_Final` | Sustituido por FOT_Fotografias con Tipo=Despues. |
 | `Firma_Tecnico` | Sustituido por FIR_Firmas. |
@@ -68,6 +72,97 @@ La tabla pasaba de 25 columnas heterogéneas a un registro de ejecución limpio.
 | `Tipo` | El tipo es de la orden, no de la ejecucion. |
 | `Fecha` | Redundante con FechaHoraInicio. |
 | `Estado_Intervencion` | Redundante con el estado de la orden. |
+
+**`OT_OrdenesTrabajo`**
+
+| Campo | Motivo |
+|---|---|
+| `FormularioID` | El formulario lo determina el tipo del activo, no la orden. |
+| `Motivo_Cierre` | Se tipifica en MOT_MotivosPendiente desde la ejecucion. |
+| `Informe_Final` | Se genera del mantenimiento y su checklist, no se transcribe. |
+
+**`ACT_Activos`**
+
+| Campo | Motivo |
+|---|---|
+| `SedeID` | Se sustituye por UnidadFuncionalID. Mezclar donde trabaja la persona con donde esta el activo es lo que dejo a los usuarios en la sede 1 y a los activos en las sedes 7 a 10, es decir en conjuntos disjuntos. |
+
+**`CHK_Checklists`**
+
+| Campo | Motivo |
+|---|---|
+| `ActivoID` | Se alcanza por [MantenimientoID].[OTID].[ActivoID]. |
+| `TecnicoID` | Se alcanza por [MantenimientoID].[TecnicoID]. Es el campo donde el dato de prueba dejo 'Santiago Moreno' en lugar de un identificador. |
+| `Observaciones` | La observacion es de la ejecucion o de la respuesta, no del encabezado. |
+
+**`CHD_ChecklistDetalle`**
+
+| Campo | Motivo |
+|---|---|
+| `Seccion` | Se alcanza por [PreguntaID].[SeccionID]. |
+
+### 2.4 Cableado de referencias
+
+El defecto raíz del sistema actual no es que falten columnas: es que las que existen son
+texto. AppSheet responde `Invalid dereference. Column OTID is not a Ref`, y con eso caen el
+geofencing, la navegación padre-hijo y todo reporte por activo.
+
+Una referencia de AppSheet **guarda el valor de la clave de la tabla destino**. Por eso
+renombrar y retipar no son dos tareas sino una: si la clave se llama `Numero_OT` y quien la
+apunta se llama `OTID`, la conversión no tiene contra qué resolver.
+
+Los nombres actuales se verificaron el 2026-08-07 leyendo `BD/Modelo de Datos (2).xlsx` con
+`openpyxl`, encabezado por encabezado, sobre las cinco tablas implicadas.
+
+#### Conservan el nombre, cambian de tipo
+
+| Tabla | Columna | Tipo actual | Tipo objetivo | Apunta a | Nota |
+|---|---|---|---|---|---|
+| `MAN_Mantenimientos` | `OTID` | Text | **Ref** | `OT_OrdenesTrabajo` | Verificado: AppSheet rechaza la desreferencia porque es Text. La tabla tiene 0 filas, asi que hoy la conversion no arrastra ningun dato. Es el momento mas barato en que se podra hacer. |
+| `ACT_Activos` | `TipoActivoID` | Number | **Ref** | `TIP_TiposActivo` | Guarda enteros 1 a 18. Por confirmar en produccion. |
+| `ACT_Activos` | `CalzadaID` | Number | **Ref** | `CAL_Calzadas` | Por confirmar en produccion. |
+| `ACT_Activos` | `SentidoID` | Number | **Ref** | `SEN_Sentidos` | Por confirmar en produccion. |
+| `ACT_Activos` | `FrecuenciaID` | Number | **Ref** | `FRE_Frecuencias` | Por confirmar en produccion. |
+| `CHK_Checklists` | `FormularioID` | Text | **Ref** | `FRM_Formularios` | Por confirmar en produccion. |
+| `CHD_ChecklistDetalle` | `ChecklistID` | Text | **Ref** | `CHK_Checklists` | Ademas IsPartOf: el detalle vive y muere con su encabezado. |
+
+#### Cambian de nombre
+
+| Tabla | Nombre actual | Nombre objetivo | Por qué |
+|---|---|---|---|
+| `OT_OrdenesTrabajo` | `Numero_OT` | **`OTID`** | La clave se llamaba distinto de la referencia que la apunta. Ese solo desajuste produjo el checklist huerfano d02d8a3d. |
+| `OT_OrdenesTrabajo` | `Activo` | **`ActivoID`** | Guarda enteros que son ActivoID (2, 26, 5, 9, 27, 3). Es la referencia al activo, con nombre que parece una bandera. |
+| `OT_OrdenesTrabajo` | `Tecnico` | **`TecnicoID`** | Guarda enteros que son UsuarioID. |
+| `OT_OrdenesTrabajo` | `SupervidorID` | **`SupervisorID`** | Error de escritura en el encabezado de produccion. |
+| `OT_OrdenesTrabajo` | `Fecha Programada` | **`FechaProgramada`** | Los espacios en el nombre obligan a citarlo. |
+| `OT_OrdenesTrabajo` | `Estado` | **`EstadoOrdenID`** | Pasa de texto libre a referencia contra EOT_EstadosOrden. |
+| `OT_OrdenesTrabajo` | `Fecha_Cierre` | **`FechaCierre`** | Convencion de nombres. |
+| `OT_OrdenesTrabajo` | `Cerrada_Por` | **`CerradaPor`** | Convencion de nombres. |
+| `ACT_Activos` | `EstadoID` | **`EstadoActivoID`** | La referencia se llama como la clave destino. |
+| `MAN_Mantenimientos` | `T�cnicoID` | **`TecnicoID`** | Encabezado con la tilde corrupta por codificacion. |
+| `MAN_Mantenimientos` | `Hora Inicio` | **`FechaHoraInicio`** | Fecha y hora en una sola columna DateTime. |
+| `MAN_Mantenimientos` | `Hora Fin` | **`FechaHoraFin`** | Fecha y hora en una sola columna DateTime. |
+| `MAN_Mantenimientos` | `Estado Final` | **`EstadoActivoID`** | Pasa a referencia contra EST_Activo. |
+| `MAN_Mantenimientos` | `Requiere_Segunda_Visita` | **`RequiereSegundaVisita`** | Convencion de nombres. |
+| `MAN_Mantenimientos` | `Motivo_Pendiente` | **`MotivoPendienteID`** | Pasa a referencia contra MOT_MotivosPendiente. |
+| `MAN_Mantenimientos` | `Aprobado_Supervisor` | **`AprobadoSupervisor`** | Convencion de nombres. |
+| `MAN_Mantenimientos` | `Usuario_Registro` | **`UsuarioRegistro`** | Convencion de nombres. |
+| `MAN_Mantenimientos` | `Fecha_Hora_Registro` | **`FechaHoraRegistro`** | Convencion de nombres. |
+| `CHK_Checklists` | `OTID` | **`MantenimientoID`** | Cambia de padre: el checklist cuelga de la ejecucion, no de la orden. La inspeccion es parte de ejecutar. |
+| `CHK_Checklists` | `T�cnicoID` | **`TecnicoID`** | Encabezado con la tilde corrupta. Se retira despues. |
+| `CHK_Checklists` | `Estado` | **`Finalizado`** | Un booleano en lugar de texto libre. |
+| `CHD_ChecklistDetalle` | `Secci�n` | **`Seccion`** | Encabezado con la tilde corrupta. Se retira despues. |
+| `CHD_ChecklistDetalle` | `PreguntaItem` | **`PreguntaID`** | Guardaba el TEXTO de la pregunta. Sin la clave no hay comparacion historica posible. |
+| `CHD_ChecklistDetalle` | `EstadoRespuesta` | **`RespuestaLista`** | El tipo de respuesta lo fija la pregunta. |
+| `CHD_ChecklistDetalle` | `Observaci�n` | **`Observacion`** | Encabezado con la tilde corrupta. |
+
+#### La trampa del nombre reutilizado
+
+`OT_OrdenesTrabajo.Activo` guarda hoy el identificador del activo, pero en el modelo objetivo
+`Activo` es la bandera `Yes/No` que llevan todas las tablas. **Son dos columnas distintas que
+se llaman igual en momentos distintos.** Al migrar hay que renombrar la vieja antes de crear la
+nueva; en el orden inverso el Sheets queda con dos columnas `Activo` y AppSheet resuelve una de
+las dos sin avisar cuál. `validar_modelo.py` lo señala como aviso V-14.
 
 ## 3. Diagrama de relaciones
 
@@ -642,7 +737,7 @@ Cubre: D-07
 
 ## 6. Validación automática
 
-El modelo se comprueba con `python scripts/validar_modelo.py`, que aplica trece reglas:
+El modelo se comprueba con `python scripts/validar_modelo.py`, que aplica dieciséis reglas:
 
 | Regla | Comprueba |
 |---|---|
@@ -659,6 +754,9 @@ El modelo se comprueba con `python scripts/validar_modelo.py`, que aplica trece 
 | V-11 | Las rutas de desreferencia son navegables, incluido el cambio de contexto en `SELECT()` |
 | V-12 | Lo declarado como retirado no sigue vivo en el modelo |
 | V-13 | Cada flujo funcional tiene la columna que lo soporta |
+| V-14 | Todo renombrado aterriza en una columna que existe, y avisa si reutiliza el nombre viejo |
+| V-15 | Toda referencia declara de dónde sale: renombrado, retipado o columna nueva |
+| V-16 | Lo retipado coincide en tipo y destino con lo que declara el modelo |
 
 **V-11 es la regla que habría evitado el defecto raíz del modelo actual:** comprueba que
 `DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion])` sea navegable. Contra el modelo

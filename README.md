@@ -29,7 +29,7 @@ problemas que el SGMC ataca directamente:
 
 | Problema | Cómo lo resuelve el SGMC |
 |---|---|
-| No hay evidencia verificable de que el técnico estuvo en el activo | Geofencing GPS: el cierre solo se permite a menos de 1 km del activo, con registro de precisión satelital |
+| No hay evidencia verificable de que el técnico estuvo en el activo | Geofencing GPS: el cierre solo se permite dentro del radio definido para ese tipo de activo, con registro de precisión satelital |
 | Buena parte del corredor no tiene señal celular (montaña, túneles) | Operación offline nativa: se diligencia sin red y sincroniza al recuperar conexión |
 | Cada tipo de activo requiere una inspección distinta | Checklist dinámico: la app abre el formulario que corresponde al tipo de activo escaneado |
 | El CCO se entera tarde de una falla | Bot de automatización: correo con informe PDF cuando un activo queda fuera de servicio |
@@ -137,11 +137,15 @@ erDiagram
 ### Regla de geofencing
 
 `ACT_Activos` guarda un único campo `Ubicacion` de tipo LatLong. No hay columnas `Latitud` y
-`Longitud` separadas. La expresión válida contra este modelo es:
+`Longitud` separadas. La expresión válida contra el modelo objetivo, con el radio tomado del tipo
+de activo porque una subestación y un poste SOS no admiten la misma tolerancia:
 
 ```
-DISTANCE([Coordenadas_Cierre], [OTID].[Activo].[Ubicacion]) <= 1.0
+DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]
 ```
+
+**No es aplicable todavía.** La ruta atraviesa dos referencias que hoy son texto. El procedimiento
+para cablearlas está en [CABLEADO_REFERENCIAS_SGMC.md](docs/CABLEADO_REFERENCIAS_SGMC.md).
 
 ## 6. Estado real (verificado)
 
@@ -149,7 +153,8 @@ Verificado el 6 de agosto de 2026 leyendo el Excel maestro directamente en disco
 
 **Construido y funcionando**
 - Modelo de 24 tablas, con `Coordenadas_Cierre` y `Precision_GPS` en `MAN_Mantenimientos`
-- Catálogos poblados: 34 activos con QR, 18 tipos, 10 sedes, 4 roles, 11 usuarios
+- Catálogos poblados: 34 activos, 18 tipos, 10 sedes, 4 roles, 11 usuarios. El campo `CodigoQR`
+  está lleno, pero repite el `CodigoActivo`: no hay etiqueta física detrás (B-10)
 - 6 órdenes de trabajo registradas y 1 checklist de inspección SOS con su detalle
 - Banco de preguntas del formulario de postes SOS (15 preguntas)
 - App AppSheet publicada, con vistas móviles y web
@@ -171,10 +176,11 @@ Lo que corre la app es el Sheets.
 | # | Hallazgo |
 |---|---|
 | B-01 | Los 34 activos comparten una sola coordenada, situada en Bogotá y no en el corredor. El geofencing es inoperante hasta levantar las coordenadas reales |
-| B-02 | La cadena relacional del modelo **no existe en la aplicación**: `OTID` es texto y no referencia, y `MAN_Mantenimientos` no tiene columna hacia el activo. Sin eso no hay geofencing, ni navegación padre-hijo, ni reportes por activo |
+| B-02 | La cadena relacional del modelo **no existe en la aplicación**: `OTID` es texto y no referencia. Sin eso no hay geofencing, ni navegación padre-hijo, ni reportes por activo. **Procedimiento de corrección escrito y validado** en [CABLEADO_REFERENCIAS_SGMC.md](docs/CABLEADO_REFERENCIAS_SGMC.md); pendiente de que un operador lo ejecute |
 | B-03 | Todos los usuarios están en la sede 1 y todos los activos en las sedes 7 a 10. El Security Filter dejaría a cada técnico sin activos |
 | B-04 | Solo 1 de 18 formularios tiene banco de preguntas |
 | B-09 | La fórmula de geofencing documentada durante meses, con `[ActivoID].[Ubicacion]`, no funciona: esa columna no existe en `MAN_Mantenimientos` |
+| B-10 | **El código QR no existe como objeto físico.** `ACT_Activos.CodigoQR` está poblado en los 34 activos, pero su valor es una copia literal de `CodigoActivo` (`SOS-001`, `CCTV-001`). Nada en el repositorio genera, imprime ni asigna una etiqueta, y el escaneo del QR es el primer eslabón de la cadena de presencia ofrecida a Dirección |
 | B-05 | La entrega del backend de Valentín a la Concesión está pendiente de fecha |
 | B-06 | Fotografías, firmas y GPS están modelados dos veces: campos en `MAN_Mantenimientos` y tablas hijas vacías |
 | B-07 | `MAN_Mantenimientos` está vacía: ningún mantenimiento se ha ejecutado nunca de extremo a extremo |
@@ -209,13 +215,15 @@ docs/prompts/  Directivas para agentes de auditoría
 Manuales/      Manuales de usuario y sus imágenes
 entregables/   Documentos Word y Excel listos para enviar al cliente
 scripts/       Generadores de figuras y documentos
-.claude/skills/ Skills: auditar-modelo y generar-entregables
+.claude/skills/ Skills: auditar-modelo, generar-entregables, revisar-arquitectura
+               y cablear-referencias
 archivo/       Material de origen, no versionado
 ```
 
 | Documento | Para qué sirve |
 |---|---|
-| [ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) | **Frente activo.** Modelo objetivo: 25 tablas, 173 columnas, 33 referencias, 10 reglas. Generado desde `scripts/modelo_objetivo.py` y validado automáticamente |
+| [ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) | **Frente activo.** Modelo objetivo: 27 tablas, 192 columnas, 38 referencias, 13 reglas. Generado desde `scripts/modelo_objetivo.py` y validado automáticamente |
+| [CABLEADO_REFERENCIAS_SGMC.md](docs/CABLEADO_REFERENCIAS_SGMC.md) | **Frente activo.** Procedimiento para convertir en referencias reales las que hoy son texto. Es lo que desbloquea el geofencing |
 | [ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md) | Alcance del sistema completo y los 14 supuestos adoptados |
 | [prompts/PROMPT_CONSTRUCCION_SGMC.md](docs/prompts/PROMPT_CONSTRUCCION_SGMC.md) | Directiva de construcción en 7 pasos con criterios de aceptación |
 | [DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md) | Flujos funcionales por actor y las 14 decisiones, ya enviadas al funcional |

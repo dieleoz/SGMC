@@ -29,6 +29,7 @@ sobre "el modelo" es ambigua hasta que declares cuál de los dos leíste.
 | `MAN_Mantenimientos` | 24 col, con `Coordenadas_Cierre` y `Precision_GPS` | 27 col. Las dos de GPS **se agregaron el 2026-08-06** en `Z1` y `AA1`. Ademas tiene `Diagnostico`, `Trabajo_Realizado`, `Duracion_Minutos`, `Repuestos_Utilizados`, `Requiere_Repuesto` |
 | `CHK_Checklists` | 9 col, 1 fila | 21 col, 3 filas |
 | `CHD_ChecklistDetalle` | 6 col, pregunta en texto libre | 21 col, **con `PreguntaID`** |
+| `MAN_Mantenimientos.ActivoID` | **Existe** (columna 3), verificado el 2026-08-07 con `openpyxl` | **No existe.** AppSheet lo confirmó al rechazar la fórmula |
 | `CHK.OTID` del registro `d02d8a3d` | `'1'`, huérfano | `'OT-0001'`, válido |
 
 Hasta el 2026-08-06 en producción no existían las columnas de GPS, de modo que la regla de
@@ -89,42 +90,88 @@ Advertencia sobre claves: la nomenclatura **no** es uniforme. `OT_OrdenesTrabajo
 `OTID`; su primera columna es `Numero_OT` con valores `OT-0001`. Otras tablas referencian `OTID`.
 Verifica la clave real antes de asumirla.
 
-## 6. Fórmulas y reglas de la app
+## 6. Referencias: las reglas que gobiernan el cableado
 
-> **CORRECCIÓN DEL 2026-08-06, POR REVISAR.** Durante meses se documentó como fórmula correcta
-> `DISTANCE([Coordenadas_Cierre], [ActivoID].[Ubicacion]) <= 1.0`. **No funciona.** El Asistente de
-> Expresiones de AppSheet la rechaza con: *Can't find column "ActivoID" in table
-> "MAN_Mantenimientos"*. Esa tabla **no tiene ninguna columna que apunte al activo**.
->
-> Al probar la ruta alterna vía la orden de trabajo, el error fue otro: *Invalid dereference.
-> Column OTID is not a Ref*. Es decir, **las referencias del modelo no existen en la aplicación**:
-> `OTID` es de tipo `Text`, no `Ref`. La cadena relacional Activo → Orden → Mantenimiento está en
-> el papel, no en la app.
->
-> Fórmula candidata **una vez cableadas las referencias** (pendiente de validar):
-> `DISTANCE([Coordenadas_Cierre], [OTID].[Activo].[Ubicacion]) <= 1.0`
-> Requiere convertir `MAN_Mantenimientos.OTID` a `Ref` hacia `OT_OrdenesTrabajo`, y confirmar que
-> `OT_OrdenesTrabajo.Activo` sea `Ref` hacia `ACT_Activos`.
+El defecto raíz del sistema no es que falten columnas. Es que las que existen son texto.
+`MAN_Mantenimientos.OTID` se llama como una referencia y figura como referencia en el diccionario,
+pero AppSheet responde `Invalid dereference. Column OTID is not a Ref`. De ese único hecho cuelgan
+el geofencing, la navegación padre-hijo y todo reporte por activo.
 
-Geofencing de cierre (RF-012). `ACT_Activos` guarda un único campo `Ubicacion` de tipo LatLong;
-no existen columnas `Latitud`/`Longitud` separadas. La expresión, con la ruta pendiente de cerrar:
+El procedimiento completo, con su orden y su reversión, está en
+`docs/CABLEADO_REFERENCIAS_SGMC.md`. Aquí van las reglas que no se negocian.
+
+**R-1. Una referencia guarda el valor de la clave del destino.** De ahí todo lo demás. Antes de
+cablear una referencia, verifica cuál es la clave real de la tabla destino: no la supongas por el
+nombre. `OT_OrdenesTrabajo` tiene hoy la clave `Numero_OT`, no `OTID`.
+
+**R-2. Renombrar y retipar son la misma tarea, no dos.** Si la clave se llama `Numero_OT` y quien
+la apunta se llama `OTID`, no hay contra qué resolver. Por eso el renombrado no es cosmético y no
+se pospone.
+
+**R-3. Primero la clave del destino, después quien la apunta.** Convertir una referencia antes de
+que su destino tenga la clave definitiva deja las filas sin resolver.
+
+**R-4. Una conversión `Text` a `Ref` conserva solo las filas cuyo valor coincide con la clave.**
+Las demás quedan huérfanas y AppSheet no lo anuncia. Limpia los datos de prueba **antes** de
+convertir, nunca después.
+
+**R-5. Cada cambio de referencia se declara en el modelo antes de tocar nada.** En
+`scripts/modelo_objetivo.py` hay dos estructuras para eso, y son de uso obligatorio:
+
+- `RETIPADOS` — conserva el nombre, cambia de tipo. Aquí vive `MAN.OTID`.
+- `RENOMBRADOS` — cambia de nombre, con el motivo de cada uno.
+
+Las reglas V-14, V-15 y V-16 de `validar_modelo.py` detienen la validación si una referencia no
+declara de dónde sale. No hay ruta legítima que se salte esto.
+
+**R-6. Un dato se alcanza por referencia o se guarda, nunca las dos cosas.** `MAN_Mantenimientos`
+no lleva `ActivoID`: el activo se alcanza por `[OTID].[ActivoID]`. Guardarlo también permitiría que
+la ejecución diga un activo y su orden diga otro, sin forma de saber cuál miente.
+
+**R-7. Cuidado con el nombre reutilizado.** `OT_OrdenesTrabajo.Activo` guarda hoy el identificador
+del activo; en el modelo objetivo `Activo` es la bandera `Yes/No` de todas las tablas. Al migrar,
+renombra la vieja **antes** de crear la nueva, o el Sheets queda con dos columnas iguales y
+AppSheet resuelve una sin decir cuál.
+
+**R-8. La cadena se prueba en el Asistente de Expresiones, no en la aplicación.** Escribir
+`[OTID].[ActivoID].[Ubicacion]` sobre `MAN_Mantenimientos` y ver que resuelve es la prueba de que
+la referencia quedó. Es más rápido y más seguro que ejercitar la app.
+
+### Expresiones vigentes
+
+Geofencing de cierre, RG-01 (RF-012). `ACT_Activos` guarda un único campo `Ubicacion` de tipo
+LatLong; no existen columnas `Latitud`/`Longitud` separadas. El radio sale del tipo de activo,
+porque una subestación y un poste SOS no admiten la misma tolerancia:
 
 ```
-DISTANCE([Coordenadas_Cierre], [OTID].[Activo].[Ubicacion]) <= 1.0
+DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]
 ```
 
 Mensaje de error, en texto plano:
 
 ```
-Ubicación fuera de rango: debe estar a menos de 1.0 km del activo.
+Ubicación fuera de rango: debe estar junto al activo para cerrar.
 ```
 
-Son incorrectas contra este modelo, y fallan en ejecución, tanto la variante con
-`LATLONG([ActivoID].[Latitud], [ActivoID].[Longitud])` como cualquiera que invoque `[ActivoID]`
-desde `MAN_Mantenimientos`: esa columna no existe.
+Mientras `TIP_TiposActivo.RadioGeofencingKm` no exista o esté vacío, usar el literal `1.0` y
+anotarlo como provisional.
 
-Security Filter por sede (RF-004): filtra `ACT_Activos` por el `SedeID` del usuario resuelto vía
-`USEREMAIL()` contra `USR_Usuarios`.
+Son incorrectas contra este modelo, y fallan en ejecución, todas estas variantes:
+
+| Variante | Por qué falla |
+|---|---|
+| `[ActivoID].[Ubicacion]` desde `MAN_Mantenimientos` | Esa columna se retira: el activo va por la orden |
+| `LATLONG([ActivoID].[Latitud], [ActivoID].[Longitud])` | No existen columnas de latitud y longitud separadas |
+| `[OTID].[Activo].[Ubicacion]` | `Activo` es el nombre **anterior** al renombrado. Después de migrar apunta a la bandera `Yes/No` |
+
+Security Filter por sede (RG-04, RF-004): filtra `ACT_Activos` por las unidades funcionales
+asignadas al usuario resuelto vía `USEREMAIL()`. No por `SedeID`, que es donde trabaja la persona
+y no donde está el activo; esa confusión es la que dejó a usuarios y activos en conjuntos
+disjuntos.
+
+**El cableado no basta para que el geofencing funcione.** Los 34 activos comparten la coordenada
+`4.728512, -74.114531`, en Bogotá. Hasta que se carguen coordenadas reales (D-01), cualquier cierre
+en la vía queda fuera de rango y cualquier cierre en Bogotá queda dentro.
 
 ## 7. Estado real (verificado 2026-08-06)
 
@@ -137,9 +184,11 @@ La Fase 0 **no está cerrada**. `docs/ROADMAP.md` ya fue corregido; `docs/DICTAM
 2. `MAN_Mantenimientos` ya tiene `Coordenadas_Cierre` (LatLong) y `Precision_GPS` (Number),
    agregadas al Sheets y reconocidas por la aplicación el 2026-08-06. **Falta la regla de
    validación**, que no pudo escribirse porque no hay ruta de referencia al activo. Ver sección 6.
-2b. **POR REVISAR / POR AJUSTAR:** las referencias del modelo no existen en la aplicación. `OTID`
-   es `Text`, no `Ref`, y `MAN_Mantenimientos` no tiene columna hacia el activo. Sin eso no hay
-   geofencing, ni navegación padre-hijo, ni reportes por activo.
+2b. Las referencias del modelo no existen en la aplicación: `OTID` es `Text`, no `Ref`. Sin eso no
+   hay geofencing, ni navegación padre-hijo, ni reportes por activo. **El procedimiento de
+   corrección ya está escrito y validado** en `docs/CABLEADO_REFERENCIAS_SGMC.md`; falta que un
+   operador lo ejecute. `MAN_Mantenimientos` tiene 0 filas, de modo que la conversión no arrastra
+   datos: es el momento más barato en que se podrá hacer.
 3. Solo `FRM_SOS` tiene banco de preguntas en `FRM_Preguntas` (15). Faltan 17 de 18.
 4. Todos los usuarios están en `SedeID = 1`; todos los activos en `SedeID` 7 a 10. El Security
    Filter dejaría a cada técnico con cero activos.

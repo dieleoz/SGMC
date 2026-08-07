@@ -13,7 +13,8 @@ import sys
 from collections import defaultdict
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from modelo_objetivo import MODELO, TIPOS, GRUPOS, RETIRADAS, CAMPOS_RETIRADOS, REGLAS
+from modelo_objetivo import (MODELO, TIPOS, GRUPOS, RETIRADAS, CAMPOS_RETIRADOS, REGLAS,
+                             RENOMBRADOS, RETIPADOS)
 
 errores, avisos = [], []
 
@@ -197,6 +198,62 @@ for flujo, (tabla, columna) in COBERTURA.items():
         error("V-13", f"El flujo '{flujo}' necesita la tabla {tabla}, que no existe")
     elif columna not in {c["nombre"] for c in MODELO[tabla]["columnas"]}:
         error("V-13", f"El flujo '{flujo}' necesita {tabla}.{columna}, que no existe")
+
+# ------------------------------ V-14 el renombrado aterriza en algo que existe
+# Un renombrado que apunta a una columna inexistente deja la migracion a medias:
+# el operador renombra en el Sheets y luego no encuentra donde cablear.
+for tabla, mapa in RENOMBRADOS.items():
+    if tabla not in MODELO:
+        error("V-14", f"RENOMBRADOS declara {tabla}, que no existe en el modelo objetivo")
+        continue
+    vivos = {c["nombre"] for c in MODELO[tabla]["columnas"]}
+    retirados = set(CAMPOS_RETIRADOS.get(tabla, {}))
+    for actual, (objetivo, _motivo) in mapa.items():
+        if objetivo not in vivos and objetivo not in retirados:
+            error("V-14", f"{tabla}.{actual} se renombra a '{objetivo}', que no existe en el "
+                          f"modelo ni figura como retirado")
+        if actual in vivos and actual != objetivo:
+            aviso("V-14", f"{tabla}.{actual} se renombra a '{objetivo}', pero '{actual}' sigue "
+                          f"siendo una columna viva con otro significado. Al migrar, renombra "
+                          f"antes de crear la nueva, o el Sheets quedara con dos columnas iguales")
+
+# -------------------------- V-15 toda referencia declara como llega a existir
+# Cada Ref sobre una tabla que ya existe tiene que venir de algun sitio: de un
+# renombrado, de un retipado, o ser columna nueva. La que no declara nada es la
+# que nadie crea el dia de la migracion.
+# Solo se exige en las tablas cuyos encabezados reales se leyeron uno por uno.
+for tabla in RENOMBRADOS:
+    if tabla not in MODELO:
+        continue
+    objetivos = {obj for obj, _ in RENOMBRADOS[tabla].values()}
+    retipadas = set(RETIPADOS.get(tabla, {}))
+    for c in MODELO[tabla]["columnas"]:
+        if c["tipo"] != "Ref" or not c.get("ref"):
+            continue
+        if MODELO[c["ref"]].get("nueva"):
+            continue          # apunta a tabla nueva: no habia como cablearla antes
+        if c["nombre"] in objetivos or c["nombre"] in retipadas or c.get("nueva"):
+            continue
+        error("V-15", f"{tabla}.{c['nombre']} es Ref a {c['ref']} y no declara de donde sale: "
+                      f"ni renombrado, ni retipado, ni columna nueva")
+
+# -------------------- V-16 lo retipado existe y coincide con el tipo objetivo
+for tabla, mapa in RETIPADOS.items():
+    if tabla not in MODELO:
+        error("V-16", f"RETIPADOS declara {tabla}, que no existe en el modelo objetivo")
+        continue
+    cols = {c["nombre"]: c for c in MODELO[tabla]["columnas"]}
+    for columna, (_actual, destino_tipo, destino_tabla, _motivo) in mapa.items():
+        if columna not in cols:
+            error("V-16", f"{tabla}.{columna} figura como retipado pero no existe en el modelo")
+            continue
+        c = cols[columna]
+        if c["tipo"] != destino_tipo:
+            error("V-16", f"{tabla}.{columna} se retipa a {destino_tipo}, pero el modelo lo "
+                          f"declara {c['tipo']}")
+        if destino_tipo == "Ref" and c.get("ref") != destino_tabla:
+            error("V-16", f"{tabla}.{columna} se retipa a Ref hacia {destino_tabla}, pero el "
+                          f"modelo lo apunta a {c.get('ref')}")
 
 
 # ------------------------------------------------------------------- informe

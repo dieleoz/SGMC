@@ -10,7 +10,8 @@ import sys
 import subprocess
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from modelo_objetivo import MODELO, GRUPOS, RETIRADAS, CAMPOS_RETIRADOS, REGLAS
+from modelo_objetivo import (MODELO, GRUPOS, RETIRADAS, CAMPOS_RETIRADOS, REGLAS,
+                             RENOMBRADOS, RETIPADOS)
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SALIDA = os.path.join(RAIZ, "docs", "ARQUITECTURA_OBJETIVO_SGMC.md")
@@ -74,14 +75,57 @@ w("|---|---|")
 for t, motivo in RETIRADAS.items():
     w(f"| `{t}` | {motivo} |")
 w("")
-w("### 2.3 Campos que se retiran de `MAN_Mantenimientos`")
+w("### 2.3 Campos que se retiran")
 w("")
-w("La tabla pasaba de 25 columnas heterogéneas a un registro de ejecución limpio.")
+w("`MAN_Mantenimientos` pasa de 24 columnas heterogéneas a un registro de ejecución limpio. El")
+w("resto son campos que guardaban por segunda vez un dato alcanzable por referencia.")
 w("")
-w("| Campo | Motivo |")
-w("|---|---|")
-for campo, motivo in CAMPOS_RETIRADOS.get("MAN_Mantenimientos", {}).items():
-    w(f"| `{campo}` | {motivo} |")
+for tabla, campos in CAMPOS_RETIRADOS.items():
+    w(f"**`{tabla}`**")
+    w("")
+    w("| Campo | Motivo |")
+    w("|---|---|")
+    for campo, motivo in campos.items():
+        w(f"| `{campo}` | {motivo} |")
+    w("")
+
+# --------------------------------------------------- cableado de referencias
+w("### 2.4 Cableado de referencias")
+w("")
+w("El defecto raíz del sistema actual no es que falten columnas: es que las que existen son")
+w("texto. AppSheet responde `Invalid dereference. Column OTID is not a Ref`, y con eso caen el")
+w("geofencing, la navegación padre-hijo y todo reporte por activo.")
+w("")
+w("Una referencia de AppSheet **guarda el valor de la clave de la tabla destino**. Por eso")
+w("renombrar y retipar no son dos tareas sino una: si la clave se llama `Numero_OT` y quien la")
+w("apunta se llama `OTID`, la conversión no tiene contra qué resolver.")
+w("")
+w("Los nombres actuales se verificaron el 2026-08-07 leyendo `BD/Modelo de Datos (2).xlsx` con")
+w("`openpyxl`, encabezado por encabezado, sobre las cinco tablas implicadas.")
+w("")
+w("#### Conservan el nombre, cambian de tipo")
+w("")
+w("| Tabla | Columna | Tipo actual | Tipo objetivo | Apunta a | Nota |")
+w("|---|---|---|---|---|---|")
+for tabla, mapa in RETIPADOS.items():
+    for columna, (actual, destino, destino_tabla, motivo) in mapa.items():
+        w(f"| `{tabla}` | `{columna}` | {actual} | **{destino}** | `{destino_tabla}` | {motivo} |")
+w("")
+w("#### Cambian de nombre")
+w("")
+w("| Tabla | Nombre actual | Nombre objetivo | Por qué |")
+w("|---|---|---|---|")
+for tabla, mapa in RENOMBRADOS.items():
+    for actual, (objetivo, motivo) in mapa.items():
+        w(f"| `{tabla}` | `{actual}` | **`{objetivo}`** | {motivo} |")
+w("")
+w("#### La trampa del nombre reutilizado")
+w("")
+w("`OT_OrdenesTrabajo.Activo` guarda hoy el identificador del activo, pero en el modelo objetivo")
+w("`Activo` es la bandera `Yes/No` que llevan todas las tablas. **Son dos columnas distintas que")
+w("se llaman igual en momentos distintos.** Al migrar hay que renombrar la vieja antes de crear la")
+w("nueva; en el orden inverso el Sheets queda con dos columnas `Activo` y AppSheet resuelve una de")
+w("las dos sin avisar cuál. `validar_modelo.py` lo señala como aviso V-14.")
 w("")
 
 # -------------------------------------------------------------------- modelo
@@ -152,7 +196,7 @@ for r in REGLAS:
 # --------------------------------------------------------------- validacion
 w("## 6. Validación automática")
 w("")
-w("El modelo se comprueba con `python scripts/validar_modelo.py`, que aplica trece reglas:")
+w("El modelo se comprueba con `python scripts/validar_modelo.py`, que aplica dieciséis reglas:")
 w("")
 w("| Regla | Comprueba |")
 w("|---|---|")
@@ -170,6 +214,9 @@ for rid, desc in [
     ("V-11", "Las rutas de desreferencia son navegables, incluido el cambio de contexto en `SELECT()`"),
     ("V-12", "Lo declarado como retirado no sigue vivo en el modelo"),
     ("V-13", "Cada flujo funcional tiene la columna que lo soporta"),
+    ("V-14", "Todo renombrado aterriza en una columna que existe, y avisa si reutiliza el nombre viejo"),
+    ("V-15", "Toda referencia declara de dónde sale: renombrado, retipado o columna nueva"),
+    ("V-16", "Lo retipado coincide en tipo y destino con lo que declara el modelo"),
 ]:
     w(f"| {rid} | {desc} |")
 w("")
