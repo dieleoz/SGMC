@@ -771,6 +771,121 @@ CLAVE_GENERADA = {
     "NOV_Novedades",
 }
 
+# ------------------------------------------ tablas PROPUESTAS que aun no existen
+#
+# Toda tabla que un documento mencione y no este en MODELO tiene que estar aqui,
+# declarada UNA vez, con por que hace falta y donde se especifica.
+#
+# Por que existe esta lista
+# -------------------------
+# El 2026-08-07 se propusieron como "tablas a crear" ROL_Roles, FRM_Formularios,
+# FRM_Secciones y FRM_Preguntas. Las cuatro YA ESTABAN en MODELO. Nadie mintio:
+# se propusieron leyendo documentos en vez de volcar el modelo.
+#
+# verificar_documentos.py falla si una tabla aparece aqui y en MODELO a la vez.
+# Esa comprobacion es lo unico que impide repetirlo.
+PROPUESTAS = {
+    "TAR_Tareas": ("Un tipo de equipo tiene VARIAS tareas, cada una con su "
+                   "periodicidad y su formulario. Hoy la periodicidad cuelga del "
+                   "activo y el formulario del tipo, y ambos sitios son erroneos",
+                   "ESPEC-003"),
+    "ROL_Requeridos": ("Que rol exige cada tarea. Los doce roles ya estan en "
+                       "ROL_Roles; lo que falta es colgarlos de la tarea",
+                       "ESPEC-003"),
+    "CRI_Criticidad": ("Criticidad de una correctiva y sus plazos de respuesta y "
+                       "resolucion, para no enterrar los numeros en una expresion",
+                       "ESPEC-003"),
+    "PAU_Pausas": ("Pausas y reanudaciones de una orden. Tabla hija solo-anadir: "
+                   "el reloj parado se DERIVA con SUM(), nunca se almacena como "
+                   "acumulado, porque un acumulado compite consigo mismo sin senal",
+                   "ESPEC-003"),
+    "EVT_EventosOrden": ("Transiciones de estado de la orden, solo-anadir. De aqui "
+                         "salen los tiempos de respuesta y resolucion. NO es lo mismo "
+                         "que PAU_Pausas: un ChangeTimestamp en la propia orden se "
+                         "reescribe en la segunda ida a En ejecucion y acorta el "
+                         "tiempo de respuesta solo",
+                         "ESPEC-003"),
+    "ETR_Estructuras": ("Puentes y viaductos por los que pasa la fibra y que "
+                        "exigen revision propia",
+                        "MODELO_EVOLUCION_FASE_2 §4"),
+    "MED_MedicionesHilo": ("Los 48 hilos de una medicion de ODF. Hija del "
+                           "checklist, como FOT_Fotografias y FIR_Firmas",
+                           "MODELO_EVOLUCION_FASE_2 §7"),
+    "CER_Certificaciones": ("Catalogo de certificaciones: alturas, electricista, "
+                            "electronico, ayudante, SISO",
+                            "MODELO_EVOLUCION_FASE_2 §10 - Fase 2"),
+    "USR_Certificaciones": ("Usuario x certificacion, con vigencia. Un certificado "
+                            "de alturas caduca, y eso es una regla contra fecha, "
+                            "no una etiqueta",
+                            "MODELO_EVOLUCION_FASE_2 §10 - Fase 2"),
+}
+
+# ------------------------------------- una sola forma por proposito
+#
+# Cada entrada es un proposito donde habia dos caminos. Se eligio uno; el otro NO
+# se implementa aunque aparezca mencionado en documentos anteriores.
+#
+# (proposito, se_usa, se_descarta, por_que)
+#
+# Por que existe
+# --------------
+# Con siete documentos de contexto, once rondas de revision y tres actas, el
+# riesgo real no es equivocarse: es proponer DOS mecanismos para lo mismo y que
+# alguien implemente los dos. Ya paso -Requiere_Repuesto y MotivoPendienteID
+# registraban el mismo hecho- y el manual describia un bypass de GPS por nota
+# libre mientras el modelo tenia CierreConExcepcion.
+#
+# verificar_documentos.py falla si un mecanismo descartado reaparece en MODELO.
+DECISIONES = [
+    ("Periodicidad de un trabajo",
+     "TAR_Tareas.FrecuenciaID", "ACT_Activos.FrecuenciaID",
+     "Un poste SOS tiene tarea semanal, mensual y trimestral", "paso 1"),
+    ("Que checklist se abre",
+     "TAR_Tareas.FormularioID", "TIP_TiposActivo.FormularioID",
+     "El formulario es de la tarea. La columna vieja llevaba 18 formulas de hoja", "paso 1"),
+    ("Donde trabaja un usuario",
+     "ASG_AsignacionZona.UnidadFuncionalID", "USR_Usuarios.SedeID",
+     "La sede es un edificio; la asignacion es un tramo", "paso 1"),
+    ("Cierre sin GPS valido",
+     "MAN_Mantenimientos.CierreConExcepcion", "Nota libre en Observaciones",
+     "Una excepcion tiene que ser contable y auditable, no un texto"),
+    ("Que hizo falta un repuesto",
+     "MAN_Mantenimientos.MotivoPendienteID", "MAN_Mantenimientos.Requiere_Repuesto",
+     "Dos sitios que dicen lo mismo permiten decir cosas distintas"),
+    ("Que se hizo en una preventiva",
+     "CHD_ChecklistDetalle", "MAN_Mantenimientos.Trabajo_Realizado",
+     "El checklist ES la descripcion, item por item"),
+    ("Que se reparo en una correctiva",
+     "Formulario propio de correctivo", "MAN_Mantenimientos.Diagnostico",
+     "Un formulario no duplica columnas y encaja en la capa de tareas"),
+    ("Cuanto duro",
+     "FechaHoraInicio y FechaHoraFin", "MAN_Mantenimientos.Duracion_Minutos",
+     "Un dato derivable no se guarda"),
+    ("Coordenada de un activo",
+     "ACT_Activos.Ubicacion", "Latitud y Longitud separadas",
+     "AppSheet trata LatLong como un tipo, y DISTANCE() lo exige"),
+    ("Preguntas de inspeccion",
+     "FRM_Preguntas", "CHD_ChecklistDetalle",
+     "CHD guarda RESPUESTAS. Editarlo para cambiar preguntas corrompe el historico"),
+    ("Tiempo de reloj parado",
+     "PAU_Pausas con SUM()", "Columna acumulada",
+     "Un acumulado compite consigo mismo sin senal"),
+    ("Marca de tiempo que sirve de prueba",
+     "ChangeTimestamp en la transicion de estado", "Initial value = NOW()",
+     "Un Initial value ES editable, y NOW() es el reloj del telefono"),
+    ("Catalogo de roles",
+     "ROL_Roles", "Crear una tabla nueva de roles",
+     "Ya existe en MODELO. Falta poblarla con los doce del Plan Maestro"),
+]
+
+# Sin resolver. Estan aqui para que no se decidan dos veces en sitios distintos.
+DECISIONES_ABIERTAS = [
+    ("Activos sin ubicacion fisica -SSL, licencias, antivirus, ISP, radios-",
+     "Camino sin evidencia de coordenada, o fuera del alcance del sistema"),
+    ("Que hace falta volver",
+     "MAN.RequiereSegundaVisita, o OT.OTOrigenID encadenando una orden nueva"),
+]
+
 # --------------------------------------------------------- reglas de la app
 REGLAS = [
     dict(id="RG-01", tabla="MAN_Mantenimientos", columna="Coordenadas_Cierre",

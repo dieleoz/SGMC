@@ -15,6 +15,7 @@
 | Ver la arquitectura correcta que se va a construir | [docs/ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) |
 | Saber cómo se comporta AppSheet, con la cita oficial | [docs/BASE_CONOCIMIENTO_APPSHEET.md](docs/BASE_CONOCIMIENTO_APPSHEET.md) |
 | Cablear una referencia, o entender por qué el geofencing no funciona | [docs/sdd/ESPEC-002-cableado-en-appsheet.md](docs/sdd/ESPEC-002-cableado-en-appsheet.md) |
+| Saber qué necesita la operación y qué de eso no cabe hoy en AppSheet | [docs/sdd/ESPEC-003-modelo-de-dominio.md](docs/sdd/ESPEC-003-modelo-de-dominio.md) |
 | Construir cualquier cambio, y saber qué se aprueba antes de tocar producción | [docs/SDD_PIPELINE_SGMC.md](docs/SDD_PIPELINE_SGMC.md) |
 | Saber hasta dónde aguanta el sistema | `python scripts/capacidad.py` |
 | Saber con qué supuestos se construye | [docs/ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md) |
@@ -111,6 +112,7 @@ D:\@Proyect\Sisga\
 | [docs/prompts/PROMPT_AGENTE_HOJA_FORMATOS.md](docs/prompts/PROMPT_AGENTE_HOJA_FORMATOS.md) | Normalizar formatos: identificadores como texto y quitar las fórmulas | Aplicado |
 | [docs/sdd/ACTA-004-cierre-de-formatos.md](docs/sdd/ACTA-004-cierre-de-formatos.md) | Cierre de formatos, y el defecto sistémico de leer fórmulas en vez de valores | Vigente |
 | [docs/sdd/ESPEC-002-cableado-en-appsheet.md](docs/sdd/ESPEC-002-cableado-en-appsheet.md) | Fase B: cableado en AppSheet, con orden obligatorio, verificación y reversión | **Vigente. Es el frente activo** |
+| [docs/sdd/ESPEC-003-modelo-de-dominio.md](docs/sdd/ESPEC-003-modelo-de-dominio.md) | El modelo de dominio en dos planos: qué quiere la operación y qué cabe hoy en AppSheet. Capa de tareas, jerarquía de ubicación, roles, correctivo y recepción del trabajo. Incluye la tabla de lo NO REALIZABLE HOY | Propuesta. **No se aplica hasta cerrar la Fase B**: declarar sus tablas antes bloquea `ESPEC-002` |
 | [docs/ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md) | Alcance del sistema completo y los 14 supuestos adoptados | Vigente |
 | [docs/prompts/PROMPT_CONSTRUCCION_SGMC.md](docs/prompts/PROMPT_CONSTRUCCION_SGMC.md) | Directiva de construcción en 7 pasos con criterios de aceptación | Vigente |
 | [docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md) | 6 casos de uso estilo ISTQB y 14 decisiones | Enviado. Sus propuestas son ahora los supuestos adoptados |

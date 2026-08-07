@@ -72,7 +72,7 @@ TIP_TiposActivo
          TareaID · TipoActivoID · Nombre · FrecuenciaID · FormularioID · TipoMtto
 
 ACT_Activos      hereda las tareas de su tipo. No define frecuencia propia
-PLA_Plan         = activo × tarea, con su propia próxima fecha
+PLA_PlanMantenimiento        = activo × tarea, con su propia próxima fecha
 OT_OrdenesTrabajo gana TareaID: la orden dice QUÉ rutina se ejecuta
 ```
 
@@ -112,7 +112,7 @@ Unidad Funcional
   ningún sitio**: solo tiene nombre y ciudad.
 - `ACT_Activos` gana `SedeID` **opcional**: se llena solo si el equipo está dentro de un recinto.
   `UnidadFuncionalID` sigue siendo obligatorio.
-- Aparece **`EST_Estructuras`**: puentes y viaductos por los que pasa la fibra y que exigen revisión
+- Aparece **`ETR_Estructuras`**: puentes y viaductos por los que pasa la fibra y que exigen revisión
   propia.
 - `SED_Sedes` se limpia de las filas UF1-UF4, que ya viven en `UNF_UnidadesFuncionales`.
 
@@ -273,7 +273,7 @@ salen los plazos.
 OT_OrdenesTrabajo gana   CriticidadID · HoraAviso · HoraInicioTrabajos
                           NivelAtencion (N1 · N2 · N3)  ← para el escalado
 CRI_Criticidad     nuevo  catálogo con los plazos, para no enterrarlos en una expresión
-PAU_Pausas         nuevo  hija de la orden: inicio · fin · motivo. El reloj parado se DERIVA
+EVT_EventosOrden   nuevo  hija de la orden: inicio · fin · motivo. El reloj parado se DERIVA
 ```
 
 **`RelojParadoMin` no puede ser una columna acumulada.** Un total que se lee y se reescribe

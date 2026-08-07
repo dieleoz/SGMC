@@ -107,7 +107,7 @@ cada expresión. Renombrar sin tilde:
 | `FRM_Formularios` | `Descripción`, `Versión` | `Descripcion`, `Version` |
 | `LST_ValoresLista` | `ListaID` | `ValorListaID` |
 
-`LST_ValoresLista.ListaID` es un renombrado que no estaba declarado en el modelo. Ya se corrigió en
+`LST_ValoresLista.ValorListaID` es un renombrado que no estaba declarado en el modelo. Ya se corrigió en
 `scripts/modelo_objetivo.py`.
 
 ## 5. Lo que NO es un fallo, aunque lo parezca

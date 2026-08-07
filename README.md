@@ -256,6 +256,7 @@ archivo/       Material de origen, no versionado
 | [prompts/PROMPT_AGENTE_HOJA_FORMATOS.md](docs/prompts/PROMPT_AGENTE_HOJA_FORMATOS.md) | Normalizar formatos: los 8 puntos de F-16 y F-17. Aplicado |
 | [sdd/ACTA-004-cierre-de-formatos.md](docs/sdd/ACTA-004-cierre-de-formatos.md) | **Cierre de formatos.** La hoja queda cerrada en contenido y en formato |
 | [sdd/ESPEC-002-cableado-en-appsheet.md](docs/sdd/ESPEC-002-cableado-en-appsheet.md) | **Frente activo.** Fase B: el cableado en AppSheet, paso a paso |
+| [sdd/ESPEC-003-modelo-de-dominio.md](docs/sdd/ESPEC-003-modelo-de-dominio.md) | El modelo de dominio en dos planos: lo que la operación necesita y lo que hoy cabe en AppSheet, con lo no realizable declarado y fechado. **No se aplica hasta cerrar la Fase B** |
 | [scripts/verificar_faseA.py](scripts/verificar_faseA.py) | Verifica un `.xlsx` exportado contra el modelo objetivo, encabezado por encabezado. No cierra nada por reporte |
 | [ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md) | Alcance del sistema completo y los 14 supuestos adoptados |
 | [prompts/PROMPT_CONSTRUCCION_SGMC.md](docs/prompts/PROMPT_CONSTRUCCION_SGMC.md) | Directiva de construcción en 7 pasos con criterios de aceptación |

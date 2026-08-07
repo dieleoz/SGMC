@@ -53,7 +53,7 @@ graph TD
 
 ---
 
-### 2.3 Vista 3: Formulario de Creación de Checklist (`Add CHK_Checklist Form`)
+### 2.3 Vista 3: Formulario de Creación de Checklist (`Add CHK_Checklists Form`)
 * **Nombre de Vista:** `CHK_Checklists_Form`
 * **Tipo de Layout:** Modal Form View (Wizard de Inspección)
 * **Campos e Interacciones Probadas:**

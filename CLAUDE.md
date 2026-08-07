@@ -66,7 +66,7 @@ Este proyecto arrastra un historial de subsanaciones reportadas como cerradas qu
 datos: todo lo que las especificaciones afirmaban sobre **cómo se comporta AppSheet** salía de la
 memoria. Antes de escribir una regla, un tipo o un paso que dependa del comportamiento de la
 plataforma, **busca la página oficial**. Lo verificado está en
-`docs/PLATAFORMA_APPSHEET_VERIFICADO.md`, con su URL y su fecha; lo que no se encuentre se declara
+`docs/BASE_CONOCIMIENTO_APPSHEET.md`, con su URL y su fecha; lo que no se encuentre se declara
 como supuesto, en la tabla del final de ese documento.
 
 - **No declares nada conforme por reporte. Verifícalo contra el archivo.** Vale también para los
@@ -202,7 +202,7 @@ la referencia quedó. Es más rápido y más seguro que ejercitar la app.
 mal.** `[EstadoActivoID] <> "Retirado"` es siempre cierto, porque `EST_Activo` tiene la clave `1..4`
 y el texto vive en `Nombre`. Se escribe `[EstadoActivoID].[Nombre]`. **En cambio
 `[EstadoOrdenID] = "Cerrada"` es correcto**, porque `EOT_EstadosOrden` tiene la palabra como clave,
-por diseño (R-8). La distinción está en `CLAVE_LEGIBLE` de `scripts/modelo_objetivo.py`: las 15
+por diseño (R-8). La distinción está en `CLAVE_LEGIBLE` de `scripts/modelo_objetivo.py`: las 10
 tablas cuya clave es texto legible, **derivadas del archivo y no de una impresión**. La regla V-17
 lo comprueba.
 
@@ -263,45 +263,21 @@ disjuntos.
 `4.728512, -74.114531`, en Bogotá. Hasta que se carguen coordenadas reales (D-01), cualquier cierre
 en la vía queda fuera de rango y cualquier cierre en Bogotá queda dentro.
 
-## 7. Estado real (verificado 2026-08-06)
+## 7. Estado: no vive en este archivo
 
-La Fase 0 **no está cerrada**. `docs/ROADMAP.md` ya fue corregido; el dictamen que afirmaba lo contrario se retiró a `docs/historico/`.
+El estado del proyecto cambia cada semana y este archivo son **reglas**, que no cambian. Mezclarlos
+hizo que durante dos dias `CLAUDE.md` describiera una Fase 0 abierta que ya se habia cerrado.
 
-**Confirmados en producción** (leídos en el Sheets, no en el Excel):
+| Que quieres saber | Donde esta |
+|---|---|
+| En que fase vamos y que sigue | `docs/ROADMAP.md` §2, orden de implementacion |
+| Que hace el sistema, para quien y como | `docs/FUNCIONAL_SGMC.md` |
+| Que tiene la hoja hoy, columna a columna | `docs/bd.md`, **generado** |
+| Por que se cerro cada fase | `docs/sdd/ACTA-00N-*.md` |
 
-1. Los 34 activos de `ACT_Activos` comparten una sola coordenada, `4.728512, -74.114531`, que está
-   en Bogotá y no en el corredor.
-2. `MAN_Mantenimientos` ya tiene `Coordenadas_Cierre` (LatLong) y `Precision_GPS` (Number),
-   agregadas al Sheets y reconocidas por la aplicación el 2026-08-06. **Falta la regla de
-   validación**, que no pudo escribirse porque no hay ruta de referencia al activo. Ver sección 6.
-2b. Fase A **cerrada, verificada y con la hoja poblada** el 7 de agosto de 2026 (`ACTA-002`).
-   Las referencias del modelo siguen sin existir en la aplicación: `OTID` es `Text`, no `Ref`. Sin
-   eso no hay geofencing, ni navegación padre-hijo, ni reportes por activo. `MAN_Mantenimientos`
-   tiene 0 filas, de modo que la conversión no arrastra datos: es el momento más barato en que se
-   podrá hacer. **La Fase A —toda la preparación de la hoja— está cerrada y verificada** desde el
-   7 de agosto de 2026, tras tres intentos: los dos primeros se reportaron cerrados y no lo estaban.
-   Acta en `docs/sdd/ACTA-001-cierre-de-la-fase-a.md`. El frente activo es la Fase B,
-   `docs/sdd/ESPEC-002-cableado-en-appsheet.md`.
-
-   Para comprobar el estado de la hoja en cualquier momento: *Archivo → Descargar → Microsoft
-   Excel*, guardar en `BD/` y correr
-   `python scripts/verificar_faseA.py "BD/Modelo de Datos (N).xlsx"`. **No cierres nada por el
-   reporte de quien lo aplicó**, ni siquiera por el tuyo.
-3. Solo `FRM_SOS` tiene banco de preguntas en `FRM_Preguntas` (15). Faltan 17 de 18.
-4. Todos los usuarios están en `SedeID = 1`; todos los activos en `SedeID` 7 a 10. El Security
-   Filter dejaría a cada técnico con cero activos.
-5. `MAN_Mantenimientos`, `FOT_Fotografias`, `FIR_Firmas` y `GPS` están vacías: el ciclo nunca se
-   ha ejecutado.
-6. Evidencias modeladas por duplicado (campos en `MAN` + tablas hijas vacías).
-7. Datos de prueba sin limpiar en `CHK_Checklists`: el registro `CHK001` trae
-   `TecnicoID = "Santiago Moreno"` en lugar de un identificador y `FechaInicio = "NOW()"` como
-   texto literal.
-
-**Resueltos en producción, pendientes solo en el Excel local:** el mapeo
-`TIP_TiposActivo.FormularioID`, la trazabilidad de `CHD_ChecklistDetalle` mediante `PreguntaID`, y
-el checklist huérfano.
-
-Detalle, evidencia y remediación en `docs/AUDITORIA_PLAN_Y_ROADMAP.md`.
+Para comprobar la hoja en cualquier momento: *Archivo → Descargar → Microsoft Excel*, guardar en
+`BD/` y correr `python scripts/verificar_faseA.py "BD/Modelo de Datos (N).xlsx"`. **No cierres nada
+por el reporte de quien lo aplico**, ni siquiera por el tuyo.
 
 ## Método de trabajo vigente: construir bajo supuestos
 
@@ -391,6 +367,19 @@ siempre se abren, y el viewport cambia de tamaño entre llamadas y desplaza las 
 Lo que sí está verificado como resuelto: `Coordenadas_Cierre` y `Precision_GPS` existen en
 `MAN_Mantenimientos`; la columna `Observaciones` ya no está duplicada (24 columnas únicas).
 
+## 7.4 Los tres verificadores, y qué mide cada uno
+
+Ninguno sustituye a otro. Los tres se corren antes de dar nada por cerrado.
+
+| Script | Mide | Cuándo falla |
+|---|---|---|
+| `validar_modelo.py` | El modelo consigo mismo: tipos, claves, rutas de desreferencia, reglas | Siempre. Es el único gate objetivo del pipeline |
+| `verificar_faseA.py` | El modelo contra **la hoja descargada** | Al cerrar una fase de datos |
+| `verificar_documentos.py` | **La prosa** contra el modelo | Al escribir o tocar cualquier `.md` |
+
+**Lo que ninguno mide es si algo es buena idea.** Para eso está el arquitecto, y por eso su
+veredicto no se sustituye por «los scripts pasan».
+
 ## 7.5 Una sola forma por propósito (regla nueva, 2026-08-07)
 
 **Riesgo real, señalado por operación:** con tanto material acumulado —siete documentos de
@@ -421,31 +410,32 @@ como **supuesto abierto**, nunca como carencia del modelo.
 Este proyecto ya midió el modelo del Sisga contra la estructura de otro corredor una vez. La
 advertencia de procedencia existía y contenía ella misma el error.
 
-## 8. Deriva documental conocida
+## 8. Deriva documental: ahora es mecanica
 
-Estos documentos contienen afirmaciones que no corresponden al archivo real. No los uses como
-fuente sin contrastar:
+Este archivo llevaba una lista escrita a mano de contradicciones conocidas entre documentos. Esa
+lista envejecia igual que lo que denunciaba.
 
-- ~~`docs/bd.md`~~ — **resuelto el 2026-08-07: ahora se genera.** Decía «24 hojas» cuando había 32,
-  apuntaba a un Excel maestro de tres días atrás y describía columnas renombradas. Ya no se escribe
-  a mano: sale de `scripts/generar_diccionario_bd.py`, que lee la hoja y la cruza contra el modelo.
-  Lo de abajo queda como registro de lo que fue.
+**Desde el 2026-08-07 la comprueba `scripts/verificar_documentos.py`**, que lee toda la prosa y la
+cruza contra `modelo_objetivo.py`:
 
-  Una revisión anterior marcó su sección 3.1 como inventada por
-  describir un `MAN_Mantenimientos` de 25 columnas con `MttoID`, `Diagnostico`,
-  `Trabajo_Realizado` y `Duracion_Minutos`. Estaba describiendo **producción**, y es correcta.
-  Lo mismo su conteo de 21 columnas para `CHK`/`CHD`. Lo desactualizado es el Excel local.
-  `bd.md` sigue sin declarar contra cuál de los dos modelos está escrito, y eso hay que corregirlo.
-- **`docs/historico/` — RETIRADOS EL 2026-08-07. No los uses como fuente.** Un documento que
-  describe un estado superado no es inofensivo: induce a deshacer trabajo correcto.
-  - `CABLEADO_REFERENCIAS_SGMC.md` se escribió contra el **Excel local** y manda renombrar
-    columnas que en producción se llaman de otro modo o no existen (`PreguntaItem`, `Estado Final`).
-    Lo sustituyen `ESPEC-001`, `001B`, `001C` y `ESPEC-002`.
-  - `DICTAMEN_AUDITORIA_LOCAL_SGMC.md` e `INFORME_QA_ISTQB_Y_AUDITORIA_ARQUITECTO.md` dictaminan
-    100% conforme sobre un modelo anterior y describen un mantenimiento ejecutado en vivo que nunca
-    existió.
-- `scripts/faseA_sheets.gs` lleva banner de retirado: nunca se ejecutó y su mapa de renombrados es
-  el del Excel local.
+```
+D-01  toda tabla citada existe en MODELO, RETIRADAS o PROPUESTAS
+D-02  ninguna tabla PROPUESTA existe ya en MODELO
+D-03  toda referencia Tabla.Columna apunta a una columna real
+D-04  ningun mecanismo descartado en DECISIONES sigue vivo sin fecha de retiro
+D-05  toda tabla del modelo la menciona algun documento
+```
+
+En su primera ejecucion encontro que `ESPEC-003` habia inventado dos tablas con nombres distintos de
+los ya declarados, que `CHK_Checklists.OTID` no existe —esa tabla cuelga de `MantenimientoID`— y que
+cuatro documentos la citaban. Ninguna de las tres la habia visto nadie leyendo.
+
+**Lo que NO comprueba:** si la prosa es cierta. Solo si sus nombres existen. Un documento puede
+pasar las cinco reglas y estar equivocado; por eso sigue haciendo falta el arquitecto.
+
+Un documento que menciona un nombre **para descartarlo** lo declara con una linea
+`<!-- verificar_documentos: ignorar NOMBRE -->`. Es incomoda a proposito: si aparece en muchos
+sitios, el problema es el criterio y no el documento.
 
 ## 9. Estructura del repositorio
 
