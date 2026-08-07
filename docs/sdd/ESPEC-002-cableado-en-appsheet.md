@@ -364,8 +364,20 @@ y es trabajo de una `ESPEC-003`.
 
 **Solo después de haber poblado `OT.Activo = TRUE` en las 6 órdenes** (paso 5.1).
 
-Los bots RG-06 a RG-08 y RG-10 a RG-13 se configuran pero **no funcionarán**: en el plan gratuito
-los procesos programados no se ejecutan.
+### Las reglas que NO entran en esta fase, y por qué
+
+Agruparlas todas como «bots» sería inexacto y llevaría a configurar cosas que no pueden funcionar:
+
+| Regla | Qué es | Por qué no entra |
+|---|---|---|
+| RG-08, RG-12 | **Bot programado** | En el plan gratuito los procesos programados **no se ejecutan**. Decisión D-B |
+| RG-06, RG-07, RG-10 | **Bot por evento** | Dependen del mismo plan. Se configuran cuando se resuelva D-B |
+| RG-11 | **`App formula`**, no un bot | Usa `[FrecuenciaID].[Dias]`, y `PLA_PlanMantenimiento.FrecuenciaID` está **aplazada a `ESPEC-003`**. Va con ella |
+| RG-13 | **Verificación de evidencia**, no un bot | `DISTANCE([UbicacionEscaneo], [Coordenadas_Cierre]) <= 0.5`. No necesita ninguna referencia y sí podría entrar, pero es un contraste que **se reporta y no bloquea**: pertenece a los reportes, que son otro frente |
+
+RG-11 es el caso que importa: **aplazar una referencia arrastra la regla que la usa.** Si se
+configurase RG-11 con `FrecuenciaID` todavía como texto, la fórmula no resolvería y `ProximaFecha`
+quedaría en blanco sin decir por qué.
 
 ---
 
