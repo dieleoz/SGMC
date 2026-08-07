@@ -8,11 +8,24 @@ y al terminar hay referencias reales, geofencing y navegación entre tablas.
 | Dónde se aplica | Editor de AppSheet, aplicación `SGMC-886843353` |
 | Quién | Agente de navegador, o una persona. No hay API en el plan actual |
 | Precede | `ESPEC-001` y **`ESPEC-001B`**, ambas cerradas |
-| Estado | **DESBLOQUEADA el 2026-08-07.** Ver sección 1 |
+| Estado | **Pendiente de `ESPEC-001C`.** Ver sección 1 |
 
 ---
 
-## 1. La Fase A está cerrada
+## 1. Falta una última pasada sobre la hoja
+
+`ESPEC-001` y `ESPEC-001B` están cerradas (`ACTA-001`). Pero `ESPEC-001C` añadió tres requisitos que
+la verificación todavía marca como fallo, y **dos de ellos producirían huérfanos silenciosos si se
+cablea antes**:
+
+- `CHK_Checklists.MantenimientoID` guarda `OT-0001`, que es una **orden**, no un mantenimiento.
+- `LST_ValoresLista.PreguntaID` guarda el texto `Estado encontrado`, no una clave.
+- Faltan `FechaBaja` y `MotivoBaja` en `ACT_Activos`.
+
+Además la hoja se puebla con datos de prueba para poder ejercitar el ciclo completo de extremo a
+extremo, incluida una fila que **debe** ser rechazada por el geofencing.
+
+## 1.1 Verificación previa, obligatoria
 
 `python scripts/verificar_faseA.py "BD/Modelo de Datos (6).xlsx"` imprime **`FASE A CERRADA`**, con
 0 fallos. Constancia en `ACTA-001-cierre-de-la-fase-a.md`.
@@ -129,6 +142,28 @@ Se hacen primero porque son independientes entre sí y no pueden romper nada.
 Si `Coordenadas_Cierre` queda como `Text`, `DISTANCE()` no opera y el paso 8 falla sin explicar por
 qué.
 
+### 3.1 Confirmar el formato de la coordenada. Primero esto, antes de las reglas
+
+**En todo el sistema no hay ni una sola coordenada capturada por la aplicación.** Las cuatro
+columnas que podrían tenerla están vacías, y la única que existe —`ACT_Activos.Ubicacion`, con
+`4.728512, -74.114531`— la cargó una persona. El formato de las filas de prueba es por tanto un
+supuesto, tomado de que `DISTANCE()` tiene que comparar contra `Ubicacion`.
+
+Confirmarlo cuesta dos minutos y evita perder una tarde:
+
+1. Con `Coordenadas_Cierre` ya tipada como `LatLong`, crear **un** registro desde la aplicación,
+   dejando que `HERE()` capture la posición.
+2. Leer el Sheets de vuelta y mirar el literal exacto que escribió: separador, espaciado y número
+   de decimales.
+3. Compararlo con `4.728512, -74.114531`.
+
+Si difiere, **reescribir las coordenadas de las filas `TEST-` antes de configurar RG-01**, y anotar
+el formato real en `ESPEC-001C`.
+
+Por qué importa: si el formato no coincide, `DISTANCE()` **no falla con un error claro**. Devuelve
+un resultado, y la regla de geofencing parece funcionar cuando no lo hace. Sería el mismo patrón
+que este proyecto lleva meses pagando.
+
 ## 7. Paso 4 — Las referencias, de abajo hacia arriba
 
 **El orden es obligatorio**: cada bloque referencia tablas cuyas claves ya se fijaron en el bloque
@@ -170,11 +205,10 @@ anterior.
 | `MotivoPendienteID` | `MOT_MotivosPendiente` | |
 | `ModoFallaID` | `FAL_ModosFalla` | |
 
-**Sobre `Is a part of` en `MAN_Mantenimientos.OTID`: decidir antes de marcarlo.** Marcarlo implica
-que **borrar una orden borre su ejecución, sus fotografías y sus firmas**. En un sistema cuyo
-propósito es que la evidencia sea difícil de falsificar, eso se decide a conciencia. Si no hay
-decisión tomada, **déjalo sin marcar**: se puede activar después, y desactivarlo no devuelve lo
-borrado.
+**`MAN_Mantenimientos.OTID` va SIN `Is a part of`.** Decidido el 2026-08-07. Marcarlo haría que
+borrar una orden borrase su ejecución, y con ella las fotografías, las firmas y el checklist: un
+clic y desaparece la prueba de que un técnico estuvo frente a un equipo. **La ejecución es el
+registro histórico y sobrevive a su orden.**
 
 ### 4.4 Evidencias y checklist
 
@@ -186,6 +220,10 @@ borrado.
 | `CHK_Checklists` | `FormularioID` | `FRM_Formularios` | No |
 | `CHD_ChecklistDetalle` | `ChecklistID` | `CHK_Checklists` | Sí |
 | `CHD_ChecklistDetalle` | `PreguntaID` | `FRM_Preguntas` | No |
+
+La cascada de este bloque es inofensiva **porque el mantenimiento nunca se borra** (paso 5, RG-15).
+Protegido arriba, aquí abajo nunca llega a dispararse. Una fotografía de un mantenimiento que no
+existe no significa nada, así que la composición sí es correcta a este nivel.
 | `FRM_Preguntas` | `FormularioID` | `FRM_Formularios` | No |
 | `FRM_Preguntas` | `SeccionID` | `FRM_Secciones` | No |
 | `FRM_Preguntas` | `TipoRespuestaID` | `TPR_TiposRespuesta` | No |
@@ -237,6 +275,19 @@ OR([TecnicoID].[Correo] = USEREMAIL(), [SupervisorID].[Correo] = USEREMAIL())
 ```
 
 **RG-09:** `CHK_Checklists.VersionFormulario`, valor inicial `[FormularioID].[Version]`.
+
+**RG-14 y RG-15, y no son opcionales.** En *Data → Tables →* `OT_OrdenesTrabajo` y
+`MAN_Mantenimientos`, en **Are updates allowed**, dejar `Updates` y `Adds` y **retirar `Deletes`**.
+
+Es la decisión central del sistema, tomada el 2026-08-07: **el histórico no se borra, se
+desactiva.** Un error se corrige con `Activo = FALSE`, que deja traza de que el registro existió y
+se anuló. Si el botón de borrar no está, no hay accidente posible, y tampoco hay puerta trasera para
+eliminar la prueba de un mantenimiento.
+
+**El límite, que conviene tener presente:** esto protege dentro de la aplicación. Nadie impide que
+alguien borre la fila a mano en el Sheets, y hay dos cuentas con permiso de edición. Contra eso solo
+está el historial de versiones de Google, que sirve para recuperar pero no para impedir. Si el
+histórico tiene que ser defendible ante interventoría, hay que resolver la decisión D-A.
 
 Las demás reglas del modelo —RG-06 a RG-08 y RG-10 a RG-13— son bots. **Los bots programados no se
 ejecutan en el plan gratuito**, así que se configuran pero no funcionarán hasta que se decida D-B.

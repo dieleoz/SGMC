@@ -205,7 +205,15 @@ MODELO = {
             col("CodigoQR", "Text", nota="Configurada como Searchable y Scan"),
             col("FrecuenciaID", "Ref", ref="FRE_Frecuencias"),
             col("Criticidad", "Enum", nota="Alta, Media, Baja. Pondera la disponibilidad de D-13"),
-            col("Activo", "Yes/No", valor_inicial="TRUE"),
+            col("FechaBaja", "Date", nueva=True,
+                nota="Cuando se dio de baja. Sin ella el historico no puede explicar por que el "
+                     "activo dejo de recibir mantenimiento, y esa pregunta la hace la interventoria"),
+            col("MotivoBaja", "Enum", nueva=True,
+                nota="Obsolescencia, Dano irreparable, Robo o vandalismo, Reemplazo, "
+                     "Retiro por obra"),
+            col("Activo", "Yes/No", formula='[EstadoActivoID] <> "Retirado"',
+                nota="NO se edita a mano: se deriva del estado. Tener dos formas de decir "
+                     "'dado de baja' garantiza que algun dia se contradigan"),
             col("Observaciones", "LongText"),
         ]),
 
@@ -235,8 +243,11 @@ MODELO = {
         proposito="Ejecucion real en campo. Cuelga de la orden y es padre de la evidencia.",
         columnas=[
             col("MantenimientoID", "Text", pk=True),
-            col("OTID", "Ref", ref="OT_OrdenesTrabajo", obligatoria=True, es_parte_de=True,
-                nota="Era Text. Ese solo hecho impedia todo el geofencing"),
+            col("OTID", "Ref", ref="OT_OrdenesTrabajo", obligatoria=True,
+                nota="Era Text. Ese solo hecho impedia todo el geofencing. SIN IsPartOf por "
+                     "decision del 2026-08-07: marcarlo haria que borrar una orden borrase su "
+                     "ejecucion, y con ella las fotografias, las firmas y el checklist. La "
+                     "ejecucion es el registro historico y sobrevive a su orden"),
             col("TecnicoID", "Ref", ref="USR_Usuarios", obligatoria=True, alias_justificado="Rol: quien ejecuta",
                 valor_inicial='LOOKUP(USEREMAIL(), "USR_Usuarios", "Correo", "UsuarioID")'),
             col("FechaHoraInicio", "DateTime", obligatoria=True, valor_inicial="NOW()"),
@@ -713,6 +724,40 @@ REGLAS = [
          expresion="DISTANCE([UbicacionEscaneo], [Coordenadas_Cierre]) <= 0.5",
          descripcion=("Contrasta donde escaneo con donde cerro. Una diferencia grande indica que "
                       "escaneo en un sitio y cerro en otro. No bloquea: se reporta.")),
+    dict(id="RG-16", tabla="ACT_Activos", columna="Activo",
+         tipo="App formula", cubre="Baja de activos",
+         expresion='[EstadoActivoID] <> "Retirado"',
+         descripcion=("La bandera se deriva del estado, no se edita. EST_Activo ya tiene el estado "
+                      "Retirado; mantener ademas una bandera independiente es el mismo dato en dos "
+                      "sitios, y algun dia diran cosas distintas sin forma de saber cual miente.")),
+    dict(id="RG-17", tabla="ACT_Activos", columna="FechaBaja",
+         tipo="Required_If", cubre="Baja de activos",
+         expresion='[EstadoActivoID] = "Retirado"',
+         descripcion=("Si se retira un activo hay que decir cuando. Un historico que no puede "
+                      "explicar por que un activo dejo de recibir mantenimiento no es defendible.")),
+    dict(id="RG-18", tabla="ACT_Activos", columna="(tabla)",
+         tipo="Doctrina de reportes", cubre="Baja de activos",
+         expresion='Ver descripcion: es una prohibicion, no una expresion a configurar',
+         descripcion=("NO filtrar los reportes historicos por la bandera Activo del activo padre. "
+                      "Un reporte HISTORICO filtra por la fecha y el estado de la TRANSACCION, "
+                      "nunca por el estado actual del activo padre. Filtrar por [ActivoID].[Activo] "
+                      "hace que al dar de baja un activo desaparezcan retroactivamente todos sus "
+                      "mantenimientos pasados: el informe del ano anterior cambia solo y muestra "
+                      "menos trabajo del que se hizo. Ante interventoria eso no parece un filtro "
+                      "mal puesto, parece que el mantenimiento nunca se ejecuto.")),
+    dict(id="RG-14", tabla="OT_OrdenesTrabajo", columna="(tabla)",
+         tipo="Are updates allowed", cubre="Evidencia defendible",
+         expresion="Updates, Adds",
+         descripcion=("Se retira Deletes. Una orden no se borra: se anula con Activo = FALSE, que "
+                      "deja traza de que existio. Si el boton no esta, no hay accidente posible.")),
+    dict(id="RG-15", tabla="MAN_Mantenimientos", columna="(tabla)",
+         tipo="Are updates allowed", cubre="Evidencia defendible",
+         expresion="Updates, Adds",
+         descripcion=("Se retira Deletes. Es la decision central del sistema: la ejecucion es la "
+                      "prueba de que alguien estuvo frente al equipo. Protegido aqui arriba, el "
+                      "IsPartOf de FOT, FIR y CHK nunca llega a dispararse. Nota: esto protege "
+                      "DENTRO de la app; nadie impide borrar la fila a mano en el Sheets, donde "
+                      "hay dos cuentas con permiso de edicion.")),
     dict(id="RG-10", tabla="MAN_Mantenimientos", columna="(tabla)",
          tipo="Bot", cubre="D-07",
          expresion='[RequiereSegundaVisita] = TRUE',

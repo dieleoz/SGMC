@@ -150,8 +150,9 @@ en `scripts/modelo_objetivo.py`.**
 
 | Frente | Estado |
 |---|---|
-| Cableado, Fase A (Sheets) | **CERRADA y verificada** el 7 de agosto. `verificar_faseA.py` en 0 fallos. Acta en `ACTA-001` |
-| Cableado, Fase B (navegador) | `ESPEC-002` escrita y **desbloqueada**. Es el frente activo |
+| Fase A, tandas 1 y 2 | **CERRADAS y verificadas** el 7 de agosto. Acta en `ACTA-001` |
+| Fase A, tanda 3 (`ESPEC-001C`) | **Frente activo.** Baja de activos, dos huérfanos por corregir y poblado completo de prueba. Prompt listo en `docs/prompts/` |
+| Fase B (navegador) | `ESPEC-002` escrita. Arranca cuando `ESPEC-001C` cierre |
 | Coordenadas reales (D-01) | Bloqueado por levantamiento en campo |
 | Código QR | **Fuera de alcance por decisión del 2026-08-07.** Ver sección 8 |
 

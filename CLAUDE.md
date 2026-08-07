@@ -124,6 +124,26 @@ convertir, nunca después.
 Las reglas V-14, V-15 y V-16 de `validar_modelo.py` detienen la validación si una referencia no
 declara de dónde sale. No hay ruta legítima que se salte esto.
 
+**R-6b. El histórico no se borra: se desactiva.** Decidido el 2026-08-07. `OT_OrdenesTrabajo` y
+`MAN_Mantenimientos` van sin la acción `Deletes`, y un error se corrige con `Activo = FALSE`.
+Por eso `MAN_Mantenimientos.OTID` va **sin `IsPartOf`**: marcarlo haría que borrar una orden borrase
+la ejecución, las fotografías, las firmas y el checklist. `FOT`, `FIR` y `CHK` sí lo llevan respecto
+del mantenimiento, y es inofensivo porque el mantenimiento nunca se borra. **`IsPartOf` describe
+composición, no protege nada: la protección es retirar el borrado.**
+
+**R-6c. Renombrar un encabezado no cambia lo que el dato significa.** `CHK_Checklists.OTID` se
+renombró a `MantenimientoID` y su fila siguió guardando `OT-0001`, que es una **orden**. La columna
+dice una cosa y el dato dice otra, y solo se descubre al convertir a `Ref`. Después de todo
+renombrado, **comprueba que los valores resuelvan contra la nueva clave destino**: es la regla F-10
+de `verificar_faseA.py`.
+
+**R-6d. Un reporte histórico nunca filtra por el estado actual del padre (RG-18).** Filtrar los
+mantenimientos por `[ActivoID].[Activo] = TRUE` hace que, al dar de baja un activo, **desaparezcan
+retroactivamente todos sus mantenimientos pasados**: el informe del año anterior cambia solo y
+muestra menos trabajo del que se hizo. Ante interventoría eso no parece un filtro mal puesto, parece
+que el mantenimiento nunca se ejecutó. Un histórico filtra por la fecha y el estado de la
+**transacción**; el activo aporta el nombre, no el filtro.
+
 **R-6. Un dato se alcanza por referencia o se guarda, nunca las dos cosas.** `MAN_Mantenimientos`
 no lleva `ActivoID`: el activo se alcanza por `[OTID].[ActivoID]`. Guardarlo también permitiría que
 la ejecución diga un activo y su orden diga otro, sin forma de saber cuál miente.

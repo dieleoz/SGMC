@@ -133,11 +133,19 @@ Mientras esto no se resuelva, cualquier trabajo de configuración se hace sobre 
 - [ ] **Completar las 4 tablas nuevas que quedaron como cascara** y las columnas que faltan, en
       particular `FOT_Fotografias.Ubicacion`, `PrecisionGPS` y `FechaHora`, que son la cadena de
       evidencia
-- [ ] **Fase B: cablear en AppSheet** siguiendo `ESPEC-002`. **Bloqueada** hasta que
-      `verificar_faseA.py` imprima `FASE A CERRADA`
-- [ ] **Decidir si `IsPartOf` sobre `MAN_Mantenimientos.OTID` es lo que se quiere.** Implica que
-      borrar una orden borre su ejecución, sus fotografías y sus firmas. En un sistema cuyo
-      propósito es que la evidencia sea difícil de falsificar, se decide, no se hereda
+- [ ] **`ESPEC-001C`: baja de activos y poblado completo de prueba.** Frente activo. Añade
+      `FechaBaja` y `MotivoBaja`, corrige dos huérfanos que quedaron —`CHK.MantenimientoID` guarda
+      `OT-0001`, que es una orden, y `LST_ValoresLista.PreguntaID` guarda el texto de la pregunta—
+      y puebla el ciclo completo con filas `TEST-`, una de ellas a 9 km para que el geofencing
+      tenga algo que rechazar
+- [ ] **Decidir el ciclo de baja en los reportes.** RG-18: un histórico nunca filtra por el estado
+      actual del activo, o al dar de baja uno desaparecen sus mantenimientos pasados
+- [ ] **Fase B: cablear en AppSheet** siguiendo `ESPEC-002`. Arranca cuando `verificar_faseA.py`
+      vuelva a imprimir `FASE A CERRADA`
+- [x] **`IsPartOf` sobre `MAN_Mantenimientos.OTID`: DECIDIDO el 7 de agosto de 2026. Va sin él.**
+      La ejecución es el registro histórico y sobrevive a su orden. Además se retira la acción
+      `Deletes` de `OT_OrdenesTrabajo` y `MAN_Mantenimientos` (RG-14 y RG-15): el histórico no se
+      borra, se desactiva con `Activo = FALSE`
 - [ ] **Escribir la regla de geofencing (RG-01)** una vez cableadas las referencias:
       `DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]`,
       con su mensaje de error. Mientras `RadioGeofencingKm` no exista, el literal `1.0` como provisional

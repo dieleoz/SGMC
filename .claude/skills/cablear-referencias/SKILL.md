@@ -113,6 +113,12 @@ forma de saber cuál miente.
 borrar una orden borra su ejecución, sus fotografías y sus firmas. En un sistema cuyo propósito es
 que la evidencia sea difícil de falsificar, eso se decide, no se hereda del ejemplo.
 
+**El encabezado renombrado con el dato viejo.** Renombrar una columna **no cambia lo que el dato
+significa**. `CHK_Checklists.OTID` pasó a llamarse `MantenimientoID` y su fila siguió guardando
+`OT-0001`, que es una orden. La columna dice una cosa, el dato dice otra, y solo se nota al
+convertir a `Ref`. **Después de cada renombrado, comprueba que los valores resuelvan contra la nueva
+clave destino.**
+
 **El catálogo nuevo con claves nuevas.** Al crear un catálogo para una columna que ya tiene datos,
 la clave debe ser **el valor que esos datos ya guardan**, no un identificador ordenado. Ocurrió el
 2026-08-07: `EOT_EstadosOrden` se creó con `1..7` mientras la orden guardaba `Asignada` y `Cerrada`.

@@ -209,6 +209,37 @@ if "ASG_AsignacionZona" in wb.sheetnames:
         else:
             oks.append("ASG_AsignacionZona.%s resuelve contra %s" % (columna, destino))
 
+# ---------------------- F-10 los hijos resuelven contra sus padres
+# El fallo que esta comprobacion habria atrapado: CHK_Checklists.OTID se renombro
+# a MantenimientoID y su fila siguio guardando 'OT-0001', que es una ORDEN.
+# Renombrar un encabezado no cambia lo que el dato significa.
+CADENA = [
+    ("CHK_Checklists", "MantenimientoID", "MAN_Mantenimientos"),
+    ("CHD_ChecklistDetalle", "ChecklistID", "CHK_Checklists"),
+    ("FOT_Fotografias", "MantenimientoID", "MAN_Mantenimientos"),
+    ("FIR_Firmas", "MantenimientoID", "MAN_Mantenimientos"),
+    ("MAN_Mantenimientos", "OTID", "OT_OrdenesTrabajo"),
+    ("OT_OrdenesTrabajo", "ActivoID", "ACT_Activos"),
+    ("LST_ValoresLista", "PreguntaID", "FRM_Preguntas"),
+]
+for tabla, columna, destino in CADENA:
+    if tabla not in wb.sheetnames or destino not in wb.sheetnames:
+        continue
+    usados = _usados(tabla, columna)
+    if usados is None:
+        falla("F-10", "%s.%s no existe" % (tabla, columna))
+        continue
+    if not usados:
+        continue                      # tabla vacia: nada que resolver todavia
+    huerfanos = usados - _claves(destino)
+    if huerfanos:
+        falla("F-10", "%s.%s guarda %s, que no existe en %s. Al convertir a Ref esas filas "
+                      "quedan huerfanas y AppSheet no lo anuncia"
+              % (tabla, columna, sorted(huerfanos)[:5], destino))
+    else:
+        oks.append("%s.%s resuelve contra %s (%d valores)"
+                   % (tabla, columna, destino, len(usados)))
+
 # ------------------------------------------------------------------- informe
 print("=" * 78)
 print("VERIFICACION DE LA FASE A")

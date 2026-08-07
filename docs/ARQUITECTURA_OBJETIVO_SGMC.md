@@ -8,7 +8,7 @@ Este documento define el sistema que se va a construir, no el que existe. El act
 descrito en `AUDITORIA_PLAN_Y_ROADMAP.md` y no sirve como base: sus referencias no están
 cableadas, cuatro tablas están vacías y la cadena relacional existe solo en el papel.
 
-**27 tablas · 192 columnas · 38 referencias · 13 reglas**
+**27 tablas · 194 columnas · 38 referencias · 18 reglas**
 
 ---
 
@@ -218,7 +218,7 @@ erDiagram
     OT_OrdenesTrabajo }o--|| EOT_EstadosOrden : "EstadoOrdenID"
     OT_OrdenesTrabajo }o--|| OT_OrdenesTrabajo : "OTOrigenID"
     OT_OrdenesTrabajo }o--|| USR_Usuarios : "CerradaPor"
-    OT_OrdenesTrabajo ||--o{ MAN_Mantenimientos : "OTID"
+    MAN_Mantenimientos }o--|| OT_OrdenesTrabajo : "OTID"
     MAN_Mantenimientos }o--|| USR_Usuarios : "TecnicoID"
     MAN_Mantenimientos }o--|| EST_Activo : "EstadoActivoID"
     MAN_Mantenimientos }o--|| MOT_MotivosPendiente : "MotivoPendienteID"
@@ -422,7 +422,9 @@ Inventario de los activos del corredor. Es el eje del sistema.
 | `CodigoQR` | Text |  |  |  | Configurada como Searchable y Scan |
 | `FrecuenciaID` | Ref |  | `FRE_Frecuencias` |  |  |
 | `Criticidad` | Enum |  |  |  | Alta, Media, Baja. Pondera la disponibilidad de D-13 |
-| `Activo` | Yes/No |  |  |  | Valor inicial: `TRUE` |
+| `FechaBaja` | Date |  |  |  | Cuando se dio de baja. Sin ella el historico no puede explicar por que el activo dejo de recibir mantenimiento, y esa pregunta la hace la interventoria |
+| `MotivoBaja` | Enum |  |  |  | Obsolescencia, Dano irreparable, Robo o vandalismo, Reemplazo, Retiro por obra |
+| `Activo` | Yes/No |  |  |  | NO se edita a mano: se deriva del estado. Tener dos formas de decir 'dado de baja' garantiza que algun dia se contradigan |
 | `Observaciones` | LongText |  |  |  |  |
 
 ### 4.3 Transaccionales (4)
@@ -453,7 +455,7 @@ Ejecucion real en campo. Cuelga de la orden y es padre de la evidencia.
 | Columna | Tipo | Clave | Referencia | Obligatoria | Nota |
 |---|---|---|---|---|---|
 | `MantenimientoID` | Text | PK |  |  |  |
-| `OTID` | Ref |  | `OT_OrdenesTrabajo` · IsPartOf | Sí | Era Text. Ese solo hecho impedia todo el geofencing |
+| `OTID` | Ref |  | `OT_OrdenesTrabajo` | Sí | Era Text. Ese solo hecho impedia todo el geofencing. SIN IsPartOf por decision del 2026-08-07: marcarlo haria que borrar una orden borrase su ejecucion, y con ella las fotografias, las firmas y el checklist. La ejecucion es el registro historico y sobrevive a su orden |
 | `TecnicoID` | Ref |  | `USR_Usuarios` | Sí | Valor inicial: `LOOKUP(USEREMAIL(), "USR_Usuarios", "Correo", "UsuarioID")`. Rol: quien ejecuta |
 | `FechaHoraInicio` | DateTime |  |  | Sí | Valor inicial: `NOW()` |
 | `FechaHoraFin` | DateTime |  |  |  |  |
@@ -757,6 +759,56 @@ DISTANCE([UbicacionEscaneo], [Coordenadas_Cierre]) <= 0.5
 ```
 
 Cubre: Prueba de presencia
+
+### RG-16 · App formula sobre `ACT_Activos`.`Activo`
+
+La bandera se deriva del estado, no se edita. EST_Activo ya tiene el estado Retirado; mantener ademas una bandera independiente es el mismo dato en dos sitios, y algun dia diran cosas distintas sin forma de saber cual miente.
+
+```
+[EstadoActivoID] <> "Retirado"
+```
+
+Cubre: Baja de activos
+
+### RG-17 · Required_If sobre `ACT_Activos`.`FechaBaja`
+
+Si se retira un activo hay que decir cuando. Un historico que no puede explicar por que un activo dejo de recibir mantenimiento no es defendible.
+
+```
+[EstadoActivoID] = "Retirado"
+```
+
+Cubre: Baja de activos
+
+### RG-18 · Doctrina de reportes sobre `ACT_Activos`
+
+NO filtrar los reportes historicos por la bandera Activo del activo padre. Un reporte HISTORICO filtra por la fecha y el estado de la TRANSACCION, nunca por el estado actual del activo padre. Filtrar por [ActivoID].[Activo] hace que al dar de baja un activo desaparezcan retroactivamente todos sus mantenimientos pasados: el informe del ano anterior cambia solo y muestra menos trabajo del que se hizo. Ante interventoria eso no parece un filtro mal puesto, parece que el mantenimiento nunca se ejecuto.
+
+```
+Ver descripcion: es una prohibicion, no una expresion a configurar
+```
+
+Cubre: Baja de activos
+
+### RG-14 · Are updates allowed sobre `OT_OrdenesTrabajo`
+
+Se retira Deletes. Una orden no se borra: se anula con Activo = FALSE, que deja traza de que existio. Si el boton no esta, no hay accidente posible.
+
+```
+Updates, Adds
+```
+
+Cubre: Evidencia defendible
+
+### RG-15 · Are updates allowed sobre `MAN_Mantenimientos`
+
+Se retira Deletes. Es la decision central del sistema: la ejecucion es la prueba de que alguien estuvo frente al equipo. Protegido aqui arriba, el IsPartOf de FOT, FIR y CHK nunca llega a dispararse. Nota: esto protege DENTRO de la app; nadie impide borrar la fila a mano en el Sheets, donde hay dos cuentas con permiso de edicion.
+
+```
+Updates, Adds
+```
+
+Cubre: Evidencia defendible
 
 ### RG-10 · Bot sobre `MAN_Mantenimientos`
 
