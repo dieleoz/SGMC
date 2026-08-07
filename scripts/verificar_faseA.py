@@ -19,7 +19,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from modelo_objetivo import (MODELO, RENOMBRADOS, RETIPADOS, CAMPOS_RETIRADOS,
-                             CLAVE_LEGIBLE, CLAVE_GENERADA)
+                             CLAVE_LEGIBLE, CLAVE_GENERADA, PARAMETROS)
 
 try:
     import openpyxl
@@ -302,7 +302,42 @@ for tabla in CLAVE_GENERADA:
 #
 # Es la misma forma que tuvo el defecto de RG-16: una regla cuyo dato la
 # desmiente, y ninguna comprobacion que lo viera.
-UMBRAL_GPS = 50
+# El umbral NO se codifica aqui: vive en PAR_Parametros y el administrador lo
+# ajusta con las pruebas de campo. Este script lee el de la hoja si existe, y si
+# no cae al declarado en el modelo. Que la hoja y el modelo digan cosas distintas
+# es en si un fallo.
+UMBRAL_GPS = PARAMETROS["UMBRAL_GPS"][0]
+
+if "PAR_Parametros" in wb.sheetnames:
+    h = encabezados("PAR_Parametros")
+    if "ParametroID" in h and "Valor" in h:
+        iv = h.index("Valor")
+        for r in wb["PAR_Parametros"].iter_rows(min_row=2, values_only=True):
+            if not r or r[0] in (None, ""):
+                continue
+            clave = str(r[0]).strip()
+            if clave not in PARAMETROS:
+                aviso("F-13", "PAR_Parametros tiene '%s', que el modelo no declara" % clave)
+                continue
+            esperado = PARAMETROS[clave][0]
+            actual = r[iv]
+            if clave == "UMBRAL_GPS" and actual is not None:
+                UMBRAL_GPS = actual
+            if actual is None:
+                falla("F-13", "PAR_Parametros '%s' esta vacio. Las reglas que lo leen no "
+                              "resolveran" % clave)
+            elif float(actual) != float(esperado):
+                aviso("F-13", "PAR_Parametros '%s' vale %s en la hoja y %s en el modelo. Si es un "
+                              "ajuste de campo, actualiza PARAMETROS en modelo_objetivo.py"
+                      % (clave, actual, esperado))
+        faltan = set(PARAMETROS) - {str(r[0]).strip() for r in
+                                    wb["PAR_Parametros"].iter_rows(min_row=2, values_only=True)
+                                    if r and r[0] not in (None, "")}
+        if faltan:
+            falla("F-13", "PAR_Parametros no tiene %s. RG-19 y RG-01 los leen con LOOKUP()"
+                  % sorted(faltan))
+        else:
+            oks.append("PAR_Parametros tiene los %d parametros que declara el modelo" % len(PARAMETROS))
 
 if "MAN_Mantenimientos" in wb.sheetnames:
     h = encabezados("MAN_Mantenimientos")

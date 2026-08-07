@@ -159,6 +159,23 @@ MODELO = {
             col("Activo", "Yes/No", valor_inicial="TRUE"),
         ]),
 
+    "PAR_Parametros": dict(
+        grupo="Catalogos",
+        proposito=("Umbrales que el administrador ajusta con las pruebas de campo, sin tocar la "
+                   "configuracion de la aplicacion. Existe porque un numero magico escondido en "
+                   "una expresion no se puede calibrar: hay que abrir el editor, encontrarlo y "
+                   "arriesgarse a romper la regla. Aqui es una celda."),
+        nueva=True,
+        acceso_por_lookup=True,   # no la referencia nadie: se lee con LOOKUP()
+        columnas=[
+            col("ParametroID", "Text", pk=True),
+            col("Nombre", "Text", obligatoria=True),
+            col("Valor", "Decimal", obligatoria=True),
+            col("Unidad", "Text"),
+            col("Descripcion", "LongText"),
+            col("Activo", "Yes/No", valor_inicial="TRUE"),
+        ]),
+
     "FRE_Frecuencias": dict(
         grupo="Catalogos",
         proposito="Periodicidad del mantenimiento preventivo.",
@@ -267,8 +284,9 @@ MODELO = {
                 valid_if="DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]",
                 mensaje_error="Ubicacion fuera de rango: debe estar junto al activo para cerrar."),
             col("Precision_GPS", "Number", valor_inicial="USERLOCATIONACCURACY()", editable=False),
-            col("CierreConExcepcion", "Yes/No", formula="[Precision_GPS] > 50",
-                nota="Supuesto D-04: umbral 50 m. Se calcula, no se edita (RG-19)"),
+            col("CierreConExcepcion", "Yes/No",
+                formula='[Precision_GPS] > LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor")',
+                nota="Se calcula, no se edita (RG-19). El umbral vive en PAR_Parametros"),
             col("MotivoExcepcion", "LongText", nota="Obligatorio si CierreConExcepcion es verdadero"),
             col("RequiereSegundaVisita", "Yes/No", valor_inicial="FALSE"),
             col("MotivoPendienteID", "Ref", ref="MOT_MotivosPendiente"),
@@ -669,6 +687,25 @@ RETIPADOS = {
     },
 }
 
+# ------------------------------- valores iniciales de PAR_Parametros
+#
+# Se declaran aqui para que el verificador pueda contrastar la hoja contra el
+# modelo. El administrador los ajusta EN LA HOJA tras las pruebas de campo; lo
+# que no puede pasar es que la hoja diga una cosa y las reglas asuman otra.
+PARAMETROS = {
+    "UMBRAL_GPS": (40, "m",
+                   "Error del satelite por encima del cual el cierre se marca como excepcional "
+                   "(RG-19). La precision tipica de un movil a cielo abierto es de 4,9 m segun "
+                   "GPS.gov, asi que 40 deja unas ocho veces de margen para montana y estructuras. "
+                   "D-04 decia 50; se baja a 40 al comprobar que 45 m ya es nueve veces la norma."),
+    "RADIO_GEOFENCING_KM": (1.0, "km",
+                            "Radio provisional de RG-01 mientras TIP_TiposActivo.RadioGeofencingKm "
+                            "este vacio en los 18 tipos. La version definitiva es por tipo."),
+    "DISTANCIA_ESCANEO_CIERRE_KM": (0.5, "km",
+                                    "Diferencia maxima entre donde se escaneo y donde se cerro "
+                                    "antes de senalarlo en el reporte (RG-13). No bloquea."),
+}
+
 # ----------------------------------------- catalogos con clave legible
 #
 # Tablas donde LA CLAVE ES EL VALOR QUE EL DATO YA GUARDABA (regla R-8), no un
@@ -797,12 +834,16 @@ REGLAS = [
                       "presencia no quedaba probada.")),
     dict(id="RG-19", tabla="MAN_Mantenimientos", columna="CierreConExcepcion",
          tipo="App formula", cubre="D-04",
-         expresion="[Precision_GPS] > 50",
-         descripcion=("Marca el cierre como excepcional cuando el error del satelite supera los 50 "
-                      "metros que fija D-04. Sin ella la columna existe y nadie la puebla: un "
-                      "cierre con 45 m de error seria indistinguible de uno con 8 m, y ahi se cae "
-                      "la cadena de evidencia, que es para lo que existe el sistema. El umbral no "
-                      "hay que consultarlo, ya esta decidido.")),
+         expresion='[Precision_GPS] > LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor")',
+         descripcion=("Marca el cierre como excepcional cuando el error del satelite supera el "
+                      "umbral. Sin ella la columna existe y nadie la puebla: un cierre con 45 m de "
+                      "error seria indistinguible de uno con 8 m, y ahi se cae la cadena de "
+                      "evidencia. EL UMBRAL ES UN PARAMETRO, no un numero en la expresion: se "
+                      "calibra con las pruebas de campo y lo ajusta el administrador en una celda, "
+                      "sin abrir el editor. Provisional 40 m, que es unas ocho veces la precision "
+                      "tipica de un movil a cielo abierto (4,9 m segun GPS.gov) y deja margen para "
+                      "montana y estructuras. D-04 decia 50; se baja a 40 tras comprobar que 45 m "
+                      "ya es nueve veces la norma.")),
     dict(id="RG-16", tabla="ACT_Activos", columna="Activo",
          tipo="App formula", cubre="Baja de activos",
          expresion='[EstadoActivoID].[Nombre] <> "Retirado"',

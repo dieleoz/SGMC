@@ -153,6 +153,9 @@ Mientras esto no se resuelva, cualquier trabajo de configuración se hace sobre 
       no hay `Show_If` ni `Required_If` que lo imponga —depende de `OT.Tipo`, hoy vacía—, y
       `ObservacionRechazo` es la traza de la devolución del supervisor, sin regla. Un campo que
       existe y nada puebla es la misma patología que `CodigoQR`: estructura sin comportamiento
+- [ ] **Crear la pestaña `PAR_Parametros` en la hoja.** Tres filas. Prompt listo en
+      `docs/prompts/PROMPT_AGENTE_HOJA_PAR_PARAMETROS.md`. Los umbrales dejan de estar escondidos
+      en las expresiones y pasan a ser celdas que el administrador calibra con las pruebas de campo
 - [ ] **Fase B: cablear en AppSheet** siguiendo `ESPEC-002`. Arranca cuando `verificar_faseA.py`
       vuelva a imprimir `FASE A CERRADA`
 - [x] **`IsPartOf` sobre `MAN_Mantenimientos.OTID`: DECIDIDO el 7 de agosto de 2026. Va sin él.**

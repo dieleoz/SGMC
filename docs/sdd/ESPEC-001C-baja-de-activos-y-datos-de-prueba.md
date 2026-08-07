@@ -174,8 +174,8 @@ kilómetros, la regla RG-01 se puede validar hoy mismo: una pasa y la otra tiene
 | `FechaHoraEscaneo` | `2026-08-07 08:00:00` | `2026-08-07 10:30:00` |
 | `EstadoActivoID` | `1` | `3` |
 | `Coordenadas_Cierre` | `4.728512, -74.114531` | `4.650000, -74.100000` |
-| `Precision_GPS` | `8` | `65` |
-| `CierreConExcepcion` | `FALSE` | `TRUE` · **calculada por RG-19**: `65 > 50`. Con el `45` original la fórmula daría `FALSE` y la fila se contradiría con D-04 |
+| `Precision_GPS` | `8` | `45` |
+| `CierreConExcepcion` | `FALSE` | `TRUE` · **calculada por RG-19**: `45 > 40`. El umbral vive en `PAR_Parametros`, no en la expresión |
 | `MotivoExcepcion` | vacío | `Prueba de excepcion por GPS deficiente` |
 | `RequiereSegundaVisita` | `FALSE` | `TRUE` |
 | `MotivoPendienteID` | vacío | `MOT-01` |

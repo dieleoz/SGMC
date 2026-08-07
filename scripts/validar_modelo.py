@@ -86,6 +86,9 @@ for tabla, d in MODELO.items():
         if c["tipo"] == "Ref" and c.get("ref"):
             entrantes[c["ref"]].add(tabla)
 raices = {"MAN_Mantenimientos", "OT_OrdenesTrabajo", "NOV_Novedades", "ASG_AsignacionZona"}
+# Una tabla de configuracion no la referencia nadie: se lee con LOOKUP(). Lo
+# declara ella misma en el modelo, no una excepcion escondida en el validador.
+raices |= {t for t, d in MODELO.items() if d.get("acceso_por_lookup")}
 for tabla in MODELO:
     salientes = [c for c in MODELO[tabla]["columnas"] if c["tipo"] == "Ref"]
     # Una hoja legitima: cuelga de un padre con IsPartOf, luego nadie la referencia

@@ -8,7 +8,7 @@ Este documento define el sistema que se va a construir, no el que existe. El act
 descrito en `AUDITORIA_PLAN_Y_ROADMAP.md` y no sirve como base: sus referencias no están
 cableadas, cuatro tablas están vacías y la cadena relacional existe solo en el papel.
 
-**27 tablas · 194 columnas · 38 referencias · 20 reglas**
+**28 tablas · 200 columnas · 38 referencias · 20 reglas**
 
 ---
 
@@ -35,6 +35,7 @@ Cinco reglas que el modelo anterior no tenía, y cuya ausencia explica sus fallo
 | `ASG_AsignacionZona` | Que unidades funcionales atiende cada tecnico. Resuelve el supuesto D-03: un tecnico puede tener varias, de modo que la relacion es de muchos a muchos y no cabe como columna en USR_Usuarios. |
 | `EOT_EstadosOrden` | Ciclo de vida de la orden segun el supuesto D-06. Declararlo como catalogo, y no como texto libre, es lo que permite medir cumplimiento. |
 | `MOT_MotivosPendiente` | Motivos tipificados de trabajo incompleto, supuesto D-07. Si el tecnico no tiene donde declarar por que no pudo terminar, fuerza un cierre falso. |
+| `PAR_Parametros` | Umbrales que el administrador ajusta con las pruebas de campo, sin tocar la configuracion de la aplicacion. Existe porque un numero magico escondido en una expresion no se puede calibrar: hay que abrir el editor, encontrarlo y arriesgarse a romper la regla. Aqui es una celda. |
 | `NOV_Novedades` | Hallazgos del tecnico en ruta: activos no inventariados o fallas fuera de programacion. Supuesto D-08. Sin esta via los hallazgos se pierden o acaban en WhatsApp, que es lo que el sistema viene a reemplazar. |
 | `PLA_PlanMantenimiento` | Que tarea preventiva toca a cada activo y cada cuanto. Es lo que convierte al sistema en gestion de mantenimiento y no en un registro de formularios: de aqui salen las ordenes, en lugar de crearlas a mano una por una. |
 | `FAL_ModosFalla` | Taxonomia de fallas por tipo de activo. Sin clasificar la falla no hay ingenieria de mantenimiento posible: no se puede calcular tiempo medio entre fallas, ni saber que componente falla mas, ni pasar de correctivo a predictivo. |
@@ -243,7 +244,7 @@ erDiagram
 
 ## 4. Definición de las tablas
 
-### 4.1 Catalogos (13)
+### 4.1 Catalogos (14)
 
 #### `SED_Sedes`
 
@@ -357,6 +358,19 @@ Motivos tipificados de trabajo incompleto, supuesto D-07. Si el tecnico no tiene
 | `GeneraSeguimiento` | Yes/No |  |  |  | Valor inicial: `TRUE` |
 | `Activo` | Yes/No |  |  |  | Valor inicial: `TRUE` |
 
+#### `PAR_Parametros` · **NUEVA**
+
+Umbrales que el administrador ajusta con las pruebas de campo, sin tocar la configuracion de la aplicacion. Existe porque un numero magico escondido en una expresion no se puede calibrar: hay que abrir el editor, encontrarlo y arriesgarse a romper la regla. Aqui es una celda.
+
+| Columna | Tipo | Clave | Referencia | Obligatoria | Nota |
+|---|---|---|---|---|---|
+| `ParametroID` | Text | PK |  |  |  |
+| `Nombre` | Text |  |  | Sí |  |
+| `Valor` | Decimal |  |  | Sí |  |
+| `Unidad` | Text |  |  |  |  |
+| `Descripcion` | LongText |  |  |  |  |
+| `Activo` | Yes/No |  |  |  | Valor inicial: `TRUE` |
+
 #### `FRE_Frecuencias`
 
 Periodicidad del mantenimiento preventivo.
@@ -465,7 +479,7 @@ Ejecucion real en campo. Cuelga de la orden y es padre de la evidencia.
 | `EstadoActivoID` | Ref |  | `EST_Activo` | Sí | Estado en que queda el activo tras la intervencion. No existe en produccion: se crea. El Excel local tiene 'Estado Final', que produccion no tiene |
 | `Coordenadas_Cierre` | LatLong |  |  | Sí | Valor inicial: `HERE()` |
 | `Precision_GPS` | Number |  |  |  | Valor inicial: `USERLOCATIONACCURACY()` |
-| `CierreConExcepcion` | Yes/No |  |  |  | Supuesto D-04: umbral 50 m. Se calcula, no se edita (RG-19) |
+| `CierreConExcepcion` | Yes/No |  |  |  | Se calcula, no se edita (RG-19). El umbral vive en PAR_Parametros |
 | `MotivoExcepcion` | LongText |  |  |  | Obligatorio si CierreConExcepcion es verdadero |
 | `RequiereSegundaVisita` | Yes/No |  |  |  | Valor inicial: `FALSE` |
 | `MotivoPendienteID` | Ref |  | `MOT_MotivosPendiente` |  |  |
@@ -772,10 +786,10 @@ Cubre: Prueba de presencia
 
 ### RG-19 · App formula sobre `MAN_Mantenimientos`.`CierreConExcepcion`
 
-Marca el cierre como excepcional cuando el error del satelite supera los 50 metros que fija D-04. Sin ella la columna existe y nadie la puebla: un cierre con 45 m de error seria indistinguible de uno con 8 m, y ahi se cae la cadena de evidencia, que es para lo que existe el sistema. El umbral no hay que consultarlo, ya esta decidido.
+Marca el cierre como excepcional cuando el error del satelite supera el umbral. Sin ella la columna existe y nadie la puebla: un cierre con 45 m de error seria indistinguible de uno con 8 m, y ahi se cae la cadena de evidencia. EL UMBRAL ES UN PARAMETRO, no un numero en la expresion: se calibra con las pruebas de campo y lo ajusta el administrador en una celda, sin abrir el editor. Provisional 40 m, que es unas ocho veces la precision tipica de un movil a cielo abierto (4,9 m segun GPS.gov) y deja margen para montana y estructuras. D-04 decia 50; se baja a 40 tras comprobar que 45 m ya es nueve veces la norma.
 
 ```
-[Precision_GPS] > 50
+[Precision_GPS] > LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor")
 ```
 
 Cubre: D-04

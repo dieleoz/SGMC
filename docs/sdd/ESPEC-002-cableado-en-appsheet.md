@@ -370,12 +370,24 @@ La versión con radio por tipo entra cuando se pueblen los 18. Queda anotado com
 
 **RG-03:** `MotivoExcepcion`, `Required_If` = `[CierreConExcepcion] = TRUE`.
 
-**RG-19:** `MAN_Mantenimientos.CierreConExcepcion`, `App formula` = `[Precision_GPS] > 50`.
+**RG-19:** `MAN_Mantenimientos.CierreConExcepcion`, `App formula`:
 
-> El umbral de 50 metros lo fija **D-04**, ya decidido: no hay que consultarlo. Sin esta regla la
-> columna existe y **nadie la puebla**, con lo que un cierre con 45 m de error del satélite sería
-> indistinguible de uno con 8 m. Ahí se cae la cadena de evidencia, que es para lo que existe el
-> sistema. Al ser `App formula`, el técnico no puede desmarcarla.
+```
+[Precision_GPS] > LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor")
+```
+
+> **El umbral es un parámetro, no un número en la expresión.** Vive en `PAR_Parametros` y el
+> administrador lo ajusta en una celda tras las pruebas de campo, sin abrir el editor ni arriesgarse
+> a romper la regla. Provisional: **40 m**.
+>
+> El número sale de un dato, no de una impresión: un móvil con GPS es preciso a unos **4,9 m a
+> cielo abierto** ([GPS.gov](https://www.gps.gov/gps-accuracy)), y empeora en montaña y cerca de
+> estructuras — que es el corredor. 40 m deja unas ocho veces de margen. D-04 decía 50; se baja al
+> comprobar que 45 m ya es nueve veces la norma.
+>
+> Sin esta regla la columna existe y **nadie la puebla**: un cierre con 45 m de error sería
+> indistinguible de uno con 8 m. Al ser `App formula` el técnico no puede desmarcarla, **y por
+> RG-20 tampoco puede editar el `Precision_GPS` que la decide**.
 
 **RG-04, Security Filter** sobre `ACT_Activos`:
 
