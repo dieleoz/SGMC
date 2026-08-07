@@ -27,6 +27,12 @@ Ninguna de las tres es cierta para una parte importante del parque.
 | `Plan Maestro de Mantenimiento ITS_TI.xlsx` | 24 tipos de equipo, cantidades reales, tarea, periodicidad, herramienta y **personal** |
 | `PLAN_MANTENIMIENTO_SISGA_2026.docx` | El plan vigente, con alcance por subsistema |
 | `Plan de actividades de mantenimiento 2025 Componente ITS.xls` | **Cronograma contractual**, supervisado por JOYCO S.A.S. Es contra lo que mide la interventoría |
+| `PROPUESTA - PLAN MTTO DC 2016.xlsx` | **La manta**: rejilla semanal tarea × sector, con planeadas contra ejecutadas |
+| `2-MANTENIMIENTO.pdf` | Flujo de correctivo, SLA con números, y **GIMAN**, el GMAO que este sistema replica |
+| `Informe … enero 2025 v1.1.docx` | Las secciones que el informe mensual exige |
+
+**Los siete documentos están leídos y destilados en [`CONTEXTO_OPERACION.md`](CONTEXTO_OPERACION.md).**
+Lo que sigue en este documento son los huecos de modelo; lo que aporta cada fuente está allí.
 
 ## 2. El tamaño real
 
@@ -231,7 +237,107 @@ antes de la retención contractual» decide.
 
 ---
 
-## 9. Lo que NO cambia
+## 9. El correctivo: lo más grande que falta
+
+Fuente: `2-MANTENIMIENTO.pdf` §6 y §7. Detalle en [`CONTEXTO_OPERACION.md`](CONTEXTO_OPERACION.md) §3.
+
+**Hoy `OT_OrdenesTrabajo` tiene `FechaCreacion` y `FechaCierre`.** Eso da una duración total, y la
+duración total no es ninguna de las dos cosas que se miden en un contrato de mantenimiento:
+
+- **Tiempo de respuesta** — desde el aviso hasta que **empiezan** los trabajos.
+- **Tiempo de resolución** — desde el aviso hasta que está resuelta y el cliente informado.
+- **Reloj parado** — el tiempo bloqueado por terceros o fuerza mayor **no cuenta**.
+
+Sin `HoraAviso`, `HoraInicioTrabajos` y un acumulado de reloj parado, el sistema **no puede calcular
+ninguno de los dos**. Y sin reloj parado, cualquier espera de repuesto se lee como incumplimiento.
+
+**La criticidad tampoco es opinión:** se define por porcentaje de instalación afectada, y de ahí
+salen los plazos.
+
+| Criticidad | Servicio en avería | Respuesta | Resolución |
+|---|---|---|---|
+| Total / Crítica | 75–100 % | 2 h | 4 h |
+| Parcial grave | 25–75 % | 4 h | 12 h |
+| Parcial leve | ≤ 25 % | 12 h | 48 h |
+
+**Qué cambia**
+
+```
+OT_OrdenesTrabajo gana   CriticidadID · HoraAviso · HoraInicioTrabajos · RelojParadoMin
+                          NivelAtencion (N1 · N2 · N3)  ← para el escalado
+CRI_Criticidad     nuevo  catálogo con los plazos, para no enterrarlos en una expresión
+```
+
+**Advertencia de procedencia: esos plazos son de ETRA en el corredor Neiva–Girardot, no del Sisga.**
+Sirven como forma, no como cifra. Antes de codificarlos hay que confirmar los del Sisga — y si no
+existen, decidir si el sistema los mide igual.
+
+**Y hay una decisión de alcance del piloto detrás:** si el piloto incluye correctivo, `CU-02` deja
+de estar diferido y `OT_OrdenesTrabajo` necesita `Adds`. Hoy está aplazado.
+
+---
+
+## 10. Perfiles del técnico
+
+**Planteado por operación:** el usuario debería tener propiedades —electricista, alturas,
+electrónico, ayudante, SISO— y programarse según ellas. Un técnico puede estar o no habilitado.
+
+**Qué cambia**
+
+```
+CER_Certificaciones   catálogo: Alturas · Electricista · Electrónico · Ayudante · SISO
+USR_Certificaciones   usuario × certificación · fecha de vencimiento
+```
+
+Dos tablas de cuatro columnas. Lo que sí toca algo construido es **la asignación**: hoy
+`ASG_AsignacionZona` asigna técnico a unidad funcional y el filtro RG-04 se apoya en eso. Asignar
+por especialidad significa que la asignación deja de depender solo de la zona.
+
+**La parte que muerde es la vigencia.** Un certificado de alturas caduca. Si el sistema decide quién
+puede hacer qué, tiene que saber si sigue vigente **el día del trabajo** — y eso ya no es una
+etiqueta, es una regla que se evalúa contra una fecha.
+
+**Un dato en contra, y conviene tenerlo escrito:** GIMAN, el GMAO de referencia, registra al técnico
+con **nombre, identificador y empresa**, nada más. Resolvió la asignación por zona y por brigada, y
+funcionó. No invalida la propuesta; sí sugiere que no es lo primero.
+
+**Va a Fase 2**, por decisión de operación del 2026-08-07.
+
+**Y falta un nivel intermedio que GIMAN sí tiene:** Técnico → Supervisor/Capataz → **Cuadrilla**.
+Nuestro modelo salta de técnico a zona sin brigada.
+
+---
+
+## 11. El informe mensual, y tres columnas que no se retiran
+
+El informe de enero 2025 tiene secciones que el modelo debe poder alimentar. Dos hallazgos:
+
+**El anexo sale del sistema tal cual.** Fotografías con su coordenada y su hora, más el detalle del
+checklist ítem por ítem. `FOT_Fotografias` y `CHD_ChecklistDetalle` ya lo dan **sin teclear nada**.
+Para una preventiva, el checklist **es** la descripción de lo que se hizo.
+
+**Pero el correctivo no cabe en un checklist.** Cuando se repara una avería, el informe pide qué
+estaba averiado y qué repuesto se usó, y eso no sale de una lista de sí/no. Dos salidas, las dos
+baratas:
+
+- Reactivar `Diagnostico` y `Repuestos_Utilizados` con `Required_If [Tipo] = "Correctivo"`.
+- O que el correctivo use un **formulario propio** con esas preguntas — más coherente con la capa de
+  tareas de la sección 3, y no cuesta columnas.
+
+**Consecuencia inmediata sobre la Fase A:** `Diagnostico`, `Trabajo_Realizado` y
+`Repuestos_Utilizados` están hoy en `CAMPOS_RETIRADOS` de `MAN_Mantenimientos`. **No se borran.**
+Borrarlas y volver a necesitarlas es cambiar la base después de producción, que es justo lo que hay
+que evitar.
+
+**Otros dos huecos que abre el informe:**
+
+- Su Tabla 1 es una matriz **unidad funcional × tipo de equipo**, y las UF se subdividen —2,1 · 2,2 ·
+  4,1 · 4,2—. `UNF_UnidadesFuncionales` es plana.
+- Incluye un tipo **`ILUMINACION`** que no está en nuestros 18.
+
+---
+
+## 12. Lo que NO cambia
 
 Conviene decirlo, porque llevamos once rondas de revisión sobre la Fase B y sigue siendo válida.
 
@@ -244,13 +350,22 @@ ubicación**. Se retiran dos columnas que estaban mal colocadas. Nada de lo cons
 
 ---
 
-## 10. Preguntas abiertas
+## 13. Preguntas abiertas
 
-Ninguna se puede responder desde los documentos:
+Ninguna se puede responder desde los documentos. Los siete están leídos: lo que sigue aquí es lo que
+hay que preguntar en operación.
 
-1. **¿Cuántas estructuras** —puentes, viaductos— tienen paso de fibra, y están inventariadas?
-2. **¿El mantenimiento de fibra se programa por tramo o por ruta completa?** De ahí salen 1.200
+1. **El inventario real del Sisga.** Trabajamos con 355 activos de un maestro «muy similar», no el
+   de este corredor. Todo el dimensionamiento —1.916 órdenes al año, los 4,1 años de cuota— cuelga
+   de ahí. **Es el vacío más grande que queda.**
+2. **¿Cuántas estructuras** —puentes, viaductos— tienen paso de fibra, y están inventariadas?
+3. **¿El mantenimiento de fibra se programa por tramo o por ruta completa?** De ahí salen 1.200
    órdenes al año o 2.
-3. **¿Las 600 cajas existen en algún inventario** —Excel, plano, GIS— o hay que levantarlas?
-4. **¿Un tipo de equipo tiene siempre las mismas tareas**, o varían por unidad funcional?
-5. **La sede de Bogotá**, fuera del corredor: ¿UF vacía o UF administrativa?
+4. **¿Las 600 cajas existen en algún inventario** —Excel, plano, GIS— o hay que levantarlas?
+5. **¿Un tipo de equipo tiene siempre las mismas tareas**, o varían por unidad funcional?
+6. **La sede de Bogotá**, fuera del corredor: ¿UF vacía o UF administrativa?
+7. **¿El Sisga tiene SLA contractuales propios?** Los plazos de la sección 9 son de otro corredor.
+8. **¿Quién puede dar el aviso de una correctiva?** ETRA lo restringe a operadores autorizados.
+9. **¿Hay almacén de repuestos gestionado**, o los repuestos se anotan en texto libre?
+10. **`PRUEBA MENSUAL CON INTERVENTORÍA`**: ¿la firma el interventor en la app, o basta registrar
+    que asistió? `FIR_Firmas` existe, pero ninguna tarea sabe exigir firma de un tercero.
