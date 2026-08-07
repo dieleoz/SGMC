@@ -62,6 +62,13 @@ edición. No infieras el nivel de acceso desde esa API.
 
 Este proyecto arrastra un historial de subsanaciones reportadas como cerradas que no lo estaban.
 
+**Y hay dos archivos que verificar, no uno.** Durante cinco rondas esta regla se aplicó solo a los
+datos: todo lo que las especificaciones afirmaban sobre **cómo se comporta AppSheet** salía de la
+memoria. Antes de escribir una regla, un tipo o un paso que dependa del comportamiento de la
+plataforma, **busca la página oficial**. Lo verificado está en
+`docs/PLATAFORMA_APPSHEET_VERIFICADO.md`, con su URL y su fecha; lo que no se encuentre se declara
+como supuesto, en la tabla del final de ese documento.
+
 - **No declares nada conforme por reporte. Verifícalo contra el archivo.** Vale también para los
   informes de otros agentes, incluidos los que te dan la razón: el arquitecto propuso una lista de
   catálogos con clave legible que incluía siete tablas **numéricas**. Se detectó volcando la

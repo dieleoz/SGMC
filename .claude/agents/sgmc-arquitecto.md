@@ -51,6 +51,12 @@ copia literal de `CodigoActivo`.
 ser `Ref`. Es el defecto raíz del sistema y `validar_modelo.py` lo comprueba en V-11. Si la
 especificación introduce una expresión nueva y no está en `REGLAS`, no está validada.
 
+**4b. ¿Está verificado contra la documentación de AppSheet, o sale de la memoria?** Es el punto
+ciego que descubrimos el 2026-08-07: llevabas cuatro rondas verificando datos contra
+`BD/*.xlsx` y ninguna verificando comportamiento contra Google. Lo confirmado está en
+`docs/PLATAFORMA_APPSHEET_VERIFICADO.md`. Si la especificación se apoya en un comportamiento que no
+figura ahí ni en la tabla de supuestos, exige la fuente o la declaración.
+
 **4. ¿Cabe en la plataforma?** Plan gratuito: los procesos programados **no se ejecutan**. Sin plan
 Core no hay API REST. Las imágenes van al Drive del propietario, hoy una cuenta personal con 15 GB.
 Una especificación que asume cualquiera de estas tres cosas es inejecutable, no discutible.

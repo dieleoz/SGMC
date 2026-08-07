@@ -13,6 +13,7 @@
 |---|---|
 | Entender qué es el proyecto | [README.md](README.md) |
 | Ver la arquitectura correcta que se va a construir | [docs/ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) |
+| Saber cómo se comporta AppSheet, con la cita oficial | [docs/BASE_CONOCIMIENTO_APPSHEET.md](docs/BASE_CONOCIMIENTO_APPSHEET.md) |
 | Cablear una referencia, o entender por qué el geofencing no funciona | [docs/sdd/ESPEC-002-cableado-en-appsheet.md](docs/sdd/ESPEC-002-cableado-en-appsheet.md) |
 | Construir cualquier cambio, y saber qué se aprueba antes de tocar producción | [docs/SDD_PIPELINE_SGMC.md](docs/SDD_PIPELINE_SGMC.md) |
 | Saber hasta dónde aguanta el sistema | `python scripts/capacidad.py` |
@@ -38,6 +39,7 @@ D:\@Proyect\Sisga\
 │
 ├── docs/                         Documentación técnica y funcional
 │   ├── historico/                 Documentos retirados. No usar como fuente
+│   ├── BASE_CONOCIMIENTO_APPSHEET.md   Comportamiento verificado contra Google
 │   ├── ARQUITECTURA_OBJETIVO_SGMC.md
 │   ├── SDD_PIPELINE_SGMC.md
 │   ├── ALCANCE_Y_SUPUESTOS_SGMC.md
@@ -158,6 +160,7 @@ D:\@Proyect\Sisga\
 | Bloqueantes verificados | [docs/AUDITORIA_PLAN_Y_ROADMAP.md](docs/AUDITORIA_PLAN_Y_ROADMAP.md) sección 3 | Verificable con `openpyxl` sobre `BD/` |
 | Fases y criterios de cierre | [docs/ROADMAP.md](docs/ROADMAP.md) | — |
 | Cableado de referencias | [docs/sdd/ESPEC-002-cableado-en-appsheet.md](docs/sdd/ESPEC-002-cableado-en-appsheet.md) | `python scripts/validar_modelo.py`, reglas V-14 a V-17 |
+| Comportamiento de la plataforma | [docs/BASE_CONOCIMIENTO_APPSHEET.md](docs/BASE_CONOCIMIENTO_APPSHEET.md) | Cita textual y URL oficial por cada afirmación |
 | Pantallas y vistas | [docs/especificaciones_visuales.md](docs/especificaciones_visuales.md) | Aplicación AppSheet |
 | Deriva documental conocida | [CLAUDE.md](CLAUDE.md) sección 8 | — |
 

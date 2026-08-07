@@ -17,6 +17,12 @@
 
 ## 1. Principio de este roadmap
 
+**Hay dos archivos contra los que verificar, no uno.** Los datos, en `BD/*.xlsx` y en el Sheets de
+producción. Y el comportamiento de la plataforma, en la documentación oficial de AppSheet, recogido
+en `BASE_CONOCIMIENTO_APPSHEET.md` con su cita y su URL. Durante cinco rondas de revisión solo se
+verificaba lo primero.
+
+
 Ninguna fase se declara cerrada sin un **criterio de cierre verificable**: un hecho que otra
 persona pueda comprobar leyendo el archivo o el sistema, no un reporte de avance.
 

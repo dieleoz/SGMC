@@ -71,6 +71,12 @@ El paso 4 no arranca sin las tres firmas, y una de ellas no es una opinión:
 | Pruebas | Positiva, negativa y lectura de vuelta, con criterio de cierre | No |
 | Arquitecto | Las siete preguntas, más `validar_modelo.py` en 0 errores | Parcialmente |
 
+**Hay una tercera fuente que verificar, y el pipeline no la cubría:** la documentación oficial de
+AppSheet. Los tres primeros pasos verifican datos contra `BD/*.xlsx`, pero todo lo que una
+especificación afirma sobre **cómo se comporta la plataforma** salía de la memoria. Lo verificado
+está en `BASE_CONOCIMIENTO_APPSHEET.md`, con cita y URL; de ahí salieron dos correcciones que
+ninguna otra comprobación habría encontrado.
+
 **`python scripts/validar_modelo.py` es el único gate totalmente objetivo del pipeline.** Si
 devuelve errores, no hay veredicto que valga. Todo lo demás es juicio, y por eso el arquitecto
 trabaja con presunción de rechazo: ante la duda, bloquea.

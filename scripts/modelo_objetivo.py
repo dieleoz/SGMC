@@ -671,9 +671,17 @@ RETIPADOS = {
 
 # ----------------------------------------- catalogos con clave legible
 #
-# Tablas cuya CLAVE es texto legible, no un numero. Solo contra estas es
-# legitimo comparar una columna Ref con un literal de texto: la referencia
-# guarda la clave, y aqui la clave ES la palabra.
+# Tablas donde LA CLAVE ES EL VALOR QUE EL DATO YA GUARDABA (regla R-8), no un
+# identificador inventado aparte. Solo contra estas es legitimo comparar una
+# columna Ref con un literal: la referencia guarda la clave, y aqui la clave es
+# ese mismo valor.
+#
+# Ojo con el alcance: de las nueve, solo EOT_EstadosOrden ('Cerrada') y
+# SEN_Sentidos ('SA') son palabras que alguien escribiria en una regla. Las otras
+# siete son surrogates con prefijo -OT-0001, MOT-01, SOS001-, y V-17 queda
+# apagada tambien para ellas. Es un alcance mayor del necesario, asumido a
+# proposito: afinar mas la lista cuesta mas de lo que ahorra, y hoy no existe
+# ninguna regla que compare contra un surrogate.
 #
 # EOT_EstadosOrden es el caso central: ESPEC-001B le puso 'Asignada', 'Cerrada'
 # y 'Suspendida' como clave A PROPOSITO, siguiendo la regla R-8, para que las 6

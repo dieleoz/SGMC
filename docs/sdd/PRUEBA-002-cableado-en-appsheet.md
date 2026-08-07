@@ -36,11 +36,13 @@ Excel*). No es el Excel local histórico, que describe otro modelo:
 
 - **Qué comprueba:** que *Regenerate Structure* leyó la hoja actual y no una versión en caché.
 - **Precondición:** paso 1 de `ESPEC-002` ejecutado.
-- **Acción:** en *Data > Columns*, contar las columnas de `MAN_Mantenimientos`.
-- **Resultado esperado:** **36**.
-- **Cómo se distingue el fallo:** 27 significa que no regeneró. **Más de 36 significa definiciones
-  de columna fantasma** que sobrevivieron al *Regenerate* —`MttoID`, `Tecnico_Asignado`,
-  `EstadoID`, `SedeID`—, que es la causa más probable y hay que retirarlas. Menos de 36 y distinto
+- **Acción:** en *Data > Columns*, contar las columnas **reales** de `MAN_Mantenimientos`. Las
+  virtuales se cuentan aparte: la documentación oficial confirma que *Regenerate Structure*
+  **añade columnas virtuales por su cuenta**, del tipo `Related FOT_Fotografias`.
+- **Resultado esperado:** **36 reales**, más las virtuales que AppSheet haya añadido, anotadas.
+- **Cómo se distingue el fallo:** 27 reales significa que no regeneró. **Más de 36 reales** son
+  definiciones fantasma que sobrevivieron —`MttoID`, `Tecnico_Asignado`, `EstadoID`, `SedeID`— y hay
+  que retirarlas; **no confundirlas con las virtuales**, que son legítimas. Menos de 36 y distinto
   de 27, que la hoja cambió sin que nadie lo registrara.
 
 ### P-02 — Las siete tablas nuevas existen en la app
@@ -202,10 +204,15 @@ Excel*). No es el Excel local histórico, que describe otro modelo:
 
 - **Precondición:** RG-17 configurada como `Required_If` = `[EstadoActivoID].[Nombre] = "Retirado"`.
 - **Acción:** **sobre el activo 34, que ya está `Retirado`** — no se cambia el estado de ningún
-  otro—, **vaciar** `FechaBaja` e intentar guardar.
+  otro—, **vaciar `FechaBaja` en el formulario de la aplicación**, no en el Sheets, e intentar
+  guardar.
 - **Resultado esperado:** **no deja guardar** hasta rellenar `FechaBaja`.
-- **Restitución, en la misma prueba:** devolver `FechaBaja = 2026-08-07`. Es una celda y es la única
-  escritura que P-17 produce.
+- **Restitución:** si la regla funciona, **no hace falta**. AppSheet rechaza el guardado, se sale
+  con *Cancelar* y **nada persiste**: por eso el vaciado va en el formulario y no en la hoja. La
+  restitución solo aplica a la rama de fallo —si llegó a guardar—, y entonces se devuelve
+  `FechaBaja = 2026-08-07`.
+- **Se ejecuta la última de la tanda**, como cinturón: si algo la interrumpe, no arrastra a las
+  demás.
 - **Cómo se distingue el fallo:** si guarda con la fecha vacía, la condición nunca se cumple —mismo
   defecto que P-16— y el histórico no podrá explicar por qué el activo dejó de recibir
   mantenimiento.
@@ -231,7 +238,7 @@ que **el dato es correcto**, y para eso hace falta el levantamiento de campo.
 
 | Regla | Qué es | Por qué no se prueba |
 |---|---|---|
-| RG-08, RG-12 | Bot programado | No se ejecutan en el plan gratuito. D-B |
+| RG-08, RG-12 | Bot programado | No se ejecutan solas en el plan gratuito ni sin app desplegada. **Su lógica sí se puede ejercitar a mano con `Test`** en Automation > Bots. D-B |
 | RG-06, RG-07, RG-10 | Bot por evento | Mismo plan |
 | RG-11 | `App formula` | Usa `[FrecuenciaID].[Dias]`, referencia aplazada a `ESPEC-003` |
 | RG-13 | Verificación de evidencia | Excluida por alcance, no por falta de dato |

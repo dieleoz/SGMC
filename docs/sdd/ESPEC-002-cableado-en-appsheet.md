@@ -86,6 +86,20 @@ porque AppSheet las creó solo.
 Terminar el bloque tras el *Regenerate* deja exactamente el estado que hay que evitar: tablas con la
 clave adivinada y referencias automáticas colgando de ella.
 
+**Cómo elige AppSheet, según su documentación** (verificado el 2026-08-07, ver
+`docs/PLATAFORMA_APPSHEET_VERIFICADO.md`):
+
+> Examina las columnas **de izquierda a derecha** buscando una con valores únicos y la convierte en
+> clave. **Si ninguna sirve, examina pares de columnas y las combina en una clave compuesta.**
+
+**La clave compuesta es el peligro que hay que vigilar**, y no estaba documentado hasta hoy: contra
+una clave de dos columnas **ninguna referencia del bloque 3 resolverá**. Si al leer una tabla en 4.2
+la clave aparece como combinación, hay que corregirla antes de seguir.
+
+Y las referencias las infiere **por coincidencia de nombre** —«si Orders tiene una columna
+`Customer Name` y la clave de Customers es `Name`, se asume `Ref`»—, que es exactamente por qué
+existen `View Ref (SedeID)` y `View Ref (EstadoID)` con los nombres viejos.
+
 ### 4.1 Regenerar y dar de alta
 
 *Data > Tables > [tabla] > Regenerate Structure* sobre: `ACT_Activos`, `OT_OrdenesTrabajo`,
@@ -446,14 +460,25 @@ sobre producción.**
 
 1. **Restaurar la versión `1.000238` en *Manage > Versions* es la reversión completa de esta fase**,
    siempre que nadie haya escrito en el Sheets durante la ventana.
-2. **Excepción: solo las filas creadas durante la ventana.** La única prueba que **crea** es P-04;
-   P-08 edita una fila que ya existe y P-12 solo lee. Esas filas nuevas se reconocen por su clave
+2. **Filas creadas durante la ventana.** La única prueba que **crea** filas es P-04; P-08 edita una
+   que ya existe y P-12 solo lee. Esas filas nuevas se reconocen por su clave
    `UNIQUEID()` —una cadena aleatoria, no un `TEST-`— y como RG-15 retira el borrado **se eliminan a
    mano en el Sheets**.
 
    **`TEST-MTTO-001` y sus 20 hijos NO se tocan.** Son datos de la Fase A, certificados en
    `ACTA-002`: 3 fotografías, 1 firma, 1 checklist y 15 detalles. Son la cadena de evidencia
    poblada, no residuo de esta fase.
+
+3. **Escrituras sobre `ACT_Activos` fila 34, que es dato maestro y no de prueba.** Dos pruebas la
+   tocan y hay que devolverla como estaba:
+
+   | Prueba | Qué escribe | Cómo se restituye |
+   |---|---|---|
+   | P-16 | Guarda la fila para forzar el recálculo de la `App formula`, tocando `Observaciones` | Devolver `Observaciones` a su valor anterior. **Anótalo antes de tocarlo** |
+   | P-17 | Vacía `FechaBaja` en el formulario | La rama que pasa **no persiste nada**: AppSheet rechaza el guardado y se cancela. Si la regla falla y llega a guardar, devolver `FechaBaja = 2026-08-07` |
+
+   Ninguna de las dos cambia el `EstadoActivoID`, así que el activo 34 sigue `Retirado` en todo
+   momento.
 3. Restaurar el respaldo del Sheets **no** es reversión de la Fase B: tiraría también toda la Fase A.
    Solo se usa si algo corrompe los datos, no la configuración.
 4. Anotar en qué paso falló y con qué mensaje **antes** de reintentar.

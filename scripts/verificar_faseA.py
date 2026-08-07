@@ -255,12 +255,21 @@ for tabla, columna, destino in CADENA:
 #     solo por el fixture de la Fase A, y seran aleatorios en cuanto la
 #     aplicacion cree la primera fila.
 def _clave_es_legible(hoja):
+    """Legible solo si TODAS las claves lo son.
+
+    Mirar solo la primera fila hacia que el resultado dependiera del ORDEN de la
+    hoja, que AppSheet no garantiza: reordenando USR_Usuarios para que la clave
+    '3aa202ee' quedara primera, F-11 exigia meterla en CLAVE_LEGIBLE. Y esa
+    exigencia es falsa -su clave es un surrogate numerico 2..11 con una anomalia-
+    y habria apagado V-17 para seis referencias.
+    """
     ws = wb[hoja]
-    for r in ws.iter_rows(min_row=2, values_only=True):
-        if r and r[0] not in (None, ""):
-            v = r[0]
-            return isinstance(v, str) and not v.replace(".", "").replace("-", "").isdigit()
-    return None                      # tabla vacia: no se puede decidir
+    claves = [r[0] for r in ws.iter_rows(min_row=2, values_only=True)
+              if r and r[0] not in (None, "")]
+    if not claves:
+        return None                  # tabla vacia: no se puede decidir
+    return all(isinstance(v, str) and not v.replace(".", "").replace("-", "").isdigit()
+               for v in claves)
 
 
 for tabla in MODELO:
@@ -268,6 +277,8 @@ for tabla in MODELO:
         continue
     legible = _clave_es_legible(tabla)
     if legible is None:
+        aviso("F-11", "%s esta vacia en la hoja: no se puede decidir si su clave es legible. "
+                      "La comprobacion se salta, y conviene saberlo" % tabla)
         continue
     if legible and tabla not in CLAVE_LEGIBLE:
         falla("F-11", "%s tiene clave de texto legible en la hoja y NO esta en CLAVE_LEGIBLE. "
