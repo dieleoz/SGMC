@@ -21,3 +21,6 @@ scratch/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Scripts de trabajo desechables
+scripts/scratch_*.py
