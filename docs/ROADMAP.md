@@ -2,8 +2,17 @@
 
 **Proyecto:** Sistema de Gestión de Mantenimiento en Campo
 **Cliente:** Concesión Transversal del Sisga S.A.S.
-**Actualizado:** 6 de agosto de 2026 | **Versión:** 3.0
-**Estado actual:** Arquitectura objetivo definida y validada. Propuesta enviada a Dirección y al líder funcional, a la espera de tres decisiones
+**Actualizado:** 7 de agosto de 2026 | **Versión:** 4.0
+**Estado actual:** Fase A cerrada sobre el archivo. Fase B especificada y aprobada, esperando orden de ejecución. Modelo de dominio en especificación tras incorporar el contexto operativo real
+
+> **Versión 4.0 — por qué cambia el enfoque.** Al leer los siete documentos de `contexto/` el
+> alcance creció: la operación real tiene varias tareas por tipo de equipo, cuatro clases de
+> mantenimiento, un flujo de correctivo con tiempos contractuales y cinco activos que no se visitan.
+> **Ya no cabe todo de una vez**, así que este roadmap deja de ser una lista de fases y pasa a tener
+> un **orden de implementación** con criterio explícito. Ver la sección 2.
+>
+> El documento funcional que se entrega es [`FUNCIONAL_SGMC.md`](FUNCIONAL_SGMC.md). El contexto
+> operativo destilado está en [`CONTEXTO_OPERACION.md`](CONTEXTO_OPERACION.md).
 
 > Esta versión corrige la anterior, que declaraba completadas al 100 % la Fase 0 y la Fase 1.
 > La auditoría del 6 de agosto de 2026 verificó contra el archivo que esa declaración era falsa.
@@ -31,12 +40,57 @@ completadas fases que dejaron cuatro tablas vacías y el control GPS inoperante.
 
 ---
 
-## 2. Estado por fase
+## 2. Orden de implementación
+
+**No se ordena por importancia: se ordena por lo que cuesta hacerlo tarde.**
+
+Es el riesgo que fijó operación — «que no falten campos, o cambiar la base y la aplicación después
+de salir a producción, es un problema». Una implementación progresiva **agrava** ese riesgo si se
+ordena mal: si el piloto sale con medio esquema, la otra mitad deja de ser una columna y pasa a ser
+una migración.
+
+De ahí salen tres clases, y el orden entre ellas no es negociable:
+
+| Clase | Cuándo | Por qué |
+|---|---|---|
+| **Esquema** — tablas y columnas | **Antes del piloto, todo junto** | `MAN_Mantenimientos` tiene 0 filas. Añadir hoy cuesta cero; después cuesta migración |
+| **Datos** — inventario, coordenadas | En medio, con las referencias ya tipadas | Así AppSheet valida cada fila al cargarla, gratis |
+| **Comportamiento** — reglas, permisos | Después, en cualquier orden | No tocan datos. Se endurece con el sistema andando |
+
+### La secuencia
+
+| # | Paso | Contenido | Depende de |
+|---|---|---|---|
+| **0** | **Fase B — cableado de referencias** | 15 columnas de `Text` a `Ref` | Especificada y aprobada. Espera `ORDEN-002` |
+| **1** | **Esquema completo** | `TAR_Tareas` · poblar `ROL_Roles` con los 12 · jerarquía de ubicación · columnas de tiempo en la orden · retirar `ACT.FrecuenciaID` y `TIP.FormularioID` | `ESPEC-003` y su veredicto |
+| **2** | **Carga del inventario** | 355 activos con `CodigoActivo`, sin coordenadas | Paso 1 |
+| **3** | **Reglas de integridad** | Imponer `QuienCambia` · estado de rechazo · valores de `TipoFirma` | Paso 1 |
+| **4** | **Piloto de campo** | El levantamiento de coordenadas **como primera orden de trabajo** | Pasos 2 y 3 |
+| **5** | **Correctivo** | Criticidad · pausas · escalado N1/N2/N3 | Decisión de alcance |
+| **6** | **Fase 2 de modelo** | Certificaciones múltiples · mediciones de hilo · estructuras · almacén | Piloto en marcha |
+
+**El paso 1 es el único que no admite trocearse.** Los demás sí.
+
+### Lo que NO está en esta secuencia
+
+No es «más adelante»: es **no en el plan actual**. Ponerlo en una fase futura daría la impresión de
+que llega solo con tiempo, y no llega — llega con la decisión de licenciamiento **D-B**.
+
+- Generación automática de las órdenes del mes
+- Aviso al supervisor de que hay trabajo por recibir
+- Integración con el SCADA para abrir correctivas
+- Cualquier prueba automatizada, por falta de API REST
+
+---
+
+## 3. Estado por fase
 
 | Fase | Estado | Criterio de cierre |
 |---|---|---|
 | Sprint 0. Definición funcional | **Enviado, esperando respuesta** | Respuesta del líder funcional a las 14 decisiones, o supuesto declarado por vencimiento |
-| Fase 0.5. Reconciliación de modelos | **En curso, bloqueante** | Un solo modelo declarado como válido, y el otro retirado o alineado por decisión explícita |
+| Fase 0.5. Reconciliación de modelos | **Cerrada** el 2026-08-07 | `modelo_objetivo.py` es la fuente única; los documentos se generan de él |
+| **Fase A. Estructura y datos en la hoja** | **CERRADA** el 2026-08-07 | `verificar_faseA.py` sobre `Modelo de Datos (11).xlsx`: 59 conformes, 0 fallos. Ver `ACTA-004` |
+| **Fase B. Cableado de referencias** | **Especificada y aprobada**, sin ejecutar | 15 columnas convertidas a `Ref` y las 17 pruebas de `PRUEBA-002` pasadas |
 | Fase 1. Datos maestros | Bloqueada por Sprint 0 y Fase 0.5 | Coordenadas reales cargadas, columnas de GPS presentes en producción, sedes realineadas, bancos priorizados construidos |
 | Fase 2. Configuración | Bloqueada por Fase 1 | Reglas, filtro, formularios, bots y reportes configurados y verificados en la app |
 | Fase 3. Prueba controlada | Bloqueada por Fase 2 | Registros reales en `MAN_Mantenimientos` y en las tablas de evidencia, verificados leyendo el archivo |

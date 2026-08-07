@@ -1,4 +1,28 @@
-# 📖 MANUAL DE USUARIO Y GUÍA DE OPERACIÓN (MANUAL_DE_USUARIO.md)
+> # NO ENTREGAR. Describe un sistema que no es el actual.
+>
+> Revisado contra `scripts/modelo_objetivo.py` el 2026-08-07. **Contiene al menos nueve
+> afirmaciones que contradicen el modelo vigente**, y tres de ellas darían instrucciones que
+> corrompen datos:
+>
+> | # | Lo que dice el manual | Lo que es |
+> |---|---|---|
+> | 1 | Editar `CHD_ChecklistDetalle` para cambiar las preguntas | **`CHD` guarda respuestas.** Las preguntas viven en `FRM_Preguntas`. Editarlo corrompe el histórico |
+> | 2 | El filtro de seguridad usa `SedeID` | Usa `ASG_AsignacionZona` por unidad funcional (RG-05) |
+> | 3 | Geocierre con rango ≤ 1,0 km | 1 km no prueba nada. El radio va por tipo de activo, parametrizado |
+> | 4 | Bypass GPS = nota en `Observaciones` | Es `CierreConExcepcion` + `MotivoExcepcion` con umbral (RG-19) |
+> | 5 | Sección completa de escáner QR | **El QR se retiró del alcance** |
+> | 6 | `Latitud` y `Longitud` como atributos | Es `Ubicacion`, un solo campo LatLong |
+> | 7 | Correo automático al técnico al crear la OT | No existe esa regla, y el plan gratuito no ejecuta procesos programados |
+> | 8 | 15 atributos del activo | `ACT_Activos` tiene 17 columnas |
+> | 9 | El supervisor asigna la «Frecuencia» al crear la OT | La periodicidad es de la tarea, no de la orden |
+>
+> Además lleva emojis, que no van en entregables.
+>
+> **El documento funcional vigente es [`docs/FUNCIONAL_SGMC.md`](../docs/FUNCIONAL_SGMC.md).** Este
+> manual se reescribe contra él cuando el sistema esté construido, no antes: un manual escrito sobre
+> un sistema que aún cambia envejece antes de entregarse.
+
+# MANUAL DE USUARIO Y GUÍA DE OPERACIÓN (MANUAL_DE_USUARIO.md)
 
 **Proyecto:** Sistema de Gestión de Mantenimiento en Campo (SGMC)  
 **Cliente:** Concesión Transversal del Sisga S.A.S.  

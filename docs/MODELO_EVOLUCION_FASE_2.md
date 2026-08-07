@@ -241,8 +241,15 @@ antes de la retención contractual» decide.
 
 Fuente: `2-MANTENIMIENTO.pdf` §6 y §7. Detalle en [`CONTEXTO_OPERACION.md`](CONTEXTO_OPERACION.md) §3.
 
-**Hoy `OT_OrdenesTrabajo` tiene `FechaCreacion` y `FechaCierre`.** Eso da una duración total, y la
-duración total no es ninguna de las dos cosas que se miden en un contrato de mantenimiento:
+**Hoy `OT_OrdenesTrabajo` tiene `FechaProgramada` y `FechaCierre`.** Verificado contra
+`BD/Modelo de Datos (11).xlsx` y `modelo_objetivo.py`: **no existe ninguna fecha de creación**.
+
+Y eso es peor de lo que parece. `FechaCierre` menos `FechaProgramada` **no es una duración**: es
+adherencia al cronograma —si se cerró antes o después de lo previsto—. El sistema no sabe cuándo
+apareció el trabajo, solo cuándo estaba previsto. Para una preventiva eso basta. **Para una
+correctiva no existe el dato de partida**, porque una avería no se programa: ocurre.
+
+Ninguna de las tres cosas que se miden en un contrato de mantenimiento es derivable hoy:
 
 - **Tiempo de respuesta** — desde el aviso hasta que **empiezan** los trabajos.
 - **Tiempo de resolución** — desde el aviso hasta que está resuelta y el cliente informado.
@@ -263,10 +270,31 @@ salen los plazos.
 **Qué cambia**
 
 ```
-OT_OrdenesTrabajo gana   CriticidadID · HoraAviso · HoraInicioTrabajos · RelojParadoMin
+OT_OrdenesTrabajo gana   CriticidadID · HoraAviso · HoraInicioTrabajos
                           NivelAtencion (N1 · N2 · N3)  ← para el escalado
 CRI_Criticidad     nuevo  catálogo con los plazos, para no enterrarlos en una expresión
+PAU_Pausas         nuevo  hija de la orden: inicio · fin · motivo. El reloj parado se DERIVA
 ```
+
+**`RelojParadoMin` no puede ser una columna acumulada.** Un total que se lee y se reescribe
+**compite consigo mismo** en un backend offline-first sin transacciones: dos pausas registradas sin
+señal producen una pérdida de actualización silenciosa. Es literalmente el argumento por el que
+`OT_OrdenesTrabajo` perdió `Adds` en `ESPEC-002`. Va como tabla hija de eventos —solo se añade,
+nunca se recalcula— y el total sale de un `SUM()`.
+
+**`HoraInicioTrabajos` no se teclea, o no prueba nada.** RG-20 nos enseñó que un `Initial value` es
+editable, y que en offline-first `NOW()` es el reloj del teléfono. Las tres formas obvias fallan:
+
+| Forma | Por qué no sirve |
+|---|---|
+| `Initial value = NOW()` | Editable. El técnico puede cambiarla |
+| `DateTime` que teclea el operador | Nada impide rellenarla al cerrar en vez de al empezar |
+| `NOW()` en el dispositivo | Reloj del teléfono, no del servidor |
+
+**Solo vale si la escribe la transición de estado**: al pasar la orden a `En ejecucion`, un
+`ChangeTimestamp` la sella y `Editable_If = FALSE` la congela. Y aun así hay que decirlo entero:
+**quien escriba directamente en el Sheets se lo salta**, porque hay dos cuentas con permiso de
+edición. Eso no es gobierno, es arquitectura.
 
 **Advertencia de procedencia: esos plazos son de ETRA en el corredor Neiva–Girardot, no del Sisga.**
 Sirven como forma, no como cifra. Antes de codificarlos hay que confirmar los del Sisga — y si no
@@ -320,20 +348,29 @@ Para una preventiva, el checklist **es** la descripción de lo que se hizo.
 estaba averiado y qué repuesto se usó, y eso no sale de una lista de sí/no. Dos salidas, las dos
 baratas:
 
-- Reactivar `Diagnostico` y `Repuestos_Utilizados` con `Required_If [Tipo] = "Correctivo"`.
+- Reactivar `Diagnostico` y `Repuestos_Utilizados`, condicionados al tipo de la **orden**. La
+  expresión es `[OTID].[Tipo]`, no `[Tipo]`: `MAN_Mantenimientos` no tiene `Tipo` —se retiró porque
+  el tipo es de la orden, no de la ejecución—. **Y esa expresión no se puede escribir hasta que la
+  Fase B convierta `OTID` en `Ref`**: hoy es texto y no se desreferencia.
 - O que el correctivo use un **formulario propio** con esas preguntas — más coherente con la capa de
   tareas de la sección 3, y no cuesta columnas.
 
-**Consecuencia inmediata sobre la Fase A:** `Diagnostico`, `Trabajo_Realizado` y
-`Repuestos_Utilizados` están hoy en `CAMPOS_RETIRADOS` de `MAN_Mantenimientos`. **No se borran.**
-Borrarlas y volver a necesitarlas es cambiar la base después de producción, que es justo lo que hay
-que evitar.
+**Se elige la segunda.** Reactivar columnas crea dos sitios que dicen lo mismo: `Requiere_Repuesto`
+se retiró porque «se cubre con `MotivoPendienteID` = Falta de repuesto», y devolver
+`Repuestos_Utilizados` dejaría dos registros del mismo hecho sin forma de saber cuál miente. Un
+formulario propio para el correctivo no duplica nada y encaja en la capa de tareas.
 
-**Otros dos huecos que abre el informe:**
+**Lo que no cambia:** los tres campos siguen marcados como retirados y **siguen presentes en la
+hoja**. Eso ya era así —la Fase A no borra nada— y no es una decisión nueva. Se confirma, no se
+revierte.
 
-- Su Tabla 1 es una matriz **unidad funcional × tipo de equipo**, y las UF se subdividen —2,1 · 2,2 ·
-  4,1 · 4,2—. `UNF_UnidadesFuncionales` es plana.
-- Incluye un tipo **`ILUMINACION`** que no está en nuestros 18.
+**Y dos patrones vistos en el informe de Neiva–Girardot**, que **no son huecos del Sisga** hasta que
+operación lo confirme:
+
+- Su Tabla 1 es una matriz **unidad funcional × tipo de equipo**, y allí las UF se subdividen
+  —2,1 · 2,2 · 4,1 · 4,2—. `UNF_UnidadesFuncionales` es plana. **¿Las UF del Sisga se subdividen?**
+- Incluye un tipo **`ILUMINACION`** que no está en nuestros 24. En el Plan Maestro del Sisga no
+  aparece. **¿El Sisga mantiene iluminación, o no es de su alcance?**
 
 ---
 

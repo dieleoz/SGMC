@@ -391,6 +391,36 @@ siempre se abren, y el viewport cambia de tamaño entre llamadas y desplaza las 
 Lo que sí está verificado como resuelto: `Coordenadas_Cierre` y `Precision_GPS` existen en
 `MAN_Mantenimientos`; la columna `Observaciones` ya no está duplicada (24 columnas únicas).
 
+## 7.5 Una sola forma por propósito (regla nueva, 2026-08-07)
+
+**Riesgo real, señalado por operación:** con tanto material acumulado —siete documentos de
+contexto, once rondas de revisión, tres actas—, es fácil **proponer dos mecanismos para lo mismo** y
+que alguien implemente los dos. Eso ya pasó: `Requiere_Repuesto` y `MotivoPendienteID` registraban
+el mismo hecho; el manual de usuario describe un bypass de GPS por nota libre mientras el modelo
+tiene `CierreConExcepcion`.
+
+**Antes de proponer un mecanismo, comprueba si ya existe uno para ese propósito.** El registro está
+en `docs/FUNCIONAL_SGMC.md` §6. Si existe, se usa el que está; si el nuevo es mejor, se retira el
+viejo **en el mismo cambio** y se anota en esa tabla. Nunca conviven los dos.
+
+Ese mismo hábito evita el error inverso, que también ocurrió: **proponer como nuevo algo que ya está
+en el modelo.** `ROL_Roles` y las cuatro tablas de plantilla de checklist —`FRM_Formularios`,
+`FRM_Secciones`, `FRM_Preguntas`, `TPR_TiposRespuesta`— ya existían cuando se propusieron como
+tablas a crear. **Vuelca `MODELO` antes de proponer una tabla.**
+
+## 7.6 Los documentos de contexto no son la vara
+
+`contexto/` contiene siete documentos. **Tres no son del Sisga**: el PDF de ETRA y el informe de
+enero de 2025 son del corredor Neiva–Girardot, y la propuesta de la manta es de INDRA en otra doble
+calzada. Su procedencia está etiquetada en `docs/CONTEXTO_OPERACION.md`.
+
+**Son ejemplos que dan contexto, no obligaciones contractuales.** De ellos se copia método. Ninguna
+cifra ni estructura suya se convierte en requisito del Sisga sin que operación lo confirme: entra
+como **supuesto abierto**, nunca como carencia del modelo.
+
+Este proyecto ya midió el modelo del Sisga contra la estructura de otro corredor una vez. La
+advertencia de procedencia existía y contenía ella misma el error.
+
 ## 8. Deriva documental conocida
 
 Estos documentos contienen afirmaciones que no corresponden al archivo real. No los uses como

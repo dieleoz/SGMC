@@ -7,18 +7,24 @@ Construida sobre **Google AppSheet** con backend en **Google Sheets**. Sin servi
 sin compilación de APK, sin Play Console: los técnicos instalan la app de AppSheet e inician
 sesión con su cuenta corporativa.
 
-> **Estado del proyecto: Sprint 0 — definición funcional en validación.**
-> El modelo de datos y la app existen y están operativos como prototipo, pero la Fase 0 no está
-> cerrada, la definición funcional no ha sido validada con el líder funcional, y el 6 de agosto de
-> 2026 se detectó que **el Excel local y el backend de producción son modelos distintos**. Ver [Estado real](#estado-real-verificado) y
-> [AUDITORIA_PLAN_Y_ROADMAP.md](docs/AUDITORIA_PLAN_Y_ROADMAP.md).
-> La arquitectura objetivo está definida y validada automáticamente. La propuesta se envió a
-> Dirección y al líder funcional, a la espera de tres decisiones: propiedad del backend, plan de
-> licenciamiento y definición contractual de disponibilidad. Ver
-> [ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) y
-> [ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md).
-> No desplegar a campo hasta cerrar
-> [DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md).
+> **Estado: Fase A cerrada. Fase B aprobada, esperando ejecución. Modelo de dominio en
+> especificación.**
+>
+> - **Fase A** —estructura y datos en la hoja— **cerrada** el 2026-08-07 con 59 comprobaciones
+>   conformes y 0 fallos sobre `BD/Modelo de Datos (11).xlsx`. Ver [`ACTA-004`](docs/sdd/ACTA-004-cierre-de-formatos.md)
+> - **Fase B** —cableado de 15 referencias— especificada y aprobada tras diez veredictos del
+>   arquitecto. Sin ejecutar
+> - **El alcance creció** al incorporar el contexto operativo real: varias tareas por tipo de
+>   equipo, cuatro clases de mantenimiento, correctivo con tiempos contractuales. Por eso la
+>   implementación pasa a ser progresiva, con **orden explícito** en el [ROADMAP](docs/ROADMAP.md#2-orden-de-implementación)
+>
+> **Documento funcional vigente: [`FUNCIONAL_SGMC.md`](docs/FUNCIONAL_SGMC.md)** — qué hace el
+> sistema, para quién, cómo y para qué, con una sola forma decidida por propósito.
+>
+> Siguen abiertas tres decisiones de Dirección: propiedad del backend, plan de licenciamiento y
+> definición contractual de disponibilidad. Ver [ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md).
+>
+> **El manual de usuario no se entrega**: describe una versión anterior del sistema.
 
 ---
 
@@ -36,7 +42,15 @@ problemas que el SGMC ataca directamente:
 
 ## 2. Qué gestiona
 
-34 activos catalogados sobre 18 tipos, en cuatro categorías:
+**En el archivo hoy: 34 activos sobre 18 tipos**, que es una muestra sintética —tres de cada tipo—.
+
+**En la operación real: 355 activos contables sobre 24 tipos**, confirmados por operación el
+2026-08-07 desde el Plan Maestro. La aritmética y el desglose están en
+[`CONTEXTO_OPERACION.md`](docs/CONTEXTO_OPERACION.md#2-el-inventario-del-sisga-tenemos-el-censo-no-el-registro).
+**Tenemos el censo, no el registro**: sabemos cuántos postes SOS hay, no cuál es cada uno ni dónde
+está.
+
+Los 34 del archivo, en cuatro categorías:
 
 - **ITS** — Postes SOS, CCTV, paneles de mensaje variable fijo y móvil (PMVF/PMVM), sensores
   meteorológicos y ambientales (SGM/SGE/SSA), básculas de pesaje

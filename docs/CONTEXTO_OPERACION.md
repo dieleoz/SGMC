@@ -10,22 +10,34 @@ de cada uno: es **lo que sirve** para decidir tablas, columnas y flujos, con la 
 | Para qué sirve | Alimentar `MODELO_EVOLUCION_FASE_2.md` con dominio verificado, no supuesto |
 | Qué **no** es | Una especificación. Nada de aquí se ejecuta sin pasar por `ESPEC-00N` y su veredicto |
 
-## Advertencia de procedencia, y es importante
+## Procedencia de cada fuente
 
-**Tres de los siete documentos no son del Sisga.** Son de otros corredores y otros contratistas:
+**Son documentos de ejemplo que dan contexto. No son la vara con la que se mide el Sisga.** Se citan
+para copiar método, no para exigir cumplimiento. Aun así hay que saber de dónde viene cada uno, para
+no atribuirle al Sisga una estructura que es de otro corredor:
 
-| Documento | Proyecto real | Contratista |
+| Documento | Corredor | Autor · año |
 |---|---|---|
 | `2-MANTENIMIENTO.pdf` | Neiva – Aipe – Castilla – Espinal – Girardot | ETRA · Consorcio Constructor ANG · 2017 |
+| `Informe … enero 2025 v1.1.docx` | **Neiva – Girardot**, el mismo de ETRA | — · 2025 |
 | `PROPUESTA - PLAN MTTO DC 2016.xlsx` | Doble calzada, contrato 444-005-15 | INDRA Colombia · 2016 |
-| `Informe … enero 2025 v1.1.docx` | Sisga | — |
+| `Plan Maestro de Mantenimiento ITS_TI.xlsx` | **Sisga** — cantidades confirmadas por operación | 2026 |
+| `PLAN_MANTENIMIENTO_SISGA_2026.docx` | Sisga | 2026 |
+| `Plan de actividades … 2025 Componente ITS.xls` | Sisga · supervisado por JOYCO S.A.S. | 2025 |
 
-Los dos primeros valen como **método a imitar**, no como obligación contractual. Cuando este
-documento diga «la práctica del sector», sale de ahí. Cuando diga «el contrato», sale del plan 2026
-o del cronograma supervisado por JOYCO, que sí son del Sisga.
+**Regla de uso:** cuando este documento diga «la práctica del sector», sale de los tres primeros.
+Cuando diga «el Sisga», sale de los tres últimos. Nada de los tres primeros se convierte en
+requisito sin que operación lo confirme.
 
-Confundir las dos cosas sería exactamente el error que este proyecto ya cometió una vez con un
-inventario ajeno.
+Verificado contra el archivo el 2026-08-07. El informe de enero figuraba aquí como del Sisga y no lo
+es: su encabezado dice `NEIVA – GIRARDOT` y sus tablas nombran CCO Neiva, PC Peaje Flandes y PC
+Peaje Pata.
+
+## Contra qué se verificó
+
+`CLAUDE.md` §2 exige declararlo. **Las cifras del modelo de este documento se leyeron de
+`BD/Modelo de Datos (11).xlsx`**, el archivo con el que se cerró la Fase A, no de producción ni de
+memoria.
 
 ---
 
@@ -43,7 +55,76 @@ inventario ajeno.
 
 ---
 
-## 2. La manta, que hasta ahora era una palabra
+## 2. El inventario del Sisga: tenemos el censo, no el registro
+
+`Plan Maestro de Mantenimiento ITS_TI.xlsx`, 24 filas × 11 columnas. Confirmado por operación el
+2026-08-07 como **el inventario real del Sisga**. Lo que da: tipo, cantidad, unidad, área, tipo de
+mantenimiento, tarea, periodicidad, herramienta, personal y costo.
+
+Lo que **no** da: **las propiedades de cada equipo**. Sabemos que hay 54 postes SOS; no sabemos cuál
+es cada uno, dónde está, ni qué serie tiene. `ACT_Activos` necesita 355 filas con identidad y
+ubicación, y lo que hay son 18 cifras agregadas.
+
+### De dónde salen los 355, escrito
+
+La columna `CANT.` suma **508** sobre los 24 tipos. Los 355 son **solo las filas cuya unidad es
+`Und`**:
+
+```
+54 + 26 + 11 + 19 + 4 + 4 + 4 + 4 + 16 + 4 + 142 + 12 + 12 + 7 + 2 + 2 + 29 + 3  =  355
+```
+
+Fuera quedan, y no son activos contables: fibra troncal (137 **km**), antivirus, licencias, radios y
+certificados SSL (1 **Glb** cada uno) e internet (12 **Mes**). **508 − 355 = 153**, que es la suma
+de esos seis.
+
+De los 355 cuelgan las 1.916 órdenes anuales y los 4,1 años de cuota de Drive. Ahora la aritmética
+está escrita y es verificable.
+
+### Cuatro tipos de mantenimiento, no uno
+
+| `TIPO MTTO.` | Tipos | Ejemplos |
+|---|---|---|
+| Preventivo | 19 | SOS, CCTV, fibra, peajes, básculas |
+| **Admin** | 3 | Antivirus, licencias, certificados SSL |
+| **Correctivo** | 1 | Computadores — periodicidad «A demanda» |
+| **Servicio** | 1 | Internet ISP — monitoreo de SLA |
+
+**Cinco de los 24 tipos no son cosas que se visitan.** Renovar un certificado SSL es una fecha en un
+portal; auditar licencias es una revisión en un navegador; monitorear el SLA del ISP es leer un NMS.
+Ninguno tiene coordenada.
+
+Todo el diseño —RG-01 geofencing, cadena de evidencia, `Precision_GPS`, firma en sitio— asume
+desplazamiento. **Para esos cinco no aplica**, y hay que decidir si se les da un camino sin
+evidencia de ubicación o si salen del alcance.
+
+**Y «A demanda» no es una periodicidad: es la ausencia de una.** `PLA_PlanMantenimiento` no puede
+programar los 29 portátiles: solo existen cuando se rompen.
+
+### Doce roles, ya escritos
+
+La columna `PERSONAL` asigna un rol a cada una de las 24 tareas:
+
+```
+Técnico ITS · Técnico Alturas · Técnico Fibra · Técnico Peaje · Ayudante
+Ing. ITS · Ing. Redes · Ing. Soporte · Ing. TI · Aux. TI · Especialista · Proveedor
+```
+
+**Esto pesa más que el dato de GIMAN de la sección 4.** Que la herramienta de referencia no modelara
+certificaciones sugería aplazarlo; que el plan del Sisga **ya asigne un rol por tarea** lo vuelve un
+dato existente, no una idea.
+
+Y abarata la solución: `ROL_Roles` más `TAR_Tareas.RolRequeridoID` y `USR_Usuarios.RolID`. Una tabla
+y dos referencias, porque el dato ya está en la columna. Lo que sigue siendo Fase 2 es lo
+**múltiple** —alguien con alturas *y* electricista, una tarea que exija técnico *más* SISO, y las
+vigencias—, que sí es una relación de muchos a muchos.
+
+**`Proveedor` no es un rol:** son dos tareas —impresoras en renting y radios— que ejecuta un tercero
+que no es usuario de la aplicación.
+
+---
+
+## 3. La manta, que hasta ahora era una palabra
 
 `PROPUESTA - PLAN MTTO DC 2016.xlsx`, hoja `SEMANA 1 AL 5 DE FEBRERO`.
 
@@ -65,11 +146,15 @@ ese porcentaje es el indicador que se reporta.
 
 ### Tres cosas que cambian el modelo
 
-**Un tipo de equipo tiene varias tareas, y ahora está probado.** El poste SOS aparece con prueba
-**semanal**, prueba **mensual con interventoría** y mantenimiento **trimestral**. El maestro ITS
-listaba una sola tarea por tipo, y sobre esa simplificación se construyó `ACT_Activos.FrecuenciaID`.
-Confirma la sección 3 de `MODELO_EVOLUCION_FASE_2.md`: la periodicidad es de la tarea, no del
-activo.
+**Un tipo de equipo tiene varias tareas, y ahora está probado.** En la hoja `MANTENIMIENTO FEBRERO`,
+C78:C80, el poste SOS aparece con prueba **semanal**, prueba **mensual con interventoría** y
+mantenimiento **trimestral**. `PMG 2016` C83 añade una cuarta, «prueba mensual antes de
+interventoría». El maestro ITS listaba una sola tarea por tipo, y sobre esa simplificación se
+construyó `ACT_Activos.FrecuenciaID`. Confirma la sección 3 de `MODELO_EVOLUCION_FASE_2.md`: la
+periodicidad es de la tarea, no del activo.
+
+*La rejilla de arriba es de `SEMANA 1 AL 5 DE FEBRERO`, donde el SOS solo aparece con dos de sus
+tareas. Las tres juntas están en `MANTENIMIENTO FEBRERO`.*
 
 **Hay tareas con la interventoría dentro.** `PRUEBA MENSUAL CON INTERVENTORÍA` no es una tarea
 normal: alguien externo asiste y firma. El modelo tiene `FIR_Firmas`, pero no sabe que una tarea
@@ -90,7 +175,7 @@ justo donde nuestro modelo está en blanco.
 ### La cadena completa
 
 ```
-Aviso            teléfono · web · correo · alarma del SCADA
+Aviso            teléfono · web · correo          ← los tres literales del PDF §6.1.3
    ↓
 Ticket           número que se entrega a quien reporta, y le sirve para consultar estado
    ↓
@@ -127,10 +212,12 @@ esperar un repuesto.
 parado. Tiene `FechaCreacion` y `FechaCierre`, que dan una duración total — y la duración total no
 es ninguno de los dos tiempos que se miden.
 
-**Y encaja con lo que usted describió**: el operador del centro de control recibe la llamada
-—«no funciona el poste 3»— valida contra el SCADA y lanza la correctiva. Eso es exactamente §6.1.1,
-con el matiz de que **solo operadores autorizados** pueden dar el aviso, «para evitar notificar
-incidencias a través de terceras personas».
+**Lo que describe operación encaja, con un canal más que el PDF no nombra:** el operador del centro
+de control recibe la llamada —«no funciona el poste 3»—, **lo valida contra el SCADA** y lanza la
+correctiva. El PDF habla de «la herramienta de monitorización» y **no menciona SCADA en sus 82
+páginas**: ese canal es del Sisga, no de la fuente. Lo que sí es literal es que **solo operadores
+autorizados** pueden dar el aviso, «para evitar notificar incidencias a través de terceras
+personas».
 
 ---
 
