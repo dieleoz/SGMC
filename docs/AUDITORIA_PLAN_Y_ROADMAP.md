@@ -134,6 +134,7 @@ La tabla tiene encabezado y cero filas. Nunca se ha registrado un mantenimiento.
 
 Esto invalida el respaldo de `DICTAMEN_AUDITORIA_LOCAL_SGMC.md` e
 `INFORME_QA_ISTQB_Y_AUDITORIA_ARQUITECTO.md`, que describen un flujo ejecutado y guardado en vivo.
+Ambos se retiraron a `docs/historico/` el 2026-08-07.
 Lo único que existe es el checklist `d02d8a3d` con 2 ítems de detalle, sin mantenimiento asociado.
 
 En consecuencia, el geofencing, la compresión de fotos, la firma y la sincronización offline

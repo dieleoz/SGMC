@@ -211,7 +211,7 @@ MODELO = {
             col("MotivoBaja", "Enum", nueva=True,
                 nota="Obsolescencia, Dano irreparable, Robo o vandalismo, Reemplazo, "
                      "Retiro por obra"),
-            col("Activo", "Yes/No", formula='[EstadoActivoID] <> "Retirado"',
+            col("Activo", "Yes/No", formula='[EstadoActivoID].[Nombre] <> "Retirado"',
                 nota="NO se edita a mano: se deriva del estado. Tener dos formas de decir "
                      "'dado de baja' garantiza que algun dia se contradigan"),
             col("Observaciones", "LongText"),
@@ -726,14 +726,18 @@ REGLAS = [
                       "escaneo en un sitio y cerro en otro. No bloquea: se reporta.")),
     dict(id="RG-16", tabla="ACT_Activos", columna="Activo",
          tipo="App formula", cubre="Baja de activos",
-         expresion='[EstadoActivoID] <> "Retirado"',
-         descripcion=("La bandera se deriva del estado, no se edita. EST_Activo ya tiene el estado "
+         expresion='[EstadoActivoID].[Nombre] <> "Retirado"',
+         descripcion=("La bandera se deriva del estado, no se edita. La comparacion va contra "
+                      "[Nombre] y NO contra la columna a secas: EstadoActivoID es un Ref y un Ref "
+                      "guarda la CLAVE del destino, que aqui vale 1 a 4. Comparar la clave con la "
+                      "cadena 'Retirado' es siempre cierto, y como esto es una App formula, "
+                      "ESCRIBE: pondria Activo=TRUE sobre el activo dado de baja. EST_Activo ya tiene el estado "
                       "Retirado; mantener ademas una bandera independiente es el mismo dato en dos "
                       "sitios, y algun dia diran cosas distintas sin forma de saber cual miente.")),
     dict(id="RG-17", tabla="ACT_Activos", columna="FechaBaja",
          tipo="Required_If", cubre="Baja de activos",
-         expresion='[EstadoActivoID] = "Retirado"',
-         descripcion=("Si se retira un activo hay que decir cuando. Un historico que no puede "
+         expresion='[EstadoActivoID].[Nombre] = "Retirado"',
+         descripcion=("Contra [Nombre], no contra la clave. Si se retira un activo hay que decir cuando. Un historico que no puede "
                       "explicar por que un activo dejo de recibir mantenimiento no es defendible.")),
     dict(id="RG-18", tabla="ACT_Activos", columna="(tabla)",
          tipo="Doctrina de reportes", cubre="Baja de activos",

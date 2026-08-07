@@ -9,7 +9,7 @@ aceptación, y se llaman por su nombre.
 | | |
 |---|---|
 | Cubre | `ESPEC-002` |
-| Estado de partida | Fase A cerrada y verificada, `ACTA-002`. 42 conformes, 0 fallos |
+| Estado de partida | Fase A cerrada y verificada, `ACTA-002`. **43 conformes**, 0 fallos |
 | Punto de restauración | AppSheet versión `1.000238`; Sheets `SGMC_backup_2026-08-07_antes_cableado_FaseA` |
 
 ## 1. Estado de partida
@@ -53,8 +53,11 @@ Excel*). No es el Excel local histórico, que describe otro modelo:
 
 ### P-03 — Las claves son las correctas
 
-- **Acción:** *Data > Columns*, revisar la casilla `KEY` en las **25 tablas** de la sección 4.2 de
+- **Acción:** *Data > Columns*, revisar la casilla `KEY` en las **27 tablas** de la sección 4.2 de
   `ESPEC-002`, comprobando nombre **y tipo**. Todas las claves van `Text`.
+- **Después de forzar el tipo, contar filas:** `ACT_Activos` 34, `USR_Usuarios` 11,
+  `OT_OrdenesTrabajo` 6. Forzar el tipo de una clave es la operación que más silenciosamente pierde
+  filas: si el recuento baja, la conversión dejó huérfanas.
 - **Resultado esperado:** una sola clave por tabla, y la que dice la especificación.
 - **Cómo se distingue el fallo:** dos claves marcadas, la clave en otra columna, o la clave tipada
   `Number`. **Es la prueba más silenciosa de todas:** una referencia contra una tabla con la clave

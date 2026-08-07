@@ -104,8 +104,8 @@ El defecto raíz del sistema no es que falten columnas. Es que las que existen s
 pero AppSheet responde `Invalid dereference. Column OTID is not a Ref`. De ese único hecho cuelgan
 el geofencing, la navegación padre-hijo y todo reporte por activo.
 
-El procedimiento completo, con su orden y su reversión, está en
-`docs/CABLEADO_REFERENCIAS_SGMC.md`. Aquí van las reglas que no se negocian.
+El procedimiento vigente está en `docs/sdd/ESPEC-002-cableado-en-appsheet.md`, con sus pruebas en
+`PRUEBA-002`. Aquí van las reglas que no se negocian.
 
 **R-1. Una referencia guarda el valor de la clave del destino.** De ahí todo lo demás. Antes de
 cablear una referencia, verifica cuál es la clave real de la tabla destino: no la supongas por el
@@ -209,7 +209,7 @@ en la vía queda fuera de rango y cualquier cierre en Bogotá queda dentro.
 
 ## 7. Estado real (verificado 2026-08-06)
 
-La Fase 0 **no está cerrada**. `docs/ROADMAP.md` ya fue corregido; `docs/DICTAMEN_AUDITORIA_LOCAL_SGMC.md` sigue afirmando lo contrario.
+La Fase 0 **no está cerrada**. `docs/ROADMAP.md` ya fue corregido; el dictamen que afirmaba lo contrario se retiró a `docs/historico/`.
 
 **Confirmados en producción** (leídos en el Sheets, no en el Excel):
 
@@ -333,9 +333,16 @@ fuente sin contrastar:
   `Trabajo_Realizado` y `Duracion_Minutos`. Estaba describiendo **producción**, y es correcta.
   Lo mismo su conteo de 21 columnas para `CHK`/`CHD`. Lo desactualizado es el Excel local.
   `bd.md` sigue sin declarar contra cuál de los dos modelos está escrito, y eso hay que corregirlo.
-- `docs/DICTAMEN_AUDITORIA_LOCAL_SGMC.md` e `docs/INFORME_QA_ISTQB_Y_AUDITORIA_ARQUITECTO.md` — dictaminan
-  100% conforme sobre un modelo anterior y describen un mantenimiento ejecutado en vivo que no
-  existe en `MAN_Mantenimientos` (0 filas).
+- **`docs/historico/` — RETIRADOS EL 2026-08-07. No los uses como fuente.** Un documento que
+  describe un estado superado no es inofensivo: induce a deshacer trabajo correcto.
+  - `CABLEADO_REFERENCIAS_SGMC.md` se escribió contra el **Excel local** y manda renombrar
+    columnas que en producción se llaman de otro modo o no existen (`PreguntaItem`, `Estado Final`).
+    Lo sustituyen `ESPEC-001`, `001B`, `001C` y `ESPEC-002`.
+  - `DICTAMEN_AUDITORIA_LOCAL_SGMC.md` e `INFORME_QA_ISTQB_Y_AUDITORIA_ARQUITECTO.md` dictaminan
+    100% conforme sobre un modelo anterior y describen un mantenimiento ejecutado en vivo que nunca
+    existió.
+- `scripts/faseA_sheets.gs` lleva banner de retirado: nunca se ejecutó y su mapa de renombrados es
+  el del Excel local.
 
 ## 9. Estructura del repositorio
 

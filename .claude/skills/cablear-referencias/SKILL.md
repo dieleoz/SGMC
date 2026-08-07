@@ -94,6 +94,7 @@ Las reglas que te van a frenar:
 | V-14 | El renombrado aterriza en una columna que existe. Avisa si reutiliza el nombre viejo |
 | V-15 | Toda referencia declara de dónde sale: renombrado, retipado o columna nueva |
 | V-16 | Lo retipado coincide en tipo y destino con lo que declara el modelo |
+| V-17 | Ninguna expresión compara una columna `Ref` contra un literal de texto |
 
 **V-11 es la que habría ahorrado meses.** Comprueba lo que AppSheet comprueba, sin abrir AppSheet.
 
@@ -125,6 +126,13 @@ la clave debe ser **el valor que esos datos ya guardan**, no un identificador or
 Se ve impecable en la hoja y deja las 6 órdenes huérfanas al cablear. La misma tarde,
 `UNF_UnidadesFuncionales` se hizo bien —claves 7 a 10, las que ya usaba `ACT_Activos`— y las 34
 filas siguieron resolviendo solas.
+
+**Comparar un `Ref` contra un literal legible.** Un `Ref` guarda la **clave** del destino, no su
+nombre. `[EstadoActivoID] <> "Retirado"` sobre una `EST_Activo` con claves `1..4` es **siempre
+cierto** — y si la expresión es una `App formula`, **escribe** ese resultado constante sobre los
+datos. Ocurrió el 2026-08-07: RG-16 habría repuesto `Activo = TRUE` sobre el activo recién dado de
+baja, deshaciendo la Fase A en silencio. Se escribe `[EstadoActivoID].[Nombre]`. La regla **V-17**
+lo detiene ahora, porque **V-11 era ciega a esto**: solo comprueba cadenas de más de un salto.
 
 **El texto como clave ajena.** `CHD_ChecklistDetalle` referenciaba la pregunta por su **enunciado**.
 Corregir una tilde rompía la agrupación histórica. Si ves una columna que guarda texto legible y

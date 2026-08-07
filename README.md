@@ -145,7 +145,8 @@ DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoI
 ```
 
 **No es aplicable todavía.** La ruta atraviesa dos referencias que hoy son texto. El procedimiento
-para cablearlas está en [CABLEADO_REFERENCIAS_SGMC.md](docs/CABLEADO_REFERENCIAS_SGMC.md).
+para cablearlas está en [ESPEC-002](docs/sdd/ESPEC-002-cableado-en-appsheet.md), con sus pruebas de
+aceptación en [PRUEBA-002](docs/sdd/PRUEBA-002-cableado-en-appsheet.md).
 
 ## 6. Estado real (verificado)
 
@@ -176,7 +177,7 @@ Lo que corre la app es el Sheets.
 | # | Hallazgo |
 |---|---|
 | B-01 | Los 34 activos comparten una sola coordenada, situada en Bogotá y no en el corredor. El geofencing es inoperante hasta levantar las coordenadas reales |
-| B-02 | La cadena relacional del modelo **no existe en la aplicación**: `OTID` es texto y no referencia. Sin eso no hay geofencing, ni navegación padre-hijo, ni reportes por activo. **Procedimiento de corrección escrito y validado** en [CABLEADO_REFERENCIAS_SGMC.md](docs/CABLEADO_REFERENCIAS_SGMC.md); pendiente de que un operador lo ejecute |
+| B-02 | La cadena relacional del modelo **no existe en la aplicación**: `OTID` es texto y no referencia. Sin eso no hay geofencing, ni navegación padre-hijo, ni reportes por activo. Corrección especificada y probada en [ESPEC-002](docs/sdd/ESPEC-002-cableado-en-appsheet.md); pendiente de ejecutar |
 | B-03 | Todos los usuarios están en la sede 1 y todos los activos en las sedes 7 a 10. El Security Filter dejaría a cada técnico sin activos |
 | B-04 | Solo 1 de 18 formularios tiene banco de preguntas |
 | B-09 | La fórmula de geofencing documentada durante meses, con `[ActivoID].[Ubicacion]`, no funciona: esa columna no existe en `MAN_Mantenimientos` |
@@ -226,7 +227,7 @@ archivo/       Material de origen, no versionado
 | Documento | Para qué sirve |
 |---|---|
 | [ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) | **Frente activo.** Modelo objetivo: 27 tablas, 192 columnas, 38 referencias, 13 reglas. Generado desde `scripts/modelo_objetivo.py` y validado automáticamente |
-| [CABLEADO_REFERENCIAS_SGMC.md](docs/CABLEADO_REFERENCIAS_SGMC.md) | **Frente activo.** Procedimiento para convertir en referencias reales las que hoy son texto. Es lo que desbloquea el geofencing |
+| [historico/](docs/historico/) | **Documentos retirados el 2026-08-07.** Describen estados superados; seguirlos induce a deshacer trabajo correcto. No usar como fuente |
 | [SDD_PIPELINE_SGMC.md](docs/SDD_PIPELINE_SGMC.md) | **Método vigente.** Cómo se construye cualquier cambio: especificado y probado antes de tocar producción. Los cinco agentes, las dos fases y el gate |
 | [sdd/ESPEC-001-preparacion-del-sheets.md](docs/sdd/ESPEC-001-preparacion-del-sheets.md) | **Frente activo.** Fase A del cableado, verificada contra producción |
 | [scripts/faseA_sheets.gs](scripts/faseA_sheets.gs) | La Fase A como Apps Script. La cuenta de Google bloqueó su ejecución |

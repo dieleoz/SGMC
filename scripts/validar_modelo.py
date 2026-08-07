@@ -9,6 +9,7 @@ Uso:  python scripts/validar_modelo.py
 Salida: 0 si el modelo es consistente, 1 si hay errores.
 """
 import os
+import re
 import sys
 from collections import defaultdict
 
@@ -165,6 +166,42 @@ for r in REGLAS:
         for cadena in re.findall(r"(?:\[\w+\]\.)+\[\w+\]", trozo):
             ruta = re.findall(r"\[(\w+)\]", cadena)
             validar_ruta(r["id"], tabla_ctx, ruta)
+
+# ------------- V-17 no comparar un Ref contra un literal de texto
+# Un Ref guarda la CLAVE del destino, no su nombre. Comparar la columna a secas
+# contra una cadena legible es casi siempre un error, y de los peores: no falla,
+# simplemente devuelve siempre lo mismo. Si ademas la expresion es una App
+# formula, ESCRIBE ese resultado constante sobre los datos.
+#
+# Caso real, 2026-08-07: RG-16 decia [EstadoActivoID] <> "Retirado" sobre una
+# EST_Activo con claves 1 a 4. Siempre cierto, y al ser App formula habria
+# repuesto Activo=TRUE sobre el activo que acababa de darse de baja.
+# V-11 no lo veia: solo comprueba cadenas de mas de un salto.
+COMPARA_LITERAL = re.compile(r'\[(\w+)\](?!\s*\.\s*\[)\s*(?:=|<>|<=|>=|<|>)\s*"([^"]*)"')
+
+
+def _revisar_literales(ident, tabla, expresion):
+    if tabla not in MODELO:
+        return
+    cols = {c["nombre"]: c for c in MODELO[tabla]["columnas"]}
+    for columna, literal in COMPARA_LITERAL.findall(expresion):
+        c = cols.get(columna)
+        if not c or c["tipo"] != "Ref":
+            continue
+        destino = c.get("ref")
+        pk = next((x["nombre"] for x in MODELO[destino]["columnas"] if x.get("pk")), "?")
+        error("V-17", f"{ident}: compara {tabla}.{columna} con el literal '{literal}'. "
+                      f"Es un Ref a {destino} y guarda su clave {pk}, no un texto legible. "
+                      f"Prueba con [{columna}].[Nombre]")
+
+
+for r in REGLAS:
+    _revisar_literales(r["id"], r["tabla"], r["expresion"])
+for tabla, d in MODELO.items():
+    for c in d["columnas"]:
+        for campo in ("valid_if", "formula", "valor_inicial"):
+            if c.get(campo):
+                _revisar_literales(f"{tabla}.{c['nombre']} ({campo})", tabla, c[campo])
 
 # ------------------------------- V-12 lo retirado no sigue vivo en el modelo
 for tabla in RETIRADAS:

@@ -13,7 +13,7 @@
 |---|---|
 | Entender qué es el proyecto | [README.md](README.md) |
 | Ver la arquitectura correcta que se va a construir | [docs/ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) |
-| Cablear una referencia, o entender por qué el geofencing no funciona | [docs/CABLEADO_REFERENCIAS_SGMC.md](docs/CABLEADO_REFERENCIAS_SGMC.md) |
+| Cablear una referencia, o entender por qué el geofencing no funciona | [docs/sdd/ESPEC-002-cableado-en-appsheet.md](docs/sdd/ESPEC-002-cableado-en-appsheet.md) |
 | Construir cualquier cambio, y saber qué se aprueba antes de tocar producción | [docs/SDD_PIPELINE_SGMC.md](docs/SDD_PIPELINE_SGMC.md) |
 | Saber hasta dónde aguanta el sistema | `python scripts/capacidad.py` |
 | Saber con qué supuestos se construye | [docs/ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md) |
@@ -37,8 +37,8 @@ D:\@Proyect\Sisga\
 │   └── Modelo de Datos (2).xlsx  24 hojas. Único archivo que se edita
 │
 ├── docs/                         Documentación técnica y funcional
+│   ├── historico/                 Documentos retirados. No usar como fuente
 │   ├── ARQUITECTURA_OBJETIVO_SGMC.md
-│   ├── CABLEADO_REFERENCIAS_SGMC.md
 │   ├── SDD_PIPELINE_SGMC.md
 │   ├── ALCANCE_Y_SUPUESTOS_SGMC.md
 │   ├── DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md
@@ -49,8 +49,6 @@ D:\@Proyect\Sisga\
 │   ├── plan_de_trabajo.md
 │   ├── ROADMAP.md
 │   ├── GUIA_SVG_BOTONES_DINAMICOS_APPSHEET.md
-│   ├── INFORME_QA_ISTQB_Y_AUDITORIA_ARQUITECTO.md
-│   ├── DICTAMEN_AUDITORIA_LOCAL_SGMC.md
 │   ├── images/                   fig_01 a fig_07, figuras de los documentos
 │   └── prompts/                  Directivas para agentes de auditoría
 │
@@ -97,7 +95,7 @@ D:\@Proyect\Sisga\
 | Documento | Contenido | Vigencia |
 |---|---|---|
 | [docs/ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) | Modelo objetivo: 27 tablas, 192 columnas, 38 referencias, 13 reglas. Generado y validado | **Vigente. Es el frente activo** |
-| [docs/CABLEADO_REFERENCIAS_SGMC.md](docs/CABLEADO_REFERENCIAS_SGMC.md) | Procedimiento para convertir en referencias reales las que hoy son texto, con orden, verificación y reversión | **Vigente. Es el frente activo** |
+| [docs/historico/](docs/historico/) | **Documentos retirados el 2026-08-07.** Describen estados superados y por eso salieron de `docs/`: seguirlos induce a deshacer trabajo correcto | Histórico. No usar como fuente |
 | [docs/SDD_PIPELINE_SGMC.md](docs/SDD_PIPELINE_SGMC.md) | Método de construcción: cinco agentes, dos fases, el gate antes del paso caro y la decisión de descartar el QR | **Vigente. Es el método** |
 | [docs/sdd/ESPEC-001-preparacion-del-sheets.md](docs/sdd/ESPEC-001-preparacion-del-sheets.md) | Fase A del cableado: todo lo que se hace sobre la hoja sin abrir AppSheet. Verificada contra producción | **Vigente** |
 | [scripts/faseA_sheets.gs](scripts/faseA_sheets.gs) | La Fase A como Apps Script. Google bloqueó su ejecución en esta cuenta | Histórico |
@@ -127,8 +125,8 @@ D:\@Proyect\Sisga\
 
 | Documento | Contenido | Vigencia |
 |---|---|---|
-| [docs/DICTAMEN_AUDITORIA_LOCAL_SGMC.md](docs/DICTAMEN_AUDITORIA_LOCAL_SGMC.md) | Dictamen "100% conforme" | **Superado.** Certifica un modelo anterior con tablas vacías |
-| [docs/INFORME_QA_ISTQB_Y_AUDITORIA_ARQUITECTO.md](docs/INFORME_QA_ISTQB_Y_AUDITORIA_ARQUITECTO.md) | Informe QA y simulación de flujo | **Superado.** Describe una ejecución sin respaldo en los datos |
+| [docs/historico/DICTAMEN_AUDITORIA_LOCAL_SGMC.md](docs/historico/DICTAMEN_AUDITORIA_LOCAL_SGMC.md) | Dictamen "100% conforme" | **Retirado el 2026-08-07.** Certifica un modelo anterior con tablas vacías |
+| [docs/historico/INFORME_QA_ISTQB_Y_AUDITORIA_ARQUITECTO.md](docs/historico/INFORME_QA_ISTQB_Y_AUDITORIA_ARQUITECTO.md) | Informe QA y simulación de flujo | **Retirado el 2026-08-07.** Describe una ejecución sin respaldo en los datos |
 
 ### Manuales
 
@@ -159,7 +157,7 @@ D:\@Proyect\Sisga\
 | Decisiones pendientes del funcional | [docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md) parte III | — |
 | Bloqueantes verificados | [docs/AUDITORIA_PLAN_Y_ROADMAP.md](docs/AUDITORIA_PLAN_Y_ROADMAP.md) sección 3 | Verificable con `openpyxl` sobre `BD/` |
 | Fases y criterios de cierre | [docs/ROADMAP.md](docs/ROADMAP.md) | — |
-| Cableado de referencias | [docs/CABLEADO_REFERENCIAS_SGMC.md](docs/CABLEADO_REFERENCIAS_SGMC.md) | `python scripts/validar_modelo.py`, reglas V-14 a V-16 |
+| Cableado de referencias | [docs/sdd/ESPEC-002-cableado-en-appsheet.md](docs/sdd/ESPEC-002-cableado-en-appsheet.md) | `python scripts/validar_modelo.py`, reglas V-14 a V-17 |
 | Pantallas y vistas | [docs/especificaciones_visuales.md](docs/especificaciones_visuales.md) | Aplicación AppSheet |
 | Deriva documental conocida | [CLAUDE.md](CLAUDE.md) sección 8 | — |
 

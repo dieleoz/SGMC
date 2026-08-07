@@ -1,4 +1,26 @@
 /**
+ * RETIRADO EL 2026-08-07. Ya no hace falta ejecutarlo.
+ *
+ * Nunca llego a correr: la cuenta de Google bloqueo la ejecucion de Apps
+ * Script. La Fase A se aplico a mano sobre la hoja y esta CERRADA y verificada
+ * (ACTA-002), asi que este script no tiene trabajo pendiente que hacer.
+ *
+ * Su contenido SI es correcto: los renombrados van contra los nombres reales de
+ * produccion (MttoID -> MantenimientoID, Tecnico_Asignado -> TecnicoID), y las
+ * claves de UNF y EOT son las que hacen que los datos existentes resuelvan. Se
+ * corrigio el 2026-08-07 al leer produccion.
+ *
+ * Lo que le falta es lo que vino despues: ESPEC-001C anadio FechaBaja,
+ * MotivoBaja y el poblado completo de prueba, que este archivo no contempla.
+ * Correrlo con DRY_RUN=false hoy no romperia nada -es idempotente y solo
+ * informa de lo ya aplicado- pero tampoco completaria la Fase A.
+ *
+ * Se conserva como registro de metodo: el patron DRY_RUN, tener el borrado de
+ * los datos de prueba en el mismo archivo que los crea, y la verificacion
+ * separada del que aplica. Eso sigue siendo valido.
+ */
+
+/**
  * SGMC — Fase A del cableado de referencias.
  *
  * Aplica sobre el Google Sheets de produccion todo lo que se puede hacer sin

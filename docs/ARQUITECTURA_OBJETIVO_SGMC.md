@@ -762,20 +762,20 @@ Cubre: Prueba de presencia
 
 ### RG-16 · App formula sobre `ACT_Activos`.`Activo`
 
-La bandera se deriva del estado, no se edita. EST_Activo ya tiene el estado Retirado; mantener ademas una bandera independiente es el mismo dato en dos sitios, y algun dia diran cosas distintas sin forma de saber cual miente.
+La bandera se deriva del estado, no se edita. La comparacion va contra [Nombre] y NO contra la columna a secas: EstadoActivoID es un Ref y un Ref guarda la CLAVE del destino, que aqui vale 1 a 4. Comparar la clave con la cadena 'Retirado' es siempre cierto, y como esto es una App formula, ESCRIBE: pondria Activo=TRUE sobre el activo dado de baja. EST_Activo ya tiene el estado Retirado; mantener ademas una bandera independiente es el mismo dato en dos sitios, y algun dia diran cosas distintas sin forma de saber cual miente.
 
 ```
-[EstadoActivoID] <> "Retirado"
+[EstadoActivoID].[Nombre] <> "Retirado"
 ```
 
 Cubre: Baja de activos
 
 ### RG-17 · Required_If sobre `ACT_Activos`.`FechaBaja`
 
-Si se retira un activo hay que decir cuando. Un historico que no puede explicar por que un activo dejo de recibir mantenimiento no es defendible.
+Contra [Nombre], no contra la clave. Si se retira un activo hay que decir cuando. Un historico que no puede explicar por que un activo dejo de recibir mantenimiento no es defendible.
 
 ```
-[EstadoActivoID] = "Retirado"
+[EstadoActivoID].[Nombre] = "Retirado"
 ```
 
 Cubre: Baja de activos

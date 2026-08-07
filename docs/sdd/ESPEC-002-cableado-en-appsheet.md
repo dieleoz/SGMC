@@ -127,6 +127,8 @@ con esta tabla. El tipo importa tanto como el nombre.
 | `LST_ValoresLista` | `ValorListaID` | `Text` | |
 | `NOV_Novedades` | `NovedadID` | `Text` | |
 | `PLA_PlanMantenimiento` | `PlanID` | `Text` | |
+| `FOT_Fotografias` | `FotoID` | `Text` | Se le asigna `UNIQUEID()` en 4.3: sin clave declarada quedaría a lo que adivine AppSheet |
+| `FIR_Firmas` | `FirmaID` | `Text` | Igual |
 
 **Todas `Text`, y no por comodidad:** es la convención del modelo y evita que AppSheet infiera
 `Number` sobre una columna con un valor alfanumérico y deje esa fila con clave inválida. Es la regla
@@ -171,7 +173,7 @@ Independientes entre sí, no pueden romper nada.
 | `MAN_Mantenimientos` | `OrigenApertura` | `Enum`: `QR`, `Lista` |
 | `MAN_Mantenimientos` | `CierreConExcepcion`, `RequiereSegundaVisita`, `AprobadoSupervisor`, `Activo` | `Yes/No` |
 | `OT_OrdenesTrabajo` | `Activo` | `Yes/No` |
-| `OT_OrdenesTrabajo` | `Tipo` | `Enum`: `Preventivo`, `Correctivo` |
+| `OT_OrdenesTrabajo` | `Tipo` | `Enum`: `Preventivo`, `Correctivo`. **Vacía en las 6 filas: deuda declarada.** No la marques obligatoria o las 6 órdenes quedan incompletas |
 | `FOT_Fotografias` | `Archivo` | `Image`, calidad baja 600 px |
 | `FOT_Fotografias` | `Ubicacion` | `LatLong` |
 | `FIR_Firmas` | `Imagen` | `Signature` |
@@ -188,6 +190,11 @@ seis órdenes quedarían inactivas.
 **En el Sheets, poner `TRUE` en las 6 filas.** Se hace antes de configurar RG-14, porque esa regla
 retira el borrado y deja `Activo = FALSE` como única vía de anulación. Retirar el borrado sin que
 exista el sustituto deja la orden sin forma de anularse.
+
+**`EST_Activo.Activo` está en la misma situación:** vacía en sus 4 filas. Hoy no la usa ninguna
+regla, pero es el catálogo del que dependen RG-16 y RG-17, y un `Valid_If` de catálogo sobre
+`[Activo] = TRUE` dejaría el desplegable de estados vacío. **Poner `TRUE` en las 4 filas**, en la
+misma pasada.
 
 ### 5.2 Confirmar el formato de la coordenada
 
@@ -228,7 +235,6 @@ Cada bloque referencia tablas cuyas claves se fijaron en el bloque 1.
 | `TIP_TiposActivo` | `FormularioID` | `FRM_Formularios` |
 | `ASG_AsignacionZona` | `UsuarioID` | `USR_Usuarios` |
 | `ASG_AsignacionZona` | `UnidadFuncionalID` | `UNF_UnidadesFuncionales` |
-| `FAL_ModosFalla` | `TipoActivoID` | `TIP_TiposActivo` |
 
 Varias pueden estar **ya** como `Ref` con el nombre viejo. Comprobar antes de crear.
 
@@ -270,11 +276,13 @@ ejecución es el registro histórico y sobrevive a su orden.
 | `FRM_Preguntas` | `SeccionID` | `FRM_Secciones` | No |
 | `FRM_Preguntas` | `TipoRespuestaID` | `TPR_TiposRespuesta` | No |
 | `LST_ValoresLista` | `PreguntaID` | `FRM_Preguntas` | No |
-| `NOV_Novedades` | `UsuarioID` | `USR_Usuarios` | No |
-| `NOV_Novedades` | `ActivoID` | `ACT_Activos` | No |
-| `PLA_PlanMantenimiento` | `ActivoID` | `ACT_Activos` | No |
-| `PLA_PlanMantenimiento` | `FrecuenciaID` | `FRE_Frecuencias` | No |
-| `PLA_PlanMantenimiento` | `ResponsableID` | `USR_Usuarios` | No |
+
+**Aplazadas a `ESPEC-003`:** las 5 referencias de `NOV_Novedades` y `PLA_PlanMantenimiento`
+(`NOV.UsuarioID`, `NOV.ActivoID`, `PLA.ActivoID`, `PLA.FrecuenciaID`, `PLA.ResponsableID`).
+Verificado que las 5 **resuelven** contra sus destinos, así que no son incorrectas — pero son 5
+columnas más en un editor caro y frágil, y no desbloquean ni el geofencing ni la navegación ni el
+filtro por zona. La instrucción vigente es que funcione primero. Lo mismo con
+`FAL_ModosFalla.TipoActivoID`, que tampoco entra en 6.1.
 
 `LST_ValoresLista.PreguntaID` vale `SOS001` en sus 4 filas y **resuelve**. Va como `Ref`, sin
 excepciones ni deuda pendiente.
@@ -327,12 +335,32 @@ OR([TecnicoID].[Correo] = USEREMAIL(), [SupervisorID].[Correo] = USEREMAIL())
 
 **RG-09:** `CHK_Checklists.VersionFormulario`, `Initial value` = `[FormularioID].[Version]`.
 
-**RG-16:** `ACT_Activos.Activo`, `App formula` = `[EstadoActivoID] <> "Retirado"`.
+**RG-16:** `ACT_Activos.Activo`, `App formula` = `[EstadoActivoID].[Nombre] <> "Retirado"`.
 
-**RG-17:** `ACT_Activos.FechaBaja`, `Required_If` = `[EstadoActivoID] = "Retirado"`.
+**RG-17:** `ACT_Activos.FechaBaja`, `Required_If` = `[EstadoActivoID].[Nombre] = "Retirado"`.
 
-**RG-14 y RG-15 — el histórico no se borra.** En *Data > Tables >* `OT_OrdenesTrabajo` y
-`MAN_Mantenimientos`, en **Are updates allowed**, dejar `Updates` y `Adds` y **retirar `Deletes`**.
+> **La comparación va contra `[Nombre]`, no contra la columna a secas.** `EstadoActivoID` es un
+> `Ref` y **un `Ref` guarda la clave del destino**, que en `EST_Activo` vale `1` a `4`; el texto
+> `Retirado` vive en `Nombre`. Escrito `[EstadoActivoID] <> "Retirado"`, RG-16 es **siempre cierta**
+> — y al ser una `App formula` **escribe**: repondría `Activo = TRUE` sobre el activo 34, deshaciendo
+> en silencio la baja que dejó `ESPEC-001C`. La regla **V-17** de `validar_modelo.py` detiene ahora
+> esta clase de error.
+
+**RG-14 y RG-15 — el histórico no se borra.** En *Data > Tables >*, en **Are updates allowed**:
+
+| Tabla | Se deja | Se retira |
+|---|---|---|
+| `MAN_Mantenimientos` | `Updates`, `Adds` | `Deletes` |
+| `OT_OrdenesTrabajo` | `Updates` | `Deletes` **y `Adds`** |
+
+**Por qué también `Adds` en la orden.** `OTID` sigue la convención legible `OT-0001`, y ninguna
+tabla del paso 4.3 le asigna `UNIQUEID()` porque eso rompería esa convención. Un contador del tipo
+`COUNT(...)+1` **compite consigo mismo**: esta aplicación opera offline y sincroniza después, así
+que dos técnicos sin señal generarían el mismo número. Dejar `Adds` sin generación de clave produce
+órdenes con `OTID` en blanco.
+
+Mientras no se decida el generador, **las órdenes se crean en el Sheets**. Queda anotado como deuda
+y es trabajo de una `ESPEC-003`.
 
 **Solo después de haber poblado `OT.Activo = TRUE` en las 6 órdenes** (paso 5.1).
 
@@ -377,9 +405,14 @@ sobre producción.**
 
 1. **Restaurar la versión `1.000238` en *Manage > Versions* es la reversión completa de esta fase**,
    siempre que nadie haya escrito en el Sheets durante la ventana.
-2. **Excepción: las filas que escriban las pruebas.** P-04, P-08 y P-12 crean registros reales en
-   `MAN_Mantenimientos`. Como RG-15 retira el borrado, **se eliminan a mano en el Sheets**, en este
-   orden: primero los hijos (`FOT`, `FIR`, `CHK`, `CHD`), después el mantenimiento.
+2. **Excepción: solo las filas creadas durante la ventana.** La única prueba que **crea** es P-04;
+   P-08 edita una fila que ya existe y P-12 solo lee. Esas filas nuevas se reconocen por su clave
+   `UNIQUEID()` —una cadena aleatoria, no un `TEST-`— y como RG-15 retira el borrado **se eliminan a
+   mano en el Sheets**.
+
+   **`TEST-MTTO-001` y sus 20 hijos NO se tocan.** Son datos de la Fase A, certificados en
+   `ACTA-002`: 3 fotografías, 1 firma, 1 checklist y 15 detalles. Son la cadena de evidencia
+   poblada, no residuo de esta fase.
 3. Restaurar el respaldo del Sheets **no** es reversión de la Fase B: tiraría también toda la Fase A.
    Solo se usa si algo corrompe los datos, no la configuración.
 4. Anotar en qué paso falló y con qué mensaje **antes** de reintentar.

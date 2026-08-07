@@ -111,7 +111,7 @@ Mientras esto no se resuelva, cualquier trabajo de configuración se hace sobre 
 - [x] **Hacerlas visibles en la aplicación:** *Regenerate Structure* ejecutado el 6 de agosto de
       2026, la tabla pasó de 26 a 28 columnas; tipadas `LatLong` y `Number`; aplicación guardada
 - [x] **Especificar el cableado de referencias.** Hecho el 7 de agosto de 2026. Procedimiento en
-      `CABLEADO_REFERENCIAS_SGMC.md`, declarado en `scripts/modelo_objetivo.py` (`RETIPADOS` y
+      `ESPEC-001`, declarado en `scripts/modelo_objetivo.py` (`RETIPADOS` y
       `RENOMBRADOS`) y validado con 0 errores por `validar_modelo.py`, reglas V-14 a V-16
 - [ ] **Ejecutar el cableado en producción.** Lo aplica `sgmc-ejecutor` por navegador, siguiendo
       `CABLEADO_REFERENCIAS_SGMC.md`, y **solo con las tres firmas** del pipeline SDD.
@@ -204,7 +204,7 @@ Y sobre `Precision_GPS`, valor inicial `USERLOCATIONACCURACY()`.
 pudo ejecutar**: al escribir la regla, AppSheet reveló que `OTID` no es una referencia sino texto.
 Ver la sección 10 del dictamen de auditoría. La regla queda pendiente del cableado de referencias,
 cuyo procedimiento completo —con su orden, sus verificaciones y su reversión— está en
-`CABLEADO_REFERENCIAS_SGMC.md`.
+`docs/sdd/ESPEC-002-cableado-en-appsheet.md`.
 
 Aunque se cablee, el geofencing seguirá sin funcionar mientras los 34 activos compartan la
 coordenada de Bogotá (D-01) y el radio esté sin confirmar (D-02).
