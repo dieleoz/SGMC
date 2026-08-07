@@ -57,6 +57,23 @@ ciego que descubrimos el 2026-08-07: llevabas cuatro rondas verificando datos co
 `docs/PLATAFORMA_APPSHEET_VERIFICADO.md`. Si la especificación se apoya en un comportamiento que no
 figura ahí ni en la tabla de supuestos, exige la fuente o la declaración.
 
+**4c. ¿Tiene en cuenta que el backend es una hoja de cálculo, no una base de datos?** Es la
+limitación arquitectónica de fondo y de ella salen casi todas las demás. Ninguna de estas es
+opinable:
+
+| Limitación | Consecuencia que debes buscar |
+|---|---|
+| **El Sheets no impone ninguna restricción.** No hay unicidad, ni tipos, ni integridad referencial | **Toda garantía vive en la capa de aplicación.** `Valid_If`, `Required_If` y las referencias se evalúan en la app: quien escriba directamente en la hoja **se las salta todas**. Hoy hay dos cuentas con permiso de edición, así que esto no es gobierno, es arquitectura |
+| **No hay transacciones** | Un mantenimiento, sus fotografías y su firma son escrituras de filas distintas. Una sincronización parcial deja una cadena de evidencia incompleta, y nada lo revierte |
+| **Es offline-first: consistencia eventual** | Todo contador, secuencia o «siguiente número» **compite consigo mismo**. Es por lo que `OT_OrdenesTrabajo` perdió `Adds`. Sospecha de cualquier regla que dependa de leer el estado global |
+| **La sincronización baja la tabla al dispositivo** | El Security Filter no es solo control de acceso: es **arquitectura de rendimiento**. Sin él, cada técnico se descarga el inventario entero |
+| **Las imágenes van al Drive del propietario** | Cuota y propiedad de un tercero. Decisión D-A |
+| **Sin plan Core no hay API REST** | No hay integración ni pruebas automatizadas. Todo se verifica a mano o leyendo la hoja |
+
+**Cuando una especificación prometa una garantía, pregunta dónde se cumple.** Si la respuesta es
+«en la app», entonces no se cumple para quien escriba en el Sheets — y eso hay que decirlo, no
+dejarlo implícito.
+
 **4. ¿Cabe en la plataforma?** Plan gratuito: los procesos programados **no se ejecutan**. Sin plan
 Core no hay API REST. Las imágenes van al Drive del propietario, hoy una cuenta personal con 15 GB.
 Una especificación que asume cualquiera de estas tres cosas es inejecutable, no discutible.

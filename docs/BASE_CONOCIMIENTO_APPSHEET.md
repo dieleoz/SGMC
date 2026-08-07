@@ -177,6 +177,25 @@ el formato. `HERE()` devuelve un `LatLong` tal como lo reporta el dispositivo.
 
 ---
 
+## Limitaciones arquitectónicas de fondo
+
+No son comportamientos que se puedan citar de una página: son consecuencias de que **el backend sea
+una hoja de cálculo y no una base de datos**. Condicionan el diseño más que cualquier detalle de
+sintaxis.
+
+| Limitación | Consecuencia |
+|---|---|
+| **El Sheets no impone restricciones.** Ni unicidad, ni tipos, ni integridad referencial | Toda garantía vive en la capa de aplicación. Quien escriba directamente en la hoja se salta `Valid_If`, `Required_If` y las referencias. **Hay dos cuentas con permiso de edición**, así que esto es arquitectura y no gobierno |
+| **No hay transacciones** | Un mantenimiento, sus fotografías y su firma son escrituras separadas. Una sincronización parcial deja la cadena de evidencia incompleta y nada la revierte |
+| **Offline-first: consistencia eventual** | Todo contador o secuencia compite consigo mismo. Es la razón de que `OT_OrdenesTrabajo` perdiera `Adds` |
+| **La sincronización baja la tabla al dispositivo** | El Security Filter es arquitectura de rendimiento, no solo control de acceso |
+| **Las imágenes van al Drive del propietario** | Cuota y propiedad de un tercero. Decisión D-A |
+| **Sin plan Core no hay API REST** | Ni integración ni pruebas automatizadas. De ahí que `PRUEBA-002` sean pruebas de aceptación y no TDD |
+
+**La consecuencia que más se olvida:** «el histórico no se borra» (RG-14, RG-15) se cumple **en la
+aplicación**. Alguien con acceso al Sheets borra la fila y no hay nada que lo impida. Lo que el
+sistema puede ofrecer es que falsificar cueste más que hacer el trabajo, no que sea imposible.
+
 ## Lo que sigue SIN verificar contra la fuente
 
 Se declara, no se afirma. Es lo que puede morder después.
