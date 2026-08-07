@@ -153,7 +153,9 @@ Mientras esto no se resuelva, cualquier trabajo de configuración se hace sobre 
       no hay `Show_If` ni `Required_If` que lo imponga —depende de `OT.Tipo`, hoy vacía—, y
       `ObservacionRechazo` es la traza de la devolución del supervisor, sin regla. Un campo que
       existe y nada puebla es la misma patología que `CodigoQR`: estructura sin comportamiento
-- [ ] **REABIERTA: normalizar formatos antes del cableado.** F-16 y F-17 detectaron 8 puntos que
+- [x] **FORMATOS CERRADOS el 7 de agosto de 2026.** `Modelo de Datos (11).xlsx`, 59 conformes, 0
+      fallos. Acta en `ACTA-004`. La hoja no se toca más
+- [x] ~~REABIERTA: normalizar formatos antes del cableado.~~ F-16 y F-17 detectaron 8 puntos que
       ninguna comprobación anterior veía: siete referencias donde la clave se guarda como número y
       quien la apunta como texto —o mezcladas en la misma columna—, y `TIP_TiposActivo.FormularioID`
       con 18 fórmulas de hoja de cálculo en vez de datos. Prompt en

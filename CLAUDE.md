@@ -79,6 +79,11 @@ como supuesto, en la tabla del final de ese documento.
   Cuatro tablas del modelo están hoy vacías (`MAN_Mantenimientos`, `FOT_Fotografias`,
   `FIR_Firmas`, `GPS`).
 - Al cerrar un hallazgo, deja constancia de con qué comando y qué salida lo cerraste.
+- **Al leer un `.xlsx` con openpyxl, `data_only=True` o estarás leyendo fórmulas.** Sin él,
+  `TIP_TiposActivo.FormularioID` devolvía `=CONCAT("FRM_",MID(B2,1,4))` en vez de `FRM_SOS`: 18
+  huérfanos contra su tabla destino que ninguna regla veía, y un diccionario As-Built generado con
+  esa basura. **Y al revés para detectar fórmulas:** con `data_only` openpyxl deja de verlas, así
+  que F-17 necesita su propio libro sin él. Dos libros abiertos del mismo archivo.
 - **Una regla de validación nueva se prueba reintroduciendo el defecto.** Si no la ves fallar, no
   sabes si funciona. V-17 se escribió el 2026-08-07 para cazar un defecto real y **su primera
   versión daba falso positivo** sobre una regla correcta: prohibía la clase entera en vez de

@@ -15,23 +15,21 @@ al terminar hay referencias reales, geofencing y navegación entre tablas.
 
 ## 1. Verificación previa, obligatoria
 
-**La hoja está REABIERTA.** Se cerró en contenido el 7 de agosto (`ACTA-003`), pero dos
-comprobaciones nuevas —`F-16` y `F-17`— encontraron después problemas de **formato** que ninguna
-regla anterior veía. Sobre la última descarga:
+**La hoja está cerrada, en contenido y en formato.** Constancia en `ACTA-004`, sobre
+**`BD/Modelo de Datos (11).xlsx`**:
 
 ```
-python scripts/verificar_faseA.py "BD/Modelo de Datos (9).xlsx"
--> FALLOS (3), AVISOS (11), FASE A INCOMPLETA
+python scripts/verificar_faseA.py "BD/Modelo de Datos (11).xlsx"
+-> CONFORMES (59), AVISOS (6), FASE A CERRADA
 ```
 
-Los tres: `OT.SupervisorID` mezcla número y texto en la misma columna, `ACT.ActivoID` guarda números
-mientras las órdenes lo apuntan como texto, y `TIP_TiposActivo.FormularioID` contiene 18 fórmulas de
-hoja de cálculo en lugar de datos.
+Se cerró dos veces: primero en contenido (`ACTA-003`) y luego en formato, cuando `F-16` y `F-17`
+encontraron que siete referencias no compartían representación con su clave y que
+`TIP_TiposActivo.FormularioID` contenía 18 fórmulas en lugar de datos. Ninguna regla anterior lo
+veía.
 
-**Esta fase no arranca hasta que vuelva a decir `FASE A CERRADA`.** Se corrige en la hoja con
-`docs/prompts/PROMPT_AGENTE_HOJA_FORMATOS.md`, y se hace antes del cableado por R-4: una conversión
-`Text` a `Ref` conserva solo las filas que coinciden, así que arreglarlo después no es un arreglo,
-es una migración.
+Se hizo **antes** del cableado por R-4: una conversión `Text` a `Ref` conserva solo las filas que
+coinciden, así que arreglarlo después no habría sido un arreglo sino una migración.
 
 **Vuelve a correrlo antes de empezar, sobre la descarga más reciente.** La hoja la editan dos
 personas más, y los archivos anteriores ya no pasan: el `(6)` y el `(7)` dan hoy
@@ -242,7 +240,7 @@ por qué.
 seis órdenes quedarían inactivas.
 
 **Esto es contexto, no trabajo pendiente.** Se aplicó el 7 de agosto de 2026 y está verificado en
-`ACTA-003` sobre `BD/Modelo de Datos (9).xlsx`, con `FASE A CERRADA` y 0 fallos.
+`ACTA-004` sobre `BD/Modelo de Datos (11).xlsx`, con `FASE A CERRADA` y 0 fallos.
 
 **No vuelvas al Google Sheets a «aplicarlo».** Ya está. Reeditar lo que ya es correcto es como se
 rompen las cosas en este proyecto.

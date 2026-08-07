@@ -9,14 +9,14 @@ aceptación, y se llaman por su nombre.
 | | |
 |---|---|
 | Cubre | `ESPEC-002` |
-| Estado de partida | Hoja cerrada y verificada, `ACTA-003`. **57 conformes**, 0 fallos |
+| Estado de partida | Hoja cerrada y verificada, `ACTA-004`. **59 conformes**, 0 fallos |
 | Punto de restauración | AppSheet versión `1.000238`; Sheets `SGMC_backup_2026-08-07_antes_cableado_FaseA` |
 
 ## 1. Estado de partida
 
-Verificado el 2026-08-07 sobre **`BD/Modelo de Datos (9).xlsx`**, la última **descarga del Sheets de
-producción**, con la hoja ya cerrada (`ACTA-003`, 57 conformes y 0 fallos). No es el Excel local
-histórico, que describe otro modelo:
+Verificado el 2026-08-07 sobre **`BD/Modelo de Datos (11).xlsx`**, la última **descarga del Sheets
+de producción**, con la hoja cerrada en contenido y en formato (`ACTA-004`, 59 conformes y 0
+fallos). No es el Excel local histórico, que describe otro modelo:
 
 | Tabla | Filas | Relevancia |
 |---|---|---|

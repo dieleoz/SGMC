@@ -1,7 +1,7 @@
 # Diccionario de datos — As-Built
 
 **Generado automáticamente** por `scripts/generar_diccionario_bd.py` desde
-`Modelo de Datos (9).xlsx`. No editar a mano.
+`Modelo de Datos (11).xlsx`. No editar a mano.
 
 Describe **lo que la hoja tiene hoy**, no lo que debería tener. El modelo objetivo está en
 `ARQUITECTURA_OBJETIVO_SGMC.md`; aquí se marca la distancia entre uno y otro.
@@ -93,7 +93,7 @@ Leyenda del estado de cada columna:
 
 Inventario de los activos del corredor. Es el eje del sistema.
 
-17 columnas · 34 filas · clave: `1.0`, `2.0`
+17 columnas · 34 filas · clave: `1`, `2`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -199,7 +199,7 @@ Taxonomia de activos. Determina que checklist abre la aplicacion.
 
 Personas del sistema. El correo resuelve la sesion contra USEREMAIL().
 
-11 columnas · 11 filas · clave: `2.0`, `3.0`
+11 columnas · 11 filas · clave: `2`, `3`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|

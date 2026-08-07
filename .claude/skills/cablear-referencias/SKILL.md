@@ -40,7 +40,8 @@ afirmar nada. Ejemplo real: `MAN_Mantenimientos.ActivoID` existe en el Excel y n
 ```bash
 python -c "
 import openpyxl
-wb = openpyxl.load_workbook('BD/Modelo de Datos (2).xlsx', read_only=True)
+# data_only=True o leeras el texto de la formula, no su valor
+wb = openpyxl.load_workbook('BD/Modelo de Datos (11).xlsx', read_only=True, data_only=True)
 ws = wb['NOMBRE_TABLA']
 print([c.value for c in next(ws.iter_rows(min_row=1,max_row=1))])
 "
