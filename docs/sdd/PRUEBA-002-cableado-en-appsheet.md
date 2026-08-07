@@ -175,13 +175,18 @@ fallos). No es el Excel local histórico, que describe otro modelo:
 
 - **Qué comprueba:** que sincronizó. **La aplicación puede mostrar un registro guardado que no
   llegó al backend**, y sin esta prueba no hay forma de saberlo.
-- **Acción:** tras P-08, leer `MAN_Mantenimientos` en producción con el conector de Drive,
+- **Acción:** leer `MAN_Mantenimientos` en producción con el conector de Drive,
   `fileId = 1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc`.
-- **Resultado esperado:** la fila con valor en `Coordenadas_Cierre`, `Precision_GPS`,
-  `UbicacionEscaneo` y `FechaHoraEscaneo`. **Las cuatro con dato, no vacías.** Es la otra mitad de
-  RG-20: `Editable_If = FALSE` impide que el técnico las toque, pero hay que demostrar que el
-  `Initial value` **sigue capturando**. Si además dejaran de escribirse, el geofencing se quedaría
-  sin dato y la regla validaría contra vacío.
+- **Resultado esperado, y son dos lecturas distintas:**
+  1. **La fila que creó P-04**, identificada por su clave `UNIQUEID()` —una cadena aleatoria, no un
+     `TEST-`—, con dato en `Coordenadas_Cierre`, `Precision_GPS`, `UbicacionEscaneo` y
+     `FechaHoraEscaneo`. **Las cuatro, no vacías.**
+  2. **La fila que editó P-08**, `TEST-MTTO-001`, para confirmar que el guardado sincronizó.
+- **Por qué las dos, y no solo la segunda.** `TEST-MTTO-001` **ya trae las cuatro columnas pobladas
+  desde la Fase A**: leerla de vuelta y encontrarlas con dato no prueba nada sobre la captura. La
+  única fila donde el `Initial value` se ejercita de verdad es la que crea P-04. Es la otra mitad
+  de RG-20: `Editable_If = FALSE` impide que el técnico las toque, pero si además dejaran de
+  escribirse, el geofencing se quedaría sin dato y la regla validaría contra vacío.
 - **Cómo se distingue el fallo:** si la app lo muestra y el Sheets no lo tiene, hay un problema de
   sincronización que ninguna otra prueba detecta.
 

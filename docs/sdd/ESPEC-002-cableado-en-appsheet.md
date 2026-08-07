@@ -37,7 +37,7 @@ personas más, y los archivos anteriores ya no pasan: el `(6)` y el `(7)` dan ho
 
 ### Lo que ya está resuelto y NO hay que tocar
 
-Estos tres fueron bloqueantes y **están corregidos**. Si el ejecutor intenta «arreglarlos» otra vez,
+Estos siete fueron bloqueantes y **están corregidos**. Si el ejecutor intenta «arreglarlos» otra vez,
 rompe datos correctos:
 
 | Antes | Ahora |
@@ -54,7 +54,7 @@ rompe datos correctos:
 
 | Hecho verificado | Consecuencia |
 |---|---|
-| `TIP_TiposActivo.RadioGeofencingKm` está **vacío en los 18 tipos** | RG-01 usa el literal de `PAR_Parametros`. Ver bloque 4 |
+| `TIP_TiposActivo.RadioGeofencingKm` está **vacío en los 18 tipos** | RG-01 usa el **literal `1.0`**, no un parámetro. Ver bloque 4 |
 | `MAN_Mantenimientos` tiene **2 filas**, no 0 | Son de prueba y desechables, pero la premisa «no arrastra nada» ya no es literal |
 | `USR_Usuarios.UsuarioID` es texto en las 11 filas | Al tipar la clave, **forzar `Text`**: si AppSheet infiere `Number`, la fila `3aa202ee` queda sin clave válida |
 
@@ -387,6 +387,16 @@ tanda dejaría de discriminar.
 
 La versión con radio por tipo entra cuando se pueblen los 18. Queda anotado como deuda.
 
+> **`RADIO_GEOFENCING_KM` de `PAR_Parametros` no lo lee ninguna regla de esta fase**, y conviene
+> saberlo: quien lo cambie creerá haber recalibrado el geofencing sin haber cambiado nada. Es la
+> misma trampa que `PAR_Parametros.Activo`. Lo mismo con `DISTANCIA_ESCANEO_CIERRE_KM`, que
+> pertenece a RG-13, fuera de alcance. **De los tres parámetros, hoy solo `UMBRAL_GPS` se lee**,
+> por RG-19.
+>
+> Se deja el literal en RG-01 a propósito: es una de las cuatro pruebas innegociables, y meterle
+> un `LOOKUP` —cuyo comportamiento no está verificado contra la documentación de Google— añadiría
+> riesgo justo en la regla que menos lo admite. RG-19 ya carga con ese riesgo y no es innegociable.
+
 **RG-02:** `Precision_GPS`, `Initial value` = `USERLOCATIONACCURACY()`.
 
 **RG-03:** `MotivoExcepcion`, `Required_If` = `[CierreConExcepcion] = TRUE`.
@@ -560,8 +570,8 @@ sobre producción.**
    `ACTA-004`: 3 fotografías, 1 firma, 1 checklist y 15 detalles. Son la cadena de evidencia
    poblada, no residuo de esta fase.
 
-3. **Escrituras sobre `ACT_Activos` fila 34, que es dato maestro y no de prueba.** Dos pruebas la
-   tocan y hay que devolverla como estaba:
+3. **Escrituras sobre datos que no son de prueba.** Tres pruebas las tocan y hay que devolverlas
+   como estaban:
 
    | Prueba | Qué escribe | Cómo se restituye |
    |---|---|---|
@@ -569,7 +579,7 @@ sobre producción.**
    | P-17 | Vacía `FechaBaja` en el formulario | La rama que pasa **no persiste nada**: AppSheet rechaza el guardado y se cancela. Si la regla falla y llega a guardar, devolver `FechaBaja = 2026-08-07` |
    | P-18 | Cambia `PAR_Parametros.UMBRAL_GPS` a `50` para probar la calibración | Devolverlo a **`40`**. Si se interrumpe a medias, el umbral se queda en 50 y **todo cierre entre 40 y 45 m saldría como limpio** — el fallo exacto que RG-19 existe para impedir. Ejecutar junto a P-17, al final de la tanda |
 
-   Ninguna de las dos cambia el `EstadoActivoID`, así que el activo 34 sigue `Retirado` en todo
+   Ninguna de las tres cambia el `EstadoActivoID`, así que el activo 34 sigue `Retirado` en todo
    momento.
 4. Restaurar el respaldo del Sheets **no** es reversión de la Fase B: tiraría también toda la Fase A.
    Solo se usa si algo corrompe los datos, no la configuración.
