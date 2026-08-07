@@ -167,6 +167,11 @@ al crear un registro.
 | `CHD_ChecklistDetalle` | `DetalleID` | `UNIQUEID()` |
 | `NOV_Novedades` | `NovedadID` | `UNIQUEID()` |
 
+**Supuesto declarado, no verificado:** que `UNIQUEID()` no colisiona entre dispositivos que trabajan
+**sin conexión**. No se ha encontrado la página oficial que lo garantice. Importa porque es el
+argumento por el que `OT_OrdenesTrabajo` pierde `Adds`. Ver la tabla final de
+`docs/BASE_CONOCIMIENTO_APPSHEET.md`.
+
 **Verificación del bloque 1:** `MAN_Mantenimientos` muestra **36 columnas**. Cada tabla tiene una
 sola clave, la de la tabla anterior, con su tipo. Un número **mayor** que 36 significa definiciones
 de columna fantasma que sobrevivieron al *Regenerate* —`MttoID`, `Tecnico_Asignado`— y hay que
@@ -195,6 +200,23 @@ Independientes entre sí, no pueden romper nada.
 | `FOT_Fotografias` | `Ubicacion` | `LatLong` |
 | `FIR_Firmas` | `Imagen` | `Signature` |
 | `TIP_TiposActivo` | `RadioGeofencingKm` | `Decimal` |
+
+### 5.0 `Editable_If = FALSE` en las cuatro columnas de captura. **Antes que ninguna regla**
+
+| Tabla | Columna | `Editable_If` |
+|---|---|---|
+| `MAN_Mantenimientos` | `Coordenadas_Cierre` | `FALSE` |
+| `MAN_Mantenimientos` | `Precision_GPS` | `FALSE` |
+| `MAN_Mantenimientos` | `UbicacionEscaneo` | `FALSE` |
+| `MAN_Mantenimientos` | `FechaHoraEscaneo` | `FALSE` |
+
+**Sin esto el geofencing es decorativo, y es la razón de ser del sistema.** `HERE()` y
+`USERLOCATIONACCURACY()` son `Initial value`, **no `App formula`**, y un valor inicial **sí lo puede
+editar el usuario**. `Coordenadas_Cierre` es un `LatLong`: en un formulario AppSheet lo dibuja como
+un **pin arrastrable sobre un mapa**, y la ubicación del activo está visible en la propia
+aplicación. El técnico arrastra el pin encima del activo y **RG-01 valida sin protestar**.
+
+La regla se cumpliría y la presencia no quedaría probada. Es RG-20.
 
 Si `Coordenadas_Cierre` queda como `Text`, `DISTANCE()` no opera y el bloque 4 falla sin explicar
 por qué.
@@ -312,6 +334,10 @@ excepciones ni deuda pendiente.
 
 La cascada de `IsPartOf` es inofensiva **porque el mantenimiento nunca se borra** (RG-15).
 
+> **Y no hay transacciones.** Un mantenimiento, sus fotografías, su firma y su checklist son
+> escrituras de filas **independientes**. Una sincronización parcial deja la cadena de evidencia
+> incompleta y **nada la revierte**. No es corregible en esta fase: se declara como límite conocido.
+
 **Verificación del bloque 3, y es la que importa de toda la fase.** En el Asistente de Expresiones,
 sobre `MAN_Mantenimientos`:
 
@@ -357,6 +383,10 @@ La versión con radio por tipo entra cuando se pueblen los 18. Queda anotado com
 IN([UnidadFuncionalID], SELECT(ASG_AsignacionZona[UnidadFuncionalID], AND([UsuarioID].[Correo] = USEREMAIL(), [Activo] = TRUE)))
 ```
 
+> **El Security Filter no es confidencialidad.** Es control de acceso **en la app** y, sobre todo,
+> **arquitectura de rendimiento**: sin él cada técnico se descarga el inventario entero al
+> dispositivo. Quien tenga el enlace del Sheets ve todas las filas igualmente.
+
 **RG-05, Security Filter** sobre `OT_OrdenesTrabajo`:
 
 ```
@@ -393,6 +423,13 @@ Mientras no se decida el generador, **las órdenes se crean en el Sheets**. Qued
 y es trabajo de una `ESPEC-003`.
 
 **Solo después de haber poblado `OT.Activo = TRUE` en las 6 órdenes** (paso 5.1).
+
+> **Dónde se cumple esta garantía, y dónde no.** Retirar `Deletes` protege **dentro de la
+> aplicación**. Nadie impide que alguien borre la fila a mano en el Sheets, y hay **dos cuentas con
+> permiso de edición**. El backend es una hoja de cálculo: no impone unicidad, ni tipos, ni
+> integridad referencial, de modo que **toda garantía de este documento vive en la capa de
+> aplicación**. Lo que el sistema puede ofrecer es que **falsificar cueste más que hacer el trabajo,
+> no que sea imposible**. Es el propósito declarado del proyecto y conviene no prometer más.
 
 **RG-18 — prohibición, no configuración.** No se «activa»: es lo que **no** hay que hacer.
 
@@ -486,6 +523,6 @@ sobre producción.**
 
    Ninguna de las dos cambia el `EstadoActivoID`, así que el activo 34 sigue `Retirado` en todo
    momento.
-3. Restaurar el respaldo del Sheets **no** es reversión de la Fase B: tiraría también toda la Fase A.
+4. Restaurar el respaldo del Sheets **no** es reversión de la Fase B: tiraría también toda la Fase A.
    Solo se usa si algo corrompe los datos, no la configuración.
-4. Anotar en qué paso falló y con qué mensaje **antes** de reintentar.
+5. Anotar en qué paso falló y con qué mensaje **antes** de reintentar.

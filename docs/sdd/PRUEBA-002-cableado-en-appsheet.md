@@ -9,7 +9,7 @@ aceptación, y se llaman por su nombre.
 | | |
 |---|---|
 | Cubre | `ESPEC-002` |
-| Estado de partida | Fase A cerrada y verificada, `ACTA-002`. **43 conformes**, 0 fallos |
+| Estado de partida | Fase A cerrada y verificada, `ACTA-002`. **52 conformes**, 0 fallos |
 | Punto de restauración | AppSheet versión `1.000238`; Sheets `SGMC_backup_2026-08-07_antes_cableado_FaseA` |
 
 ## 1. Estado de partida
@@ -150,6 +150,11 @@ Excel*). No es el Excel local histórico, que describe otro modelo:
   | `OT_OrdenesTrabajo` | **No aparece** | **No aparece** |
   | `MAN_Mantenimientos` | **No aparece** | **Sí aparece** |
 
+- **Alcance de lo que demuestra:** que la acción no está **en la aplicación**. Quien tenga acceso al
+  Sheets borra la fila igual: el backend es una hoja de cálculo y no impone nada. Esta prueba no
+  puede demostrar lo contrario, y conviene no leerla como si lo hiciera.
+- **Supuesto declarado:** que retirar `Deletes` oculta la acción en **todas** las vistas. No se ha
+  encontrado la página oficial que lo garantice; recórrelas.
 - **Cómo se distingue el fallo:** si el botón de borrar está, la puerta trasera sigue abierta.
   Pero ojo con la otra mitad: **si `MAN_Mantenimientos` pierde también `Adds`, P-04 y P-12 quedan
   inejecutables**, porque no habría forma de crear un registro desde la aplicación. La asimetría no

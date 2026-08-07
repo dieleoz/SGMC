@@ -8,7 +8,7 @@ Este documento define el sistema que se va a construir, no el que existe. El act
 descrito en `AUDITORIA_PLAN_Y_ROADMAP.md` y no sirve como base: sus referencias no están
 cableadas, cuatro tablas están vacías y la cadena relacional existe solo en el papel.
 
-**27 tablas · 194 columnas · 38 referencias · 19 reglas**
+**27 tablas · 194 columnas · 38 referencias · 20 reglas**
 
 ---
 
@@ -756,6 +756,16 @@ Contrasta donde escaneo con donde cerro. Una diferencia grande indica que escane
 
 ```
 DISTANCE([UbicacionEscaneo], [Coordenadas_Cierre]) <= 0.5
+```
+
+Cubre: Prueba de presencia
+
+### RG-20 · Editable_If sobre `MAN_Mantenimientos`.`(varias)`
+
+Sobre Coordenadas_Cierre, Precision_GPS, UbicacionEscaneo y FechaHoraEscaneo. SIN ESTO EL GEOFENCING ES DECORATIVO: HERE() y USERLOCATIONACCURACY() son Initial value, no App formula, y un Initial value SI es editable. Coordenadas_Cierre es un LatLong, que en un formulario AppSheet dibuja como un pin arrastrable sobre un mapa, y la ubicacion del activo esta visible en la app: el tecnico arrastra el pin encima del activo y RG-01 valida sin protestar. La regla se cumplia y la presencia no quedaba probada.
+
+```
+FALSE
 ```
 
 Cubre: Prueba de presencia

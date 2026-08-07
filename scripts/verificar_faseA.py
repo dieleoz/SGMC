@@ -294,6 +294,40 @@ for tabla in CLAVE_GENERADA:
         falla("F-11", "%s esta en CLAVE_GENERADA y tambien en CLAVE_LEGIBLE. Su clave sera "
                       "aleatoria en cuanto la app cree una fila: no puede estar en las dos" % tabla)
 
+# ------------- F-12 el dato no puede contradecir a la regla que lo calcula
+# RG-19 calcula CierreConExcepcion como [Precision_GPS] > 50 (umbral D-04). Si
+# el dato de la hoja dice otra cosa, la regla lo SOBREESCRIBE en cuanto alguien
+# toque la fila, porque es una App formula. Y con MotivoExcepcion ya escrito, la
+# fila acaba diciendo dos cosas.
+#
+# Es la misma forma que tuvo el defecto de RG-16: una regla cuyo dato la
+# desmiente, y ninguna comprobacion que lo viera.
+UMBRAL_GPS = 50
+
+if "MAN_Mantenimientos" in wb.sheetnames:
+    h = encabezados("MAN_Mantenimientos")
+    if "Precision_GPS" in h and "CierreConExcepcion" in h:
+        ip, ic = h.index("Precision_GPS"), h.index("CierreConExcepcion")
+        ws = wb["MAN_Mantenimientos"]
+        revisadas = 0
+        for r in ws.iter_rows(min_row=2, values_only=True):
+            if not r or r[0] in (None, "") or len(r) <= max(ip, ic):
+                continue
+            precision, marca = r[ip], r[ic]
+            if precision is None or marca is None:
+                continue
+            revisadas += 1
+            esperado = precision > UMBRAL_GPS
+            actual = str(marca).strip().upper() in ("TRUE", "VERDADERO", "1", "SI")
+            if esperado != actual:
+                falla("F-12", "MAN_Mantenimientos '%s': Precision_GPS=%s, luego RG-19 calculara "
+                              "CierreConExcepcion=%s, pero la hoja dice %s. La App formula "
+                              "sobreescribira el dato en cuanto alguien toque la fila"
+                      % (r[0], precision, esperado, actual))
+        if revisadas:
+            oks.append("Las %d filas de MAN_Mantenimientos coinciden con RG-19 (umbral %d m)"
+                       % (revisadas, UMBRAL_GPS))
+
 # ------------------------------------------------------------------- informe
 print("=" * 78)
 print("VERIFICACION DE LA FASE A")

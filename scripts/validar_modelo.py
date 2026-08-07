@@ -123,7 +123,7 @@ for tabla, d in MODELO.items():
 for r in REGLAS:
     if r["tabla"] not in MODELO:
         error("V-10", f"La regla {r['id']} apunta a la tabla {r['tabla']}, que no existe")
-    elif r["columna"] != "(tabla)":
+    elif r["columna"] not in ("(tabla)", "(varias)"):
         nombres = [c["nombre"] for c in MODELO[r["tabla"]]["columnas"]]
         if r["columna"] not in nombres:
             error("V-10", f"La regla {r['id']} apunta a {r['tabla']}.{r['columna']}, que no existe")

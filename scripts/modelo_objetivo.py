@@ -255,18 +255,18 @@ MODELO = {
             col("OrigenApertura", "Enum", obligatoria=True, valor_inicial="QR",
                 nota="QR o Lista. Abrir por lista no prueba presencia; se marca para poder exigir "
                      "QR donde importe y para medir cuantos cierres carecen de escaneo"),
-            col("UbicacionEscaneo", "LatLong",
+            col("UbicacionEscaneo", "LatLong", editable=False,
                 nota="Donde estaba el tecnico al escanear. Junto con Coordenadas_Cierre permite "
                      "comprobar que llego y se quedo, no que paso cerca"),
-            col("FechaHoraEscaneo", "DateTime",
+            col("FechaHoraEscaneo", "DateTime", editable=False,
                 nota="Con FechaHoraFin da la duracion real de la intervencion"),
             col("EstadoActivoID", "Ref", ref="EST_Activo", obligatoria=True, nueva=True,
                 nota="Estado en que queda el activo tras la intervencion. No existe en produccion: "
                      "se crea. El Excel local tiene 'Estado Final', que produccion no tiene"),
-            col("Coordenadas_Cierre", "LatLong", obligatoria=True, valor_inicial="HERE()",
+            col("Coordenadas_Cierre", "LatLong", obligatoria=True, valor_inicial="HERE()", editable=False,
                 valid_if="DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]",
                 mensaje_error="Ubicacion fuera de rango: debe estar junto al activo para cerrar."),
-            col("Precision_GPS", "Number", valor_inicial="USERLOCATIONACCURACY()"),
+            col("Precision_GPS", "Number", valor_inicial="USERLOCATIONACCURACY()", editable=False),
             col("CierreConExcepcion", "Yes/No", formula="[Precision_GPS] > 50",
                 nota="Supuesto D-04: umbral 50 m. Se calcula, no se edita (RG-19)"),
             col("MotivoExcepcion", "LongText", nota="Obligatorio si CierreConExcepcion es verdadero"),
@@ -784,6 +784,17 @@ REGLAS = [
          expresion="DISTANCE([UbicacionEscaneo], [Coordenadas_Cierre]) <= 0.5",
          descripcion=("Contrasta donde escaneo con donde cerro. Una diferencia grande indica que "
                       "escaneo en un sitio y cerro en otro. No bloquea: se reporta.")),
+    dict(id="RG-20", tabla="MAN_Mantenimientos", columna="(varias)",
+         tipo="Editable_If", cubre="Prueba de presencia",
+         expresion="FALSE",
+         descripcion=("Sobre Coordenadas_Cierre, Precision_GPS, UbicacionEscaneo y "
+                      "FechaHoraEscaneo. SIN ESTO EL GEOFENCING ES DECORATIVO: HERE() y "
+                      "USERLOCATIONACCURACY() son Initial value, no App formula, y un Initial "
+                      "value SI es editable. Coordenadas_Cierre es un LatLong, que en un "
+                      "formulario AppSheet dibuja como un pin arrastrable sobre un mapa, y la "
+                      "ubicacion del activo esta visible en la app: el tecnico arrastra el pin "
+                      "encima del activo y RG-01 valida sin protestar. La regla se cumplia y la "
+                      "presencia no quedaba probada.")),
     dict(id="RG-19", tabla="MAN_Mantenimientos", columna="CierreConExcepcion",
          tipo="App formula", cubre="D-04",
          expresion="[Precision_GPS] > 50",
