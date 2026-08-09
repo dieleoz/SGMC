@@ -111,7 +111,7 @@ Terminar el bloque tras el *Regenerate* deja exactamente el estado que hay que e
 clave adivinada y referencias automáticas colgando de ella.
 
 **Cómo elige AppSheet, según su documentación** (verificado el 2026-08-07, ver
-`docs/PLATAFORMA_APPSHEET_VERIFICADO.md`):
+`docs/BASE_CONOCIMIENTO_APPSHEET.md`):
 
 > Examina las columnas **de izquierda a derecha** buscando una con valores únicos y la convierte en
 > clave. **Si ninguna sirve, examina pares de columnas y las combina en una clave compuesta.**

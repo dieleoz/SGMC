@@ -322,7 +322,7 @@ como `LatLong` y de `Precision_GPS` como `Number`; y la configuración de `Initi
 `Valid_If`. El criterio de cierre es una fila escrita desde la aplicación con valor en ambas.
 
 **B-10. Entrega del backend pendiente.** El documento de producción pertenece a
-`valentinwebdeveloper@gmail.com`. Consultado el cliente, Valentín es el desarrollador y product
+`[correo del Propietario]`. Consultado el cliente, el Propietario de la Aplicación es el desarrollador y product
 owner del sistema, y existe una entrega planificada a la Concesión una vez recibido. El hallazgo se
 reclasifica: no es una falla de gobierno sino **un paso de transición con responsable**, que debe
 quedar con fecha en el acta.

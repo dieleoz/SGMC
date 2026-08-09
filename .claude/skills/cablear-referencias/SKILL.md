@@ -16,7 +16,7 @@ Esta skill existe para que eso no se repita.
 > **Una referencia de AppSheet guarda el valor de la clave de la tabla destino.**
 
 Confirmado en la documentación oficial el 2026-08-07, con esas palabras. La fuente y el resto de
-comportamientos verificados están en `docs/PLATAFORMA_APPSHEET_VERIFICADO.md`; **consúltalo antes de
+comportamientos verificados están en `docs/BASE_CONOCIMIENTO_APPSHEET.md`; **consúltalo antes de
 afirmar cómo se comporta la plataforma**, en vez de tirar de memoria.
 
 Léela otra vez antes de seguir. Casi todos los errores de esta clase salen de ignorarla:

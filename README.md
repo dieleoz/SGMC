@@ -12,8 +12,9 @@ sesión con su cuenta corporativa.
 >
 > - **Fase A** —estructura y datos en la hoja— **cerrada** el 2026-08-07 con 59 comprobaciones
 >   conformes y 0 fallos sobre `BD/Modelo de Datos (11).xlsx`. Ver [`ACTA-004`](docs/sdd/ACTA-004-cierre-de-formatos.md)
-> - **Fase B** —cableado de 15 referencias— especificada y aprobada tras diez veredictos del
->   arquitecto. Sin ejecutar
+> - **Fase B** —cableado de referencias— **en ejecucion sobre una aplicacion reconstruida**.
+>   Son **38**, no 15: las 15 de `ESPEC-002` valian para convertir la app existente, donde otras
+>   23 ya estaban puestas. Ver [`prompts/PROMPT_AGENTE_APPSHEET_FASE_B.md`](docs/prompts/PROMPT_AGENTE_APPSHEET_FASE_B.md)
 > - **El alcance creció** al incorporar el contexto operativo real: varias tareas por tipo de
 >   equipo, cuatro clases de mantenimiento, correctivo con tiempos contractuales. Por eso la
 >   implementación pasa a ser progresiva, con **orden explícito** en el [ROADMAP](docs/ROADMAP.md#2-orden-de-implementación)
@@ -23,6 +24,10 @@ sesión con su cuenta corporativa.
 >
 > Siguen abiertas tres decisiones de Dirección: propiedad del backend, plan de licenciamiento y
 > definición contractual de disponibilidad. Ver [ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md).
+>
+> **La aplicacion se reconstruyo desde cero** el 2026-08-09. AppSheet no admite un cambio de
+> esquema tan profundo: su *Regenerate* fusiona en vez de reemplazar. Ver
+> [`BASE_CONOCIMIENTO_APPSHEET.md`](docs/BASE_CONOCIMIENTO_APPSHEET.md) §11 y §12.
 >
 > **El manual de usuario no se entrega**: describe una versión anterior del sistema.
 
@@ -196,7 +201,7 @@ Lo que corre la app es el Sheets.
 | B-04 | Solo 1 de 18 formularios tiene banco de preguntas |
 | B-09 | La fórmula de geofencing documentada durante meses, con `[ActivoID].[Ubicacion]`, no funciona: esa columna no existe en `MAN_Mantenimientos` |
 | B-10 | **El código QR no existe como objeto físico.** `ACT_Activos.CodigoQR` está poblado en los 34 activos, pero su valor es una copia literal de `CodigoActivo` (`SOS-001`, `CCTV-001`). Nada genera, imprime ni asigna una etiqueta, y AppSheet lee códigos pero no los produce. **Fuera de alcance por decisión del 7 de agosto de 2026:** el activo se abre por lista. La propuesta enviada a Dirección lo marca «Incluido», discrepancia abierta |
-| B-05 | La entrega del backend de Valentín a la Concesión está pendiente de fecha |
+| B-05 | La entrega del backend del Propietario de la Aplicación a la Concesión está pendiente de fecha |
 | B-06 | Fotografías, firmas y GPS están modelados dos veces: campos en `MAN_Mantenimientos` y tablas hijas vacías |
 | B-07 | `MAN_Mantenimientos` está vacía: ningún mantenimiento se ha ejecutado nunca de extremo a extremo |
 | B-08 | Datos de prueba sin limpiar en `CHK_Checklists`: un registro trae el nombre del técnico en lugar de su identificador y `NOW()` como texto literal |

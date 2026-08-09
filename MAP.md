@@ -181,3 +181,17 @@ D:\@Proyect\Sisga\
 
 ---
 *SGMC | Concesión Transversal del Sisga S.A.S.*
+
+## Frente de reconstruccion (2026-08-09)
+
+| Documento | Que es |
+|---|---|
+| [`docs/prompts/PROMPT_AGENTE_APPSHEET_FASE_B.md`](docs/prompts/PROMPT_AGENTE_APPSHEET_FASE_B.md) | **El instructivo vigente.** Las 38 referencias, los tipos, las reglas y las trampas |
+| [`docs/COMUNICACION_PROPIETARIO_APP.md`](docs/COMUNICACION_PROPIETARIO_APP.md) | Que comunicarle al propietario de la app original, con borrador del mensaje |
+| [`docs/FUNCIONAL_SGMC.md`](docs/FUNCIONAL_SGMC.md) | Que hace el sistema. Su §6 es el registro de una sola forma por proposito |
+| [`docs/sdd/RECONSTRUCCION_EXPRESIONES.md`](docs/sdd/RECONSTRUCCION_EXPRESIONES.md) | Los 27 nombres renombrados y las 20 reglas a reponer |
+| [`docs/BASE_CONOCIMIENTO_APPSHEET.md`](docs/BASE_CONOCIMIENTO_APPSHEET.md) | 12 comportamientos verificados. §11 y §12 son los que cambiaron el plan |
+| [`docs/CONTEXTO_OPERACION.md`](docs/CONTEXTO_OPERACION.md) | Como se mantiene el corredor de verdad |
+
+**Obsoleto:** `docs/ENTREGA_TECNICA_SGMC.md` describe reparar la app vieja tabla por tabla. Se
+abandono ese camino.

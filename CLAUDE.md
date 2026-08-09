@@ -50,7 +50,7 @@ Reglas mientras esto no se reconcilie:
 
 ## 2.1 Propiedad y edición del backend
 
-El Sheets de producción es propiedad de `valentinwebdeveloper@gmail.com`. Valentín es el
+El Sheets de producción es propiedad de `[correo del Propietario]`. el Propietario de la Aplicación es el
 desarrollador y product owner, y **hay una entrega planificada** a la Concesión una vez recibido el
 sistema. No es una falla de gobierno: es un paso de transición con responsable.
 
@@ -379,6 +379,52 @@ Ninguno sustituye a otro. Los tres se corren antes de dar nada por cerrado.
 
 **Lo que ninguno mide es si algo es buena idea.** Para eso está el arquitecto, y por eso su
 veredicto no se sustituye por «los scripts pasan».
+
+## 7.7 Una lista es correcta para UN punto de partida (regla nueva, 2026-08-09)
+
+`ESPEC-002` lista **15 columnas** que pasan a `Ref`. Es correcto: quedaban 15 por convertir en la
+aplicación existente, donde otras 23 ya estaban puestas.
+
+**Al reconstruir la aplicación desde cero, no sobrevivió ninguna: eran 38.** Y siguiendo la
+especificación al pie de la letra, `OT_OrdenesTrabajo.ActivoID` quedó en `Number`, de modo que
+`[OTID].[ActivoID].[Ubicacion]` —la desreferencia que la propia especificación usa como prueba— no
+resolvía.
+
+**El documento no mentía. Le faltaba declarar desde dónde se parte.**
+
+De ahí dos reglas:
+
+**Toda lista derivada declara su punto de partida.** «15 columnas pendientes» solo significa algo
+respecto a un estado concreto. Sin esa referencia, la lista se aplica a un estado distinto y produce
+un resultado incompleto que nadie detecta.
+
+**Cuando una especificación y `modelo_objetivo.py` discrepan, manda el modelo.** La especificación
+se generó de él en un momento dado; el modelo es lo que hay. `MODELO` tiene 38 columnas con `ref=`,
+y ese número no opina:
+
+```bash
+python -c "import sys;sys.path.insert(0,'scripts');import modelo_objetivo as M;print(sum(1 for d in M.MODELO.values() for c in d['columnas'] if c.get('ref')))"
+```
+
+## 7.8 Dos límites de AppSheet que cambiaron el plan (2026-08-09)
+
+Los dos están verificados en `docs/BASE_CONOCIMIENTO_APPSHEET.md` §11 y §12, y entre los dos
+explican por qué se abandonó reparar la aplicación y se reconstruyó.
+
+**AppSheet ignora las pestañas ocultas, y no avisa.** Ocho pestañas del libro —`ACT_Activos`,
+`USR_Usuarios`, `TIP_TiposActivo`, `ROL_Roles`, `SED_Sedes`, `CAL_Calzadas`, `SEN_Sentidos`,
+`FRE_Frecuencias`— estaban ocultas. Cargaban 24 tablas de 32 y ninguna de esas ocho aparecía en el
+desplegable de destino. **Lo cierra `F-18`**, que antes no existía: `verificar_faseA.py` declaró
+`FASE A CERRADA` dos veces sobre ese libro, porque `openpyxl` lee las ocultas sin distinción.
+
+**`Regenerate` fusiona, no reemplaza.** Conserva las columnas viejas a propósito. Sirve para añadir
+una columna; **con un esquema muy divergente impide converger**. El propio AppSheet indica la
+salida: «Delete and re-add the table». Y una cuenta coautora no puede dar de alta tablas, así que
+ese camino tampoco estaba disponible.
+
+**Por debajo de cierto umbral se repara; por encima se reconstruye.** El umbral no está escrito en
+ninguna parte y hay que estimarlo: 27 columnas renombradas, 8 tablas nuevas y 45 campos retirados
+estaban muy por encima.
 
 ## 7.5 Una sola forma por propósito (regla nueva, 2026-08-07)
 

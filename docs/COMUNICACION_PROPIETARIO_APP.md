@@ -1,4 +1,9 @@
-# Qué comunicarle a Valentín
+# Comunicación al Propietario de la Aplicación
+
+> **Documento por rol, no por persona.** El **Propietario de la Aplicación** es quien figura como
+> *owner* de la app en AppSheet y del documento de Google Sheets que le sirve de backend. En este
+> proyecto es un tercero, con una entrega planificada a la Concesión. El documento está escrito así
+> para poder replicarlo en otro contrato sin reescribirlo.
 
 **Ya no estamos bloqueados.** Este documento decía que hacía falta un permiso suyo para continuar.
 Se resolvió por otro camino, y ahora lo que queda es **avisar y cerrar un punto**.
@@ -6,9 +11,9 @@ Se resolvió por otro camino, y ahora lo que queda es **avisar y cerrar un punto
 | | |
 |---|---|
 | Actualizado | 2026-08-09 |
-| Aplicación original | `SGMC-886843353`, de `valentinwebdeveloper@gmail.com` |
-| Aplicación nueva | `SISGA`, propiedad de `dieleoz@gmail.com` |
-| Hoja de producción | `Modelo de Datos`, de Valentín, compartida con nosotros |
+| Aplicación original | `SGMC-886843353`, de `[correo del Propietario]` |
+| Aplicación nueva | `SISGA`, propiedad de `[correo de la Concesión]` |
+| Hoja de producción | `Modelo de Datos`, del Propietario, compartida con nosotros |
 
 ## 1. Qué pasó
 
@@ -75,7 +80,7 @@ sigue pudiendo escribir con permisos que el modelo nuevo ya no concede.
 
 ## 5. Borrador del mensaje
 
-> Hola Valentín,
+> Hola,
 >
 > Te cuento dónde estamos con el SGMC.
 >
