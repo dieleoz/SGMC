@@ -417,6 +417,30 @@ if "ACT_Activos" in wb.sheetnames:
                 else:
                     oks.append("ACT_Activos fila 34 (SUBE-001) tiene Activo=FALSE correctamente")
 
+# ------------- F-18 ninguna pestana del modelo esta OCULTA
+#
+# AppSheet IGNORA las pestanas ocultas al escanear un libro. No avisa: la tabla
+# simplemente no aparece en Add data, y quien busque ROL_Roles en el desplegable
+# de Source table no la encontrara nunca.
+#
+# openpyxl SI las lee, y por eso este script cerro la Fase A dos veces sobre un
+# libro con ACT_Activos, USR_Usuarios y TIP_TiposActivo ocultas. Vio las 32 y
+# dijo CERRADA mientras AppSheet solo veia 24.
+#
+# Es el mismo modo de fallo de F-17: la comprobacion pasaba porque medía lo que
+# no era. Se detecta con sheet_state, que openpyxl expone y nadie miraba.
+ocultas = [h for h in wb.sheetnames if wb[h].sheet_state != "visible"]
+del_modelo = [h for h in ocultas if h in MODELO]
+if del_modelo:
+    falla("F-18", "%d pestanas del modelo estan OCULTAS y AppSheet no las vera: %s. "
+                  "Mostrarlas en Google Sheets antes de dar de alta las tablas"
+                  % (len(del_modelo), ", ".join(sorted(del_modelo))))
+elif ocultas:
+    avisos.append("[F-18] %d pestanas ocultas, ninguna del modelo: %s"
+                  % (len(ocultas), ", ".join(sorted(ocultas))))
+else:
+    oks.append("Ninguna de las %d pestanas esta oculta" % len(wb.sheetnames))
+
 # ------- F-16 la clave y quien la apunta se guardan en el mismo formato
 # Un Ref guarda el VALOR de la clave. Si la clave esta como numero (2.0) y quien
 # la apunta como texto ('2'), al tipar ambas AppSheet tiene que convertir, y de

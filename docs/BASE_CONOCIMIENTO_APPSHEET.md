@@ -40,6 +40,7 @@ sirve para planificar.
 | 9 | `DISTANCE()` devuelve **kilómetros** | **RG-01**, el `<= 1.0`, **P-08** y **P-09** | Confirmado |
 | 10 | `LatLong` son grados decimales; el espacio tras la coma no es significativo | Formato de las filas `TEST-`, **P-04** | Confirmado |
 | 11 | *Regenerate* **fusiona**, no reemplaza: conserva las columnas viejas | Explica por que la Fase B no era cablear 15 columnas | Confirmado |
+| 12 | AppSheet **ignora las pestañas ocultas** de un libro | Explica por qué solo cargaban 24 de 32 tablas | Confirmado en la práctica |
 
 ---
 
@@ -217,6 +218,40 @@ es **borrar cada tabla y volver a darla de alta**, más reponer después la capa
 **Y explica el bloqueo de permisos como algo estructural, no accesorio.** Si el procedimiento pasa
 por dar de alta tablas, **una cuenta coautora no puede ejecutar la Fase B en absoluto**: `Add data`
 está reservado al propietario. No es un obstáculo que se rodee con maña.
+
+## 12. AppSheet ignora las pestañas ocultas
+
+**Verificado el 2026-08-09, en la práctica.** Al crear una aplicación sobre el libro, AppSheet
+ofreció **24 tablas de 32**. Las ocho que faltaban estaban marcadas como ocultas:
+
+```
+ACT_Activos · USR_Usuarios · TIP_TiposActivo · ROL_Roles
+SED_Sedes · CAL_Calzadas · SEN_Sentidos · FRE_Frecuencias
+```
+
+**Son el núcleo del modelo.** Sin ellas no hay activos, ni usuarios, ni catálogos, y ninguna
+referencia hacia ellas se puede configurar: no aparecen en el desplegable de *Source table*.
+
+**Y no avisa.** La tabla simplemente no está en la lista de *Add data*. Quien busque `ROL_Roles` en
+el desplegable concluirá que el problema es suyo.
+
+### Lo que esto delató de nuestras propias comprobaciones
+
+**`verificar_faseA.py` declaró `FASE A CERRADA` dos veces sobre un libro con esas ocho ocultas.**
+`openpyxl` las lee sin distinción, así que el script veía las 32 y cerraba la fase mientras AppSheet
+veía 24.
+
+Es el mismo modo de fallo que F-17: **la comprobación pasaba porque medía lo que no era.** Se
+detecta con `sheet_state`, que `openpyxl` expone y nadie miraba.
+
+Cerrado con **F-18**, probada en los dos sentidos: falla sobre el libro con ocultas, pasa sobre el
+corregido.
+
+### Y explica hacia atrás
+
+El 2026-08-08, al abrir *Add data* en la aplicación original, las sugerencias eran `FRM_SOS`,
+`FRM_CCTV`, `FRM_PMVF`, `GPS` y `UNF_UnidadesFuncionales` — **ninguna de las ocho ocultas**. La
+señal estaba delante y se leyó como un problema de permisos.
 
 ## Limitaciones arquitectónicas de fondo
 
