@@ -4,6 +4,13 @@
 archivo/
 archivo/*
 
+# Documentos de contexto operativo. NO SE VERSIONAN.
+# Tres de ellos son de otros corredores -ETRA en Neiva-Girardot, INDRA en otra
+# doble calzada- y no son de esta Concesion. Se consultan en local; lo que
+# aportan al modelo esta destilado en docs/CONTEXTO_OPERACION.md.
+contexto/
+contexto/*
+
 # Temporary python & scratch files
 __pycache__/
 *.pyc

@@ -39,6 +39,7 @@ sirve para planificar.
 | 8 | Cambiar la clave de una tabla **rompe** las referencias que la apuntan | `ESPEC-002` §4.2, el orden clave-antes-que-referencia | Confirmado |
 | 9 | `DISTANCE()` devuelve **kilómetros** | **RG-01**, el `<= 1.0`, **P-08** y **P-09** | Confirmado |
 | 10 | `LatLong` son grados decimales; el espacio tras la coma no es significativo | Formato de las filas `TEST-`, **P-04** | Confirmado |
+| 11 | *Regenerate* **fusiona**, no reemplaza: conserva las columnas viejas | Explica por que la Fase B no era cablear 15 columnas | Confirmado |
 
 ---
 
@@ -176,6 +177,46 @@ significativo — lo que relaja, sin eliminarla, la advertencia de `ESPEC-001C` 
 el formato. `HERE()` devuelve un `LatLong` tal como lo reporta el dispositivo.
 
 ---
+
+## 11. *Regenerate Structure* fusiona, no reemplaza
+
+**Verificado el 2026-08-09**, contra la documentación oficial y contra el propio mensaje de error de
+la aplicación.
+
+> «Cuando regeneras una tabla que reside en una hoja de Google Sheets o de Excel, AppSheet lee y
+> analiza el contenido de esa hoja para determinar el nombre y el tipo de cada columna. **Sin
+> embargo, AppSheet combina la información nueva con la que ya exista para la columna e intenta
+> mantener el nombre y el tipo de las columnas existentes.**»
+>
+> — [Add, reorder, or delete columns](https://support.google.com/appsheet/answer/10106675), AppSheet Help
+
+**Consecuencia:** una columna que desapareció de la hoja **no desaparece del esquema**. AppSheet la
+conserva a propósito, para no destruir la configuración que tenga encima.
+
+Es una ayuda razonable cuando el cambio es pequeño. **Cuando el esquema divergió mucho, se convierte
+en el problema**: `OT_OrdenesTrabajo` sobrevivió a varios *Regenerate* con sus ocho nombres de antes
+de la Fase A —`Numero_OT`, `Tecnico`, `Estado`, `Fecha Programada`, `SupervidorID`, `Fecha_Cierre`,
+`Cerrada_Por` y un `Activo` de tipo `Ref`— mientras la hoja tenía ya `OTID`, `ActivoID`,
+`TecnicoID`, `EstadoOrdenID` y `SupervisorID`.
+
+**Y las columnas reales no se pueden borrar una a una.** Solo las virtuales tienen papelera: las
+demás vienen de la hoja y AppSheet no ofrece esa opción.
+
+**La salida la dice el propio AppSheet**, literalmente, al intentar refrescar:
+
+> «Tables must specify a column structure. For some reason, the app definition has been corrupted.
+> It may also be possible that you left your column structure in an inconsistent state. **Delete and
+> re-add the table to create the column structure.**»
+
+### Qué sostiene
+
+**Que `ESPEC-002` describía mal la Fase B.** Decía «convertir 15 columnas a `Ref`», y el trabajo real
+es **borrar cada tabla y volver a darla de alta**, más reponer después la capa de expresiones desde
+`RECONSTRUCCION_EXPRESIONES.md`.
+
+**Y explica el bloqueo de permisos como algo estructural, no accesorio.** Si el procedimiento pasa
+por dar de alta tablas, **una cuenta coautora no puede ejecutar la Fase B en absoluto**: `Add data`
+está reservado al propietario. No es un obstáculo que se rodee con maña.
 
 ## Limitaciones arquitectónicas de fondo
 
