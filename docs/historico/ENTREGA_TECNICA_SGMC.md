@@ -1,3 +1,14 @@
+> # NO ENTREGAR — documento historico
+>
+> Describia **reparar la aplicacion existente**: borrar y volver a dar de alta las 28 tablas dentro
+> de ella, cazar definiciones fantasma, y un orden de abajo hacia arriba. **Ese camino se abandono el
+> 2026-08-09**, cuando se comprobo que AppSheet no admite un cambio de esquema de ese tamano y que
+> reconstruir desde cero funcionaba a la primera.
+>
+> Ademas contenia siete cifras escritas a mano que resultaron falsas.
+>
+> **El manual vigente es [`docs/MANUAL_DESPLIEGUE.md`](../MANUAL_DESPLIEGUE.md).**
+
 # Entrega tecnica — reconstruccion del SGMC en AppSheet
 
 **Este es el documento de entrada.** Dice que hay, en que estado, y el paso a paso para

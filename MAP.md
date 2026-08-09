@@ -193,5 +193,7 @@ D:\@Proyect\Sisga\
 | [`docs/BASE_CONOCIMIENTO_APPSHEET.md`](docs/BASE_CONOCIMIENTO_APPSHEET.md) | 12 comportamientos verificados. §11 y §12 son los que cambiaron el plan |
 | [`docs/CONTEXTO_OPERACION.md`](docs/CONTEXTO_OPERACION.md) | Como se mantiene el corredor de verdad |
 
-**Obsoleto:** `docs/ENTREGA_TECNICA_SGMC.md` describe reparar la app vieja tabla por tabla. Se
-abandono ese camino.
+| [`docs/MANUAL_DESPLIEGUE.md`](docs/MANUAL_DESPLIEGUE.md) | **El manual vigente.** De cero a app desplegada, en 10 pasos. Generado del modelo |
+
+**Retirado a `docs/historico/`:** `ENTREGA_TECNICA_SGMC.md`, que describia reparar la app vieja
+tabla por tabla. Ese camino se abandono.
