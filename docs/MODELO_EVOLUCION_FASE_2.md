@@ -222,13 +222,13 @@ Calculado con `scripts/capacidad.py` y con el volumen real del plan.
 **La sincronización se degrada.** AppSheet degrada por encima de **~50.000 filas por tabla**:
 
 ```
-CHD_ChecklistDetalle:  28.740 filas/año  →  143.700 a 5 años   (casi el triple)
+CHD_ChecklistDetalle:  32.400 filas/año  →  162.000 a 5 años   (casi el triple)
 ```
 
 No es opcional archivar por año. Y eso **sin** contar las mediciones de 48 hilos.
 
 **El almacenamiento se agota antes que la retención.** Con inventario real, la cuota de 15 GB de la
-cuenta personal que hoy posee el backend **se agota en 4,1 años**, antes de los 5 de retención
+cuenta personal que hoy posee el backend **se agota en 13,5 años**, antes de los 5 de retención
 exigida.
 
 Esto da número a **D-A** (propiedad del backend) y **D-B** (plan de licenciamiento), enviadas a

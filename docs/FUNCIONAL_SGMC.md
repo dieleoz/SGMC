@@ -173,8 +173,8 @@ No es «más adelante». Es **no en el plan actual**, y solo cambia con la decis
 | **Que una escritura directa en la hoja respete las validaciones** | Imposible por diseño de la plataforma |
 
 **Volumen:** AppSheet degrada por encima de ~50.000 filas por tabla. Con inventario real,
-`CHD_ChecklistDetalle` llega a 143.700 filas en cinco años. **Archivar por año no es opcional.** Y
-la cuota de 15 GB de la cuenta que hoy posee el backend se agota en 4,1 años, antes de los 5 de
+`CHD_ChecklistDetalle` llega a 162.000 filas en cinco años. **Archivar por año no es opcional.** Y
+la cuota de 15 GB de la cuenta que hoy posee el backend se agota en 13,5 años, antes de los 5 de
 retención exigida.
 
 ---

@@ -1,129 +1,108 @@
-# Lo que hay que pedirle a Valentín
+# Qué comunicarle a Valentín
 
-**Estamos parados por un permiso, no por una dificultad técnica.** Este documento dice exactamente
-qué hace falta, por qué, y qué dos caminos hay para desbloquearlo.
+**Ya no estamos bloqueados.** Este documento decía que hacía falta un permiso suyo para continuar.
+Se resolvió por otro camino, y ahora lo que queda es **avisar y cerrar un punto**.
 
 | | |
 |---|---|
-| Bloqueado desde | 2026-08-09 |
-| Quién decide | Dirección, con Valentín Ceballos |
-| Aplicación | `SGMC-886843353`, propiedad de `valentinwebdeveloper@gmail.com` |
-| Nuestra cuenta | `dieleoz@gmail.com`, **coautora** |
+| Actualizado | 2026-08-09 |
+| Aplicación original | `SGMC-886843353`, de `valentinwebdeveloper@gmail.com` |
+| Aplicación nueva | `SISGA`, propiedad de `dieleoz@gmail.com` |
+| Hoja de producción | `Modelo de Datos`, de Valentín, compartida con nosotros |
 
-## 1. El bloqueo, en una frase
+## 1. Qué pasó
 
-**Una cuenta coautora no puede dar de alta tablas en AppSheet**, y todo el trabajo pendiente consiste
-precisamente en eso.
+El modelo de datos se corrigió **en la hoja**: 27 columnas renombradas, 8 tablas nuevas, 45 campos
+retirados. La aplicación conservaba el esquema anterior y no había forma de que lo recogiera.
 
-```
-+ → Add data
-"As a co-author you don't have the permission to add new data.
- Please ask the app owner to add new data."
-```
+**Y no era falta de maña. Son dos límites de AppSheet, los dos verificados:**
 
-## 2. Por qué el trabajo pendiente es exactamente eso
-
-La aplicación se construyó sobre un modelo de datos que después se corrigió **en la hoja de cálculo**:
-se renombraron 27 columnas, se crearon 8 tablas nuevas y se retiraron 45 campos. **AppSheet no se
-enteró de nada de eso.**
-
-Y no basta con pedirle que relea la hoja. Su documentación oficial lo dice:
-
-> Al regenerar, AppSheet **combina la información nueva con la que ya exista** e intenta mantener el
-> nombre y el tipo de las columnas existentes.
-
-Es decir: **`Regenerate` fusiona, no reemplaza.** Las columnas viejas sobreviven. Lo comprobamos: la
-tabla de órdenes de trabajo aguantó varios *Regenerate* conservando `Numero_OT`, `Tecnico`, `Estado`
-y `SupervidorID`, mientras la hoja ya tenía `OTID`, `TecnicoID`, `EstadoOrdenID` y `SupervisorID`.
+**`Regenerate` fusiona, no reemplaza.** Su documentación oficial dice que combina la información
+nueva con la existente e intenta mantener las columnas que ya están. Sirve para añadir una columna;
+no para un esquema que divergió tanto. La tabla de órdenes sobrevivió a varios *Regenerate*
+conservando `Numero_OT`, `Tecnico` y `Estado`.
 
 **Y las columnas reales no se pueden borrar una a una.** El propio AppSheet indica la salida:
+*«Delete and re-add the table to create the column structure»*.
 
-> «Delete and re-add the table to create the column structure.»
+**Por eso se reconstruyó.** Se creó una aplicación nueva sobre la misma estructura de datos y
+funcionó a la primera. Lo que llevaba dos días atascado se resolvió en una tarde.
 
-**Borrar y volver a dar de alta cada tabla. Que es justo lo que un coautor no puede hacer.**
+## 2. Un hallazgo que conviene que conozca
 
-## 3. Dos caminos, y hay que elegir uno
+**Ocho pestañas de la hoja estaban marcadas como ocultas**, y son el núcleo del modelo:
 
-### Opción A — Transferir la propiedad de la aplicación
+```
+ACT_Activos · USR_Usuarios · TIP_TiposActivo · ROL_Roles
+SED_Sedes · CAL_Calzadas · SEN_Sentidos · FRE_Frecuencias
+```
 
-Valentín transfiere `SGMC-886843353` a la cuenta de la Concesión.
+**AppSheet ignora las pestañas ocultas y no avisa.** Simplemente no aparecen al dar de alta tablas.
+Por eso cargaban 24 de 32 y `ROL_Roles` no salía en ningún desplegable.
 
-**A favor:** se conserva la aplicación, su URL, sus vistas y su historial de versiones. No hay
-ruptura para nadie.
+Es probablemente la causa de buena parte de lo que se venía atascando, y no era evidente desde
+ninguna parte.
 
-**En contra:** el trabajo sigue siendo reconstruir 24 tablas una a una dentro de una app que arrastra
-expresiones rotas. Es más lento, y quien lo haga va a ir encontrando restos durante días.
+## 3. Lo único que se le pide
 
-### Opción B — Construir la aplicación de nuevo desde la hoja
+**Confirmar sobre qué hoja opera la aplicación en producción.** Hay dos opciones y las dos
+funcionan:
 
-Se crea una aplicación nueva apuntando a la misma hoja de producción. AppSheet lee las 32 pestañas
-con el esquema actual e infiere claves y referencias desde cero.
+**Que la aplicación nueva apunte a su hoja** —`Modelo de Datos`—. Tenemos permiso de edición sobre
+ella, así que técnicamente no hace falta nada más. Solo saber que está de acuerdo.
 
-**A favor:** cero restos del modelo viejo. Es más rápido que reparar. Y **la propiedad queda desde el
-primer minuto en la cuenta de la Concesión**, que es donde tiene que estar.
+**O que pase a ser nuestra**, y su hoja queda como respaldo. Más limpio de cara a la entrega que ya
+estaba prevista, porque las fotografías del sistema consumen cuota de Drive del propietario del
+documento, y eso hoy es su cuenta.
 
-**En contra:** se pierden las vistas y acciones de la aplicación actual, y hay que rehacer la
-interfaz.
+**No corre prisa**: con el inventario real esa cuota da para trece años y medio. Pero es el tipo de
+cosa que conviene decidir antes de que haya técnicos en campo, no después.
 
-**Y conviene medir lo que se pierde:** hoy la navegación padre-hijo está rota, el geofencing no
-discrimina —el radio está vacío en los 24 tipos—, media capa de expresiones apunta a columnas que no
-existen y el manual de usuario contiene nueve afirmaciones que contradicen el sistema. **No es
-trabajo bueno que se tira: es trabajo roto que se deja de arrastrar.**
+## 4. Y una cosa que le debemos
 
-### Por qué el momento es ahora
+**La aplicación original quedó en la versión 1.000245, sin poder ejecutarse.**
 
-**No hay usuarios en producción.** `MAN_Mantenimientos` tiene dos filas de prueba, las órdenes son
-seis de ejemplo y ningún técnico ha usado la aplicación en campo. **Cambiar de aplicación hoy cuesta
-cero. Dentro de dos meses es una migración.**
+Ya no cargaba antes —ese era el problema que fuimos a diagnosticar—, pero **dos de sus errores los
+introdujimos nosotros** al renombrar una tabla durante el diagnóstico.
 
-**Recomendamos la opción B**, y que la decisión la tome Dirección y no el equipo técnico: no es una
-cuestión de arquitectura, es de a quién pertenece el sistema.
+> **No sirve rodar atrás a una versión anterior.** La pestaña `SEC_Secciones` ya no existe en la
+> hoja —la Fase A la renombró a `FRM_Secciones`—, así que cualquier versión antigua apunta a una
+> pestaña que no está. Habría que reconstruirla igual.
 
-## 4. Aparte de la decisión, dos cosas concretas
-
-**Dejar la aplicación original limpia.** Durante el diagnóstico del 2026-08-08 se renombró una tabla
-—`SEC_Secciones` a `FRM_Secciones`— y eso dejó dos referencias colgando. La aplicación quedó en la
-versión **1.000245**, no ejecutable.
-
-> **Se arregla rodando atrás a la versión 1.000240** desde *Manage → Versions*.
-
-Conviene decirlo tal cual: la aplicación **ya no cargaba antes** de ese cambio —ese era justamente el
-problema que fuimos a diagnosticar—, pero esos dos errores concretos los introdujimos nosotros.
-
-**Confirmar quién opera el despliegue.** Los cambios de esquema exigen volver a desplegar, y el plan
-gratuito no ejecuta procesos programados. Haga falta o no cambiar de plan, tiene que estar claro
-quién pulsa ese botón cuando la aplicación salga a campo.
+Como la aplicación nueva la sustituye, **lo razonable es despublicarla** en vez de repararla. Y hay
+una razón técnica para hacerlo pronto: si las dos aplicaciones apuntan a la misma hoja, la vieja
+sigue pudiendo escribir con permisos que el modelo nuevo ya no concede.
 
 ## 5. Borrador del mensaje
 
 > Hola Valentín,
 >
-> Estamos preparando el SGMC para salir a campo y nos hemos topado con un tope de permisos.
+> Te cuento dónde estamos con el SGMC.
 >
-> El modelo de datos de la hoja se corrigió: se renombraron columnas, se crearon ocho tablas nuevas y
-> se retiraron campos que ya no se usan. Para que la aplicación lo recoja hay que borrar y volver a
-> dar de alta cada tabla —lo indica el propio AppSheet, porque *Regenerate* conserva las columnas
-> viejas en lugar de sustituirlas—. Y **dar de alta tablas solo lo puede hacer el propietario de la
-> aplicación**.
+> El modelo de datos de la hoja se corrigió bastante —columnas renombradas, ocho tablas nuevas,
+> campos retirados— y la aplicación no había forma de que lo recogiera. No era cosa de insistir: el
+> *Regenerate* de AppSheet conserva las columnas viejas en vez de sustituirlas, y las columnas
+> reales no se pueden borrar una a una. Lo dice el propio AppSheet cuando te atascas.
 >
-> Vemos dos caminos y preferimos que lo decidas tú con Dirección:
+> Así que levantamos una aplicación nueva sobre la misma estructura y funcionó a la primera.
 >
-> **A.** Nos transfieres la propiedad de `SGMC-886843353` y seguimos sobre la aplicación actual.
+> De paso encontramos algo que te va a interesar: **ocho pestañas de la hoja estaban ocultas**, y
+> son las principales — activos, usuarios, tipos, roles, sedes. AppSheet ignora las pestañas ocultas
+> sin avisar, así que solo veía 24 de 32. Ahí estaba buena parte del misterio.
 >
-> **B.** Levantamos una aplicación nueva desde la misma hoja de producción. Es más rápido, porque no
-> arrastra el modelo viejo, y adelanta la entrega que ya estaba prevista.
+> Lo único que necesitamos de ti es confirmar sobre qué hoja opera la aplicación de producción: si
+> seguimos con la tuya —tenemos permiso de edición— o si pasa a la cuenta de la Concesión. Lo
+> segundo es más limpio porque las fotografías consumen cuota de Drive del propietario, pero no
+> corre prisa: con el inventario real hay para trece años.
 >
-> Sea cual sea, hay algo que conviene hacer ya: la aplicación quedó en la versión **1.000245** sin
-> poder ejecutarse. Rodando atrás a la **1.000240** vuelve a su estado anterior. Dos de esos errores
-> los provocamos nosotros al diagnosticar, y te pedimos disculpas por el ruido.
+> Y algo que te debemos: la aplicación original quedó en un estado que no arranca. Ya venía
+> fallando, pero dos de esos errores los provocamos nosotros diagnosticando, y no se arreglan
+> volviendo atrás porque una pestaña cambió de nombre. Como la nueva la sustituye, nuestra
+> recomendación es despublicarla.
 >
-> Nada de esto corre prisa hoy: no hay técnicos usando la aplicación todavía. Pero sí queremos
-> cerrarlo antes de cargar el inventario real, porque después sale mucho más caro.
->
-> Cuéntanos qué prefieres y lo montamos.
+> Cuando quieras te enseñamos la nueva.
 
 ---
 
-*Mientras tanto, el trabajo continúa sobre una copia de ensayo —`SGMC2-323965761`— que apunta a un*
-*duplicado de la hoja. Sirve para descubrir el procedimiento sin tocar producción, y ya ha destapado*
-*media docena de defectos que no se veían desde la hoja.*
+*Estado técnico y procedimiento en `docs/prompts/PROMPT_AGENTE_APPSHEET_FASE_B.md`. Qué hace el*
+*sistema, en `docs/FUNCIONAL_SGMC.md`.*

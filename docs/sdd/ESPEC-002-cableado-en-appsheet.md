@@ -1,5 +1,19 @@
 # ESPEC-002 — Cableado de referencias en AppSheet
 
+> **Nota de alcance, anadida el 2026-08-09.** Esta especificacion norma **convertir la aplicacion
+> existente**, donde 23 de las 38 referencias del modelo ya estaban puestas y faltaban **15**. Ese
+> es el origen de la lista de 15 columnas.
+>
+> **Para una aplicacion construida desde cero no hay ninguna heredada: son las 38 de `MODELO`.**
+> El instructivo actualizado esta en `docs/prompts/PROMPT_AGENTE_APPSHEET_FASE_B.md`.
+>
+> Se descubrio al reconstruir: siguiendo esta especificacion al pie de la letra sobre una app nueva,
+> `OT_OrdenesTrabajo.ActivoID` quedaba en `Number` y la desreferencia
+> `[OTID].[ActivoID].[Ubicacion]` -que la propia especificacion usa como prueba- no resolvia.
+>
+> Cuando la especificacion y `scripts/modelo_objetivo.py` discrepen, **manda el modelo**.
+
+
 Fase B. Es la que convierte el modelo en un sistema: hasta aquí hay una hoja de cálculo ordenada, y
 al terminar hay referencias reales, geofencing y navegación entre tablas.
 
