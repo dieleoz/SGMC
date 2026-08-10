@@ -314,3 +314,38 @@ la tipa `Number` — y el día que operación escriba `55CN03`, no cabe.
 
 Es el mismo mecanismo que `F-20` caza en las claves, aplicado a cualquier columna. **La diferencia
 es que en la clave se pierde la fila entera y en silencio; aquí se pierde un valor.**
+
+### De dónde sale la inferencia, según la documentación oficial
+
+> «AppSheet infers the types of columns from the column header names as well as from the content of
+> the rows.»
+> — [Effective use of column headers](https://support.google.com/appsheet/answer/10099523), consultado el 2026-08-10
+
+Las palabras que disparan cada tipo son concretas:
+
+| Tipo | Qué lo dispara en el nombre de la cabecera |
+|---|---|
+| `Ref` | «A column header whose name is similar to another table already in the app» |
+| `LatLong` | `latlong`, `geolocation` |
+| `Date` | `birthday`, `dob`, `day`, `month`, `year` |
+| `Image` | `image`, `picture`, `photo` y sus plurales |
+| `Yes/No` | cabecera terminada en `?`, o que empieza por `has` o `is` |
+
+**Ninguna columna de este modelo usa esas palabras**, y de ahí salen dos consecuencias que llevaban
+meses sin explicación:
+
+**Ninguna de las 39 referencias se crea sola.** AppSheet infiere `Ref` por parecido con el nombre de
+una tabla, y nuestras tablas llevan prefijo —`UNF_UnidadesFuncionales`, no `UnidadFuncional`—, así
+que el parecido se rompe. Es el coste de la convención de prefijos **y a la vez su protección**.
+
+**Y explica las tres trampas.** `CHK_Checklists.ActivoID`, `OT_OrdenesTrabajo.FormularioID` y
+`CHD_ChecklistDetalle.TipoRespuestaID` se convertían solas en `Ref` porque su nombre **sí** se
+parecía a la clave de otra tabla. No era un capricho de la plataforma: era esta regla, funcionando
+sobre columnas retiradas.
+
+### Lo que la documentación NO dice
+
+**No ofrece ninguna forma de forzar el tipo desde la hoja.** Lo que dice es que se cambia en
+*Data > Columns* con el desplegable, y que para cambios de estructura se modifica el origen y se
+regenera. Que formatear la columna como texto plano en Google Sheets fuerce el tipo `Text`
+**es un supuesto no verificado**: no aparece en la documentación consultada.

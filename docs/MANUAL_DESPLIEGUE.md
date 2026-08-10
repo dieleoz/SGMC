@@ -195,9 +195,37 @@ Estas 6 tablas crean filas desde la aplicacion. Sin esto, no sabe que identifica
 | `MAN_Mantenimientos` | `MantenimientoID` | `UNIQUEID()` |
 | `NOV_Novedades` | `NovedadID` | `UNIQUEID()` |
 
-## Paso 4 — Los tipos que AppSheet no adivina
+## Paso 4 — Los tipos que AppSheet no adivina, y como comprobarlos
 
-Todo llega de una hoja, asi que entra como texto o numero.
+**Subir el Excel arregla la hoja, no la aplicacion.** Son dos sitios distintos. El Excel
+fija que columnas hay y que datos tienen; **el tipo de cada columna vive en el esquema de
+AppSheet**, y ese se infiere. Reimportar no lo corrige: la inferencia vuelve a ser la misma
+sobre los mismos datos.
+
+**De donde sale la inferencia**, segun la documentacion oficial: AppSheet mira **el nombre
+de la cabecera Y el contenido de las filas**. Las palabras que disparan un tipo son
+concretas —`latlong` y `geolocation` para una coordenada, `birthday` o `day` para una fecha,
+una cabecera acabada en `?` para un Yes/No— y **ninguna de nuestras columnas las usa**. Ver
+`BASE_CONOCIMIENTO_APPSHEET.md` seccion 13.
+
+> **Y de ahi salen dos cosas que conviene tener claras.**
+>
+> **Ninguna de las referencias se creara sola.** AppSheet infiere `Ref` cuando el nombre de
+> una columna se parece al de otra tabla, y nuestras tablas llevan prefijo —`UNF_Unidades`
+> `Funcionales`, no `UnidadFuncional`—, asi que el parecido se rompe. Es el precio de la
+> convencion, y a la vez su proteccion: impide que AppSheet invente referencias.
+>
+> **Una columna de texto cuyos valores parecen numeros se tipara `Number`.** Paso el
+> 2026-08-10 con `SED_Sedes.TramoINVIAS`: el unico valor cargado era `5607`, asi que salio
+> `Number` — y los otros tramos del corredor son `55CN03`, que no cabe en un numero.
+
+**Como se comprueba, tabla por tabla.** Al terminar de dar de alta o de regenerar una tabla,
+abrela en *Data > Columns* y **recorre la columna TYPE de arriba abajo contra la ficha del
+anexo**. No es opcional ni es paranoia: el defecto no se ve en la hoja ni en los datos, solo
+en esta pantalla. Lo que se corrige aqui sobrevive a un `Regenerate` posterior, porque
+AppSheet conserva el tipo de las columnas que ya existen.
+
+**Los que siempre hay que poner a mano**, derivados del modelo:
 
 | Tabla | Columna | Tipo | |
 |---|---|---|---|
