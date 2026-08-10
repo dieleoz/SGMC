@@ -40,3 +40,7 @@ credentials.json
 *_llaves.py
 llaves.py
 
+
+# Dependencias de Node. Nunca se versionan
+node_modules/
+package-lock.json

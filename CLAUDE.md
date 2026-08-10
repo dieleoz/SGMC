@@ -408,9 +408,9 @@ Lo que sí está verificado como resuelto: `Coordenadas_Cierre_LatLong` y `Preci
 de esa tabla se deriva, no se cita de memoria** —el modelo declara hoy 23— porque esa cifra cambió
 tres veces y cada versión sobrevivió en algún documento.
 
-## 7.4 Los cuatro verificadores, y qué mide cada uno
+## 7.4 Los cinco verificadores, y qué mide cada uno
 
-Ninguno sustituye a otro. Los cuatro se corren antes de dar nada por cerrado.
+Ninguno sustituye a otro. Los cinco se corren antes de dar nada por cerrado.
 
 | Script | Mide | Cuándo falla |
 |---|---|---|
@@ -418,6 +418,7 @@ Ninguno sustituye a otro. Los cuatro se corren antes de dar nada por cerrado.
 | `verificar_faseA.py` | El modelo contra **la hoja descargada** | Al cerrar una fase de datos |
 | `verificar_documentos.py` | **La prosa** contra el modelo | Al escribir o tocar cualquier `.md` |
 | `verificar_enlaces.py` | Que todo enlace relativo entre documentos **resuelve** | Al mover, renombrar o retirar cualquier documento |
+| `verificar_reproducible.py` | Que **generar la plantilla dos veces dé lo mismo** | Al tocar cualquier generador |
 
 **El cuarto se añadió el 2026-08-09, y nació de un fallo concreto.** Al retirar 15 documentos a
 `docs/historico/` quedaron **31 enlaces rotos**, y se encontraron leyéndolos uno a uno. Un enlace
@@ -674,6 +675,7 @@ docs/              Documentación técnica y funcional (.md)
   images/          Figuras de los documentos (fig_01 a fig_07)
 Manuales/          MANUAL_DE_USUARIO.md
 scripts/           Fuente del modelo, validadores y generadores
+                   sistema.py declara la aplicacion y la hoja vigentes
 contexto/          Material de contexto operativo. No es la vara
 archivo/           Material de origen. No versionado (en .gitignore)
 ```

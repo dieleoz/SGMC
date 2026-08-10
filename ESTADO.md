@@ -210,6 +210,7 @@ radio.
 | Si necesita | Lea |
 |---|---|
 | **Saber qué le toca a usted** | [`docs/INDICACIONES_POR_ROL.md`](docs/INDICACIONES_POR_ROL.md) |
+| **Cablear la aplicación** | [`docs/PROMPT_CABLEADO.md`](docs/PROMPT_CABLEADO.md) — el encargo entero, generado del modelo: las 39 referencias con su destino, los tipos y el orden |
 | **Cambiar algo del modelo** | [`docs/REGLAS_DEL_MODELO_DE_DATOS.md`](docs/REGLAS_DEL_MODELO_DE_DATOS.md) — las diez reglas del motor, con el fallo del que salió cada una y quién la hace cumplir |
 | **Construir la aplicación** | [`docs/MANUAL_DESPLIEGUE.md`](docs/MANUAL_DESPLIEGUE.md) — diez pasos y una ficha por tabla, columna por columna |
 | **La expresión exacta de una regla** | [`docs/sdd/RECONSTRUCCION_EXPRESIONES.md`](docs/sdd/RECONSTRUCCION_EXPRESIONES.md) — las 21 sin cortar |
@@ -240,7 +241,7 @@ filas por clave, la resiembra cambiaba esa clave, y en la pasada siguiente las v
 `SED_Sedes` acabó con las seis edificaciones **duplicadas**, y cada ejecución habría añadido seis
 más.
 
-Pasó los cuatro verificadores: el modelo era coherente, la Fase A cerraba, la prosa cuadraba y los
+Pasó los cinco verificadores: el modelo era coherente, la Fase A cerraba, la prosa cuadraba y los
 enlaces resolvían. **Todos miran un archivo, y este defecto solo existe entre dos ejecuciones.**
 
 ---

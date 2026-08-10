@@ -222,7 +222,7 @@ Todos en [`ESTADO.md`](ESTADO.md), que se actualiza; aquí no, para que no se co
 El método vigente es SDD, descrito en [`docs/SDD_PIPELINE_SGMC.md`](docs/SDD_PIPELINE_SGMC.md):
 especificar, probar y aprobar antes de tocar producción. `python scripts/validar_modelo.py` en 0 errores es el único gate objetivo.
 
-Los cuatro verificadores, que no se sustituyen entre sí:
+Los cinco verificadores, que no se sustituyen entre sí:
 
 | Script | Mide |
 |---|---|
