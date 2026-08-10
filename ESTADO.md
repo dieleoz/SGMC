@@ -35,15 +35,36 @@ coordenadas reales antes de que salga a campo.**
 
 ## 2. Qué falta para cerrar la aplicación
 
-Está todo en [`docs/prompts/PROMPT_CONTINUAR_DESPLIEGUE.md`](docs/prompts/PROMPT_CONTINUAR_DESPLIEGUE.md),
-listo para pasar a quien esté en el editor.
+El agente del editor avanzó bastante antes de que se parara. **Esto es lo que quedó hecho:**
+
+```
+✓  Las 38 referencias, con IsPartOf en las cuatro
+✓  Las 3 columnas trampa en Text y ocultas
+✓  MAN.Diagnostico revertida (tenía una App formula que escribía en la hoja)
+✓  Los 4 ChangeTimestamp
+✓  Geofencing, Editable_If y los dos filtros de seguridad
+✓  Deletes desmarcado en OT_OrdenesTrabajo y MAN_Mantenimientos
+```
+
+**Y esto es lo que falta:**
 
 | # | Qué | Por qué importa |
 |---|---|---|
-| 1 | **Quitar `Deletes`** en `OT_OrdenesTrabajo` y `MAN_Mantenimientos` | **Es lo más urgente.** Con `IsPartOf` puesto, borrar un mantenimiento se lleva sus fotos, su firma y su checklist. Un clic |
-| 2 | **Completar la regla del umbral de GPS** con el `OR(ISBLANK(...))` | Sin él, si alguien borra la fila del parámetro **todos los cierres salen limpios y nadie se entera** |
-| 3 | **Ocultar 47 columnas retiradas** | Aparecen en el formulario del técnico. Siete de ellas AppSheet las convierte en referencia sola |
-| 4 | **Las tres expresiones de prueba** | Es lo que dice si el cableado funciona de verdad |
+| 1 | **La regla del umbral de GPS con el `OR(ISBLANK(...))`** | Sin él, si alguien borra la fila del parámetro **todos los cierres salen limpios y nadie se entera** |
+| 2 | **Las columnas retiradas, a medias** | Quedaron por `FOT_Fotografias`, `FRM_Formularios`, `FRM_Preguntas` y `USR_Usuarios` |
+| 3 | **Las tres expresiones de prueba** | Es lo que dice si el cableado funciona de verdad |
+
+Todo en [`docs/prompts/PROMPT_CONTINUAR_DESPLIEGUE.md`](docs/prompts/PROMPT_CONTINUAR_DESPLIEGUE.md).
+
+> ## Pero antes hay una decisión
+>
+> **Si se migra a la hoja limpia, el punto 2 deja de hacer falta.** Las 47 columnas desaparecen del
+> archivo en vez de esconderse en la aplicación, y con ellas las tres trampas.
+>
+> **No termine de ocultar hasta decidirlo:** sería trabajo que se tira.
+>
+> El coste está medido en [`docs/MIGRACION_HOJA_LIMPIA.md`](docs/MIGRACION_HOJA_LIMPIA.md): 8 tablas
+> de 28 y 14 reglas a reponer.
 
 ## 3. La plantilla de datos
 
