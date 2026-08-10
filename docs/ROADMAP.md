@@ -89,7 +89,7 @@ que llega solo con tiempo, y no llega — llega con la decisión de licenciamien
 |---|---|---|
 | Sprint 0. Definición funcional | **Enviado, esperando respuesta** | Respuesta del líder funcional a las 14 decisiones, o supuesto declarado por vencimiento |
 | Fase 0.5. Reconciliación de modelos | **Cerrada** el 2026-08-07 | `modelo_objetivo.py` es la fuente única; los documentos se generan de él |
-| **Fase A. Estructura y datos en la hoja** | **CERRADA** el 2026-08-07 | `verificar_faseA.py` sobre `Modelo de Datos (11).xlsx`: 59 conformes, 0 fallos. Ver `ACTA-004` |
+| **Fase A. Estructura y datos en la hoja** | **CERRADA** el 2026-08-07 | `verificar_faseA.py` sobre `Modelo de Datos (11).xlsx`: 61 conformes, 0 fallos. Ver `ACTA-004` |
 | **Fase B. Cableado de referencias** | **En ejecucion**, sobre app reconstruida | Las **38** referencias puestas, las retiradas ocultas, y `PRUEBA-003` pasada |
 | Fase 1. Datos maestros | Bloqueada por Sprint 0 y Fase 0.5 | Coordenadas reales cargadas, columnas de GPS presentes en producción, sedes realineadas, bancos priorizados construidos |
 | Fase 2. Configuración | Bloqueada por Fase 1 | Reglas, filtro, formularios, bots y reportes configurados y verificados en la app |

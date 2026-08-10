@@ -25,7 +25,7 @@ coordenadas reales antes de que salga a campo.**
 
 | | |
 |---|---|
-| **La base de datos** | 28 tablas, 32 pestañas. Verificada: `FASE A CERRADA`, 59 comprobaciones |
+| **La base de datos** | 28 tablas, 32 pestañas. Verificada: `FASE A CERRADA`, 61 comprobaciones |
 | **La aplicación** | Reconstruida desde cero sobre esa hoja. Las 28 tablas dadas de alta |
 | **Las claves** | Las 28, todas `Text`. Seis con `UNIQUEID()` para filas nuevas |
 | **Las referencias** | Las 38 del modelo, con `IsPartOf` en las cuatro que lo llevan |
@@ -42,33 +42,40 @@ listo para pasar a quien esté en el editor.
 |---|---|---|
 | 1 | **Quitar `Deletes`** en `OT_OrdenesTrabajo` y `MAN_Mantenimientos` | **Es lo más urgente.** Con `IsPartOf` puesto, borrar un mantenimiento se lleva sus fotos, su firma y su checklist. Un clic |
 | 2 | **Completar la regla del umbral de GPS** con el `OR(ISBLANK(...))` | Sin él, si alguien borra la fila del parámetro **todos los cierres salen limpios y nadie se entera** |
-| 3 | **Ocultar 51 columnas retiradas** | Aparecen en el formulario del técnico. Siete de ellas AppSheet las convierte en referencia sola |
+| 3 | **Ocultar 47 columnas retiradas** | Aparecen en el formulario del técnico. Siete de ellas AppSheet las convierte en referencia sola |
 | 4 | **Las tres expresiones de prueba** | Es lo que dice si el cableado funciona de verdad |
 
-## 3. La plantilla que desbloquea las pruebas
+## 3. La plantilla de datos
 
-**`BD/Modelo_Datos_PLANTILLA.xlsx`** — generada del modelo, con inventario dentro.
+**`BD/Modelo_Datos_PLANTILLA.xlsx`** — generada del modelo. **Es el entregable de datos.**
 
 ```
-28 pestañas · 535 filas · ninguna columna de sobra
-ACT_Activos con 355 activos: SOS_1 … SOS_54, CCTV_1 … SWIT_142
-Coordenadas repartidas por los 137 km reales del corredor
-PR de 00+000 a 137+030, y las cuatro unidades funcionales
-0 referencias rotas, 0 obligatorias vacías
+28 pestañas · 202 columnas · ninguna de sobra
+ACT_Activos: 34 activos reales (ID 1-34) + 355 sintéticos (ID 1001-1355)
+0 referencias rotas de las 38 · FASE A CERRADA
 ```
 
-**Las coordenadas son sintéticas y cada fila lo dice** en su columna de observaciones. Están
-interpoladas sobre el trazado real —El Sisga, Machetá, Guateque, Santa María, San Luis de Gaceno,
-El Secreto, Aguaclara— con dispersión de 150 metros.
+**Los 34 reales se conservan intactos** y las seis órdenes existentes siguen apuntando a su equipo:
+`FO-001` la fibra, `CCTV-002` la cámara, `VW-001` el videowall.
 
-**Y eso cambia el planteamiento:** las coordenadas reales dejan de bloquear las pruebas. Se prueba
-con estas y se sustituyen cuando el levantamiento las traiga. La columna es la misma.
+**Los 355 sintéticos** llevan los códigos del Plan Maestro —`SOS_1` a `SOS_54`, `SWIT_1` a
+`SWIT_142`— repartidos por los 137 km del corredor. **Cada fila dice en `Observaciones`:
+`ACTIVO SINTETICO DE PRUEBA - NO ES INVENTARIO REAL`.**
 
-> **Sigue haciendo falta el levantamiento —D-01— para salir a campo.** Un técnico no puede cerrar
-> una orden contra una coordenada inventada. Pero ya no bloquea probar el sistema.
+Sirven para ejercitar el filtro por zona, la navegación y el volumen de sincronización.
 
-**El principio, que es de operación:** nosotros entregamos la estructura; el dato real lo pone quien
-lo conoce. Los bloqueantes se resuelven descargando el Excel y completándolo.
+> **Lo que NO desbloquean: la prueba del geofencing.** Los registros de prueba tienen su coordenada
+> en Bogotá y el activo sintético más cercano queda a 60 km. Así que **`P-08` —el cierre legítimo que
+> debe aceptarse— pasa a ser imposible sin desplazarse**, y `P-09` se vuelve trivial. El par deja de
+> discriminar. Antes era al revés.
+
+> **Y un hallazgo del arquitecto que cambia una decisión:** con 355 activos, el radio de 1 km mete
+> **8 activos de media dentro de cada geofence**, con un máximo de 13. Ninguno de los 355 queda
+> identificado de forma única. **El radio por tipo deja de ser opcional** — con 1,0 km el sistema
+> prueba «estás en el corredor», no «estás frente al equipo», que es su propósito.
+
+**El principio, que es de operación:** entregamos la estructura; el dato real lo pone quien lo
+conoce. Los bloqueantes se resuelven descargando el Excel y completándolo.
 
 Se regenera con:
 
@@ -81,6 +88,7 @@ python scripts/generar_inventario.py
 
 | Si necesita | Lea |
 |---|---|
+| **Saber qué le toca a usted** | [`docs/INDICACIONES_POR_ROL.md`](docs/INDICACIONES_POR_ROL.md) — el reparto por rol: qué hacer, qué decidir, qué leer y cuánto cuesta |
 | **Entender qué hace el sistema** | [`docs/FUNCIONAL_SGMC.md`](docs/FUNCIONAL_SGMC.md) — para quién, cómo y para qué. Su §6 dice qué mecanismo se usa para cada cosa y cuál se descartó |
 | **Construir o configurar la app** | [`docs/MANUAL_DESPLIEGUE.md`](docs/MANUAL_DESPLIEGUE.md) — diez pasos, más la **ficha de las 28 tablas** columna por columna |
 | **Terminar lo que falta hoy** | [`docs/prompts/PROMPT_CONTINUAR_DESPLIEGUE.md`](docs/prompts/PROMPT_CONTINUAR_DESPLIEGUE.md) |

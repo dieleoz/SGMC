@@ -28,6 +28,13 @@ except ImportError:
 
 random.seed(20260809)   # reproducible: el mismo inventario en cada ejecucion
 
+# Los sinteticos arrancan en 1000 para NO pisar identificadores vivos.
+# El 2026-08-09 arrancaban en 1 y reescribieron los 34 activos reales: las seis
+# ordenes existentes pasaron a apuntar a otro equipo -ActivoID 26 era FO-001, la
+# fibra optica, y quedo como un poste SOS- y la referencia seguia resolviendo,
+# asi que ningun verificador lo veia.
+BASE_ID = 1000
+
 # Trazado del corredor, de oeste a este. Puntos de paso conocidos.
 TRAZADO = [
     (5.100, -73.720, "El Sisga"),
@@ -96,20 +103,20 @@ for prefijo, nombre, cantidad, tipo_id in TIPOS:
         # repartidos uniformemente, cada tipo con su propio desfase
         frac = ((i - 0.5) / cantidad + hash(prefijo) % 7 / 100.0) % 1.0
         filas.append({
-            "ActivoID": str(n),
+            "ActivoID": BASE_ID + n,
             "CodigoActivo": "%s_%d" % (prefijo, i),
             "Nombre": "%s %03d" % (nombre, i),
-            "TipoActivoID": str(tipo_id),
-            "UnidadFuncionalID": str(unidad_funcional(frac)),
+            "TipoActivoID": tipo_id,
+            "UnidadFuncionalID": unidad_funcional(frac),
             "PR": pr(frac),
-            "CalzadaID": str(1 + (n % 2)),
+            "CalzadaID": 1 + (n % 2),
             "Ubicacion": punto(frac),
-            "EstadoActivoID": "1",
+            "EstadoActivoID": 1,
             "CodigoQR": "",
             "SentidoID": "SA" if n % 2 else "AS",
             "Activo": "TRUE",
             "FrecuenciaID": "",
-            "Observaciones": "COORDENADA SINTETICA - pendiente levantamiento D-01",
+            "Observaciones": "ACTIVO SINTETICO DE PRUEBA - NO ES INVENTARIO REAL",
             "Criticidad": "",
             "FechaBaja": "",
             "MotivoBaja": "",

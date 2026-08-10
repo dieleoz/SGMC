@@ -245,6 +245,7 @@ archivo/       Material de origen, no versionado
 
 | Documento | Para qué sirve |
 |---|---|
+| [INDICACIONES_POR_ROL.md](docs/INDICACIONES_POR_ROL.md) | **Quién hace qué para que esto llegue a campo.** Los cinco roles —Funcional, Operación, Dirección, Propietario de la Aplicación, mantenedor del repositorio— con sus pasos, sus decisiones exclusivas y su costo |
 | [ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) | **Frente activo.** Modelo objetivo: 27 tablas, 192 columnas, 38 referencias, 13 reglas. Generado desde `scripts/modelo_objetivo.py` y validado automáticamente |
 | [historico/](docs/historico/) | **Documentos retirados el 2026-08-07.** Describen estados superados; seguirlos induce a deshacer trabajo correcto. No usar como fuente |
 | [BASE_CONOCIMIENTO_APPSHEET.md](docs/BASE_CONOCIMIENTO_APPSHEET.md) | **Base de conocimiento propia.** Cómo se comporta AppSheet, con cita textual y URL oficial, y qué regla del SGMC sostiene cada una |

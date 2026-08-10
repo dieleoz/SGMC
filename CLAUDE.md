@@ -374,14 +374,14 @@ veredicto no se sustituye por «los scripts pasan».
 
 ## 7.9 Una instruccion que exige criterio se ejecuta mal (regla nueva, 2026-08-09)
 
-El manual de despliegue decia «oculte las 43 columnas retiradas» y «las 3 columnas trampa». **Quien
+El manual de despliegue decia «oculte las 47 columnas retiradas» y «las 3 columnas trampa». **Quien
 lo ejecuta no tiene el modelo delante**, asi que dedujo. Resultado: cableo `CHK_Checklists.ActivoID`
 como referencia —es una trampa, habia que ocultarla— y propuso `Abierto / En Proceso / Completado`
 como valores de `NOV_Novedades.Estado`, que el modelo declara `Reportada / Aceptada / Descartada`.
 
 **Ninguno de los dos errores es del ejecutor. Son del documento.**
 
-Y las trampas no eran tres: **son siete**. Las conte de memoria en vez de derivarlas.
+Y las trampas son **tres**, derivadas del archivo. Las conte de memoria en vez de derivarlas.
 
 **Regla: todo documento operativo lleva la lista completa, generada.** Si una instruccion dice «las
 retiradas», «las trampa» o «los valores correspondientes», esta mal escrita. El anexo de

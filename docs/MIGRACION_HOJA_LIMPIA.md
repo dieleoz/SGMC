@@ -5,7 +5,8 @@
 | | |
 |---|---|
 | Estado | Preparado, sin ejecutar |
-| Archivo generado | `BD/Modelo_Datos_LIMPIO.xlsx` — 28 pestañas, 202 columnas, 214 filas |
+| **El entregable** | `BD/Modelo_Datos_PLANTILLA.xlsx` — 28 pestañas, con los 34 activos reales y 355 sintéticos |
+| Intermedio | `BD/Modelo_Datos_LIMPIO.xlsx` — la estructura sin inventario. **No se entrega** |
 | Lo genera | `python scripts/generar_hoja_limpia.py "BD/<origen>.xlsx"` |
 
 ## Por qué existe esta migración
@@ -34,22 +35,38 @@ USR_Usuarios             -1
 
 ## Lo que cuesta
 
-**Borrar y volver a dar de alta esas 8 tablas.** De ellas, solo tres llevan reglas encima:
+**Borrar y volver a dar de alta esas 8 tablas**, y reponer **14 reglas** —esta tabla se deriva del
+modelo, no se escribe a mano—:
 
-| Tabla | Qué hay que reponer |
-|---|---|
-| `MAN_Mantenimientos` | Geofencing en `Coordenadas_Cierre` · `CierreConExcepcion` · `MotivoExcepcion` obligatorio · `Editable_If = FALSE` en las cuatro de captura · `Deletes` desmarcado |
-| `OT_OrdenesTrabajo` | Security Filter · `Deletes` desmarcado |
-| `CHK_Checklists` | `VersionFormulario` con su `Initial value` |
+| Tabla | Regla | Columna | Tipo |
+|---|---|---|---|
+| `CHK_Checklists` | RG-09 | `VersionFormulario` | Initial value |
+| `MAN_Mantenimientos` | RG-01 | `Coordenadas_Cierre` | Valid_If |
+| `MAN_Mantenimientos` | RG-02 | `Precision_GPS` | Initial value |
+| `MAN_Mantenimientos` | RG-03 | `MotivoExcepcion` | Required_If |
+| `MAN_Mantenimientos` | RG-06 | `(tabla)` | Bot |
+| `MAN_Mantenimientos` | RG-10 | `(tabla)` | Bot |
+| `MAN_Mantenimientos` | RG-13 | `(tabla)` | Verificacion de evidencia |
+| `MAN_Mantenimientos` | RG-15 | `(tabla)` | Are updates allowed |
+| `MAN_Mantenimientos` | RG-19 | `CierreConExcepcion` | App formula |
+| `MAN_Mantenimientos` | RG-20 | `(varias)` | Editable_If |
+| `OT_OrdenesTrabajo` | RG-05 | `(tabla)` | Security Filter |
+| `OT_OrdenesTrabajo` | RG-07 | `(tabla)` | Bot |
+| `OT_OrdenesTrabajo` | RG-08 | `EstadoOrdenID` | Bot programado |
+| `OT_OrdenesTrabajo` | RG-14 | `(tabla)` | Are updates allowed |
 
-**Ocho cosas.** Las expresiones completas están en
+**Y 27 referencias**: 21 que salen de esas 8 tablas, más 6 que apuntan **hacia** ellas desde tablas
+que no se tocan. Esas últimas se rompen aunque su tabla no cambie, porque su destino desaparece un
+momento.
+
+Las expresiones completas están en
 [`sdd/RECONSTRUCCION_EXPRESIONES.md`](sdd/RECONSTRUCCION_EXPRESIONES.md) §2.
 
 ## Lo que se gana
 
 ```
 Las 3 trampas          desaparecen — sin la columna, AppSheet no puede inventar la Ref
-Las 43 ocultaciones    no hacen falta nunca más
+Las 47 ocultaciones    no hacen falta nunca más
 El anexo de ocultar    sobra
 COLUMNAS_SIN_DECIDIR   se vacía
 ```
@@ -77,8 +94,13 @@ Sheets, y **reapunte la aplicación a ese archivo**. Requiere tocar la fuente de
 **b) Limpiar la hoja actual** borrando las 47 columnas. La aplicación sigue apuntando al mismo
 archivo y no hay que reapuntar nada. **Es el camino recomendado.**
 
-Las columnas a borrar, con su letra y **en orden inverso** —de derecha a izquierda, para que las
-posiciones no se muevan—:
+**Borre por NOMBRE de encabezado, no por letra de columna.** Una letra exige que el encabezado no
+haya cambiado desde que se generó esta lista, y si alguien las borra en orden ascendente destruye
+**13 columnas vivas** —entre ellas `Coordenadas_Cierre` y `MotivoExcepcion`— dejando 35 retiradas en
+pie. **La aplicación seguiría abriendo: el daño no se ve hasta el primer cierre.**
+
+La lista por nombre está en el anexo de [`MANUAL_DESPLIEGUE.md`](MANUAL_DESPLIEGUE.md), ficha por
+ficha. Si aun así usa las letras, van en orden inverso —de derecha a izquierda—:
 
 ```
 CHD_ChecklistDetalle   U · S · Q · P · O · N · M · H · G · F · E · D
@@ -124,16 +146,17 @@ Y en cada una, antes de pasar a la siguiente: **la casilla `KEY` en la columna c
 
 ### 5. Reponer las referencias de esas 8
 
-Son 14 de las 38. La ficha de cada tabla está en el anexo de
+Son 27: 21 desde esas tablas y 6 hacia ellas. La ficha de cada tabla está en el anexo de
 [`MANUAL_DESPLIEGUE.md`](MANUAL_DESPLIEGUE.md).
 
 **Y los cuatro `IsPartOf`:** `CHK`, `FOT` y `FIR` hacia el mantenimiento, `CHD` hacia el checklist.
 **`MAN_Mantenimientos.OTID` va desmarcado** — con él, borrar una orden se llevaría la evidencia en
 cascada.
 
-### 6. Reponer las ocho reglas
+### 6. Reponer las 14 reglas
 
-Las tres tablas de la tabla de arriba. Expresiones completas en `RECONSTRUCCION_EXPRESIONES.md` §2.
+Las de la tabla de arriba. **`RG-19` está entre ellas** —el umbral de GPS con su `ISBLANK`— y es
+la que `ESTADO.md` llama la más peligrosa de olvidar. Expresiones completas en `RECONSTRUCCION_EXPRESIONES.md` §2.
 
 ### 7. Verificar
 
@@ -153,15 +176,18 @@ Y las pruebas de [`sdd/PRUEBA-003-despliegue.md`](sdd/PRUEBA-003-despliegue.md).
 
 ## Lo que esta migración NO arregla
 
-**Los 34 activos comparten una sola coordenada, y está en Bogotá.**
+**Las coordenadas reales.** Los 34 activos reales comparten una sola, en Bogotá; los 355 sintéticos
+tienen coordenadas del corredor pero inventadas. **Ninguna hoja limpia lo soluciona**: hay que salir
+a levantar. Es la decisión **D-01** y sigue siendo el bloqueo del piloto.
 
-Con el radio de un kilómetro, la aplicación rechaza todo cierre hecho en el corredor. **Ninguna hoja
-limpia lo soluciona**: hay que salir a levantar coordenadas reales. Es la decisión **D-01** y sigue
-siendo el bloqueo del piloto.
+**Y el radio del geofencing.** Con 355 activos a 386 metros de separación media, un radio de 1 km
+mete **8 activos dentro de cada geofence**. El sistema probaría «estás en el corredor», no «estás
+frente al equipo». `TIP_TiposActivo.RadioGeofencingKm` está vacía en los 18 tipos y **deja de ser
+opcional**.
 
 ## Si se decide no migrar
 
-Es defendible. La aplicación funciona con las 43 columnas ocultas, y ocultarlas ya está casi hecho.
+Es defendible. La aplicación funciona con las 47 columnas ocultas, y ocultarlas ya está casi hecho.
 
 **Lo que se acepta a cambio:** que la hoja y el modelo sigan divergiendo, que las tres trampas haya
 que vigilarlas en cada reconstrucción, y que quien retome el proyecto tenga que entender por qué hay

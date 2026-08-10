@@ -88,13 +88,17 @@ no prueba nada**, que es justo lo que el sistema existe para sostener.
 
 ## 5. Ocultar las columnas retiradas — la lista completa
 
-Son **49 columnas**. Estan en la hoja, el modelo no las usa, y al dar de alta las tablas entraron
-con `Show?` marcado: aparecen en el formulario del tecnico junto a las buenas.
+Son **47 columnas**. Estan en la hoja, el modelo no las declara, y al dar de alta las tablas
+entraron con `Show?` marcado: aparecen en el formulario del tecnico junto a las buenas.
 
 **Para cada una: tipo `Text`, `Show?` desmarcado, sin formula.** No se borran.
 
-**Tres son TRAMPA:** su nombre coincide con la clave de otra tabla, asi que **AppSheet las convierte
+**3 son TRAMPA:** su nombre coincide con la clave de otra tabla, asi que **AppSheet las convierte
 en `Ref` sola**. Si las ve como `Ref`, hay que deshacerlo.
+
+> **Esta lista se deriva del archivo, no se escribe.** Una version anterior mandaba ocultar
+> `FRM_Preguntas.RequiereGPS`, que **si esta viva** y la lee el `show_if` de
+> `CHD_ChecklistDetalle.RespuestaGPS`. Ocultarla habria roto esa regla.
 
 ### `CHD_ChecklistDetalle` — 12 columnas
 
@@ -112,9 +116,6 @@ RespuestaHora
 TipoRespuestaID          <-- TRAMPA
 TotalPreguntas        
 ```
-
-**`TipoRespuestaID` es TRAMPA**: AppSheet la convierte a `Ref` hacia `TPR_TiposRespuesta` sola. Deshagalo: tipo
-`Text` y `Show?` desmarcado.
 
 ### `CHK_Checklists` — 15 columnas
 
@@ -136,8 +137,23 @@ TecnicoID
 TotalPreguntas        
 ```
 
-**`ActivoID` es TRAMPA**: AppSheet la convierte a `Ref` hacia `ACT_Activos` sola. Deshagalo: tipo
-`Text` y `Show?` desmarcado.
+### `FOT_Fotografias` — 1 columnas
+
+```
+Fecha                 
+```
+
+### `FRM_Formularios` — 1 columnas
+
+```
+Orden                 
+```
+
+### `FRM_Preguntas` — 1 columnas
+
+```
+ValorDefecto          
+```
 
 ### `MAN_Mantenimientos` — 13 columnas
 
@@ -165,38 +181,15 @@ Informe_Final
 Motivo_Cierre         
 ```
 
-**`FormularioID` es TRAMPA**: AppSheet la convierte a `Ref` hacia `FRM_Formularios` sola. Deshagalo: tipo
-`Text` y `Show?` desmarcado.
-
-### `FOT_Fotografias` — 1 columnas
-
-```
-Fecha
-```
-
-### `FRM_Formularios` — 1 columnas
-
-```
-Orden
-```
-
-### `FRM_Preguntas` — 3 columnas
-
-```
-RequiereFirma
-RequiereGPS
-ValorDefecto
-```
-
 ### `USR_Usuarios` — 1 columnas
 
 ```
-UltimaSincronizacion
+UltimaSincronizacion  
 ```
 
 **Por que importa.** Quedan pares que registran lo mismo en dos sitios: `Requiere_Repuesto` junto a
 `MotivoPendienteID`, `Firma_Tecnico` junto a la tabla `FIR_Firmas`, `Imagen_Inicio` e `Imagen_Final`
-junto a `FOT_Fotografias`, `Diagnostico` y `Trabajo_Realizado` junto al checklist.
+junto a `FOT_Fotografias`.
 
 ## 6. Las pruebas, y esta vez en el sitio correcto
 
