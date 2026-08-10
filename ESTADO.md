@@ -40,13 +40,13 @@ nada más: falta cablearla entera.**
 `Modelo_Datos_10082026` sale generada del modelo, no heredada de nada.
 
 ```
-28 pestañas de datos más _LEEME · 205 columnas · ninguna de sobra
+28 pestañas de datos más _LEEME · 211 columnas · ninguna de sobra
 ACT_Activos        368 activos, un solo inventario, códigos SOS-001 / SWIT-001
 TIP_TiposActivo     27 tipos, con radio de cierre poblado en los 27
 FRM_Formularios     27 formularios, uno por tipo
 FRM_Preguntas      333 preguntas, los 27 checklists con contenido
 LST_ValoresLista   108 valores, ningún desplegable vacío
-Sin registros de prueba · FASE A CERRADA, 52 comprobaciones
+Sin registros de prueba · FASE A CERRADA, 82 conformes y 4 avisos
 ```
 
 Se rehace entera con un comando y **se reproduce**: dos ejecuciones seguidas dan las 29 pestañas
@@ -59,7 +59,7 @@ python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"
 
 ### El modelo
 
-`scripts/modelo_objetivo.py` es la fuente única: **28 tablas, 205 columnas, 39 referencias, 20
+`scripts/modelo_objetivo.py` es la fuente única: **28 tablas, 211 columnas, 39 referencias, 21
 reglas.** De ahí se generan el diccionario, el manual de despliegue, la guía funcional y la lista de
 reposición de expresiones. Nada de eso se escribe a mano.
 
@@ -151,7 +151,7 @@ UF4  Santa María - Cachipay - San Luis de Gaceno - Aguaclara 47,36 km
 ```
 
 **No son cuartos iguales**, que es como estaban repartidas hasta el 2026-08-10. Al corregirlo
-resultó que **113 de los 368 activos estaban en la unidad funcional equivocada**. Importa porque
+resultó que **107 de los 368 activos estaban en la unidad funcional equivocada**. Importa porque
 `RG-04` filtra por UF: cada técnico habría visto un conjunto de activos que no es el suyo, y nada lo
 habría detectado, porque la referencia resolvía.
 

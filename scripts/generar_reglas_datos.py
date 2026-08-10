@@ -138,7 +138,7 @@ w("- El inventario sintético arrancó en `ActivoID 1` y **reescribió los 34 ac
 w("  órdenes pasaron a apuntar a otro equipo, y la referencia seguía resolviendo.")
 w("- Nueve familias del Plan Maestro colgaban del tipo de otra cosa: **78 activos con el checklist")
 w("  equivocado**, y `TipoActivoID` apuntaba a una fila que existe.")
-w("- 113 activos estaban en la unidad funcional equivocada, porque las UF se repartían en cuartos")
+w("- 107 activos estaban en la unidad funcional equivocada, porque las UF se repartían en cuartos")
 w("  iguales y no lo son.")
 w("")
 w("**La comprobación de huérfanos contesta «apunta a algo», nunca «apunta a lo correcto».**")

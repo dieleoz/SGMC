@@ -1,8 +1,10 @@
 # ESPEC-003 — Modelo de dominio del SGMC
 
-<!-- verificar_documentos: ignorar EST_Estructuras, ACT_Activos.SedeID -->
+<!-- verificar_documentos: ignorar EST_Estructuras -->
 <!-- Se menciona en §12.3 solo para explicar por que el nombre elegido es
-     ETR_Estructuras: el prefijo EST_ ya lo ocupa EST_Activo. -->
+     ETR_Estructuras: el prefijo EST_ ya lo ocupa EST_Activo.
+     ACT_Activos.SedeID salio de esta lista el 2026-08-10: dejo de ser un nombre
+     a evitar y paso a ser una columna real del modelo. -->
 
 > # BLOQUEADA. No se aplica nada de este documento.
 >
@@ -47,6 +49,33 @@
 > **Lo que no caduca** es el plano de dominio: las secciones 3 a 6 describen la operación, no la
 > plataforma, y sobreviven aunque mañana el backend no sea Google Sheets. Es la mejor descripción
 > escrita de lo que el sistema tendría que representar.
+>
+> ## Y el 2026-08-10 el modelo se movió otra vez: tres decisiones de este documento quedaron resueltas al revés
+>
+> No son matices de redacción. **Son piezas que esta especificación diseñó de una forma y el modelo
+> implementó de otra**, y quien la aplique al pie de la letra hará lo contrario de lo que hay:
+>
+> | Lo que este documento manda | Lo que el modelo tiene hoy |
+> |---|---|
+> | **§4.3: la columna se llama `RecintoID`, nunca `SedeID`**, porque `ACT_Activos.SedeID` estaba en `CAMPOS_RETIRADOS` y `V-12` abortaría | **La columna se llama `ACT_Activos.SedeID`.** Lo que se retiró fue `USR_Usuarios.SedeID`, la del **usuario**, y el nombre quedó libre para el **activo**. `RecintoID` ya no hace falta y `V-12` no aborta: `validar_modelo.py` da 0 errores |
+> | **§5.2: los oficios llevan clave numérica `6` a `17`**, porque `ROL_Roles` «no está en `CLAVE_LEGIBLE` y su clave es numérica» | **Todas las claves son alfanuméricas con prefijo**, `ROL-01` a `ROL-04`, y `ROL_Roles` **sí está** en `CLAVE_LEGIBLE`. Los oficios continuarían la serie como `ROL-05` en adelante. Lo mismo vale para las claves `28` a `32` de §5.3.1, que hoy serían `TIP-028` a `TIP-032` |
+> | **§2.2.1 y §5.3: «`RequiereGPS = FALSE` vale exactamente en `SERVIDOR` y `NAS`»** | **Vale en cuatro tipos**: `TIP-016 SERVIDOR`, `TIP-017 NAS`, `TIP-025 COMPUTADOR PORTATIL` y `TIP-026 IMPRESORA`. Los dos últimos llegaron con los nueve tipos del 2026-08-09. **El argumento no cambia** —esos cuatro también se visitan, así que `RequiereGPS` sigue sin significar «no se visita»— pero la frase «exactamente dos» ya no es cierta |
+>
+> **Por qué la clave dejó de ser numérica, que es la parte que no se puede negociar.** AppSheet tipa
+> la clave según la mayoría de sus valores: si son `1`, `2`, `3` la tipa `Number` y **descarta sin
+> avisar** la fila cuya clave es alfanumérica. Le pasó a un técnico real. Cualquier razonamiento de
+> este documento que concluya «clave numérica» está razonando contra una regla que ya no existe: la
+> vigente es `R-01` de [`../REGLAS_DEL_MODELO_DE_DATOS.md`](../REGLAS_DEL_MODELO_DE_DATOS.md).
+>
+> **Y dos renombrados que atraviesan el documento entero.** Donde diga `Ubicacion`, léase
+> **`Ubicacion_LatLong`**; son seis columnas de coordenada y llevan el sufijo para que AppSheet
+> infiera `LatLong` en vez de `Text`, sobre el que `DISTANCE()` no opera. Y donde §4.3 y §7.2 pidan
+> columnas para `SED_Sedes`, `ACT_Activos` y `UNF_UnidadesFuncionales`: **ya están puestas**, y son
+> cinco, cinco y dos. Se vuelcan, no se citan:
+>
+> ```bash
+> python -c "import sys;sys.path.insert(0,'scripts');import modelo_objetivo as M;print([c['nombre'] for c in M.MODELO['ACT_Activos']['columnas'] if c.get('nueva')])"
+> ```
 
 
 Lo que el sistema tiene que representar para que la operación quepa dentro, escrito **antes** de
@@ -131,17 +160,21 @@ devolvió.
 >
 > | Lo que dice esta sección | Lo que hay hoy |
 > |---|---|
-> | «Columnas: 200 · Campos retirados de MAN: 14» (§2.1) | **205 columnas · 13 campos retirados de `MAN_Mantenimientos`.** Tablas, referencias y reglas no cambiaron: 28, 38 y 20 |
-> | «`TIP_TiposActivo` tiene 18 filas» (§2.2, §2.2.1, §5.3.1) | **27.** Se añadieron nueve tipos el 2026-08-09 para que cada familia del Plan Maestro tenga checklist propio. `RequiereGPS = FALSE` sigue valiendo solo en `SERVIDOR` y `NAS`, que es lo que sostiene 5.3 |
+> | «Columnas: 200 · Campos retirados de MAN: 14» (§2.1) | **211 columnas · 13 campos retirados de `MAN_Mantenimientos`.** Y las otras tres cifras **sí cambiaron el 2026-08-10**: siguen siendo 28 tablas, pero son **39 referencias y 21 reglas**, no 38 y 20 |
+> | «`TIP_TiposActivo` tiene 18 filas» (§2.2, §2.2.1, §5.3.1) | **27.** Se añadieron nueve tipos el 2026-08-09 para que cada familia del Plan Maestro tenga checklist propio. **Y `RequiereGPS = FALSE` ya no vale solo en `SERVIDOR` y `NAS`: vale en cuatro** —`TIP-016`, `TIP-017`, `TIP-025 COMPUTADOR PORTATIL` y `TIP-026 IMPRESORA`—. El argumento de 5.3 no cambia; el «exactamente dos» sí |
 > | «`TIP_TiposActivo.RadioGeofencingKm` sigue vacío» | **Poblado en los 27**: 0,05 km en 18 tipos, 0,1 en 8 y 1,5 en la fibra |
-> | «Los 34 activos comparten una coordenada» | **368 filas.** Las 34 del juego de arranque siguen compartiendo el punto de Bogotá; las otras 334 llevan coordenadas interpoladas sobre el corredor, y **ninguna de las dos clases es real** (D-01) |
-> | «`UNF_UnidadesFuncionales.PRInicial` y `PRFinal` están vacías» | **Pobladas en las cuatro filas**, de `00+000` a `137+030`. Lo que sigue faltando es el PK, y el argumento de 4.2 no cambia |
+> | «Los 34 activos comparten una coordenada» | **368 filas, y ninguna tiene coordenada.** `ACT_Activos.Ubicacion_LatLong` está **vacía en las 368**: la columna se renombró el 2026-08-10 y las coordenadas —el punto compartido de Bogotá y las interpoladas de los 334 sintéticos— se perdieron. Ninguna era real de todos modos (D-01) |
+> | «`UNF_UnidadesFuncionales.PRInicial` y `PRFinal` están vacías» | **Pobladas en las cuatro filas, y con la ruta dentro del valor** —`55CN03 PR0+0+000` a `5608 PR92+048`—, que es justo lo que §4.2 pedía. **Y el PK ya no falta**: `PKInicial`/`PKFinal` van de `00+000` a `137+170`. El argumento de 4.2 no cambia, pero su carencia está cerrada |
 > | «`MAN` 2 filas, `OT` 6, `CHD` 15…» | **Todas las transaccionales están vacías.** La hoja se entrega sin registros de prueba, así que la conversión de `OTID` a `Ref` no arrastra ninguna fila: es aún más barata que cuando se escribió esto |
 > | «`FIR_Firmas.TipoFirma` no declara valores» | **Ya los declara**, y con el único valor que §7.6 propone: `Tecnico`. Esa parte de la especificación está aplicada |
+> | «`ROL_Roles` … claves **numéricas**» (§2.2, §5.2) | **`ROL-01` a `ROL-04`**, alfanuméricas, y `ROL_Roles` **está** en `CLAVE_LEGIBLE`, que hoy tiene **22** entradas y no 10 |
+> | «`ACT_Activos` tiene `PR` y **no** `PK`» (§2.2) | Tiene las dos, **más `TramoINVIAS` y `SedeID`**. En la hoja, `PK` está poblado en las 368 filas y `PR`, `TramoINVIAS` y `SedeID` están vacíos en las 368 |
+> | «`SED_Sedes` … 4 columnas, 10 filas, UF1-UF4 son las claves 7 a 10» (§2.2, §4.3) | **9 columnas y 6 filas**, `SED-001` a `SED-006`, y **ninguna es una unidad funcional**: ese aplanamiento ya se deshizo. Las cinco columnas nuevas son `UnidadFuncionalID`, `PR`, `TramoINVIAS`, `PK` y `Ubicacion_LatLong` |
+> | «`USR_Usuarios` tiene … `SedeID` …» (§5.4) | **`USR_Usuarios.SedeID` se retiró el 2026-08-10.** Dónde trabaja el técnico vive en `ASG_AsignacionZona` y solo ahí |
 >
-> **Y el que sí obliga a corregir la especificación: las claves `19` a `23` que §5.3.1 manda usar
-> para los cinco tipos sin coordenada están ocupadas.** El catálogo llega hoy a `27`. Ver el recuadro
-> de 5.3.1.
+> **Y los dos que obligan a corregir la especificación, no solo a leerla con cuidado:** las claves
+> `19` a `23` que §5.3.1 manda usar están ocupadas —el catálogo llega a `TIP-027`— y **ninguna clave
+> es ya numérica**. Ver el recuadro de 5.3.1 y el de la cabecera.
 >
 > Lo que no cambió es el dominio: los conteos del Plan Maestro y del cronograma contractual de §2.5
 > salen de `contexto/`, que no se ha tocado.
@@ -201,10 +234,16 @@ empiezan en `RG-21`.**
 
 ### 2.2.1 `TIP_TiposActivo`, los 18 tipos completos
 
-> **Volcado histórico: el catálogo tiene hoy 27 tipos y el radio poblado en los 27.** Se deja tal
-> como se leyó porque de él cuelga el argumento de 5.3, y ese argumento **no cambia**: `RequiereGPS`
-> sigue valiendo `FALSE` solo en `SERVIDOR` y `NAS`. El catálogo vigente se vuelca con
-> `python scripts/catalogo_tipos.py`.
+> **Volcado histórico: el catálogo tiene hoy 27 tipos, con clave `TIP-001` a `TIP-027` y el radio
+> poblado en los 27.** Se deja tal como se leyó porque de él cuelga el argumento de 5.3, y **ese
+> argumento no cambia**. Lo que sí cambia es su cuenta: `RequiereGPS = FALSE` ya no vale en dos tipos
+> sino en **cuatro** —`TIP-016 SERVIDOR`, `TIP-017 NAS`, `TIP-025 COMPUTADOR PORTATIL` y
+> `TIP-026 IMPRESORA`—, y **los cuatro se visitan**, así que la columna sigue sin significar «no se
+> visita». Léase «los cuatro» donde abajo diga «los dos». El catálogo vigente se vuelca del archivo:
+>
+> ```bash
+> python -c "import openpyxl;ws=openpyxl.load_workbook('BD/Modelo_Datos_PLANTILLA.xlsx',data_only=True)['TIP_TiposActivo'];print([(r[0],r[1]) for r in ws.iter_rows(min_row=2,values_only=True) if r[5]=='FALSE'])"
+> ```
 
 El arquitecto lo pidió y tenía razón en pedirlo: **la columna `RequiereGPS` no está vacía ni está
 toda a `TRUE`**, y una lectura descuidada habría construido encima una exención silenciosa.
@@ -231,8 +270,15 @@ TipoActivoID  Nombre        Categoria       TieneQR  RequiereGPS  FormularioID  
 18            SUBESTACIÓN   Eléctrico       TRUE     TRUE         FRM_SUBE      (vacio)
 ```
 
-**`RequiereGPS = FALSE` vale exactamente en `SERVIDOR` (16) y `NAS` (17). Y esos dos SÍ se visitan:**
+**`RequiereGPS = FALSE` valía exactamente en `SERVIDOR` (16) y `NAS` (17). Y esos dos SÍ se visitan:**
 son equipos físicos dentro del CCO o de un peaje, y alguien va hasta el rack a mantenerlos.
+
+> **Hoy son cuatro, y refuerzan el argumento en vez de debilitarlo.** Con los nueve tipos del
+> 2026-08-09 entraron `TIP-025 COMPUTADOR PORTATIL` y `TIP-026 IMPRESORA`, los dos con
+> `RequiereGPS = FALSE`. **También se visitan** —alguien va hasta el escritorio o hasta la
+> impresora—, así que la columna sigue sin querer decir «no se visita». Lo que estos dos añaden es
+> otra cosa: son equipo bajo techo, y para eso el modelo tiene desde el 2026-08-10 una columna que
+> lo dice de frente, `ACT_Activos.SedeID`.
 
 Luego **`RequiereGPS` no significa «no se visita»**, y una versión anterior de esta especificación lo
 usó como si lo significara. Habría eximido del geofencing a los servidores y a los NAS **sin que
@@ -371,11 +417,20 @@ Dos hallazgos más del cruce entre los dos documentos del Sisga:
    `docs/BASE_CONOCIMIENTO_APPSHEET.md`, que es contra el que se verificó el comportamiento de la
    plataforma en esta especificación. **Ninguna de las dos citas resuelve.** No se corrige aquí: es
    una corrección de redacción sobre `CLAUDE.md`, fuera del alcance de una especificación.
-2. **`CLAUDE.md` R-10 dice «las 15 tablas cuya clave es texto legible».** `CLAVE_LEGIBLE` tiene
-   **10** entradas: `ASG_AsignacionZona, EOT_EstadosOrden, FAL_ModosFalla, FRM_Formularios,
-   FRM_Preguntas, MOT_MotivosPendiente, OT_OrdenesTrabajo, PAR_Parametros, PLA_PlanMantenimiento,
-   SEN_Sentidos`. El comentario dentro de `modelo_objetivo.py` dice «de las nueve». Los tres números
-   son distintos y solo uno sale del archivo.
+2. **`CLAUDE.md` R-10 dice «las 15 tablas cuya clave es texto legible».** Cuando esto se escribió,
+   `CLAVE_LEGIBLE` tenía **10** entradas y el comentario dentro de `modelo_objetivo.py` decía «de
+   las nueve». Los tres números eran distintos y solo uno salía del archivo.
+
+   > **Hoy son 22, y ninguno de los tres números anteriores vale.** Al pasar todas las claves a
+   > alfanuméricas con prefijo el 2026-08-10, la lista dejó de ser una excepción y pasó a ser la
+   > norma: **`CLAVE_LEGIBLE` son las 22 tablas pobladas y `CLAVE_GENERADA` las 6 vacías**, las de
+   > movimiento, que generan su clave con `UNIQUEID()`. **Y esa es exactamente la razón por la que la
+   > cifra no se escribe en prosa** —esta entrada nació de que tres documentos daban tres números—;
+   > se deriva:
+   >
+   > ```bash
+   > python -c "import sys;sys.path.insert(0,'scripts');import modelo_objetivo as M;print(len(M.CLAVE_LEGIBLE),'legibles |',len(M.CLAVE_GENERADA),'generadas')"
+   > ```
 3. **`V-13` clava `TIP_TiposActivo.FormularioID` en el validador.** Ver 6.3: retirar esa columna
    sin tocar `COBERTURA` deja `validar_modelo.py` en error, y ese es el único gate objetivo.
 
@@ -466,10 +521,19 @@ acercan a 3.000-3.500, doce o catorce al día. **No se recalcula aquí**, porque
 inventario que la propia fuente marca como no confirmado (sección 10, supuesto A-01).
 
 Lo que sí es firme: **sin bots programados, cada una de esas órdenes se crea a mano o por lote sobre
-el Sheets**, porque `ESPEC-002` retiró `Adds` de `OT_OrdenesTrabajo` y no hay generador de claves
-seguro fuera de línea. Doce órdenes al día tecleadas es el punto en el que el sistema deja de
-ahorrar trabajo y empieza a costarlo. Es la consecuencia práctica de `N-03` y la razón por la que
-esa entrada de la tabla 8 pesa más que las otras.
+el Sheets**, y no hay generador de claves seguro fuera de línea. Doce órdenes al día tecleadas es el
+punto en el que el sistema deja de ahorrar trabajo y empieza a costarlo. Es la consecuencia práctica
+de `N-03` y la razón por la que esa entrada de la tabla 8 pesa más que las otras.
+
+> **Corregida la premisa, no la conclusión (2026-08-10).** Esto decía «porque `ESPEC-002` retiró
+> `Adds` de `OT_OrdenesTrabajo`». **`Adds` no se retiró: lo que se retira es `Deletes`.** RG-14 y
+> RG-15 dicen `Updates, Adds` en las dos tablas, y el paso 1 de
+> [`../PROMPT_CABLEADO.md`](../PROMPT_CABLEADO.md) lo escribe así. Se puede añadir una orden desde la
+> aplicación; lo que no se puede es borrarla, porque una orden se anula con `Activo = FALSE`.
+>
+> **La conclusión aguanta igual**, y por otra razón: lo que impide generar el plan del mes solo no es
+> el botón, es que **en el plan gratuito los procesos programados no se ejecutan**. Doce órdenes al
+> día hay que crearlas una a una o por carga, con botón o sin él.
 
 ---
 
@@ -521,24 +585,38 @@ tabla de equivalencias que hoy no existe.
 
 | Pieza | ¿Cabe hoy? | Cómo, o por qué no |
 |---|---|---|
-| `SED_Sedes` gana `UnidadFuncionalID`, `PR`, `PK`, `Ubicacion` | **Sí** | Cuatro columnas nuevas |
+| `SED_Sedes` gana `UnidadFuncionalID`, `PR`, `PK`, `Ubicacion` | **HECHO el 2026-08-10** | Y son **cinco** columnas, no cuatro: entró también `TramoINVIAS`, sin la cual el `PR` no dice nada. La coordenada se llama `Ubicacion_LatLong` |
 | Tabla `ETR_Estructuras` | **Sí** | Hoja nueva |
-| `ACT_Activos` gana `RecintoID` y `EstructuraID`, ambas opcionales | **Sí** | Ver el aviso de nombre reutilizado, abajo |
-| `ACT_Activos` gana `PK`; `UNF` gana `PKInicial`/`PKFinal` | **Sí** | `Decimal` |
-| Sacar las filas UF1-UF4 de `SED_Sedes` | **Sí** | Son las claves 7 a 10. Los 11 usuarios están en `SedeID = 1`, así que borrarlas no deja a nadie huérfano |
+| `ACT_Activos` gana `RecintoID` y `EstructuraID`, ambas opcionales | **Medio hecho, y con otro nombre** | La del recinto existe y **se llama `ACT_Activos.SedeID`**: ver el aviso de abajo, que quedó al revés. La de la estructura sigue sin declarar |
+| `ACT_Activos` gana `PK`; `UNF` gana `PKInicial`/`PKFinal` | **HECHO el 2026-08-10** | Las tres existen, y son `Text` con formato `137+170`, no `Decimal`: un PK se escribe con el `+` y ordenarlo como número perdería el formato con el que opera la vía. `ACT_Activos` ganó además `TramoINVIAS` |
+| Sacar las filas UF1-UF4 de `SED_Sedes` | **HECHO el 2026-08-10** | La tabla se regenera del modelo y trae **6 filas**, `SED-001` a `SED-006`, todas edificaciones: CCO, Bogotá, los dos peajes y las dos básculas. Y no dejó a nadie huérfano por una razón distinta de la prevista: **`USR_Usuarios.SedeID` se retiró entera** |
 | Que el recinto pertenezca a la misma UF que el activo | **Sí, en la app** | `RG-24`, misma familia de reglas |
 | Filtro de seguridad que baje por la jerarquía | **Sí** | `RG-04` no cambia: sigue filtrando por `UnidadFuncionalID` del activo, que ahora es fiable |
 | Tabla de equivalencias PR ↔ PK | **NO en este alcance** | No existe el dato. Ver N-04 |
 
-> **Aviso de nombre reutilizado, y es la regla R-7 y la V-12 a la vez.**
-> `ACT_Activos.SedeID` **está en `CAMPOS_RETIRADOS`** con el motivo «se sustituye por
-> `UnidadFuncionalID`». Volver a declararlo en `MODELO` con el nuevo significado —«el recinto donde
-> está el equipo»— **aborta la validación por V-12**, que falla si un campo está a la vez retirado y
-> vivo. Y aunque no abortara, sería el defecto exacto que R-7 describe: dos columnas con el mismo
-> nombre y significados distintos.
+> ## Aviso de nombre reutilizado — CADUCADO el 2026-08-10, y se resolvió al contrario
 >
-> **Por eso la columna se llama `RecintoID`**, no `SedeID`, y necesita `alias_justificado` porque la
-> clave de `SED_Sedes` es `SedeID` y V-05 exige que una referencia se llame como su destino.
+> **Lo que decía este aviso, y por qué era razonable:** `ACT_Activos.SedeID` estaba en
+> `CAMPOS_RETIRADOS` con el motivo «se sustituye por `UnidadFuncionalID`», así que volver a
+> declararlo con el nuevo significado —«el recinto donde está el equipo»— habría abortado la
+> validación por `V-12`, que falla si un campo está a la vez retirado y vivo. De ahí la propuesta de
+> llamarla `RecintoID` con `alias_justificado`.
+>
+> **Lo que se hizo en su lugar:** se retiró la **otra** `SedeID`, la de `USR_Usuarios`, porque decía
+> dos cosas a la vez y ninguna bien —dónde trabaja la persona no es dónde están sus equipos—, y la
+> zona del técnico quedó viviendo en un solo sitio, `ASG_AsignacionZona`. Al desocuparse el
+> significado, el nombre quedó libre y **la columna del activo se llama `ACT_Activos.SedeID`**, sin
+> alias y sin conflicto: `validar_modelo.py` da **0 errores**.
+>
+> **Léase `SedeID` donde este documento diga `RecintoID`.** Se comprueba de una línea:
+>
+> ```bash
+> python -c "import sys;sys.path.insert(0,'scripts');import modelo_objetivo as M;print([c for c in M.MODELO['ACT_Activos']['columnas'] if c['nombre']=='SedeID'])"
+> ```
+>
+> **Y la lección que sí sobrevive** es la de fondo, no la del nombre: el conflicto no se resolvió
+> buscándole un sinónimo a una columna, sino **decidiendo qué significaba y quitando la que sobraba**.
+> Un alias habría dejado las dos vivas.
 
 **La sede de Bogotá.** Está fuera del corredor y aloja 29 portátiles y 3 impresoras. `SED_Sedes`
 gana `UnidadFuncionalID` **opcional** por esto: una sede administrativa no está en ningún tramo.
@@ -577,20 +655,40 @@ pudiendo apuntar a «Técnico Fibra» y cambiando en silencio lo que significa e
 |---|---|
 | `ROL_Roles` gana `Clase` | `Enum`: `Acceso`, `Oficio`. Las 4 filas existentes quedan `Acceso` |
 | Los 12 oficios | 12 filas nuevas, `Clase = Oficio` |
-| **Claves de los 12** | **Numéricas, 6 a 17**, continuando la serie `2..5` que ya existe |
+| **Claves de los 12** | ~~Numéricas, 6 a 17~~ → **`ROL-05` a `ROL-16`**, continuando la serie `ROL-01..ROL-04` que hay hoy. Ver el recuadro |
 | `USR_Usuarios.RolID` | `Valid_If` que restringe el desplegable a `Clase = Acceso` (`RG-21`) |
 | `TAR_Tareas.RolRequeridoID` | `Ref` a `ROL_Roles`, con `alias_justificado`. Se espera `Clase = Oficio` |
 
-**Por qué claves numéricas y no `ROL-06`.** Dos razones del archivo, no de gusto:
+> ## Por qué esto ya no puede ser una clave numérica — corregido el 2026-08-10
+>
+> **El razonamiento de abajo era correcto sobre el archivo de entonces y hoy concluye lo contrario
+> de lo que hay que hacer.** Sus dos premisas se cayeron el mismo día: `ROL_Roles` **sí está** en
+> `CLAVE_LEGIBLE` —que hoy tiene 22 entradas, todas las tablas pobladas— y su clave en la hoja **no
+> es numérica**: es `ROL-01`, `ROL-02`, `ROL-03`, `ROL-04`.
+>
+> **Y por encima de las dos manda una regla que no se negocia.** AppSheet tipa la clave según la
+> mayoría de sus valores; con claves `1`, `2`, `3` la tipa `Number` y **descarta sin avisar** la fila
+> cuya clave sea alfanumérica. Le pasó a `USR_Usuarios`, y el resultado fue un técnico que no existía
+> para la aplicación. Es `R-01` de
+> [`../REGLAS_DEL_MODELO_DE_DATOS.md`](../REGLAS_DEL_MODELO_DE_DATOS.md), y por eso **los doce
+> oficios entran como `ROL-05` a `ROL-16`**.
+>
+> **Lo que se pierde con el cambio, y hay que asumirlo:** la razón 2 de abajo era buena. Con clave
+> legible, `[RolRequeridoID] = "Técnico Fibra"` deja de ser el error que `V-17` caza, porque `V-17`
+> exceptúa a las tablas de `CLAVE_LEGIBLE` por diseño (`R-10`). **La protección hay que reponerla a
+> mano**, escribiendo `[RolRequeridoID].[Nombre]` de todos modos y comprobándolo en revisión, o
+> aceptando que la comparación contra el literal es legítima porque la clave **es** el texto. Lo que
+> no vale es dar por hecho que el validador sigue vigilando: no lo hace.
 
-1. `ROL_Roles` **no está** en `CLAVE_LEGIBLE`, y su clave en la hoja es numérica. La comprobación
+**El razonamiento original, que se conserva porque explica qué se perdió:**
+
+1. `ROL_Roles` **no estaba** en `CLAVE_LEGIBLE`, y su clave en la hoja era numérica. La comprobación
    `F-11` de `verificar_faseA.py` decide con `_clave_es_legible()`, que exige que **todas** las
-   claves sean texto no numérico. Mezclar `2.0` con `ROL-06` da «no legible» igualmente, así que la
-   clave mixta no compra nada y ensucia la tabla.
-2. Al no ser legible, **`V-17` sigue vigilando**: `[RolRequeridoID] = "Técnico Fibra"` es un error
-   que el validador caza, y hay que escribir `[RolRequeridoID].[Nombre]`. Es exactamente la
-   protección que hizo falta en `RG-16`. Una clave legible aquí apagaría esa vigilancia sin
-   necesidad.
+   claves sean texto no numérico. Mezclar `2.0` con `ROL-06` daba «no legible» igualmente, así que la
+   clave mixta no compraba nada y ensuciaba la tabla.
+2. Al no ser legible, **`V-17` seguía vigilando**: `[RolRequeridoID] = "Técnico Fibra"` era un error
+   que el validador cazaba, y había que escribir `[RolRequeridoID].[Nombre]`. Es exactamente la
+   protección que hizo falta en `RG-16`. Una clave legible apagaba esa vigilancia.
 
 **Lo múltiple sigue en Fase 2**, por decisión de operación del 2026-08-07: que alguien tenga alturas
 *y* electricista, que una tarea exija técnico *más* SISO, y las vigencias de certificado. Eso es una
@@ -635,7 +733,7 @@ sobre `RG-01` habría eximido del geofencing a los servidores y los NAS sin dec�
 | Los servidores y los NAS | **Siguen con geofencing.** Su problema es de precisión bajo techo, y para eso ya están `RadioGeofencingKm` por tipo y `RG-19`, que marca el cierre como excepcional cuando el error del satélite se dispara. No se les exime |
 
 > **Sin la modificación de `RG-01` esto falla de la peor manera posible.** `DISTANCE()` contra una
-> `Ubicacion` en blanco no da error: da un valor que **rechaza el cierre legítimo**. Es el mismo modo
+> `Ubicacion_LatLong` en blanco no da error: da un valor que **rechaza el cierre legítimo**. Es el mismo modo
 > de fallo que `ESPEC-002` §7 describe para el radio vacío, donde `P-08` y `P-09` fallarían las dos
 > y la tanda dejaría de discriminar. Marcar `SeVisita = FALSE` sin tocar `RG-01` deja los cinco
 > tipos con órdenes que nadie puede cerrar.
@@ -678,25 +776,29 @@ entonces era este:
 > | Tipos del Plan **sin fila** | **5** | **Antivirus, Licencias, SSL, ISP y Radios.** Son exactamente los cinco que no se visitan |
 > | Filas de `TIP` **sin tipo** en el Plan | **8** | GENERADOR, BASCULA, VW, ROUTER, FIREWALL, UPS, NAS, SUBESTACIÓN |
 >
-> **Las claves de las cinco filas nuevas pasan a ser `28` a `32`**, continuando la serie. Todo lo
-> demás de esta subsección —que hacen falta cinco filas, que la clave es numérica y no `TIP-28`, y
-> que no se pueden cargar sin formulario que apuntar— **sigue valiendo igual**.
+> **Las claves de las cinco filas nuevas pasan a ser `TIP-028` a `TIP-032`**, continuando la serie.
+> Y aquí hay una corrección dentro de la corrección: **la clave dejó de ser numérica el 2026-08-10**,
+> así que la parte de esta subsección que dice «la clave es numérica y no `TIP-28`» quedó **al
+> revés**. Hoy las 27 filas del catálogo van de `TIP-001` a `TIP-027`, y lo que rompería `F-11` es
+> justamente cargar un `28` suelto: mezclaría formatos, y AppSheet tiparía la clave según la mayoría
+> y descartaría la minoría sin avisar. Lo demás —que hacen falta cinco filas y que no se pueden
+> cargar sin formulario que apuntar— **sigue valiendo igual**.
 >
 > Y el 12 → 5 no cierra A-14: **las 8 filas sin tipo del Plan siguen ahí**, y ahora son una más,
 > porque `BASCULA` y `BASCULA DINAMICA` son dos tipos distintos desde que la familia contable tiene
 > el suyo.
 
 **Para que 5.3 sea aplicable hacen falta cinco filas nuevas en `TIP_TiposActivo`**, con claves que
-continúan la serie numérica que la hoja ya usa —no `TIP-28`, que rompería `F-11` mezclando
-formatos de clave—:
+continúan la serie alfanumérica con prefijo que la hoja usa desde el 2026-08-10 —`TIP-001` a
+`TIP-027`—. **Una clave suelta como `28` es lo que rompería `F-11`**, mezclando formatos:
 
 | Clave | Nombre | Categoria | SeVisita | RequiereGPS | TieneQR | FormularioID |
 |---|---|---|---|---|---|---|
-| `28` | `ANTIVIRUS` | `TI` | `FALSE` | `FALSE` | `FALSE` | pendiente |
-| `29` | `LICENCIAS` | `TI` | `FALSE` | `FALSE` | `FALSE` | pendiente |
-| `30` | `SSL` | `TI` | `FALSE` | `FALSE` | `FALSE` | pendiente |
-| `31` | `ISP` | `Comunicaciones` | `FALSE` | `FALSE` | `FALSE` | pendiente |
-| `32` | `RADIOS` | `Comunicaciones` | `FALSE` | `FALSE` | `FALSE` | pendiente |
+| `TIP-028` | `ANTIVIRUS` | `TI` | `FALSE` | `FALSE` | `FALSE` | pendiente |
+| `TIP-029` | `LICENCIAS` | `TI` | `FALSE` | `FALSE` | `FALSE` | pendiente |
+| `TIP-030` | `SSL` | `TI` | `FALSE` | `FALSE` | `FALSE` | pendiente |
+| `TIP-031` | `ISP` | `Comunicaciones` | `FALSE` | `FALSE` | `FALSE` | pendiente |
+| `TIP-032` | `RADIOS` | `Comunicaciones` | `FALSE` | `FALSE` | `FALSE` | pendiente |
 
 `FormularioID` queda pendiente porque el formulario pasa a ser de la tarea (3.1), y las tareas de
 estos cinco no existen todavía. **Mientras `TIP_TiposActivo.FormularioID` siga viva —y sigue, hasta
@@ -718,8 +820,13 @@ otro contrato. Va como **A-14**, y es hermana de A-01.
 
 ### 5.4 El oficio necesita dónde leerse, o los doce no compran nada
 
-`USR_Usuarios` tiene hoy `UsuarioID, Nombres, Correo, Cargo, Iniciales, RolID, SedeID, Telefono,
-FechaIngreso, Activo`. **Ninguna columna dice qué oficio tiene la persona.**
+`USR_Usuarios` tiene hoy **nueve columnas**: `UsuarioID, Nombres, Correo, Cargo, Iniciales, RolID,
+Telefono, FechaIngreso, Activo`. **Ninguna dice qué oficio tiene la persona.**
+
+> **Y ya no tiene `SedeID`**, que sí estaba cuando se escribió esto. Se retiró el 2026-08-10, después
+> de cuatro días declarada `Ref` obligatoria mientras la especificación funcional la daba por
+> descartada: **dónde trabaja el técnico vive en `ASG_AsignacionZona` y solo ahí**. No cambia el
+> argumento de esta subsección —el hueco sigue siendo el oficio— pero sí la cuenta de columnas.
 
 Así que cargar los doce oficios en `ROL_Roles` y colgarlos de `TAR_Tareas.RolRequeridoID` deja la
 mitad de una frase: el sistema sabría que «inspección de fibra la hace un Técnico Fibra» y **no
@@ -791,9 +898,13 @@ escribe, porque no hay devolución que la provoque.
 **Esto no es preferencia de diseño: es la restricción de la plataforma.**
 
 `BASE_CONOCIMIENTO_APPSHEET.md` lo dice sin rodeos: offline-first, consistencia eventual, sin
-transacciones. **Todo contador o acumulado compite consigo mismo.** Es literalmente la razón por la
-que `OT_OrdenesTrabajo` perdió `Adds` en `ESPEC-002`. Dos pausas registradas sin señal producen una
-pérdida de actualización silenciosa.
+transacciones. **Todo contador o acumulado compite consigo mismo.** Dos pausas registradas sin señal
+producen una pérdida de actualización silenciosa.
+
+> **Este párrafo apoyaba el argumento en que «`OT_OrdenesTrabajo` perdió `Adds`». No lo perdió**, y
+> hay que quitar esa muleta: RG-14 dice `Updates, Adds`, y lo que se retira es `Deletes`. El
+> argumento **no la necesitaba**: la ausencia de transacciones basta por sí sola para descartar el
+> contador acumulado, y por eso `RG-29` suma eventos en vez de acumular.
 
 Y `RG-20` enseñó la segunda mitad: un `Initial value` **es editable**, y `NOW()` en offline es el
 reloj del teléfono. Ninguna de las tres formas obvias de sellar `HoraInicioTrabajos` sirve:
@@ -867,7 +978,7 @@ catálogo nuevo.
 | `Devuelta` como estado de rechazo | **Sí** | Fila nueva en `EOT_EstadosOrden` |
 | Que el técnico no cierre su propia orden | **Sí, en la app** | `RG-23` y `RG-24`. Ver el segundo recuadro |
 | `Vencida` y `Programada`, que mueve el `Sistema` | **NO** | No hay bot. Ver N-07 |
-| Crear una correctiva desde la aplicación | **NO** | `ESPEC-002` retiró `Adds` de `OT`. Ver N-08 |
+| Crear una correctiva desde la aplicación | ~~**NO**~~ **Sí, por el botón** | **Corregido el 2026-08-10: `Adds` no se retiró de `OT`, se retira `Deletes`.** RG-14 dice `Updates, Adds`. Lo que sigue faltando de N-08 no es el botón, es el resto de la correctiva: criticidad, hora de aviso y canal, que son las columnas de 7.2 |
 | Aviso automático al supervisor | **NO** | Bot por evento, plan de pago. Ver N-09 |
 
 > **`MinutosRelojParado` va como columna VIRTUAL, no como `App formula` sobre una columna real.**
@@ -1016,9 +1127,10 @@ Cada una declara **cuál es su clave y si es legible o generada**, como exige `V
 | `Nombre` | `Text` | — | Sí |
 | `Tipo` | `Enum` | — | Sí (`Puente`, `Viaducto`, `Box culvert`, `Tunel`) |
 | `UnidadFuncionalID` | `Ref` | `UNF_UnidadesFuncionales` | Sí |
-| `PR` | `Text` | — | No |
-| `PK` | `Decimal` | — | No |
-| `Ubicacion` | `LatLong` | — | No |
+| `PR` | `Text` | — | No. **Va con `TramoINVIAS`**, o no identifica un punto |
+| `TramoINVIAS` | `Text` | — | No. `55CN03`, `5607` o `5608` |
+| `PK` | `Text` | — | No. Formato `137+170`, como el de `ACT_Activos` |
+| `Ubicacion_LatLong` | `LatLong` | — | No. **El sufijo es obligatorio** (`R-02`): sin él AppSheet la tipa `Text` y `DISTANCE()` no opera |
 | `Activo` | `Yes/No` | — | — |
 
 **`EVT_EventosOrden`** — grupo `Transaccionales`. Clave `EventoID` por `UNIQUEID()` → **generada**,
@@ -1065,15 +1177,15 @@ en `CLAVE_GENERADA`.
 | `OT_OrdenesTrabajo` | `HoraAviso` | `DateTime` | — | Cuándo se supo de la avería. No es `FechaProgramada` |
 | `OT_OrdenesTrabajo` | `CanalAviso` | `Enum` | — | `Telefono`, `Correo`, `Web`, `SCADA`, `App`. **`SCADA` es del Sisga**, no del PDF de ETRA |
 | `OT_OrdenesTrabajo` | `NivelAtencion` | `Enum` | — | `N1`, `N2`, `N3` |
-| `ACT_Activos` | `RecintoID` | `Ref` | `SED_Sedes` | Opcional. **`alias_justificado`**; no se llama `SedeID` (R-7 y V-12) |
+| `ACT_Activos` | ~~`RecintoID`~~ **`SedeID`** | `Ref` | `SED_Sedes` | **YA EXISTE desde el 2026-08-10**, y sin alias: el nombre quedó libre al retirar `USR_Usuarios.SedeID`. Ver el recuadro caducado de 4.3 |
 | `ACT_Activos` | `EstructuraID` | `Ref` | `ETR_Estructuras` | Opcional |
-| `ACT_Activos` | `PK` | `Decimal` | — | Kilometraje lineal. Convive con `PR` |
-| `SED_Sedes` | `UnidadFuncionalID` | `Ref` | `UNF_UnidadesFuncionales` | **Opcional**: Bogotá está fuera del corredor |
-| `SED_Sedes` | `PR` | `Text` | — | |
-| `SED_Sedes` | `PK` | `Decimal` | — | |
-| `SED_Sedes` | `Ubicacion` | `LatLong` | — | Hoy una edificación no está en ningún sitio |
-| `UNF_UnidadesFuncionales` | `PKInicial` | `Decimal` | — | `PRInicial` y `PRFinal` existen y están vacías |
-| `UNF_UnidadesFuncionales` | `PKFinal` | `Decimal` | — | |
+| `ACT_Activos` | `PK` | ~~`Decimal`~~ **`Text`** | — | **YA EXISTE.** Es `Text` con formato `137+170`, no decimal. Convive con `PR`, y con `TramoINVIAS`, que también existe ya: **sin el tramo, el PR no identifica un punto** |
+| `SED_Sedes` | `UnidadFuncionalID` | `Ref` | `UNF_UnidadesFuncionales` | **YA EXISTE.** Opcional: Bogotá está fuera del corredor, y de hecho solo `SED-003`, el peaje de Machetá, la trae puesta |
+| `SED_Sedes` | `PR` | `Text` | — | **YA EXISTE**, y con `TramoINVIAS` al lado |
+| `SED_Sedes` | `PK` | ~~`Decimal`~~ **`Text`** | — | **YA EXISTE** |
+| `SED_Sedes` | ~~`Ubicacion`~~ **`Ubicacion_LatLong`** | `LatLong` | — | **YA EXISTE**, vacía en las 6 filas. El sufijo es lo que hace que AppSheet la tipe `LatLong` en vez de `Text` |
+| `UNF_UnidadesFuncionales` | `PKInicial` | ~~`Decimal`~~ **`Text`** | — | **YA EXISTE**, poblada de `00+000` a `137+170`. Y `PRInicial`/`PRFinal` **ya no están vacías**: llevan la ruta dentro del valor, `55CN03 PR0+0+000` a `5608 PR92+048` |
+| `UNF_UnidadesFuncionales` | `PKFinal` | ~~`Decimal`~~ **`Text`** | — | **YA EXISTE** |
 | `ROL_Roles` | `Clase` | `Enum` | — | `Acceso`, `Oficio`. Sin ella los doce oficios contaminan el perfil |
 | `USR_Usuarios` | `OficioID` | `Ref` | `ROL_Roles` | **Opcional.** `alias_justificado`. Sin ella los doce oficios no tienen dónde leerse: ver 5.4 |
 | `TIP_TiposActivo` | `SeVisita` | `Yes/No` | — | **No es `RequiereGPS`.** Inicial `TRUE`; `FALSE` solo en los cinco tipos sin lugar al que ir. Ver 5.3 |
@@ -1206,7 +1318,7 @@ causa y fecha.
 | N-05 | Que `EVT_EventosOrden` se escriba sola en cada transición | **No verificado** que una acción agrupada pueda añadir fila a otra tabla en el plan gratuito | Buscar la página oficial. Respaldo: botón que pulsa el técnico |
 | N-06 | Que `HoraInicioTrabajos` sea infalsificable | **Dos cuentas con permiso de edición sobre el Sheets.** Quien escriba ahí edita la fila de evento | Nada dentro de AppSheet. Solo cambia con otro backend o con retirar el acceso |
 | N-07 | Que una orden vencida se marque sola (`RG-08`) | **Bot programado.** No corre en el plan gratuito | Plan de pago. Hoy `Vencida` es un estado inalcanzable |
-| N-08 | Crear una correctiva desde la aplicación | **`ESPEC-002` retiró `Adds` de `OT_OrdenesTrabajo`**, porque `OTID` sigue la convención legible `OT-0001` y no hay generador seguro fuera de línea | Decidir el generador de `OTID`. Es trabajo propio, y `UNIQUEID()` rompería la convención |
+| N-08 | Crear una correctiva desde la aplicación | **Corregido: el botón `Adds` está**, RG-14 dice `Updates, Adds`. Lo que falta es el generador: `OTID` sigue la convención legible `OT-0001` y **no hay generador seguro fuera de línea**, así que dos técnicos sin señal pueden fabricar el mismo número | Decidir el generador de `OTID`. Es trabajo propio, y `UNIQUEID()` rompería la convención |
 | N-09 | Avisar al supervisor cuando entra una correctiva | **Bot por evento**, mismo plan (`RG-07`, `RG-10`) | Plan de pago |
 | N-10 | Atributos propios por tipo de equipo, sin columnas vacías | **Sin esquema dinámico** sobre Sheets. Es lo que GIMAN sí hace | Se paga con columnas vacías o con tablas por familia. Ninguna de las dos es gratis |
 | N-11 | Que la cadena de evidencia sea atómica | **No hay transacciones.** Mantenimiento, fotos, firma y checklist son escrituras independientes | Otro backend. Hoy es límite declarado en `ESPEC-002` §6 |
@@ -1293,14 +1405,14 @@ comprobación en lugar de endurecerla, que es justo lo que `CLAUDE.md` §3 proh�
 |---|---|
 | Se retira `TIP_TiposActivo.FormularioID` sin re-apuntar `V-13` | `validar_modelo.py` en error. **No hay veredicto que valga**: es el único gate objetivo |
 | Se retira `ACT_Activos.FrecuenciaID` sin sacarla de `RETIPADOS` | `V-16`: «figura como retipado pero no existe en el modelo» |
-| Se declara `ACT_Activos.SedeID` con el significado nuevo | `V-12` aborta. Y si alguien fuerza el paso, dos columnas con el mismo nombre y AppSheet resolviendo una sin decir cuál (R-7) |
+| ~~Se declara `ACT_Activos.SedeID` con el significado nuevo~~ | **Ya no se rompe: está declarada y `validar_modelo.py` da 0 errores.** El riesgo desapareció el 2026-08-10 al retirar `USR_Usuarios.SedeID`, que era la que ocupaba el nombre. Ver el recuadro caducado de 4.3 |
 | Se retira `TIP.FormularioID` **antes** de cargar `TAR_Tareas` | El sistema se queda **sin ninguna ruta al formulario**. Ningún checklist abre |
-| Se marca `RequiereGPS = FALSE` sin modificar `RG-01` | `DISTANCE()` contra `Ubicacion` en blanco **rechaza el cierre legítimo**. Los cinco tipos quedan con órdenes que nadie puede cerrar |
+| Se marca `RequiereGPS = FALSE` sin modificar `RG-01` | `DISTANCE()` contra `Ubicacion_LatLong` en blanco **rechaza el cierre legítimo**. Los cinco tipos quedan con órdenes que nadie puede cerrar. **Y hoy eso no es hipotético: la columna está vacía en las 368 filas**, así que el modo de fallo está activo para todos los activos, no para cinco tipos |
 | Se pone `RelojParado` como columna acumulada en vez de `EVT_EventosOrden` | Pérdida de actualización silenciosa en offline. Dos pausas sin señal y el total miente, sin aviso |
 | Se sella `HoraInicioTrabajos` con un `ChangeTimestamp` de la orden | Se reescribe en la segunda ida a `En ejecucion`. **El tiempo de respuesta se acorta solo**, y hacia el lado que favorece a quien lo mide |
 | Se configura `RG-23` sin `RG-24` | La segregación **parece** funcionar. Quien sea técnico y supervisor de la misma orden se la cierra a sí mismo |
 | Se da `TAR_Tareas` clave legible y no se mete en `CLAVE_LEGIBLE` | `F-11` falla: «tiene clave de texto legible y NO está en `CLAVE_LEGIBLE`» |
-| Se meten los 12 oficios con clave `ROL-06` | Clave mixta con `2.0`. `F-11` no falla, pero la tabla queda con dos convenciones y `USR_Usuarios.RolID` guardando números y textos |
+| ~~Se meten los 12 oficios con clave `ROL-06`~~ **Se meten con clave numérica `6` a `17`** | **Invertido el 2026-08-10.** `ROL_Roles` va hoy de `ROL-01` a `ROL-04`, así que lo que produce la clave mixta es el número suelto. Y no es cosmético: AppSheet tipa la clave por mayoría y **descarta sin avisar** la minoría. Los oficios entran como `ROL-05` a `ROL-16` |
 | Se crea una fila `A demanda` en `FRE_Frecuencias` con `Dias = 0` | `RG-11` deja los 29 portátiles vencidos todos los días desde su última reparación |
 | Se aplica esto antes de cerrar la Fase B | La Fase B no puede empezar. Ver 11.1 |
 
@@ -1342,7 +1454,7 @@ Todo se edita **solo** en `scripts/modelo_objetivo.py`. Qué estructura toca cad
 | # | Tabla | Columna | Tipo | Expresión | Para qué |
 |---|---|---|---|---|---|
 | `RG-21` | `USR_Usuarios` | `RolID` | `Valid_If` | `IN([RolID], SELECT(ROL_Roles[RolID], [Clase] = "Acceso"))` | El perfil de acceso no puede ser un oficio |
-| `RG-22` | `ACT_Activos` | `Ubicacion` | `Required_If` | `[TipoActivoID].[RequiereGPS] = TRUE` | Los cinco tipos sin coordenada dejan de exigirla |
+| `RG-22` | `ACT_Activos` | `Ubicacion_LatLong` | `Required_If` | `[TipoActivoID].[SeVisita] = TRUE` | Los cinco tipos sin coordenada dejan de exigirla. **Corregido: la condición es `SeVisita`, no `RequiereGPS`** — esta última vale `FALSE` en cuatro tipos que **sí** se visitan, y usarla aquí eximiría a servidores, NAS, portátiles e impresoras. Es el error que 5.3 documenta y esta fila lo arrastraba |
 | `RG-23` | `OT_OrdenesTrabajo` | `EstadoOrdenID` | `Valid_If` | `AND(OR([EstadoOrdenID].[QuienCambia] <> "Supervisor", [SupervisorID].[Correo] = USEREMAIL()), OR([EstadoOrdenID].[QuienCambia] <> "Tecnico", [TecnicoID].[Correo] = USEREMAIL()))` | **El técnico no cierra su propia orden.** Da uso a `QuienCambia`, que existe y nadie lee |
 | `RG-24` | `OT_OrdenesTrabajo` | `SupervisorID` | `Valid_If` | `[SupervisorID] <> [TecnicoID]` | Cierra el agujero de `RG-23` |
 | `RG-25` | `PLA_PlanMantenimiento` | `TareaID` | `Valid_If` | `AND([TareaID].[TipoActivoID] = [ActivoID].[TipoActivoID], ISNOTBLANK([TareaID].[FrecuenciaID]))` | La tarea es del tipo del activo, y una tarea sin frecuencia no genera plan |
@@ -1401,8 +1513,16 @@ nuevos —`PROPUESTAS` y `DECISIONES`— y el verificador `scripts/verificar_doc
 comprobó contra ellos, y el resultado hay que dejarlo escrito porque cambia lo que el ejecutor tiene
 que tocar.
 
-**Los conteos de la sección 2.1 no cambian:** el modelo sigue en 28 tablas, 200 columnas, 38
-referencias y 21 reglas. Los registros nuevos no declaran tablas: declaran intenciones.
+**Los conteos de la sección 2.1 no cambiaban por aquello:** los registros nuevos no declaran tablas,
+declaran intenciones.
+
+> **Pero sí cambiaron el 2026-08-10, y no se citan de memoria.** El modelo está hoy en **28 tablas,
+> 211 columnas, 39 referencias y 21 reglas**, y esa línea la imprime el validador cada vez que corre,
+> así que la cifra buena es siempre la de la salida y nunca la de este párrafo:
+>
+> ```bash
+> python scripts/validar_modelo.py
+> ```
 
 **`DECISIONES` corrobora cinco decisiones de esta especificación**, tomadas por separado y desde el
 archivo. Conviene decirlo porque es la única confirmación independiente que tiene este documento:
@@ -1428,8 +1548,15 @@ sección.** Lo que sigue se releyó del archivo el 2026-08-10, no de memoria:
 ```
 $ python -c "import sys;sys.path.insert(0,'scripts');import modelo_objetivo as m;print(sorted(m.PROPUESTAS))"
 ['CER_Certificaciones', 'CRI_Criticidad', 'ETR_Estructuras', 'EVT_EventosOrden',
- 'MED_MedicionesHilo', 'PAU_Pausas', 'ROL_Requeridos', 'TAR_Tareas', 'USR_Certificaciones']
+ 'MED_MedicionesHilo', 'PAU_Pausas', 'ROL_Requeridos', 'TAR_Tareas', 'TUN_Tuneles',
+ 'USR_Certificaciones']
 ```
+
+> **Y el aviso se cumplió otra vez: hoy son diez, no nueve.** Entró `TUN_Tuneles`, que salió del
+> contrato: **dentro de un túnel el GPS no fija posición y `RG-01` comprueba la distancia al cerrar**,
+> así que todo equipo en túnel falla esa comprobación siempre, por diseño y no por avería. Sin la
+> tabla, el supervisor ve a un técnico acumulando cierres con excepción sin saber que es el túnel.
+> **Vuelva a correr la línea de arriba antes de citar esta lista**: es un registro vivo.
 
 | Entrada | Estado | Acción |
 |---|---|---|

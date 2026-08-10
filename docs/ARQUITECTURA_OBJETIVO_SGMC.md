@@ -68,6 +68,7 @@ resto son campos que guardaban por segunda vez un dato alcanzable por referencia
 | Campo | Motivo |
 |---|---|
 | `SedeID` | Retirada el 2026-08-10 para que el modelo diga lo que dice la especificacion. FUNCIONAL_SGMC 6.3 la declara descartada frente a ASG_AsignacionZona: la sede es un edificio y la asignacion es un tramo, y un tecnico puede atender varias unidades funcionales, asi que la relacion es de muchos a muchos y no cabe como columna. RG-04, el filtro de seguridad que decide que activos ve cada tecnico, lee la asignacion y no menciona la sede. El modelo la declaraba Ref obligatoria mientras la spec la daba por descartada: se contradecian, y cablearla habria dejado dos formas de decir donde trabaja alguien. |
+| `UltimaSincronizacion` | Venia de una version anterior y el modelo nunca la uso. La regeneracion del 2026-08-10 la dejo fuera y no se echo en falta. Retirada el 2026-08-10. |
 
 **`MAN_Mantenimientos`**
 
@@ -136,6 +137,24 @@ resto son campos que guardaban por segunda vez un dato alcanzable por referencia
 | `RespuestaGPS` | La coordenada es del mantenimiento y de cada fotografia. |
 | `FechaRespuesta` | Se deriva del ChangeTimestamp del mantenimiento. |
 | `Activo` | El detalle es parte de su checklist: no se desactiva por separado. |
+
+**`FOT_Fotografias`**
+
+| Campo | Motivo |
+|---|---|
+| `Fecha` | Duplicaba a FechaHora, que es la que vale como evidencia porque la escribe el servidor. Dos fechas para el mismo hecho invitan a discutir cual manda justo cuando hay que probar algo. Retirada el 2026-08-10. |
+
+**`FRM_Formularios`**
+
+| Campo | Motivo |
+|---|---|
+| `Orden` | Ordenaria los formularios en una lista y ninguna vista los ordena. Estaba vacia. Si algun dia se ordenan, se declara entonces con su proposito escrito. Retirada el 2026-08-10. |
+
+**`FRM_Preguntas`**
+
+| Campo | Motivo |
+|---|---|
+| `ValorDefecto` | Precargaria la respuesta antes de que el tecnico conteste. En una evidencia eso es peligroso: una respuesta por defecto que nadie toca parece contestada. Retirada el 2026-08-10. |
 
 ### 2.4 Cableado de referencias
 
@@ -448,10 +467,10 @@ Inventario de los activos del corredor. Es el eje del sistema.
 | `PR` | Text |  |  |  | Punto de referencia vial |
 | `CalzadaID` | Ref |  | `CAL_Calzadas` |  |  |
 | `SentidoID` | Ref |  | `SEN_Sentidos` |  |  |
-| `Ubicacion_LatLong` | LatLong |  |  | Sí | Coordenada real. Hoy los 34 activos comparten un punto en Bogota |
+| `Ubicacion_LatLong` | LatLong |  |  | Sí | Coordenada real. Se deriva del PK sobre el trazado en cada pasada del generador, asi que un renombrado no puede volver a vaciarla. Ninguna esta levantada en campo |
 | `PK` | Text |  |  |  | Punto kilometrico DEL PROYECTO: lineal y continuo desde 0+000 hasta el final. Es el unico que identifica un punto sin ambiguedad en todo el corredor |
 | `TramoINVIAS` | Text |  |  |  | La ruta de INVIAS a la que pertenece el PR: 55CN03, 5607 o 5608. SIN ELLA EL PR NO IDENTIFICA UN PUNTO, y no es teoria: el corredor tiene dos sitios distintos llamados PR 0+000 -el arranque en El Sisga sobre la 55CN03 y Guateque sobre la 5608-, separados por unos 50 km |
-| `SedeID` | Ref |  | `SED_Sedes` |  | Solo para el equipo bajo techo -servidores, NAS, impresoras, video wall-, que vive DENTRO de una edificacion y no en un punto de la via. Vacia en el equipo de corredor, que tiene su propio PR y su propia coordenada. Cuando esta puesta, RG-21 obliga a que la unidad funcional del activo sea la de su edificacion: la UF se guarda en un solo sitio y no en dos |
+| `SedeID` | Ref |  | `SED_Sedes` |  | Solo para el equipo bajo techo -servidores, NAS, impresoras, video wall-, que vive DENTRO de una edificacion y no en un punto de la via. Vacia en el equipo de corredor, que tiene su propio PR y su propia coordenada. Cuando esta puesta, RG-34 obliga a que la unidad funcional del activo sea la de su edificacion: la UF se guarda en un solo sitio y no en dos |
 | `EstadoActivoID` | Ref |  | `EST_Activo` | Sí |  |
 | `CodigoQR` | Text |  |  |  | Configurada como Searchable y Scan |
 | `FrecuenciaID` | Ref |  | `FRE_Frecuencias` |  |  |
@@ -686,7 +705,7 @@ DISTANCE([Coordenadas_Cierre_LatLong], [OTID].[ActivoID].[Ubicacion_LatLong]) <=
 
 Cubre: RF-012
 
-### RG-21 · Valid_If sobre `ACT_Activos`.`UnidadFuncionalID`
+### RG-34 · Valid_If sobre `ACT_Activos`.`UnidadFuncionalID`
 
 El equipo bajo techo hereda donde esta de su edificacion. Sin esta regla la unidad funcional se guardaria en dos sitios -en el activo y en su sede- y podrian decir cosas distintas sin que nada protestara. Con ella hay un solo sitio donde mirar: si el activo tiene sede, manda la sede.
 

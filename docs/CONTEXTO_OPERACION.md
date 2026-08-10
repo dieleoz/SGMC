@@ -14,6 +14,26 @@ uno: es **lo que sirve** para decidir tablas, columnas y flujos, con la cita de 
 > lectura de `OT_OrdenesTrabajo`, que no tiene fecha de creación sino fecha programada. Nada de lo
 > que aquí se pregunta a operación se ha respondido todavía.
 
+> **Nota del 2026-08-10: el modelo de datos cambió, y lo que aquí destilamos no.** Los documentos de
+> operación siguen diciendo lo mismo; lo que se movió es el modelo contra el que se leen. Cuatro
+> cambios afectan a cómo se cita este documento:
+>
+> - **Toda clave es alfanumérica con prefijo** —`ACT-0001`, `TIP-001`, `UNF-01`, `SED-001`,
+>   `USR-001`—, porque AppSheet tipaba la clave `Number` y descartaba en silencio la fila con clave
+>   de texto.
+> - **Las seis columnas de coordenada llevan `_LatLong` en el nombre**, para que AppSheet infiera el
+>   tipo. La del activo es `ACT_Activos.Ubicacion_LatLong`.
+> - **`USR_Usuarios.SedeID` se retiró** —la zona de trabajo del técnico vive en `ASG_AsignacionZona`
+>   y solo ahí— y **`SED_Sedes` volvió** como padre de ubicación del equipo bajo techo, con cinco
+>   columnas nuevas: `UnidadFuncionalID`, `PR`, `TramoINVIAS`, `PK` y `Ubicacion_LatLong`.
+> - **`ACT_Activos` tiene ahora `PK`, `TramoINVIAS` y `SedeID`** además del `PR` que ya tenía. Es la
+>   corrección de la sección 2 de `REGLAS_DEL_MODELO_DE_DATOS.md`: un PR no identifica un punto
+>   porque el corredor atraviesa tres rutas de INVÍAS y tiene dos sitios distintos llamados
+>   `PR 0+000`.
+>
+> Las diez reglas que manda el motor están en
+> [`REGLAS_DEL_MODELO_DE_DATOS.md`](REGLAS_DEL_MODELO_DE_DATOS.md), generado del modelo.
+
 | | |
 |---|---|
 | Origen | `contexto/`, aportado el 2026-08-07. Cifras revisadas el 2026-08-09 |
@@ -40,19 +60,36 @@ no atribuirle al Sisga una estructura que es de otro corredor:
 Cuando diga «el Sisga», sale de los tres últimos. Nada de los tres primeros se convierte en
 requisito sin que operación lo confirme.
 
+> **Y hay una fuente que sí es la vara, y no está en esa tabla: el contrato.** Junto a los ocho
+> archivos, `contexto/` tiene la carpeta **`SISGA Contrato`** con cinco PDF —`acta de inicio`,
+> `apendice_1_y_2`, `apendices_3_al_9`, `contrato_parte_general_y_especial` y `otrosies 1 a 11`—.
+> **No es material de ejemplo: obliga.** De ahí salen las cuatro filas de
+> `UNF_UnidadesFuncionales` —nombre real y tramo, no cuartos iguales—, y el único dato de
+> `SED_Sedes` anclado en fuente: el peaje de Machetá, `SED-003`, con `PR = 27+240` y
+> `TramoINVIAS = 5607`. **Es la única fila de las seis que tiene unidad funcional, PR y tramo**; las
+> otras cinco los tienen vacíos. Lo que el contrato diga manda sobre lo que digan los seis
+> documentos de arriba, y `ESTADO.md` §3 lleva la lectura completa.
+
 Verificado contra el archivo el 2026-08-07. El informe de enero figuraba aquí como del Sisga y no lo
 es: su encabezado dice `NEIVA – GIRARDOT` y sus tablas nombran CCO Neiva, PC Peaje Flandes y PC
 Peaje Pata.
 
 ## Contra qué se verificó
 
-`CLAUDE.md` §2 exige declararlo. **Las cifras del modelo de este documento se leyeron de
+`CLAUDE.md` §2 exige declararlo. **Las cifras del modelo de este documento se leyeron en su día de
 `BD/Modelo de Datos (11).xlsx`**, el archivo con el que se cerró la Fase A, no de producción ni de
 memoria.
 
-Ese libro sigue en `BD/` y las lecturas siguen siendo ciertas, pero **ya no es el archivo vigente**:
-desde el 2026-08-09 la hoja se genera del modelo y la referencia es `BD/Modelo_Datos_PLANTILLA.xlsx`.
-Quien rehaga una comprobación de aquí, que declare contra cuál de los dos la hizo.
+**Ese libro ya no está en el repositorio.** Con la limpieza del 2026-08-10, `BD/` quedó con **un
+solo archivo**, `BD/Modelo_Datos_PLANTILLA.xlsx`, que es a la vez el entregable y la hoja publicada;
+tener dos descargas de la misma hoja fue lo que permitió verificar contra una y desplegar contra
+otra. **Toda comprobación de este documento se rehace contra ese archivo**, y las cifras que hablan
+del modelo se rederivan, no se copian de aquí:
+
+```bash
+ls BD/
+python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"
+```
 
 ---
 
@@ -84,6 +121,19 @@ estas cantidades son un maestro parecido y no el censo de este corredor.
 Lo que **no** da: **las propiedades de cada equipo**. Sabemos que hay 54 postes SOS; no sabemos cuál
 es cada uno, dónde está, ni qué serie tiene. `ACT_Activos` necesita 355 filas con identidad y
 ubicación, y lo que hay son 18 cifras agregadas.
+
+> **Los «24 tipos» de este maestro no son los tipos de `TIP_TiposActivo`, y confundirlos costó un
+> día.** Son dos vocabularios distintos: el maestro cuenta equipos —24 filas, de las que **18** son
+> familias contables en `Und`— y el catálogo decide **qué checklist ve el técnico**. Hasta el
+> 2026-08-09 los dos números eran 18 y parecía la misma lista; no lo era, y nueve familias colgaban
+> del tipo de otra cosa. Hoy el catálogo tiene **27 tipos**, con **27 formularios**, uno por tipo.
+> La correspondencia entre las 18 familias y los 27 tipos **está escrita y se comprueba**, no se
+> supone: vive en `scripts/catalogo_tipos.py`, con `comprobar()`, que falla si dos familias
+> comparten tipo o si un tipo se queda sin radio de geofencing.
+>
+> ```bash
+> python -c "import sys;sys.path.insert(0,'scripts');import catalogo_tipos as C;print(len(C.FAMILIAS),'familias |',len(C.TIPOS_ACTIVO),'tipos')"
+> ```
 
 ### De dónde salen los 355, escrito
 
@@ -347,9 +397,29 @@ Estas no salen de leer más. Salen de preguntar en operación:
 La 6 es la que más pesa: todo el dimensionamiento —1.916 órdenes al año, la cuota de 15 GB que da
 5,7— está calculado sobre un inventario que no es el de este corredor.
 
-**Y la plantilla de 355 activos sintéticos no responde la pregunta 6.** Lleva los códigos de este
-maestro y coordenadas interpoladas sobre el corredor, y cada fila lo dice de sí misma. Sirve para
-ejercitar el sistema; no para saber cuántos equipos hay ni dónde están.
+**Y la plantilla no responde la pregunta 6.** `ACT_Activos` tiene **368 filas**, de las que **334
+son sintéticas** y lo dicen de sí mismas —`ACTIVO SINTETICO DE PRUEBA - NO ES INVENTARIO REAL` en
+`Observaciones`—; las otras 34 son el juego de arranque. Llevan los códigos de este maestro y sirven
+para ejercitar el sistema; no para saber cuántos equipos hay ni dónde están.
+
+**Y ya no llevan ni siquiera una coordenada aproximada.** `ACT_Activos.Ubicacion_LatLong` está
+**vacía en las 368**: las coordenadas interpoladas sobre el corredor que hubo hasta el 2026-08-10 se
+perdieron al renombrar la columna, y tampoco servían, porque ninguna era el sitio real del equipo.
+Lo mismo con la referencia vial: `PK` está poblado en las 368 y **`PR` y `TramoINVIAS` están vacíos
+en las 368**. Las tres cosas se cuentan contra el archivo:
+
+```bash
+python - <<'EOF'
+import openpyxl
+ws = openpyxl.load_workbook('BD/Modelo_Datos_PLANTILLA.xlsx', data_only=True)['ACT_Activos']
+h = [c.value for c in ws[1]]
+f = [dict(zip(h, r)) for r in ws.iter_rows(min_row=2, values_only=True)]
+print('filas', len(f))
+print('sinteticos', sum(1 for r in f if 'SINTETICO' in str(r['Observaciones'] or '')))
+for c in ('Ubicacion_LatLong', 'PK', 'PR', 'TramoINVIAS'):
+    print(c, 'con valor:', sum(1 for r in f if r[c] not in (None, '')))
+EOF
+```
 
 ---
 

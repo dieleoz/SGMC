@@ -12,18 +12,28 @@
 >
 > **Qué cambió en la 4.2, del 2026-08-10:**
 >
-> - **La aplicación se volvió a reconstruir desde cero, y la vigente es `SISGA_-323965761-26-08-10`
+> - **La aplicación se volvió a reconstruir desde cero, y la vigente es `_SISGA_-323965761`
 >   sobre la hoja `Modelo_Datos_10082026`.** Entre el 6 y el 10 de agosto hubo cinco aplicaciones y
->   tres hojas; las superadas están nombradas, con su motivo, en `scripts/sistema.py`.
+>   tres hojas; las superadas están nombradas, con su motivo, en `scripts/sistema.py`. **Vuélquelo
+>   con `python scripts/sistema.py`** en vez de copiar el nombre de aquí.
 > - **El cableado de la aplicación anterior no sobrevivió, y por eso se repone entero.** La versión
 >   4.1 daba las 39 referencias por puestas: hoy la aplicación tiene **las 28 tablas dadas de alta y
 >   nada más**. Referencias, reglas y filtros están sin poner.
 > - **La migración a la hoja limpia ya se ejecutó**, así que dejó de ser una decisión y pasó a ser un
 >   hecho. `BD/Modelo_Datos_PLANTILLA.xlsx` sale generada del modelo y es el archivo publicado.
-> - **Las referencias son 38, no 15.** Las 15 eran las que faltaban en una aplicación anterior donde
+> - **Las referencias son 39, no 15.** Las 15 eran las que faltaban en una aplicación anterior donde
 >   otras 23 ya estaban puestas. Sobre una aplicación nueva no sobrevive ninguna.
 > - **La Fase 0.5 de reconciliación de modelos está cerrada**, y su lista de tareas —que ocupaba la
 >   mitad de este documento— se ha reducido al registro de lo que dejó decidido.
+>
+> **Y el mismo día cambió el modelo de datos, que es lo que más reordena esta secuencia.** Las
+> claves pasaron a alfanuméricas con prefijo —`ACT-0001`, `TIP-001`, `UNF-01`, `SED-001`,
+> `USR-001`, `ROL-01`…—, las seis columnas de coordenada llevan `_LatLong` en el nombre, `SED_Sedes`
+> volvió con `UnidadFuncionalID`, `PR`, `TramoINVIAS`, `PK` y `Ubicacion_LatLong` como padre de
+> ubicación del equipo bajo techo, y `ACT_Activos` ganó `PK` y `TramoINVIAS`. **Eso saca dos
+> partidas del paso 1**, que dejan de ser esquema por construir y pasan a ser dato por cargar. El
+> motivo de cada regla, y quién la hace cumplir, está en
+> [`REGLAS_DEL_MODELO_DE_DATOS.md`](REGLAS_DEL_MODELO_DE_DATOS.md), que se genera del modelo.
 >
 > El documento funcional que se entrega es [`FUNCIONAL_SGMC.md`](FUNCIONAL_SGMC.md). El contexto
 > operativo destilado está en [`CONTEXTO_OPERACION.md`](CONTEXTO_OPERACION.md). El reparto de quién
@@ -78,13 +88,13 @@ De ahí salen tres clases, y el orden entre ellas no es negociable:
 | # | Paso | Contenido | Depende de |
 |---|---|---|---|
 | **0** | **Cablear la aplicación entera** | **Las 39 referencias**, con `IsPartOf` en las cuatro que lo llevan; **las 21 reglas**; los dos filtros de seguridad; las cuatro marcas de tiempo como `ChangeTimestamp`; retirar `Deletes` en `OT_OrdenesTrabajo` y `MAN_Mantenimientos`; y correr `PRUEBA-003` | Sin empezar. Ficha por tabla en [`MANUAL_DESPLIEGUE.md`](MANUAL_DESPLIEGUE.md); expresión completa en [`sdd/RECONSTRUCCION_EXPRESIONES.md`](sdd/RECONSTRUCCION_EXPRESIONES.md) |
-| **0b** | ~~Decidir la migración~~ | **Ejecutada el 2026-08-10.** Las 47 columnas ya no existen en el archivo, así que ocultarlas dejó de estar en el plan y con ellas se fueron las tres trampas | Cerrado |
-| **1** | **Esquema completo** | `TAR_Tareas` · poblar `ROL_Roles` con los 12 · jerarquía de ubicación · columnas de tiempo en la orden · retirar `ACT.FrecuenciaID` y `TIP.FormularioID` | `ESPEC-003` y su veredicto |
-| **2** | **Carga del inventario real** | Los 355 con identidad, serie y ubicación. **Los que hay hoy son sintéticos** y lo dicen de sí mismos | Paso 1, y que operación confirme que 355 son los de este corredor |
+| **0b** | ~~Decidir la migración~~ | **Ejecutada el 2026-08-10.** Las 48 columnas sobrantes ya no existen en el archivo, así que ocultarlas dejó de estar en el plan y con ellas se fueron las tres trampas | Cerrado |
+| **1** | **Esquema completo** | `TAR_Tareas` · poblar `ROL_Roles` con los 12 · `ETR_Estructuras`, que es lo que queda de la jerarquía de ubicación · columnas de tiempo en la orden · retirar `ACT.FrecuenciaID` y `TIP.FormularioID` | `ESPEC-003` y su veredicto |
+| **2** | **Carga del inventario real** | Los 355 con identidad, serie y ubicación. **Los que hay hoy son sintéticos** y lo dicen de sí mismos. Aquí entran también las cuatro columnas que existen y están vacías en las 368: `Ubicacion_LatLong`, `PR`, `TramoINVIAS` y `SedeID` | Paso 1, y que operación confirme que 355 son los de este corredor |
 | **3** | **Reglas de integridad** | Imponer `QuienCambia` · estado de rechazo · valores de `TipoFirma` | Paso 1 |
 | **4** | **Piloto de campo** | El levantamiento de coordenadas **como primera orden de trabajo** | Pasos 2 y 3 |
 | **5** | **Correctivo** | Criticidad · pausas · escalado N1/N2/N3 | Decisión de alcance |
-| **6** | **Fase 2 de modelo** | Certificaciones múltiples · mediciones de hilo · estructuras · almacén | Piloto en marcha |
+| **6** | **Fase 2 de modelo** | Certificaciones múltiples · mediciones de hilo · estructuras · **tramos en túnel** · almacén | Piloto en marcha |
 
 **El paso 1 es el único que no admite trocearse.** Los demás sí.
 
@@ -106,9 +116,9 @@ que llega solo con tiempo, y no llega — llega con la decisión de licenciamien
 >
 > **El Excel del repositorio es lo que se entrega, y es la hoja que la aplicación lee.** El funcional
 > parte de ese archivo y desde ahí sigue las guías, así que tenía que salir generado y limpio en vez
-> de ser una hoja heredada con 47 columnas escondidas encima.
+> de ser una hoja heredada con 48 columnas escondidas encima.
 >
-> **Lo que cambió al ejecutarla:** ocultar esas 47 salió del plan —ya no existen en el archivo, y con
+> **Lo que cambió al ejecutarla:** ocultar esas 48 salió del plan —ya no existen en el archivo, y con
 > ellas se fueron las tres trampas—, y el literal provisional de `1.0` km dejó de aplicar, porque
 > `TIP_TiposActivo.RadioGeofencingKm` viene poblado en los 27 tipos de la hoja que la aplicación lee.
 >
@@ -120,8 +130,8 @@ que llega solo con tiempo, y no llega — llega con la decisión de licenciamien
 |---|---|---|
 | Sprint 0. Definición funcional | **Cerrado por supuestos.** No se espera respuesta | Los catorce adoptados por escrito en `ALCANCE_Y_SUPUESTOS_SGMC.md`, con su estado de cierre |
 | Fase 0.5. Reconciliación de modelos | **CERRADA** el 2026-08-07 | `modelo_objetivo.py` es la fuente única; los documentos se generan de él. Ver 4.5 |
-| **Fase A. La hoja** | **CERRADA** | `verificar_faseA.py` en 0 fallos sobre `BD/Modelo_Datos_PLANTILLA.xlsx`. Hoy: **52 conformes y 4 avisos esperados** |
-| Reconstrucción de la aplicación | **HECHA** el 2026-08-10 | `SISGA_-323965761-26-08-10`, con las 28 tablas dadas de alta sobre `Modelo_Datos_10082026` |
+| **Fase A. La hoja** | **CERRADA** | `verificar_faseA.py` en 0 fallos sobre `BD/Modelo_Datos_PLANTILLA.xlsx`. Hoy: **82 conformes y 4 avisos esperados** |
+| Reconstrucción de la aplicación | **HECHA** el 2026-08-10 | `_SISGA_-323965761`, con las 28 tablas dadas de alta sobre `Modelo_Datos_10082026` |
 | **Fase B. Cableado y reglas** | **Sin empezar.** Se repone entero: el cableado de la aplicación anterior no sobrevivió a la reconstrucción | Las 39 referencias con su `IsPartOf`, las 21 reglas, los dos filtros, las cuatro marcas de tiempo, `Deletes` retirado, y `PRUEBA-003` pasada |
 | Fase 1. Datos maestros | Bloqueada por D-01 y D-09 | Coordenadas reales cargadas, sedes realineadas, bancos de preguntas construidos |
 | Fase 2. Configuración de interfaz | Bloqueada por Fase 1 y por declarar vistas | Reportes y pantallas construidos. **Antes hay que declarar la interfaz en el modelo**: hoy no tiene vistas, ni acciones, ni slices |
@@ -139,12 +149,22 @@ la mesa de trabajo, no antes.
 ## 3.1 Lo que sí está construido
 
 Verificado el 2026-08-10 contra `scripts/modelo_objetivo.py` y `BD/Modelo_Datos_PLANTILLA.xlsx`.
-**Cada cifra se rederiva con los verificadores; ninguna está escrita de memoria.**
+**Cada cifra se rederiva con los cinco verificadores; ninguna está escrita de memoria.**
 
-- **Modelo de 28 tablas, 205 columnas, 39 referencias y 21 reglas.** `validar_modelo.py` sale
+- **Modelo de 28 tablas, 211 columnas, 39 referencias y 21 reglas.** `validar_modelo.py` sale
   `APTO PARA DESPLEGAR` con 0 errores y 3 avisos.
 - **La hoja se genera del modelo, y es la que la aplicación lee.** 28 pestañas de datos más `_LEEME`,
-  ninguna oculta, sin una sola columna de sobra: las 43 retiradas ya no existen en el archivo.
+  ninguna oculta, sin una sola columna de sobra ni de menos: las **44** de `CAMPOS_RETIRADOS` más las
+  **4** de `COLUMNAS_SIN_DECIDIR` —las 48 que sobraban— ya no existen en el archivo, y el recuento de
+  los 211 encabezados contra el modelo da cero por los dos lados.
+- **Todas las claves son alfanuméricas con prefijo.** `ACT-0001`, `TIP-001`, `UNF-01`, `SED-001`,
+  `USR-001`, `ROL-01`, `EST-01`, `FRE-01`, `CAL-01`, `SEC-01`, `TPR-01`, más las que ya lo eran
+  —`OT-0001`, `MOT-01`, `FAL-01`, `ASG-01`, `PLA-001`, `FRM_SOS`, `SOS001`, `UMBRAL_GPS`—.
+- **`SED_Sedes` sabe dónde está**, con `UnidadFuncionalID`, `PR`, `TramoINVIAS`, `PK` y
+  `Ubicacion_LatLong`, y `ACT_Activos.SedeID` cuelga de ella para el equipo bajo techo. `RG-21`
+  impide que el activo y su sede declaren unidades funcionales distintas.
+- **`ACT_Activos` distingue `PK` de `PR`**, y lleva `TramoINVIAS` para que el PR identifique un
+  punto. `PK` está poblado en las 368; `PR` y `TramoINVIAS`, vacíos en las 368.
 - **Aplicación reconstruida el 2026-08-10 con las 28 tablas dadas de alta.** Eso es todo lo que
   tiene: las referencias, las reglas y los filtros **no están puestos**.
 - **Inventario de prueba: 368 filas en `ACT_Activos`.** 334 son sintéticas —códigos del Plan Maestro
@@ -156,7 +176,10 @@ Verificado el 2026-08-10 contra `scripts/modelo_objetivo.py` y `BD/Modelo_Datos_
   1,0 km dejó de aplicar**, y `PAR_Parametros.RADIO_GEOFENCING_KM` queda como valor histórico que
   `RG-01` no lee.
 - Catálogos poblados: 27 tipos de activo con sus 27 formularios, 14 secciones, 10 tipos de respuesta,
-  10 sedes, 4 unidades funcionales con su rango de PR, 4 roles, 11 usuarios, 4 asignaciones de zona,
+  **6 sedes** —las cuatro filas `UF1` a `UF4` que ocupaban esta tabla salieron: viven en
+  `UNF_UnidadesFuncionales`—, **4 unidades funcionales con las del contrato, su nombre real y sus dos
+  referencias**: `PKInicial`/`PKFinal` de `00+000` a `137+170` y `PRInicial`/`PRFinal` con la ruta
+  dentro, de `55CN03 PR0+0+000` a `5608 PR92+048`. Más 4 roles, 11 usuarios, 4 asignaciones de zona,
   5 motivos de pendiente, 5 modos de falla, 7 estados de orden, 3 parámetros y los catálogos viales
   de calzada, sentido, estado y frecuencia.
 - **Banco de preguntas: 333 preguntas, los 27 formularios con contenido**, y 108 valores de lista.
@@ -166,9 +189,14 @@ Verificado el 2026-08-10 contra `scripts/modelo_objetivo.py` y `BD/Modelo_Datos_
   `CHD_ChecklistDetalle`, `FOT_Fotografias`, `FIR_Firmas`, `NOV_Novedades` y `PLA_PlanMantenimiento`
   están vacías. **El ciclo no se ha recorrido de extremo a extremo ni una vez.**
 
-**Y lo que está declarado pero no se puede probar:** el geofencing. Los 34 activos del juego de
-arranque comparten una coordenada de Bogotá y las 334 sintéticas están interpoladas, así que la
-prueba del cierre legítimo no se puede ejecutar sin desplazarse. Es D-01.
+**Y lo que está declarado pero no se puede probar:** el geofencing. **`ACT_Activos.Ubicacion_LatLong`
+está vacía en las 368 filas** —las coordenadas sintéticas que traía se perdieron al renombrar la
+columna, y ninguna era el sitio real del equipo—, así que `RG-01` compararía contra blanco y
+**rechazaría también el cierre legítimo**. Es D-01, y ahora se ve en el archivo:
+
+```bash
+python -c "import openpyxl;w=openpyxl.load_workbook('BD/Modelo_Datos_PLANTILLA.xlsx',read_only=True,data_only=True)['ACT_Activos'];h=[c.value for c in next(w.iter_rows(max_row=1))];i=h.index('Ubicacion_LatLong');print(sum(1 for r in w.iter_rows(min_row=2,values_only=True) if r[i] in (None,'')))"
+```
 
 ---
 
@@ -245,8 +273,20 @@ Es la fase más larga y la que fija el cronograma. **Todo su contenido es trabaj
 y por eso no hay forma de adelantarlo desde el repositorio.
 
 - [ ] **D-01.** Levantamiento en campo de las coordenadas reales y carga en `ACT_Activos.Ubicacion_LatLong`.
-      Los 34 del juego de arranque comparten una coordenada de Bogotá; las 334 sintéticas están
-      interpoladas sobre el corredor. **Ninguna sirve para cerrar una orden con un técnico delante**
+      **La columna está vacía en las 368 filas**, así que no hay ni siquiera una coordenada
+      inventada con la que ensayar. Y mientras esté vacía, `DISTANCE()` no da error: da un valor que
+      **rechaza el cierre legítimo**
+- [ ] Cargar `ACT_Activos.PR` y `ACT_Activos.TramoINVIAS`, vacías en las 368. **No se deducen del
+      `PK`**: la conversión PK↔PR no es una fórmula sino una tabla de equivalencias que no existe, y
+      el corredor tiene dos puntos distintos llamados `PR 0+000`
+- [ ] Situar las cinco sedes que faltan. `SED_Sedes` tiene `UnidadFuncionalID`, `PR`, `TramoINVIAS`,
+      `PK` y `Ubicacion_LatLong`, y solo el peaje de Machetá trae `UnidadFuncionalID`, `PR` y
+      `TramoINVIAS`; **`PK` y `Ubicacion_LatLong` están vacías en las seis**. Y el de San Luis de
+      Gaceno figura en el contrato como peaje nuevo, sin abscisa: está proyectado, no construido
+- [ ] Colgar de su sede el equipo bajo techo. `ACT_Activos.SedeID` existe, es opcional y **está
+      vacía en las 368 filas**, así que los 7 servidores, los 29 portátiles, las 3 impresoras y el
+      resto del equipo de interior no dicen dentro de qué edificación están. Mientras esté vacía
+      `RG-21` no compara nada, y un servidor sigue localizándose por un punto de la carretera
 - [ ] **D-09.** Validación de las **288 preguntas en borrador** de `FRM_Preguntas`, repartidas en 24
       de los 27 formularios. No están por escribir: están escritas y marcadas
       `[BORRADOR: validar con operacion]` en su ayuda, y el día que no aparezca ninguna el banco
@@ -259,10 +299,11 @@ y por eso no hay forma de adelantarlo desde el repositorio.
 - [ ] Confirmar el umbral de GPS. La hoja dice 40 m en `PAR_Parametros`; la propuesta enviada decía
       50. Hay que quedarse con uno
 - [x] **Encabezados sin codificación corrupta.** La hoja se genera del modelo, así que el mojibake
-      que arrastraba la heredada desapareció con ella: ninguno de los 202 encabezados lo tiene
+      que arrastraba la heredada desapareció con ella: ninguno de los 211 encabezados lo tiene
 - [~] **Código QR: FUERA DE ALCANCE por decisión del 7 de agosto de 2026.** Primero tiene que
       funcionar el ciclo básico. El hallazgo se conserva porque es real: `ACT_Activos.CodigoQR` está
-      poblado, pero su valor es una copia literal de `CodigoActivo`, y AppSheet lee códigos pero no
+      poblado **solo en 34 de las 368 filas** —las del juego de arranque— y su valor es una copia de
+      `CodigoActivo` salvo en una, donde `SERV-001` lleva `SVR-001`; y AppSheet lee códigos pero no
       los genera ni los imprime. **Consecuencia que se asume:** el activo se abre por lista y
       `MAN_Mantenimientos.OrigenApertura = Lista` deja de ser excepción. Si se retoma, falta decidir
       qué se codifica, quién genera las imágenes, en qué material se imprime, quién las instala y
@@ -275,8 +316,9 @@ y por eso no hay forma de adelantarlo desde el repositorio.
 - [x] **Checklist huérfano remediado.** `CHK_Checklists` cuelga hoy de `MantenimientoID`, no de la
       orden
 
-**Cierra cuando:** las coordenadas son todas distintas y están sobre el corredor; las 288 preguntas
-en borrador están validadas; y un usuario de prueba ve activos al aplicar el filtro.
+**Cierra cuando:** `ACT_Activos.Ubicacion_LatLong` no tiene ninguna celda vacía y sus valores son
+todos distintos y están sobre el corredor; las 288 preguntas en borrador están validadas; y un
+usuario de prueba ve activos al aplicar el filtro.
 
 ---
 
@@ -331,10 +373,10 @@ directamente a los 10 celulares del piloto.
 - [ ] El mismo flujo repetido en modo avión, con verificación de la sincronización posterior
 - [ ] Prueba del bloqueo: intentar cerrar lejos del activo y confirmar que el sistema lo impide
 
-> **El par de pruebas del geofencing no discrimina hoy, y hay que decirlo.** Los 34 activos del juego
-> de arranque tienen su coordenada en Bogotá, a unos 60 km del sintético más cercano sobre el
-> corredor, así que el cierre legítimo que debe aceptarse **es imposible sin desplazarse** y el que
-> debe rechazarse se vuelve trivial. **Solo D-01 lo arregla.**
+> **El par de pruebas del geofencing no discrimina hoy, y hay que decirlo.** Con
+> `ACT_Activos.Ubicacion_LatLong` vacía en las 368, `DISTANCE()` compara contra blanco: **fallan las
+> dos**, la que debe aceptarse y la que debe rechazarse, y la tanda deja de distinguir una regla
+> correcta de una rota. **Solo D-01 lo arregla.**
 
 **Cierra cuando:** hay filas reales en `MAN_Mantenimientos` y en las tablas de evidencia,
 verificadas leyendo el archivo. **Hoy no hay ninguna, ni de prueba**: la hoja se entrega sin
@@ -348,6 +390,12 @@ registros a propósito, para que el primer ciclo que se recorra sea real.
 - [ ] Verificación de que cada técnico descarga solo los activos de su zona
 - [ ] Operación real durante una semana, con acompañamiento
 - [ ] Registro de incidencias y ajuste de formularios según lo observado
+
+> **Lo que el piloto va a encontrar y conviene anticipar: los túneles.** Bajo tierra el GPS no fija
+> posición, así que `RG-01` falla **siempre** para el equipo de dentro, por diseño y no por avería.
+> Son quince túneles y 7.224 metros, y **6.000 de los 17.800 de la UF3** van bajo tierra. Sin los
+> tramos declarados, el supervisor verá a un técnico acumulando cierres con excepción sin poder
+> distinguir el túnel del técnico. La tabla `TUN_Tuneles` está en `PROPUESTAS`, sin especificar.
 
 **Cierra cuando:** los 10 técnicos completaron mantenimientos sincronizados desde el corredor y
 las incidencias críticas están resueltas.

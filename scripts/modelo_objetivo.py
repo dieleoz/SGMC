@@ -253,7 +253,7 @@ MODELO = {
             col("CalzadaID", "Ref", ref="CAL_Calzadas"),
             col("SentidoID", "Ref", ref="SEN_Sentidos"),
             col("Ubicacion_LatLong", "LatLong", obligatoria=True,
-                nota="Coordenada real. Hoy los 34 activos comparten un punto en Bogota"),
+                nota="Coordenada real. Se deriva del PK sobre el trazado en cada pasada del generador, asi que un renombrado no puede volver a vaciarla. Ninguna esta levantada en campo"),
             col("PK", "Text", nueva=True,
                 nota="Punto kilometrico DEL PROYECTO: lineal y continuo desde 0+000 hasta el "
                      "final. Es el unico que identifica un punto sin ambiguedad en todo el "
@@ -267,7 +267,7 @@ MODELO = {
                 nota="Solo para el equipo bajo techo -servidores, NAS, impresoras, video wall-, "
                      "que vive DENTRO de una edificacion y no en un punto de la via. Vacia en "
                      "el equipo de corredor, que tiene su propio PR y su propia coordenada. "
-                     "Cuando esta puesta, RG-21 obliga a que la unidad funcional del activo sea "
+                     "Cuando esta puesta, RG-34 obliga a que la unidad funcional del activo sea "
                      "la de su edificacion: la UF se guarda en un solo sitio y no en dos"),
             col("EstadoActivoID", "Ref", ref="EST_Activo", obligatoria=True),
             col("CodigoQR", "Text", nota="Configurada como Searchable y Scan"),
@@ -1029,19 +1029,43 @@ COLUMNAS_PROPUESTAS = {
         "ESPEC-003"),
 }
 
-COLUMNAS_SIN_DECIDIR = {
-    ("USR_Usuarios", "UltimaSincronizacion"):
-        "Probablemente de una version anterior. El modelo no la usa",
-    ("FOT_Fotografias", "Fecha"):
-        "El modelo guarda FechaHora. Sobra, o una de las dos esta mal nombrada. "
-        "Merece mirada: la fecha de la fotografia es parte de la evidencia",
-    ("FRM_Formularios", "Orden"):
-        "Ordenaria los formularios en una lista. Hoy ninguna vista los ordena y la "
-        "columna esta vacia. Si algun dia se ordenan, se decide aqui",
-    ("FRM_Preguntas", "ValorDefecto"):
-        "Precargaria la respuesta antes de que el tecnico conteste. En una evidencia "
-        "eso es peligroso: una respuesta por defecto que nadie toca parece contestada",
-    }
+# Estaba vacia desde el 2026-08-10 y no lo decia.
+#
+# Las cuatro columnas que vivian aqui -USR_Usuarios.UltimaSincronizacion,
+# FOT_Fotografias.Fecha, FRM_Formularios.Orden y FRM_Preguntas.ValorDefecto-
+# figuraban como "pendientes de decidir porque estan en la hoja". Al regenerar la
+# plantilla desde el modelo dejaron de estar en la hoja: **la decision la tomo la
+# regeneracion**, y quedarse aqui convertia el aviso en una afirmacion falsa que
+# se repetia en cada ejecucion.
+#
+# Pasan a CAMPOS_RETIRADOS, que es donde se registra lo que ya no esta y por que.
+# Si alguna hace falta, se vuelve a declarar en MODELO como columna nueva, con su
+# proposito escrito. No se recupera "porque estaba".
+COLUMNAS_SIN_DECIDIR = {}
+
+# Y aqui queda registrado que se retiraron, que es lo que convierte "ya no
+# estan" en una decision y no en un descuido. Se anaden despues de la
+# declaracion para que no dependa de cual de los dos bloques de
+# CAMPOS_RETIRADOS gane -hoy hay dos, identicos, y eso es un defecto aparte-.
+for _t, _c, _motivo in [
+    ("USR_Usuarios", "UltimaSincronizacion",
+     "Venia de una version anterior y el modelo nunca la uso. La regeneracion "
+     "del 2026-08-10 la dejo fuera y no se echo en falta."),
+    ("FOT_Fotografias", "Fecha",
+     "Duplicaba a FechaHora, que es la que vale como evidencia porque la "
+     "escribe el servidor. Dos fechas para el mismo hecho invitan a discutir "
+     "cual manda justo cuando hay que probar algo."),
+    ("FRM_Formularios", "Orden",
+     "Ordenaria los formularios en una lista y ninguna vista los ordena. "
+     "Estaba vacia. Si algun dia se ordenan, se declara entonces con su "
+     "proposito escrito."),
+    ("FRM_Preguntas", "ValorDefecto",
+     "Precargaria la respuesta antes de que el tecnico conteste. En una "
+     "evidencia eso es peligroso: una respuesta por defecto que nadie toca "
+     "parece contestada."),
+    ]:
+    CAMPOS_RETIRADOS.setdefault(_t, {})[_c] = _motivo + " Retirada el 2026-08-10."
+
 
 # ------------------------------------- una sola forma por proposito
 #
@@ -1118,7 +1142,7 @@ REGLAS = [
          expresion="DISTANCE([Coordenadas_Cierre_LatLong], [OTID].[ActivoID].[Ubicacion_LatLong]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]",
          descripcion=("Impide cerrar lejos del activo, con radio por tipo. La ruta atraviesa dos "
                       "referencias, de ahi que cablearlas sea el primer paso de todo.")),
-    dict(id="RG-21", tabla="ACT_Activos", columna="UnidadFuncionalID",
+    dict(id="RG-34", tabla="ACT_Activos", columna="UnidadFuncionalID",
          tipo="Valid_If", cubre="RF-002",
          expresion='OR(ISBLANK([SedeID]), [UnidadFuncionalID] = [SedeID].[UnidadFuncionalID])',
          descripcion=("El equipo bajo techo hereda donde esta de su edificacion. Sin esta regla "

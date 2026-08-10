@@ -1,7 +1,7 @@
 # Manual de usuario y guía de operación — SGMC
 
 **Sistema de Gestión de Mantenimiento en Campo**
-Concesión Transversal del Sisga S.A.S. · Google AppSheet **`SISGA_-323965761-26-08-10`**
+Concesión Transversal del Sisga S.A.S. · Google AppSheet **`_SISGA_-323965761`**
 
 Reescrito el 2026-08-07 contra [`docs/FUNCIONAL_SGMC.md`](../docs/FUNCIONAL_SGMC.md) y verificado
 sobre `scripts/modelo_objetivo.py`. **La versión anterior describía un sistema que no existe** —
@@ -10,10 +10,23 @@ las preguntas, lo que corrompe el histórico.
 
 **Cabecera y recuadro de estado actualizados el 2026-08-10** contra [`ESTADO.md`](../ESTADO.md), que
 es el estado vigente. Ese día se fijó un punto de partida: la aplicación se reconstruyó desde cero
-sobre una hoja generada del modelo, `Modelo_Datos_10082026`. **Entre el 6 y el 10 de agosto hubo
-cinco aplicaciones y tres hojas.** Los nombres de las superadas están en `scripts/sistema.py`, con
-el motivo de cada una; para verlos, `python scripts/sistema.py`. Si alguien le pasa un enlace que no
-sea el de arriba, no es este sistema.
+sobre una hoja generada del modelo, `Modelo_Datos_10082026`. **Entre el 6 y el 10 de agosto el
+repositorio llegó a nombrar seis aplicaciones y tres hojas**; las **cinco** aplicaciones y las
+**dos** hojas que quedaron atrás están en la lista `SUPERADOS` de `scripts/sistema.py`, con el
+motivo de cada una. **Nunca copie el nombre de la aplicación de un documento: vuélquelo.**
+
+```bash
+python scripts/sistema.py
+```
+
+Si alguien le pasa un enlace que no sea el que sale de ahí, no es este sistema. **La cabecera de
+arriba se escribió a mano y por eso puede envejecer**; el volcado no.
+
+**Y el modelo de datos cambió el 2026-08-10.** Lo que usted ve en pantalla no cambia, pero sí
+cambian los nombres y los formatos que aparecen en este manual: **toda clave es alfanumérica con
+prefijo** —`ACT-0001`, `TIP-001`, `SED-001`, `USR-001`—, **la columna de coordenada se llama
+`Ubicacion_LatLong`**, **el usuario ya no tiene sede** —su zona de trabajo vive en la asignación de
+zona y solo ahí— y **el activo tiene ahora PK, tramo de INVÍAS y sede**. Está detallado en 5.1 y 5.2.
 
 > ## Antes de usar este manual
 >
@@ -24,17 +37,22 @@ sea el de arriba, no es este sistema.
 > | Función | Estado |
 > |---|---|
 > | Órdenes, checklist, fotografías, firmas, histórico | **Solo las tablas.** Las 28 dadas de alta sobre la hoja limpia, y nada más |
-> | Referencias entre tablas | **Sin poner.** Las 38 del modelo se reponen enteras: la aplicación se reconstruyó desde cero |
+> | Referencias entre tablas | **Sin poner.** Las **39** del modelo se reponen enteras: la aplicación se reconstruyó desde cero |
 > | Radio de cierre por tipo de activo | **Poblado en los 27 tipos** de la hoja vigente: 0,05 km en 18, 0,1 km en 8 y 1,5 km en la fibra. **Falta cablear la regla que lo lee** |
 > | Que la coordenada de cierre no se pueda mover a mano | **Pendiente.** `Editable_If = FALSE` está especificado y no puesto |
 > | Que no se pueda borrar una orden ni una ejecución | **Pendiente.** Falta retirar `Deletes` en las dos tablas |
 > | Que cada técnico solo descargue lo de sus zonas | **Pendiente.** Los dos filtros de seguridad —activos por unidad funcional, órdenes por técnico— están especificados y no puestos |
 > | Que el técnico no pueda cerrar su propia orden | **Pendiente.** Está definido en el catálogo de estados, no impuesto como regla |
-> | Coordenadas de los activos | **No son las reales.** De los **368** de la hoja vigente, 34 comparten una coordenada en Bogotá y **334** llevan coordenada propia, pero calculada sobre el trazado y no medida. **Ninguna sirve para operar** |
+> | Coordenadas de los activos | **No hay ninguna.** `ACT_Activos.Ubicacion_LatLong` está **vacía en las 368 filas** de la hoja vigente. Las que hubo eran calculadas sobre el trazado, no medidas, y se perdieron al renombrar la columna el 2026-08-10 |
 > | Creación automática de las órdenes del mes | **No cabe en el plan actual** |
 >
-> **Y aunque se cableara todo mañana, faltarían las coordenadas.** Con las de hoy, cualquier cierre
-> en la vía queda fuera de rango y cualquier cierre en Bogotá queda dentro.
+> **Y aunque se cableara todo mañana, faltarían las coordenadas.** Con la columna vacía, `DISTANCE()`
+> no da error: **rechaza también el cierre legítimo**, así que no habría forma de cerrar una orden en
+> campo. Es la decisión D-01 y es el bloqueo del piloto.
+>
+> **Lo que falta por cablear no se explica aquí.** El encargo entero, generado del modelo, está en
+> [`docs/PROMPT_CABLEADO.md`](../docs/PROMPT_CABLEADO.md), y es trabajo del Funcional, no del
+> usuario.
 
 ---
 
@@ -147,8 +165,8 @@ Los radios están puestos por familia en la hoja vigente, en `TIP_TiposActivo.Ra
 > archivo publicado como `Modelo_Datos_10082026`—, y lo que falta es cablear el cierre en la
 > aplicación. **El radio no se ajusta en la tabla de parámetros:** ver 5.4.
 >
-> Y aunque estuviera cableado, **la coordenada del activo tampoco es la real**: ninguna de las 368
-> lo es. Hasta cargarlas, la comprobación de distancia no significa nada en campo.
+> Y aunque estuviera cableado, **el activo no tiene coordenada**: `Ubicacion_LatLong` está vacía en
+> las 368 filas. Hasta cargarlas, la comprobación de distancia no significa nada en campo.
 
 ## 4. Guía del supervisor
 
@@ -197,24 +215,56 @@ Cuando el técnico termina, la orden queda **En revisión**. Usted:
 ### 5.1 Usuarios
 
 Al crear un usuario diligencie nombres, correo —**exactamente el de su cuenta corporativa**—, cargo,
-rol y sede, y márquelo como activo.
+iniciales, rol, teléfono y fecha de ingreso, y márquelo como activo. Su identificador es
+alfanumérico y con prefijo: `USR-001`.
 
 **El correo es lo que conecta la persona con la aplicación.** Si no coincide con la cuenta con la
 que inicia sesión, el usuario entra pero no ve nada.
 
-Después, **asígnele sus unidades funcionales** en la tabla de asignación de zona. Eso es lo que
-determina qué descarga a su teléfono, no la sede.
+> **El usuario ya no tiene sede, y no es un olvido del formulario.** La columna se retiró el
+> 2026-08-10 porque decía dos cosas a la vez y ninguna bien: dónde trabaja la persona no es dónde
+> están los equipos que le tocan, y usarla para filtrar dejaba a usuarios y activos en conjuntos
+> disjuntos. **Dónde trabaja un técnico vive en un solo sitio: la tabla de asignación de zona.**
+> `SED_Sedes` sigue existiendo, pero para otra cosa: es la edificación en la que vive el equipo bajo
+> techo —servidores, NAS, impresoras, video wall—, y cuelga del activo, no de la persona.
+
+Después, **asígnele sus unidades funcionales** en la tabla de asignación de zona. **Eso, y nada más,
+determina qué descarga a su teléfono.** Un técnico sin fila en esa tabla abre la aplicación y no ve
+nada.
 
 ### 5.2 Activos
 
-Diligencie código, nombre, tipo, unidad funcional, punto de referencia, calzada, sentido, ubicación
-y estado.
+Diligencie código, nombre, tipo, unidad funcional, calzada, sentido, ubicación, estado y criticidad,
+más los cuatro campos de dónde está, que se explican abajo: **PK**, **PR**, **tramo de INVÍAS** y
+**sede**.
 
-- **La ubicación es un solo campo de coordenada**, no dos columnas de latitud y longitud.
-- **El código del activo no es su identificador interno.** Puede renombrarlo sin romper nada: las
-  órdenes y el histórico apuntan al identificador, no al código.
+- **La ubicación es un solo campo de coordenada**, `Ubicacion_LatLong`, no dos columnas de latitud y
+  longitud. El sufijo del nombre no es un capricho: es lo que hace que la plataforma la trate como
+  coordenada y no como texto, y `DISTANCE()` no opera sobre texto.
+- **El código del activo no es su identificador interno.** El identificador es `ACT-0001`. Puede
+  renombrar el código sin romper nada: las órdenes y el histórico apuntan al identificador.
 - Para dar de baja un activo, marque la fecha y el motivo de baja y desmárquelo como activo. **No lo
   borre**: su histórico de mantenimientos tiene que seguir consultable.
+
+#### Dónde está el activo: cuatro campos, y ninguno sobra
+
+**El PR no identifica un punto, y esto no es teoría.** El corredor atraviesa **tres rutas de
+INVÍAS** y **hay dos sitios distintos llamados `PR 0+000`**, separados por unos 50 km. Un técnico
+enviado al «PR 0+000» no sabe a cuál de los dos.
+
+| Campo | Qué es | Cuándo se diligencia |
+|---|---|---|
+| **PK** | El punto kilométrico **del proyecto**: lineal y continuo desde el arranque hasta el final. **Es el único que identifica un punto sin ambigüedad en todo el corredor** | Siempre en el equipo de vía |
+| **PR** | El punto de referencia de INVÍAS. Pertenece a un tramo y **reinicia en cada uno** | Junto con el tramo, nunca solo |
+| **Tramo de INVÍAS** | La ruta a la que pertenece ese PR. **Sin él, el PR no dice nada** | Siempre que se diligencie un PR |
+| **Sede** | La edificación en la que vive el equipo **bajo techo** —servidores, NAS, impresoras, video wall— | Solo en ese equipo. Se deja vacía en el equipo de vía, que tiene su propio PK y su propia coordenada |
+
+**Un activo tiene sede o tiene punto en la vía, no las dos cosas.** Y cuando tiene sede, su unidad
+funcional debe ser la de esa edificación: la unidad funcional se guarda en un solo sitio, no en dos.
+
+> **Estado, contra `BD/Modelo_Datos_PLANTILLA.xlsx`:** de los 368 activos, el **PK** está poblado en
+> los 368; **PR**, **tramo de INVÍAS**, **sede** y **coordenada** están **vacíos en los 368**. Es
+> trabajo de carga, no de configuración.
 
 ### 5.3 Cambiar las preguntas de una inspección
 

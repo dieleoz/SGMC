@@ -371,7 +371,7 @@ error**.
 > ```
 >
 > ```
-> ok Hoja limpia: ninguna de las 44 columnas retiradas existe ya. No hay nada que ocultar
+> ok Hoja limpia: ninguna de las 48 columnas retiradas existe ya. No hay nada que ocultar
 > ```
 >
 > **Lo mismo vale para las marcas `OCULTAR` y `TRAMPA` del anexo:** describen una hoja que ya no se
@@ -403,7 +403,7 @@ Las 21 del modelo. Las expresiones completas estan en
 | # | Tabla | Columna | Tipo |
 |---|---|---|---|
 | RG-01 | `MAN_Mantenimientos` | `Coordenadas_Cierre_LatLong` | Valid_If |
-| RG-21 | `ACT_Activos` | `UnidadFuncionalID` | Valid_If |
+| RG-34 | `ACT_Activos` | `UnidadFuncionalID` | Valid_If |
 | RG-02 | `MAN_Mantenimientos` | `Precision_GPS` | Initial value |
 | RG-03 | `MAN_Mantenimientos` | `MotivoExcepcion` | Required_If |
 | RG-04 | `ACT_Activos` | `(tabla)` | Security Filter |
@@ -529,7 +529,7 @@ reproducir.
 
 | Vista | Tipo | Sobre | Nota |
 |---|---|---|---|
-| Mapa de activos | `Map` | `ACT_Activos` | Columna de mapa: `Ubicacion` |
+| Mapa de activos | `Map` | `ACT_Activos` | Columna de mapa: `Ubicacion_LatLong` |
 | Mis ordenes | `Deck` | `OT_OrdenesTrabajo` | Es la pantalla de trabajo del tecnico |
 | Mantenimientos | `Table` | `MAN_Mantenimientos` | |
 
@@ -552,13 +552,15 @@ antigua de 15 no incluia.
 
 **Cuente las referencias.** Las columnas de tipo `Ref` deben sumar **39**.
 
-**Y los cuatro verificadores del repositorio:**
+**Y los seis verificadores del repositorio:**
 
 ```bash
 python scripts/validar_modelo.py          # el modelo consigo mismo
 python scripts/verificar_faseA.py "..."   # el modelo contra la hoja
 python scripts/verificar_documentos.py    # la prosa contra el modelo
 python scripts/verificar_enlaces.py       # que todo enlace entre documentos resuelve
+python scripts/verificar_reproducible.py  # que generar dos veces da el mismo archivo
+python scripts/verificar_datos.py         # que los DATOS sostienen lo que el modelo declara
 ```
 
 **Ninguno mira la aplicacion.** Para eso estan las pruebas de aceptacion de
@@ -567,9 +569,9 @@ python scripts/verificar_enlaces.py       # que todo enlace entre documentos res
 ## Paso 10 — Publicar
 
 > **Antes de publicar, lea esto.** Ninguna de las coordenadas de `ACT_Activos` se levanto en campo.
-> De los **368 activos** de la hoja vigente, **34 comparten** `4.728512, -74.114531`, que esta en
-> Bogota y no en el corredor, y los **334 restantes** llevan coordenada propia pero **calculada
-> sobre el trazado**, no medida. Con los radios por tipo —0,05 km en la mayoria— la aplicacion
+> Las **368** se **derivan del PK sobre el trazado del corredor** en cada pasada del generador:
+> son todas distintas y todas están sobre la vía, pero **ninguna está medida**. Con los radios
+> por tipo —0,05 km en la mayoría— la aplicación
 > **rechaza todo cierre hecho en via y acepta todo cierre hecho en Bogota**.
 >
 > **No es un defecto de la configuracion: faltan las coordenadas reales**, que es la decision
@@ -636,7 +638,7 @@ contra la que se valida. Si una columna no aparece aqui, no deberia estar visibl
 > ```
 >
 > ```
-> ok Hoja limpia: ninguna de las 44 columnas retiradas existe ya. No hay nada que ocultar
+> ok Hoja limpia: ninguna de las 48 columnas retiradas existe ya. No hay nada que ocultar
 > ```
 >
 > La plantilla se rehace entera con `python scripts/generar_plantilla.py` y sale con las columnas
@@ -836,7 +838,7 @@ Fotografias del mantenimiento. Supuesto D-10: minimo 3, maximo 6, tipificadas. S
 
 | Columna | Que hacer | Por que |
 |---|---|---|
-| `Fecha` | **OCULTAR** · SIN DECIDIR | El modelo no la declara |
+| `Fecha` | **OCULTAR** | Duplicaba a FechaHora, que es la que vale como evidencia porque la escribe el servidor. Dos fechas para el mismo hecho invitan a discutir cual manda justo cuando hay que probar algo. Retirada el 2026-08-10. |
 
 ## `FRE_Frecuencias`
 
@@ -865,7 +867,7 @@ Registro maestro de los checklists, uno por tipo de activo: 27 en BD/Modelo_Dato
 
 | Columna | Que hacer | Por que |
 |---|---|---|
-| `Orden` | **OCULTAR** · SIN DECIDIR | El modelo no la declara |
+| `Orden` | **OCULTAR** | Ordenaria los formularios en una lista y ninguna vista los ordena. Estaba vacia. Si algun dia se ordenan, se declara entonces con su proposito escrito. Retirada el 2026-08-10. |
 
 ## `FRM_Preguntas`
 
@@ -895,7 +897,7 @@ Banco unico de preguntas. Es el motor: se retiran las hojas planas FRM_SOS, FRM_
 
 | Columna | Que hacer | Por que |
 |---|---|---|
-| `ValorDefecto` | **OCULTAR** · SIN DECIDIR | El modelo no la declara |
+| `ValorDefecto` | **OCULTAR** | Precargaria la respuesta antes de que el tecnico conteste. En una evidencia eso es peligroso: una respuesta por defecto que nadie toca parece contestada. Retirada el 2026-08-10. |
 
 ## `FRM_Secciones`
 
@@ -1146,5 +1148,5 @@ Personas del sistema. El correo resuelve la sesion contra USEREMAIL().
 | Columna | Que hacer | Por que |
 |---|---|---|
 | `SedeID` | **OCULTAR** · **TRAMPA: AppSheet la pone `Ref` sola hacia `SED_Sedes`** | Retirada el 2026-08-10 para que el modelo diga lo que dice la especificacion. FUNCIONAL_SGMC 6.3 la declara descartada frente a ASG_AsignacionZona: la sede es un edificio y la asignacion es un tramo, y un tecnico puede atender varias unidades funcionales, asi que la relacion es de muchos a muchos y no cabe como columna. RG-04, el filtro de seguridad que decide que activos ve cada tecnico, lee la asignacion y no menciona la sede. El modelo la declaraba Ref obligatoria mientras la spec la daba por descartada: se contradecian, y cablearla habria dejado dos formas de decir donde trabaja alguien. |
-| `UltimaSincronizacion` | **OCULTAR** · SIN DECIDIR | El modelo no la declara |
+| `UltimaSincronizacion` | **OCULTAR** | Venia de una version anterior y el modelo nunca la uso. La regeneracion del 2026-08-10 la dejo fuera y no se echo en falta. Retirada el 2026-08-10. |
 

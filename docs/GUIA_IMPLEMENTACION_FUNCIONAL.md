@@ -273,7 +273,7 @@ Las dos en verde. **Se cierra sin dar a `Done`.**
 **Duracion: 0.** Se conserva numerada para que quien tenga una copia antigua de esta guia sepa que
 este trabajo salio del plan, y no crea que se le olvido.
 
-Esta etapa mandaba ocultar, una por una, las 44 columnas que el modelo no declara, mas las tres que
+Esta etapa mandaba ocultar, una por una, las 48 columnas que el modelo no declara, mas las tres que
 AppSheet convertia en `Ref` sola por coincidencia de nombre. **Todas ellas venian de un libro
 heredado. La hoja vigente se genera del modelo y no trae ninguna**, asi que no hay nada que
 esconder ni ninguna referencia que deshacer.
@@ -287,7 +287,7 @@ python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"
 Entre los conformes tiene que salir esta linea, que es la regla `F-19`:
 
 ```
-ok Hoja limpia: ninguna de las 44 columnas retiradas existe ya. No hay nada que ocultar
+ok Hoja limpia: ninguna de las 48 columnas retiradas existe ya. No hay nada que ocultar
 ```
 
 > **Si no sale, no oculte nada todavia: pare y reportelo.** Significa que la hoja contra la que

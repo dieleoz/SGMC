@@ -18,11 +18,33 @@ o una conversación con operación.
 >   de 18 tipos con el radio vacío **está superada**, y con ella el literal provisional de 1,0 km.
 > - **Los 355 activos contables ya están en la hoja**, como inventario **sintético** de prueba —368
 >   filas en total, con las 13 del juego de arranque que el Plan Maestro no cuenta por unidades—. Son
->   códigos reales del Plan Maestro con coordenadas interpoladas, y cada fila lo dice de sí misma. No
->   es el registro real, así que el hueco de la sección 13.1 sigue abierto.
+>   códigos reales del Plan Maestro, y cada fila lo dice de sí misma. No es el registro real, así que
+>   el hueco de la sección 13.1 sigue abierto.
 >
 > Y una cifra que estaba mal: la cuota de Drive **no** se agota antes de la retención con este
 > inventario. Ver la sección 8, corregida contra `scripts/capacidad.py`.
+>
+> ## Y dos huecos de este documento se cerraron el 2026-08-10
+>
+> **La sección 4, la jerarquía de ubicación, está hecha hasta el nivel de edificación**, y **la
+> sección 5, el PK, está hecha entera en el modelo.** Las dos siguen escritas más abajo con su
+> plano de dominio, que no caduca; lo que caducó es el «no existe». Lo que queda abierto de la 4 es
+> `ETR_Estructuras`, y lo que queda abierto de la 5 es dato, no modelo.
+>
+> **Y una tercera cosa que este documento no podía anticipar y ahora atraviesa todo:** las claves
+> pasaron a alfanuméricas con prefijo, y las columnas de coordenada llevan `_LatLong` en el nombre.
+> Ninguna cifra ni ningún nombre de columna de aquí se cita sin comprobarlo contra
+> [`REGLAS_DEL_MODELO_DE_DATOS.md`](REGLAS_DEL_MODELO_DE_DATOS.md), que se genera del modelo.
+>
+> **Y una fuente nueva, que es la de más rango: el contrato.** Llegó a `contexto/SISGA Contrato/`
+> después de escribirse este documento, y su Apéndice Técnico 1 resolvió por dato tres cosas que
+> aquí estaban como pregunta: las **cuatro unidades funcionales** con su nombre y su longitud reales
+> —`00+000` a `137+170`, y **no en cuartos iguales**—, las **tres rutas de INVÍAS** que atraviesa el
+> corredor, y los **quince túneles**, que abren un hueco nuevo en la sección 4.
+>
+> **Lo que empeoró:** `ACT_Activos.Ubicacion_LatLong` quedó **vacía en las 368 filas**. Las
+> coordenadas sintéticas se perdieron al renombrar la columna, así que las densidades de la
+> sección 6 ya no se pueden rederivar leyendo la hoja: hay que volver a generar el inventario.
 
 | | |
 |---|---|
@@ -48,9 +70,16 @@ Ninguna de las tres es cierta para una parte importante del parque.
 | `PROPUESTA - PLAN MTTO DC 2016.xlsx` | **La manta**: rejilla semanal tarea × sector, con planeadas contra ejecutadas |
 | `2-MANTENIMIENTO.pdf` | Flujo de correctivo, SLA con números, y **GIMAN**, el GMAO que este sistema replica |
 | `Informe … enero 2025 v1.1.docx` | Las secciones que el informe mensual exige |
+| **`contexto/SISGA Contrato/`**, Apéndice Técnico 1 | **Llegó después, y es la única fuente contractual.** De ahí salen las cuatro unidades funcionales con su nombre y su longitud reales (Tabla 3), las **tres rutas de INVÍAS** que atraviesa el corredor, y los **quince túneles** con su PR de entrada y salida (tablas 13, 19 y 20) |
 
-**Los siete documentos están leídos y destilados en [`CONTEXTO_OPERACION.md`](CONTEXTO_OPERACION.md).**
-Lo que sigue en este documento son los huecos de modelo; lo que aporta cada fuente está allí.
+**Los seis primeros están leídos y destilados en [`CONTEXTO_OPERACION.md`](CONTEXTO_OPERACION.md);
+el contrato no**, porque llegó después de escribirlo. Lo que sigue en este documento son los huecos
+de modelo; lo que aporta cada fuente de operación está allí.
+
+> **Y hay una diferencia de rango que conviene no perder.** Los seis primeros son documentos de
+> operación, y tres de ellos ni siquiera son del Sisga: dan método, no obligación. **El contrato sí
+> obliga**, y por eso lo que salió de él —las unidades funcionales, las rutas, los túneles— entró al
+> modelo como dato y no como supuesto abierto.
 
 ## 2. El tamaño real
 
@@ -70,9 +99,10 @@ muestra sintética.
 
 > **La hoja lleva hoy los 355 contables**, con los códigos que usa operación —`SOS-001` a `SOS-054`,
 > `SWIT-001` a `SWIT-142`, con ceros a la izquierda y guion, no el `SOS_1` que se usó al principio— y
-> coordenadas interpoladas sobre los 137 km del corredor. **Son de prueba**: sirven para ejercitar el
+> su `PK` repartido sobre los 137 km del corredor. **Son de prueba**: sirven para ejercitar el
 > filtro por zona, la navegación y el volumen de sincronización, y cada fila lo declara en
-> `ACT_Activos.Observaciones`.
+> `ACT_Activos.Observaciones`. **Lo que no llevan es coordenada:** `Ubicacion_LatLong` está vacía en
+> las 368.
 >
 > **`ACT_Activos` tiene 368 filas, no 389.** Las familias del Plan Maestro suman 355 y el juego de
 > arranque aporta 13 equipos más que el Plan no cuenta por unidades —generador, báscula estática,
@@ -131,13 +161,20 @@ a 3.000-3.500. Doce o catorce al día. Ahí la creación manual deja de ser razo
 
 ## 4. Ubicación jerárquica
 
-**Hoy:** todo activo tiene `UnidadFuncionalID` y `PR`. Por eso el relleno le puso punto de
-referencia vial a un servidor:
+> **Esta sección está aplicada hasta el nivel de edificación desde el 2026-08-10.** Lo que sigue
+> describe por qué, y la tabla de 4.3 dice qué quedó y qué no.
+
+**Cuando esto se escribió:** todo activo tenía `UnidadFuncionalID` y `PR`, y nada más. Por eso el
+relleno le puso punto de referencia vial a un servidor:
 
 ```
-SVR-001   Servidor 001     PR = 01+111   UF4
+SERV-001  Servidor 001     PR = 01+111   UF4
 NAS-001   NAS 001          PR = 02+111   UF4
 ```
+
+**Hoy ese mismo valor está en `PK`, no en `PR`**, porque era el kilómetro lineal del proyecto con la
+etiqueta equivocada: `SERV-001` lleva `PK = 01+111` y `PR` vacío. Sigue sin decir que el servidor
+está **dentro** del CCO — eso lo dice ahora `ACT_Activos.SedeID`, que está sin poblar.
 
 **Realidad:** es una jerarquía, no una alternativa. El peaje **está** en la vía y pertenece a una
 unidad funcional; el equipo de dentro hereda esa cadena.
@@ -146,22 +183,42 @@ unidad funcional; el equipo de dentro hereda esa cadena.
 Unidad Funcional
    ├── Edificación   (CCO, peaje, báscula)      ← con su PR y su coordenada
    ├── Estructura    (puente, viaducto)          ← NO EXISTE
+   ├── Tramo en túnel (entrada y salida por PR)  ← NO EXISTE
    └── Punto de vía  (PR)
 ```
 
-**Qué cambia**
+**Qué cambia, y qué de eso ya está**
 
-- `SED_Sedes` gana `UnidadFuncionalID`, `PR` y `Ubicacion`. Hoy una edificación **no está en
-  ningún sitio**: solo tiene nombre y ciudad.
-- `ACT_Activos` gana `SedeID` **opcional**: se llena solo si el equipo está dentro de un recinto.
-  `UnidadFuncionalID` sigue siendo obligatorio.
-- Aparece **`ETR_Estructuras`**: puentes y viaductos por los que pasa la fibra y que exigen revisión
-  propia.
-- `SED_Sedes` se limpia de las filas UF1-UF4, que ya viven en `UNF_UnidadesFuncionales`.
+| Qué | Estado |
+|---|---|
+| `SED_Sedes` gana `UnidadFuncionalID`, `PR`, `TramoINVIAS`, `PK` y `Ubicacion_LatLong` | **HECHO** el 2026-08-10. Son **cinco** columnas, no tres: el `TramoINVIAS` hace falta porque un PR sin ruta no identifica un punto |
+| `ACT_Activos` gana `SedeID` **opcional**, y `UnidadFuncionalID` sigue obligatoria | **HECHO.** Y con `RG-21`, que exige que si el activo tiene sede su unidad funcional sea la de la sede. Sin esa regla el mismo hecho viviría en dos sitios |
+| `SED_Sedes` se limpia de las filas UF1-UF4, que ya viven en `UNF_UnidadesFuncionales` | **HECHO.** La tabla tiene 6 filas: CCO, Bogotá, los dos peajes y las dos básculas |
+| Aparece **`ETR_Estructuras`**: puentes y viaductos por los que pasa la fibra | **Sigue abierto.** Declarada en `PROPUESTAS`, sin especificar |
+| Aparece **`TUN_Tuneles`**: los quince túneles del contrato, con su PR de entrada y salida | **Sigue abierto.** Declarada en `PROPUESTAS`, sin especificar. **No es un nivel más de la jerarquía por simetría: es el único donde el GPS no fija posición** — ver el recuadro de abajo |
+
+**Y lo que está hecho es la estructura, no el dato.** De las 6 sedes, **solo el peaje de Machetá
+está situado** —`UNF-01`, `PR 27+240`, ruta `5607`—, y ningún activo tiene `SedeID`. El del peaje de
+San Luis de Gaceno no se puede rellenar: el contrato lo marca como **peaje nuevo**, sin fila de tabla
+ni abscisa. Está proyectado, no construido.
+
+> **El túnel no es un caso más de la jerarquía, y por eso va con nombre propio.** Los demás niveles
+> dicen **dónde** está un equipo; el túnel dice **que ahí no hay señal**. Bajo tierra el GPS no fija
+> posición, y `RG-01` compara la distancia al activo al cerrar: **todo equipo dentro de un túnel
+> falla esa comprobación siempre**, por diseño y no por avería.
+>
+> No es marginal. El contrato los lista con su PR de entrada y salida: **quince túneles, 7.224
+> metros**, y en la UF3 son **6.000 de sus 17.800** — un tercio del tramo va bajo tierra. Las cifras
+> salen de `PROPUESTAS['TUN_Tuneles']` en `scripts/modelo_objetivo.py`, que cita el Apéndice
+> Técnico 1, tablas 13, 19 y 20; el detalle túnel a túnel está en el contrato y no en el modelo.
+>
+> Hoy eso se manejaría como excepción caso por caso, y el supervisor vería a un técnico acumulando
+> cierres con excepción **sin saber que es el túnel y no el técnico**. Con los tramos declarados se
+> sabe de antemano, y la excepción deja de ser una sospecha para pasar a ser una previsión.
 
 **Lo que arregla:** el Security Filter deja de tener un agujero. Con todo colgando de la UF, el
-técnico asignado a UF1 ve los postes de su tramo **y** los equipos del peaje que está en él. Hoy
-funciona por accidente, porque el relleno metió los servidores en UF4.
+técnico asignado a UF1 ve los postes de su tramo **y** los equipos del peaje que está en él. Antes
+funcionaba por accidente, porque el relleno metió los servidores en UF4.
 
 **Decisión pendiente:** la sede de Bogotá no está en el corredor y aloja 29 portátiles y 3
 impresoras. O `UnidadFuncionalID` admite vacío para sedes fuera del corredor, o se crea una UF
@@ -170,6 +227,17 @@ administrativa que no es un tramo de vía.
 ---
 
 ## 5. PR y PK conviven, y el PK hace falta
+
+> **Aplicada en el modelo el 2026-08-10.** `ACT_Activos` tiene `PK` y `TramoINVIAS` además de `PR`;
+> `SED_Sedes` tiene los tres; `UNF_UnidadesFuncionales` tiene `PKInicial`/`PKFinal` junto a
+> `PRInicial`/`PRFinal`, y estos dos últimos llevan la ruta dentro del valor —`55CN03 PR0+0+000`,
+> `5608 PR92+048`—. Lo que sigue abierto es **dato**: el PR real está vacío en las 368 filas de
+> `ACT_Activos`. Y la tabla de equivalencias PR↔PK no existe, así que uno no se deduce del otro.
+>
+> **Lo que este apartado no había visto, y es lo que obligó a añadir `TramoINVIAS`:** el corredor
+> atraviesa **tres** rutas de INVÍAS —`55CN03`, `5607` y `5608`— y **hay dos puntos distintos
+> llamados `PR 0+000`**, separados por unos 50 km. Un técnico enviado al «PR 0+000» no sabe a cuál
+> de los dos.
 
 **No son dos nombres para lo mismo:**
 
@@ -242,10 +310,9 @@ catálogo a 27 tipos, los 27 lo llevan:
 heredada de 18 tipos quedó superada el 2026-08-10.
 
 Sin él, o el poste admite 1 km —y no prueba nada— o el tramo rechaza cierres legítimos. Y con los
-sintéticos repartidos por el corredor deja de ser una preferencia. Medido sobre las **334 filas con
-coordenada sobre el corredor** de `BD/Modelo_Datos_PLANTILLA.xlsx` —las 34 del juego de arranque
-quedan fuera del cálculo porque comparten un punto de Bogotá—, contando cada activo dentro de su
-propio geofence:
+sintéticos repartidos por el corredor deja de ser una preferencia. Medido sobre las **334 filas
+sintéticas** cuando llevaban coordenada interpolada —las 34 del juego de arranque quedaban fuera del
+cálculo porque compartían un punto de Bogotá—, contando cada activo dentro de su propio geofence:
 
 | Radio | Activos por geofence | Máximo | Solos en su geofence |
 |---|---|---|---|
@@ -261,6 +328,11 @@ diferencia entre una prueba de presencia y una de tránsito.
 > **Estas cuatro filas se rederivan, no se citan.** Las coordenadas sintéticas se generan con
 > dispersión aleatoria, así que cambian en cada ejecución de `scripts/generar_inventario.py` y con
 > ellas las densidades. Lo que no cambia es el orden de magnitud, que es lo que decide el radio.
+>
+> **Y hoy no se pueden rederivar leyendo la hoja:** `ACT_Activos.Ubicacion_LatLong` está vacía en
+> las 368 filas de `BD/Modelo_Datos_PLANTILLA.xlsx`. Hay que volver a generar el inventario para
+> repetir la medición. **El argumento no cambia** —es geometría del corredor, no de estos datos—,
+> pero conviene que quien vaya a citarlo sepa contra qué se midió.
 
 **El precio de la fibra, dicho claro:** 1,5 km mete once activos de media dentro del geofence, así
 que confirma que el técnico estaba en ese tramo del corredor, no que estuviera trabajando en la
@@ -275,7 +347,11 @@ describe un estado superado.
 
 **Lo que sigue sin estar es la configuración.** La regla está declarada y verificada; la aplicación
 tiene las 28 tablas dadas de alta y nada más. Y aun puesta, el geofencing no significa nada hasta
-D-01: ninguna coordenada de la hoja es el sitio real del equipo.
+D-01: `ACT_Activos.Ubicacion_LatLong` está vacía en las 368 filas.
+
+**Y hay un sitio donde ningún radio arregla nada: el túnel.** Bajo tierra no hay posición que
+comparar, así que la elección del radio es indiferente y `RG-01` falla siempre. Eso no se resuelve
+calibrando: se resuelve sabiendo qué tramos van bajo tierra, que es `TUN_Tuneles` — sección 4.
 
 ---
 
@@ -459,7 +535,7 @@ formulario propio para el correctivo no duplica nada y encaja en la capa de tare
 
 **Lo que no cambia, y una cosa que sí.** Los tres campos siguen marcados como retirados, y la
 decisión se confirma. Lo que cambió el 2026-08-10 es que **ya no están en la hoja**: al generarla del
-modelo desaparecieron las 43 columnas retiradas, así que `Diagnostico`, `Trabajo_Realizado` y
+modelo desaparecieron las 44 columnas retiradas, así que `Diagnostico`, `Trabajo_Realizado` y
 `Repuestos_Utilizados` no existen en ningún sitio desde el que reactivarlos por accidente.
 
 **Y dos patrones vistos en el informe de Neiva–Girardot**, que **no son huecos del Sisga** hasta que
@@ -488,14 +564,18 @@ ubicación**. Se retiran dos columnas que estaban mal colocadas. Nada de lo cons
 
 ## 13. Preguntas abiertas
 
-Ninguna se puede responder desde los documentos. Los siete están leídos: lo que sigue aquí es lo que
-hay que preguntar en operación.
+Ninguna se puede responder desde los documentos de operación, que están leídos. **Y ojo con la
+tentación de responderlas con el contrato:** el contrato dice qué hay que construir y mantener, no
+cómo trabaja hoy la cuadrilla. Lo que sigue hay que preguntarlo en operación.
 
 1. **El inventario real del Sisga.** Trabajamos con 355 activos de un maestro «muy similar», no el
    de este corredor. Todo el dimensionamiento —1.916 órdenes al año, los 5,7 años de cuota— cuelga
    de ahí. **Es el vacío más grande que queda**, y la plantilla de 355 activos sintéticos no lo
    cierra: son códigos del Plan Maestro con coordenadas inventadas, no el registro del corredor.
-2. **¿Cuántas estructuras** —puentes, viaductos— tienen paso de fibra, y están inventariadas?
+2. **¿Cuántas estructuras** —puentes, viaductos— tienen paso de fibra, y están inventariadas? **Y
+   la que el contrato deja a medias: ¿qué activos quedan dentro de los quince túneles?** El contrato
+   da los tramos; lo que no dice es qué equipo hay ahí dentro, y esa es exactamente la lista de
+   activos cuyo cierre va a fallar siempre por GPS. Sin ella, `TUN_Tuneles` no se dimensiona.
 3. **¿El mantenimiento de fibra se programa por tramo o por ruta completa?** De ahí salen 1.200
    órdenes al año o 2.
 4. **¿Las 600 cajas existen en algún inventario** —Excel, plano, GIS— o hay que levantarlas?

@@ -32,6 +32,7 @@ Que hace
 Uso:  python scripts/generar_plantilla.py ["BD/<origen>.xlsx"]
 """
 import os
+import random
 import re
 import sys
 
@@ -40,7 +41,8 @@ sys.path.insert(0, os.path.join(RAIZ, "scripts"))
 
 from modelo_objetivo import MODELO
 from catalogo_tipos import TIPOS_ACTIVO, FAMILIAS, comprobar
-from generar_inventario import generar_filas, LARGO_KM, UNIDADES, unidad_funcional
+from generar_inventario import (generar_filas, LARGO_KM, UNIDADES, unidad_funcional,
+                                punto)
 from banco_preguntas import (preguntas_de, comprobar as comprobar_banco,
                              MARCA, VALORES_ESTADO)
 
@@ -214,6 +216,25 @@ for f in generar_filas(cuenta):
 # entre la primera y la segunda esta en el km 49 y no en el 34, asi que decenas
 # de activos estaban en la UF equivocada. Y la UF es lo que decide que ve cada
 # tecnico: RG-04 filtra por ella.
+# El contador comparaba la clave almacenada -'UNF-01'- contra la que devuelve
+# unidad_funcional, que es la clave ANTERIOR a la resiembra -7-. Nunca coincidian,
+# asi que declaraba recolocados los 368 en cada pasada. De ahi salio el '113' que
+# se publico en ESTADO.md: un numero que no medía lo que decia medir. Se comparan
+# POSICIONES, que es lo unico estable a los dos lados de una resiembra de claves.
+CLAVE_UF = [u[0] if isinstance(u, (list, tuple)) else u for u in UNIDADES] \
+    if UNIDADES and not isinstance(UNIDADES, dict) else list(UNIDADES)
+
+
+def orden_uf(valor):
+    """Que numero de unidad funcional es, venga como 7, como 'UNF-01' o vacio."""
+    v = texto(valor)
+    m = re.search(r"(\d+)\s*$", v)
+    if not m:
+        return None
+    n = int(m.group(1))
+    return n - 6 if v.isdigit() and 7 <= n <= 10 else n
+
+
 recolocados = 0
 for a in activos:
     m = re.match(r"(\d+)\+(\d+)", texto(a.get("PK")) or texto(a.get("PR")))
@@ -221,9 +242,9 @@ for a in activos:
         continue
     km = int(m.group(1)) + int(m.group(2)) / 1000.0
     correcta = str(unidad_funcional(min(km / LARGO_KM, 0.999999)))
-    if texto(a.get("UnidadFuncionalID")) != correcta:
-        a["UnidadFuncionalID"] = correcta
+    if orden_uf(a.get("UnidadFuncionalID")) != orden_uf(correcta):
         recolocados += 1
+    a["UnidadFuncionalID"] = correcta
     # El valor que traiamos en PR era en realidad el kilometro lineal: un PK con
     # la etiqueta equivocada. Se muda a su columna y PR queda vacio, que es la
     # verdad -el PR de INVIAS no lo sabemos y no se inventa-.
@@ -235,6 +256,35 @@ for a in activos:
         # pasada anterior. El PK se queda; el PR se vacia, porque el de INVIAS
         # no lo sabemos.
         a["PR"] = ""
+
+# ------------------------------------ la coordenada se DERIVA, no se conserva
+#
+# El 2026-08-10 el renombrado de Ubicacion a Ubicacion_LatLong se llevo por
+# delante las 368 coordenadas: la columna nueva nacio vacia y la vieja se
+# retiro. Nadie lo vio -validar_modelo no abre el xlsx, y
+# verificar_reproducible compara la pasada N con la N+1, las dos derivadas del
+# archivo ya danado: demostraba que el dano se reproducia igual-.
+#
+# Y era una perdida PERMANENTE, porque el generador lee su propia salida
+# (ORIGEN = SALIDA) y la garantia de catalogo solo COMPLETA filas nuevas: con
+# las familias ya completas, generar_filas devuelve cero filas y no recalcula
+# ninguna coordenada.
+#
+# La leccion no es "restaurar del git": es que un dato derivable no se
+# conserva, se vuelve a derivar. El PK situa el activo sobre el corredor, asi
+# que la coordenada sale de el en cada pasada. Reponer desde el respaldo habria
+# devuelto tambien los 34 puntos identicos de Bogota, que no estan sobre la via.
+random.seed(20260809)
+sin_coordenada = 0
+for a in sorted(activos, key=lambda x: texto(x.get("CodigoActivo"))):
+    if texto(a.get("Ubicacion_LatLong")):
+        continue
+    m = re.match(r"(\d+)\+(\d+)", texto(a.get("PK")))
+    if not m:
+        continue
+    km = int(m.group(1)) + int(m.group(2)) / 1000.0
+    a["Ubicacion_LatLong"] = punto(min(km / LARGO_KM, 0.999999))
+    sin_coordenada += 1
 
 escribir("ACT_Activos", activos)
 
@@ -679,6 +729,40 @@ for tabla in MODELO:
                 fila[i].value = nuevo
                 normalizadas += 1
 
+# ------------------------------- una columna, un tipo. Lo ultimo antes de guardar
+#
+# AppSheet infiere el tipo del CONTENIDO y lo resuelve POR MAYORIA. Una columna
+# con True booleano en las filas heredadas y 'TRUE' de cadena en las generadas le
+# da una senal contradictoria, y la minoria se pierde sin aviso. Es el mismo
+# mecanismo que descartaba a un tecnico entero por llevar la clave alfanumerica
+# entre diez numericas.
+#
+# Va aqui, al final y sobre el libro entero, y no en cada sitio que escribe: los
+# valores llegan de tres origenes -la hoja heredada, el catalogo y el generador-
+# y pedir que los tres acuerden el formato es justo la clase de instruccion que
+# se cumple mal. Se normaliza una vez, donde no se puede escapar nadie.
+homogeneizadas = []
+for tabla in dst.sheetnames:
+    ws = dst[tabla]
+    cab = [texto(c.value) for c in next(ws.iter_rows(min_row=1, max_row=1))]
+    for j, nombre in enumerate(cab, start=1):
+        celdas = [ws.cell(r, j) for r in range(2, ws.max_row + 1)]
+        vivas = [c for c in celdas if c.value not in (None, "")]
+        if len({type(c.value).__name__ for c in vivas}) < 2:
+            continue
+        # Booleano y su cadena conviviendo: gana la cadena, que es lo que
+        # Google Sheets muestra y lo que el funcional va a teclear.
+        if any(isinstance(c.value, bool) for c in vivas):
+            for c in vivas:
+                if isinstance(c.value, bool):
+                    c.value = "TRUE" if c.value else "FALSE"
+            homogeneizadas.append("%s.%s" % (tabla, nombre))
+        elif not all(isinstance(c.value, (int, float)) for c in vivas):
+            # Numero y texto mezclados en algo que no es numerico: a texto.
+            for c in vivas:
+                c.value = texto(c.value)
+            homogeneizadas.append("%s.%s" % (tabla, nombre))
+
 hoja = dst.create_sheet("_LEEME", 0)
 for texto_fila, negrita in LEEME:
     hoja.append([texto_fila])
@@ -705,6 +789,8 @@ print("Activos recolocados en su unidad funcional real: %d" % recolocados)
 for r in resembradas:
     print("Clave resembrada: %s" % r)
 print("Claves y referencias normalizadas a texto: %d" % normalizadas)
+if homogeneizadas:
+    print("Columnas homogeneizadas a un solo tipo: %s" % " · ".join(homogeneizadas))
 if anadidos_catalogo:
     print("Valores de catalogo anadidos: %s" % " · ".join(anadidos_catalogo))
 if renumeradas:

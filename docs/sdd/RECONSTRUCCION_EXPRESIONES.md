@@ -64,7 +64,7 @@ python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"
 
 En la hoja vigente estan **poblados los 27**, con 0.05 km en 18 · 0.1 km en 8 · 1.5 km en 1. Un literal en su lugar -por ejemplo `<= 1.0`- hace que el sistema pruebe "estas en el corredor" en vez de "estas frente al equipo", que es su proposito.
 
-### RG-21 — `ACT_Activos` · `UnidadFuncionalID`
+### RG-34 — `ACT_Activos` · `UnidadFuncionalID`
 
 **Tipo:** Valid_If · cubre RF-002
 
@@ -338,6 +338,9 @@ desmarcado, sin formula. **No se borran.**
 | `CHK_Checklists` | `PreguntaActual` | Estado de la interfaz, no dato. Se deriva de las respuestas. |  |
 | `CHK_Checklists` | `TecnicoID` | Se alcanza por [MantenimientoID].[TecnicoID]. Es el campo donde el dato de prueba dejo 'Santiago Moreno' en lugar de un identificador. |  |
 | `CHK_Checklists` | `TotalPreguntas` | Se cuenta de FRM_Preguntas. |  |
+| `FOT_Fotografias` | `Fecha` | Duplicaba a FechaHora, que es la que vale como evidencia porque la escribe el servidor. Dos fechas para el mismo hecho invitan a discutir cual manda justo cuando hay que probar algo. Retirada el 2026-08-10. |  |
+| `FRM_Formularios` | `Orden` | Ordenaria los formularios en una lista y ninguna vista los ordena. Estaba vacia. Si algun dia se ordenan, se declara entonces con su proposito escrito. Retirada el 2026-08-10. |  |
+| `FRM_Preguntas` | `ValorDefecto` | Precargaria la respuesta antes de que el tecnico conteste. En una evidencia eso es peligroso: una respuesta por defecto que nadie toca parece contestada. Retirada el 2026-08-10. |  |
 | `MAN_Mantenimientos` | `Diagnostico` | Se responde en el checklist, no en campo libre. |  |
 | `MAN_Mantenimientos` | `Duracion_Minutos` | Se calcula de FechaHoraInicio y FechaHoraFin. |  |
 | `MAN_Mantenimientos` | `Estado_Intervencion` | Redundante con el estado de la orden. |  |
@@ -355,10 +358,7 @@ desmarcado, sin formula. **No se borran.**
 | `OT_OrdenesTrabajo` | `Informe_Final` | Se genera del mantenimiento y su checklist, no se transcribe. |  |
 | `OT_OrdenesTrabajo` | `Motivo_Cierre` | Se tipifica en MOT_MotivosPendiente desde la ejecucion. |  |
 | `USR_Usuarios` | `SedeID` | Retirada el 2026-08-10 para que el modelo diga lo que dice la especificacion. FUNCIONAL_SGMC 6.3 la declara descartada frente a ASG_AsignacionZona: la sede es un edificio y la asignacion es un tramo, y un tecnico puede atender varias unidades funcionales, asi que la relacion es de muchos a muchos y no cabe como columna. RG-04, el filtro de seguridad que decide que activos ve cada tecnico, lee la asignacion y no menciona la sede. El modelo la declaraba Ref obligatoria mientras la spec la daba por descartada: se contradecian, y cablearla habria dejado dos formas de decir donde trabaja alguien. | **TRAMPA -> `SED_Sedes`** |
-| `FOT_Fotografias` | `Fecha` | El modelo guarda FechaHora. Sobra, o una de las dos esta mal nombrada. Merece mirada: la fecha de la fotografia es parte de la evidencia | **SIN DECIDIR** |
-| `FRM_Formularios` | `Orden` | Ordenaria los formularios en una lista. Hoy ninguna vista los ordena y la columna esta vacia. Si algun dia se ordenan, se decide aqui | **SIN DECIDIR** |
-| `FRM_Preguntas` | `ValorDefecto` | Precargaria la respuesta antes de que el tecnico conteste. En una evidencia eso es peligroso: una respuesta por defecto que nadie toca parece contestada | **SIN DECIDIR** |
-| `USR_Usuarios` | `UltimaSincronizacion` | Probablemente de una version anterior. El modelo no la usa | **SIN DECIDIR** |
+| `USR_Usuarios` | `UltimaSincronizacion` | Venia de una version anterior y el modelo nunca la uso. La regeneracion del 2026-08-10 la dejo fuera y no se echo en falta. Retirada el 2026-08-10. |  |
 
 **Las 4 marcadas TRAMPA** se llaman igual que la clave de otra tabla, asi que **AppSheet las
 convierte a `Ref` sola**. Hay que deshacerlo.

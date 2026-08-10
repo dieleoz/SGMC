@@ -12,11 +12,24 @@
 >   `python scripts/generar_plantilla.py`, y dos ejecuciones seguidas dan las 29 pestañas idénticas.
 > - **La Fase B dejó de ser «convertir 15 columnas».** La aplicación se reconstruyó desde cero,
 >   porque *Regenerate* fusiona en vez de reemplazar. Sobre una aplicación nueva no sobrevive
->   ninguna referencia: son **38**.
+>   ninguna referencia: son **39**.
 > - **El 2026-08-10 se fijó un punto de partida y se volvió a reconstruir.** El sistema es la
->   aplicación `SISGA_-323965761-26-08-10` sobre la hoja `Modelo_Datos_10082026`; las cinco
->   aplicaciones y las tres hojas anteriores están nombradas en `scripts/sistema.py` con el motivo
->   por el que dejaron de serlo. **La aplicación tiene las 28 tablas dadas de alta y nada más.**
+>   aplicación `_SISGA_-323965761` sobre la hoja `Modelo_Datos_10082026` —vuélquelo con
+>   `python scripts/sistema.py`—; las **cinco** aplicaciones y las **dos** hojas anteriores están
+>   nombradas en su lista `SUPERADOS` con el motivo por el que dejaron de serlo. **La aplicación
+>   tiene las 28 tablas dadas de alta y nada más.**
+> - **Y el modelo de datos cambió el mismo día**, que es lo que reordena la Fase A: claves
+>   alfanuméricas con prefijo en las 28 tablas, sufijo `_LatLong` en las seis columnas de
+>   coordenada, `USR_Usuarios.SedeID` retirada —la zona de trabajo del técnico vive en
+>   `ASG_AsignacionZona` y solo ahí—, `SED_Sedes` de vuelta como padre de ubicación del equipo bajo
+>   techo con cinco columnas nuevas, y `PK`, `TramoINVIAS` y `SedeID` en `ACT_Activos` además del
+>   `PR` que ya tenía. Las diez reglas que manda el motor están en
+>   [`REGLAS_DEL_MODELO_DE_DATOS.md`](REGLAS_DEL_MODELO_DE_DATOS.md), generado.
+> - **Los verificadores son cinco, no cuatro.** Se añadió `verificar_reproducible.py`, que genera la
+>   plantilla dos veces y compara celda a celda: es el único que ve un defecto que solo existe
+>   **entre dos ejecuciones**, y los otros cuatro no pueden.
+> - **Hay dos documentos generados nuevos**: `REGLAS_DEL_MODELO_DE_DATOS.md` y
+>   [`PROMPT_CABLEADO.md`](PROMPT_CABLEADO.md), el encargo de cableado entero y autocontenido.
 > - **El apartado 7 está reescrito** con los frentes de hoy.
 >
 > Lo que no cambió, y es lo importante: nada se ejecuta contra producción sin las tres firmas, y
@@ -149,17 +162,30 @@ la reversibilidad de las dos mitades no se parecen en nada.
 
 > **La Fase A ya no se ejecuta a mano.** Cuando esto se escribió consistía en renombrar columnas y
 > crear tablas dentro del Sheets heredado. Hoy la hoja **se genera del modelo** con
-> `scripts/generar_hoja_limpia.py`, y lo que queda de la fase es verificarla:
-> `python scripts/verificar_faseA.py "BD/<archivo>.xlsx"` hasta `FASE A CERRADA`. El gate ligero
-> sigue siendo el mismo; lo que desapareció es el trabajo de edición manual que lo hacía necesario.
+> `python scripts/generar_plantilla.py`, y lo que queda de la fase es verificarla:
+> `python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"` hasta `FASE A CERRADA`, más
+> `python scripts/verificar_reproducible.py`, que genera dos veces y compara celda a celda. El gate
+> ligero sigue siendo el mismo; lo que desapareció es el trabajo de edición manual que lo hacía
+> necesario.
 
 Hay una razón técnica además de la económica: **AppSheet deriva su estructura leyendo la hoja e
-infiere el tipo a partir de los datos.** Si toda la Fase A está hecha, una columna que ya trae
-`4.728512, -74.114531` tiene opción de salir tipada como `LatLong` sin intervención.
+infiere el tipo a partir del nombre del encabezado y de los datos.** De ahí salen las dos
+convenciones que la Fase A tiene que respetar, y que no son cosméticas:
+
+- **El nombre de la columna de coordenada acaba en `_LatLong`.** AppSheet infiere `LatLong` cuando
+  la cabecera contiene `latlong` o `geolocation`; `Ubicacion` no dispara nada y entraba como
+  `Text`, sobre el que `DISTANCE()` no opera. Son nombres feos a cambio de que el tipo entre solo
+  en cada reconstrucción.
+- **Toda clave es alfanumérica con prefijo.** AppSheet tipa la clave según la mayoría de sus
+  valores: si son `1`, `2`, `3` la tipa `Number` y **descarta sin avisar** la fila cuya clave es
+  alfanumérica. Pasó con `USR_Usuarios`, que tenía diez claves numéricas y una generada con
+  `UNIQUEID`: la API devolvía 10 filas y la hoja tenía 11.
 
 Lo que la Fase A **no** consigue: las referencias no se infieren de forma fiable. AppSheet leerá una
-columna de enteros y dirá `Number`, no `Ref`. El cableado sigue siendo trabajo de navegador, columna
-por columna, y son **38**. La Fase A reduce el paso caro; no lo elimina.
+columna de enteros y dirá `Number`, no `Ref`, y el prefijo de nuestras tablas —`UNF_UnidadesFuncionales`,
+no `UnidadFuncional`— rompe además el parecido de nombre del que se serviría. El cableado sigue
+siendo trabajo de navegador, columna por columna, y son **39**. La Fase A reduce el paso caro; no lo
+elimina.
 
 **Y hay dos cosas que la Fase A tiene que dejar hechas o la Fase B no arranca:** ninguna pestaña
 oculta —AppSheet las ignora sin avisar, y por eso solo cargaban 24 tablas de 32— y la clave de cada
@@ -174,7 +200,7 @@ huérfana.
 
 ### Higiene de los datos de prueba
 
-**Toda fila de prueba lleva el prefijo `TEST-` en su clave, y el paso que la borra se escribe en la
+**Toda fila de prueba lleva la marca `TEST` en su clave, y el paso que la borra se escribe en la
 misma especificación que la crea.** No en otra, y no «después».
 
 No es celo: es que este proyecto ya lo pagó. `CHK_Checklists` llegó a tener una fila con
@@ -201,9 +227,9 @@ corre por el pipeline y cuál no.
 
 | Frente | Estado |
 |---|---|
-| Fase A, la hoja | **CERRADA.** Hoy la hoja se genera del modelo y la fase se reduce a verificarla: `FASE A CERRADA` con **52 conformes** sobre `BD/Modelo_Datos_PLANTILLA.xlsx`. Son menos que los 61 de las descargas antiguas porque esta hoja va sin registros de prueba y las comprobaciones que necesitan filas se saltan |
-| Reconstrucción de la aplicación | **Hecha el 2026-08-10.** La aplicación es `SISGA_-323965761-26-08-10`, **con las 28 tablas dadas de alta y nada más** |
-| Fase B, el editor | **Frente activo, y se repone entero:** las 39 referencias, las 21 reglas, los dos filtros de seguridad, las cuatro marcas de tiempo y retirar `Deletes`. Qué poner: `MANUAL_DESPLIEGUE.md`. Cómo y cómo se comprueba: `GUIA_IMPLEMENTACION_FUNCIONAL.md`. Las expresiones enteras: `sdd/RECONSTRUCCION_EXPRESIONES.md` |
+| Fase A, la hoja | **CERRADA.** Hoy la hoja se genera del modelo y la fase se reduce a verificarla: `FASE A CERRADA` con **82 conformes, 4 avisos y 0 fallos** sobre `BD/Modelo_Datos_PLANTILLA.xlsx`. El recuento de conformes se lee de la salida y no se cita de memoria: `F-11` y `F-20` emiten una línea por cada tabla poblada, así que sube o baja con las tablas que tengan filas |
+| Reconstrucción de la aplicación | **Hecha el 2026-08-10.** La aplicación es `_SISGA_-323965761`, **con las 28 tablas dadas de alta y nada más** |
+| Fase B, el editor | **Frente activo, y se repone entero:** las 39 referencias, las 21 reglas, los dos filtros de seguridad, las cuatro marcas de tiempo y retirar `Deletes`. **El encargo entero, generado del modelo y autocontenido, es [`PROMPT_CABLEADO.md`](PROMPT_CABLEADO.md)**, y es lo que se sigue dentro del editor. Complementan: `MANUAL_DESPLIEGUE.md` la ficha por tabla, `GUIA_IMPLEMENTACION_FUNCIONAL.md` cómo se comprueba cada etapa, y `sdd/RECONSTRUCCION_EXPRESIONES.md` las expresiones sin cortar |
 | Migración a la hoja limpia | **CERRADA. Ya no es trabajo de nadie.** La hoja vigente se genera del modelo, así que las columnas sobrantes y las tres trampas no existen. Lo comprueba la regla `F-19` en cada verificación |
 | `ESPEC-003`, modelo de dominio | **BLOQUEADA** por el arquitecto, con 14 condiciones sin resolver. No es un paso disponible: es un documento por terminar |
 | Coordenadas reales (D-01) | Bloqueado por levantamiento en campo |
@@ -211,7 +237,7 @@ corre por el pipeline y cuál no.
 
 **Hubo una especificación de Fase B que hablaba de convertir 15 columnas**, y era correcta sobre la
 aplicación de entonces, donde otras 23 ya estaban puestas. Sobre una aplicación reconstruida no
-sobrevive ninguna: son 38. Ese documento y su orden están retirados, y nunca hubo acta de cierre.
+sobrevive ninguna: son 39. Ese documento y su orden están retirados, y nunca hubo acta de cierre.
 **Cuando una especificación y `modelo_objetivo.py` discrepan, manda el modelo.**
 
 ## 8. Decisión sobre el código QR

@@ -26,8 +26,8 @@ forma de que mienta es que mienta el archivo**.
 | Concepto | Cuántos | Dónde se resuelve |
 |---|---|---|
 | Columnas que siguen siendo `Text` y deben ser `Ref` | **14** | Fase B, `ESPEC-002` |
-| Columnas marcadas como retiradas que siguen en la hoja | **44** | Pasada posterior, con datos ya migrados |
-| Columnas presentes sin decidir todavía | **4** | Decisión de operación |
+| Columnas marcadas como retiradas que siguen en la hoja | **48** | Pasada posterior, con datos ya migrados |
+| Columnas presentes sin decidir todavía | **0** | Decisión de operación |
 | **Total a ocultar al dar de alta las tablas** | **48** | `MANUAL_DESPLIEGUE.md`, anexo |
 | Tablas marcadas como retiradas que siguen en la hoja | 0 | Idem |
 | Tablas del modelo objetivo que ya existen | 28 de 28 | — |

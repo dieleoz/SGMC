@@ -204,7 +204,33 @@ for ruta in documentos():
 # ------------------------------------------------------------------ D-06
 # Columnas que estan en la hoja y el modelo no declara. No fallan -la decision
 # esta declarada como pendiente- pero no se pueden olvidar.
+#
+# El aviso decia "existe en la hoja" SIN ABRIR LA HOJA: lo afirmaba porque
+# COLUMNAS_SIN_DECIDIR lo dice, y esa lista esta escrita a mano. Cuando el
+# 2026-08-10 la plantilla se regenero desde el modelo, las cuatro dejaron de
+# existir y el aviso siguio afirmando que existian. Un aviso que describe algo
+# que ya no esta es peor que no tenerlo: entrena a no leerlos.
+#
+# Ahora se comprueba contra el archivo. Si la columna ya no esta, lo que hay
+# que hacer no es avisar: es sacarla de la lista, y eso si es un fallo.
+try:
+    import openpyxl
+    from sistema import VOLCADO
+    _libro = openpyxl.load_workbook(os.path.join(RAIZ, VOLCADO), read_only=True)
+    _en_hoja = {}
+    for _t in _libro.sheetnames:
+        _fila = next(_libro[_t].iter_rows(min_row=1, max_row=1), None)
+        _en_hoja[_t] = {str(x.value).strip() for x in (_fila or []) if x.value}
+except Exception:
+    _en_hoja = None
+
 for (t, c), motivo in sorted(COLUMNAS_SIN_DECIDIR.items()):
+    if _en_hoja is not None and c not in _en_hoja.get(t, set()):
+        falla("D-06", "%s.%s figura como pendiente de decidir 'porque esta en la "
+                      "hoja', y NO ESTA en %s. La decision ya la tomo la "
+                      "regeneracion: sacala de COLUMNAS_SIN_DECIDIR o vuelve a "
+                      "declararla en el modelo" % (t, c, VOLCADO))
+        continue
     aviso("D-06", "%s.%s existe en la hoja y el modelo no la declara. %s" % (t, c, motivo))
 
 # ------------------------------------------------------------------ D-05

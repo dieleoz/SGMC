@@ -91,7 +91,7 @@ de `PRUEBA-003`.
   órdenes pasaron a apuntar a otro equipo, y la referencia seguía resolviendo.
 - Nueve familias del Plan Maestro colgaban del tipo de otra cosa: **78 activos con el checklist
   equivocado**, y `TipoActivoID` apuntaba a una fila que existe.
-- 113 activos estaban en la unidad funcional equivocada, porque las UF se repartían en cuartos
+- 107 activos estaban en la unidad funcional equivocada, porque las UF se repartían en cuartos
   iguales y no lo son.
 
 **La comprobación de huérfanos contesta «apunta a algo», nunca «apunta a lo correcto».**

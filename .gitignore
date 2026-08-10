@@ -44,3 +44,11 @@ llaves.py
 # Dependencias de Node. Nunca se versionan
 node_modules/
 package-lock.json
+
+# Experimentos de automatizacion del editor de AppSheet por CDP/Playwright.
+# No prosperaron: el cableado se acabo haciendo a mano en el editor y la
+# comprobacion util resulto ser scripts/auditar_cableado.py, que lee el
+# resultado por la API en vez de conducir el navegador. Se quedan en local
+# para no perder el intento, pero no se versionan: seria legado desde el dia
+# uno, y este repositorio se limpio el 2026-08-10 justo para no tener eso.
+scripts/*.js

@@ -10,7 +10,7 @@ Si usted acaba de llegar, busque su rol y empiece por ahí.
 |---|---|
 | Actualizado | 2026-08-10 |
 | Verificado contra | `BD/Modelo_Datos_PLANTILLA.xlsx` y `scripts/modelo_objetivo.py` |
-| El sistema | Aplicación `SISGA_-323965761-26-08-10` sobre la hoja `Modelo_Datos_10082026`. Vuélquelo con `python scripts/sistema.py` |
+| El sistema | Aplicación `_SISGA_-323965761` sobre la hoja `Modelo_Datos_10082026`. Vuélquelo con `python scripts/sistema.py` |
 | Lo que este documento **no** puede verificar | El estado del editor de AppSheet. No tiene API en el plan actual |
 
 > **Un solo sistema, y una sola hoja.** El 2026-08-10 se fijó un punto de partida: la aplicación se
@@ -27,17 +27,24 @@ Si usted acaba de llegar, busque su rol y empiece por ahí.
 los dos filtros de seguridad y las cuatro marcas de tiempo del servidor **están sin poner**. No es
 una lista de retoques: el cableado se repone entero, y es el trabajo del Funcional.
 
-**Nada sale a campo hasta que existan coordenadas reales.** De los **368 activos** de la hoja, 34
-comparten la coordenada `4.728512, -74.114531`, que está en Bogotá, y los **334** restantes llevan
-coordenada propia pero calculada sobre el trazado del corredor. Los 334 lo dicen de sí mismos en
-`ACT_Activos.Observaciones`:
+**Nada sale a campo hasta que existan coordenadas reales.** De los **368 activos** de la hoja,
+**ninguno tiene coordenada**: `ACT_Activos.Ubicacion_LatLong` está vacía en las 368 filas. Antes
+había una coordenada sintética en cada una, y se perdió al renombrar la columna el 2026-08-10;
+tampoco servía, porque ninguna era el sitio real del equipo. Y **334 de esas filas son inventario
+de prueba**, que lo dicen de sí mismas en `ACT_Activos.Observaciones`:
 
 ```
 los 334  ACTIVO SINTETICO DE PRUEBA - NO ES INVENTARIO REAL
 los 34   (Observaciones vacío — no llevan marca, y por eso hay que saberlo de aquí)
 ```
 
-Sirven para probar el sistema. No sirven para cerrar una orden con un técnico delante.
+Sirven para probar la estructura. No sirven para cerrar una orden con un técnico delante — y con la
+coordenada vacía **`DISTANCE()` no da error: rechaza también el cierre legítimo**.
+
+**Lo mismo pasa con la referencia vial.** `ACT_Activos.PK` está poblado en las 368, porque es el
+kilómetro lineal del proyecto; `ACT_Activos.PR` y `ACT_Activos.TramoINVIAS` están **vacíos en las
+368**, y no se deducen del PK. El corredor atraviesa tres rutas de INVÍAS y **tiene dos puntos
+distintos llamados `PR 0+000`**, separados por unos 50 km.
 
 **Los 27 formularios ya tienen banco de preguntas, pero 24 están en borrador.** `FRM_Formularios`
 tiene 27 filas —eran 18 hasta el 2026-08-09, antes de separar las nueve familias que colgaban del
@@ -79,14 +86,19 @@ Cada una con el comando que la produce. Si alguna no cuadra dentro de un mes, ma
 
 | Hecho | Valor | Cómo se comprueba |
 |---|---|---|
-| Tablas, columnas, referencias, reglas del modelo | 28 · 202 · 38 · 20 | `python scripts/validar_modelo.py` |
+| Tablas, columnas, referencias, reglas del modelo | 28 · 211 · 39 · 21 | `python scripts/validar_modelo.py` |
 | El modelo consigo mismo | 0 errores, 3 avisos, `APTO PARA DESPLEGAR` | `python scripts/validar_modelo.py` |
-| La hoja contra el modelo | `FASE A CERRADA`, **52 conformes**, 0 fallos. Son menos que los 61 de las descargas antiguas y está bien: esta hoja va sin registros de prueba, así que las comprobaciones que necesitan filas se saltan | `python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"` |
+| La hoja contra el modelo | `FASE A CERRADA`, **82 conformes**, 4 avisos, 0 fallos. **El recuento se lee de la salida y no se cita de memoria**: `F-11` y `F-20` emiten una línea por cada tabla poblada —20 y 20—, así que el total se mueve con cada tabla que se llena o se vacía | `python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"` |
 | La prosa contra el modelo | `DOCUMENTOS CONSISTENTES CON EL MODELO`, 0 fallos. **El número de documentos y de avisos se mueve** según se retira material y se declaran columnas sin decidir | `python scripts/verificar_documentos.py` |
 | Pestañas | **29**: 28 de datos más `_LEEME`, que no se da de alta. **Ninguna oculta** | `python scripts/verificar_faseA.py`, reglas `F-18` y `F-19` |
 | Tipos de activo y formularios | **27 y 27**, uno por tipo | `TIP_TiposActivo` y `FRM_Formularios` |
 | Preguntas escritas | **333 que cubren los 27 formularios**: 45 acordadas —`FRM_SOS`, `FRM_CCTV`, `FRM_PMVF`— y **288 en borrador** | `FRM_Preguntas`; el borrador se reconoce por `[BORRADOR: validar con operacion]` en `Ayuda` |
-| Activos | **368**: los 34 de fixture, con una sola coordenada en Bogotá, y **334 generados** con coordenada propia | `ACT_Activos`, columna `Ubicacion` |
+| Activos | **368**: 34 del juego de arranque y **334 generados**, marcados como tales en `Observaciones` | Contar filas de `ACT_Activos` |
+| Coordenadas de los activos | **0 de 368.** `ACT_Activos.Ubicacion_LatLong` está vacía en todas | `ACT_Activos`, columna `Ubicacion_LatLong` |
+| Referencia vial de los activos | **`PK` en las 368; `PR` y `TramoINVIAS` vacíos en las 368** | `ACT_Activos`, columnas `PK`, `PR` y `TramoINVIAS` |
+| Claves | **Alfanuméricas con prefijo en las 28 tablas.** `ACT-0001`, `TIP-001`, `UNF-01`, `SED-001`, `USR-001`, `ROL-01`, `EST-01`, `FRE-01`, `CAL-01`, `SEC-01`, `TPR-01` | `python scripts/verificar_faseA.py`, regla `F-20` |
+| Sedes | **6**, y solo el peaje de Machetá tiene `UnidadFuncionalID`, `PR` y `TramoINVIAS` | `SED_Sedes` |
+| Unidades funcionales | **4**, las del contrato, con nombre real y sus dos referencias: `PKInicial`/`PKFinal` y `PRInicial`/`PRFinal` con la ruta dentro | `UNF_UnidadesFuncionales` |
 | Registros de prueba | **Ninguno.** `OT`, `MAN`, `CHK`, `CHD`, `FOT`, `FIR` y `NOV` están vacías | Contar filas de esas pestañas |
 | Radio de geofencing por tipo | **Poblado en los 27**: 0,05 km en 18 tipos, 0,1 km en 8, 1,5 km en la fibra | `TIP_TiposActivo.RadioGeofencingKm` |
 | Umbral de GPS | **40 m** en `PAR_Parametros.UMBRAL_GPS` | `PAR_Parametros`, columna `Valor` |
@@ -94,16 +106,25 @@ Cada una con el comando que la produce. Si alguna no cuadra dentro de un mes, ma
 | Asignaciones de zona | **4**, para cuatro técnicos. **Son cinco los técnicos** | `ASG_AsignacionZona` contra `USR_Usuarios` |
 | Roles poblados | **4** de los 12 oficios del Plan Maestro | `ROL_Roles` |
 
-**Las 47 columnas sobrantes ya no existen: son historia.** Venían del libro heredado, y la hoja
+**Las 48 columnas sobrantes ya no existen: son historia.** Venían del libro heredado, y la hoja
 vigente se genera del modelo. **Ocultarlas no es trabajo de nadie**, y la regla `F-19` lo comprueba
 en cada verificación. Se deja aquí la derivación porque es la que hay que rehacer si alguien vuelve
 a hablar de esa cifra:
 
 ```
-43  columnas declaradas en CAMPOS_RETIRADOS   MAN 13 · CHK 15 · CHD 12 · OT 3
+44  columnas declaradas en CAMPOS_RETIRADOS   CHK 15 · MAN 13 · CHD 12 · OT 3 · USR 1
  4  columnas que están en la hoja y el modelo no declara de ninguna forma
 --
-47  columnas que aparecen en el formulario del técnico y no deberían
+48  columnas que aparecerían en el formulario del técnico y no deberían
+```
+
+**Y la cifra fue 47 hasta el 2026-08-10, sin que nadie se equivocara.** Ese día
+`USR_Usuarios.SedeID` pasó a `CAMPOS_RETIRADOS` —llevaba cuatro días declarada `Ref` obligatoria
+mientras la especificación la daba por descartada— y la suma subió a 48. **Por eso la cifra se
+deriva y no se cita**; aquí va la línea que la produce:
+
+```bash
+python -c "import sys;sys.path.insert(0,'scripts');import modelo_objetivo as M;print(sum(len(v) for v in M.CAMPOS_RETIRADOS.values())+len(M.COLUMNAS_SIN_DECIDIR))"
 ```
 
 Las cuatro sin declarar son `USR_Usuarios.UltimaSincronizacion`, `FOT_Fotografias.Fecha`, y las
@@ -157,13 +178,22 @@ el que menos depende de nadie.
 
 ## Qué tiene que hacer ahora
 
-Todo se hace en el editor de `SISGA_-323965761-26-08-10`. **La aplicación tiene las 28 tablas dadas
-de alta y nada más: el cableado se repone entero.** Dos documentos, y no se solapan:
+Todo se hace en el editor de `_SISGA_-323965761`. **La aplicación tiene las 28 tablas dadas
+de alta y nada más: el cableado se repone entero.**
+
+> **El encargo completo es [`docs/PROMPT_CABLEADO.md`](PROMPT_CABLEADO.md), y es autocontenido.**
+> Se genera del modelo, así que trae los cinco pasos en orden con las 39 referencias, los 12
+> desplegables con sus valores, las 6 coordenadas, las 4 marcas de tiempo y las 21 reglas, sin nada
+> que deducir. **Es lo que hay que seguir dentro del editor.** Lo que viene abajo es el resumen para
+> saber qué se está haciendo y cuánto falta, no una segunda versión del procedimiento: si los dos
+> difieren, manda el generado.
+
+Los demás, y no se solapan:
 
 - `docs/MANUAL_DESPLIEGUE.md` dice **qué** poner, con la ficha de cada tabla columna por columna.
 - `docs/GUIA_IMPLEMENTACION_FUNCIONAL.md` dice **cómo** se procede y **cómo se comprueba** cada
   etapa antes de pasar a la siguiente.
-- `docs/sdd/RECONSTRUCCION_EXPRESIONES.md` §2 trae las 20 expresiones enteras, sin truncar.
+- `docs/sdd/RECONSTRUCCION_EXPRESIONES.md` §2 trae las 21 expresiones enteras, sin truncar.
 
 **0. Antes de nada, dos comprobaciones que solo salen baratas ahora.** Recién dadas de alta las
 tablas, y carísimas después:
@@ -181,7 +211,7 @@ tabla.*
 La lista completa y en orden está en el paso 5 del manual. El orden no es alfabético: primero la
 clave del destino, después quien la apunta. **`MAN_Mantenimientos.OTID` va desmarcado**, y es
 deliberado.
-*Verificable: cuente las columnas de tipo* `Ref`*. Tienen que ser 38.*
+*Verificable: cuente las columnas de tipo* `Ref`*. Tienen que ser 39.*
 
 **2. Quitar `Deletes` en `OT_OrdenesTrabajo` y en `MAN_Mantenimientos`.**
 *Data → Tables → Are updates allowed*, deje `Updates` y `Adds`, quite `Deletes`. **No es opcional y
@@ -195,7 +225,7 @@ seguro porque el mantenimiento nunca se borra.
   `[OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]`. **El radio va por tipo y está poblado en
   los 27**; el literal `1.0` describe el sistema anterior y no se usa.
 - **`Editable_If = FALSE`** en las cuatro columnas de captura —`Coordenadas_Cierre_LatLong`,
-  `Precision_GPS`, `UbicacionEscaneo` y `FechaHoraEscaneo`—. **Sin esto el geofencing es
+  `Precision_GPS`, `UbicacionEscaneo_LatLong` y `FechaHoraEscaneo`—. **Sin esto el geofencing es
   decorativo:** el técnico arrastra el pin del mapa y cierra desde donde quiera.
 - **El umbral de GPS** en `CierreConExcepcion`, con el `OR(ISBLANK(...))` entero. Sin él, borrar la
   fila del parámetro hace que **todos los cierres salgan limpios y nadie se entere**.
@@ -231,7 +261,7 @@ innegociables: `P-05`, `P-09`, `P-12`, `P-16` y `P-27`.
 > **Lo que ya no tiene que hacer.** Ocultar columnas sobrantes y deshacer las tres trampas **salió
 > del plan**: venían del libro heredado y la hoja vigente se genera del modelo. La etapa 6 de la
 > guía funcional está marcada como retirada y trae el comando que lo comprueba. Si alguien le pasa
-> una lista de 47 columnas por ocultar, es del sistema anterior.
+> una lista de columnas por ocultar, es del sistema anterior.
 
 ## Decisiones que dependen de usted y de nadie más
 
@@ -242,9 +272,11 @@ tiene tres cierres reportados que no resistieron la comprobación contra el arch
 
 ## Qué leer
 
+- `docs/PROMPT_CABLEADO.md` — **el encargo entero, autocontenido y generado del modelo.** Empiece por
+  aquí: es lo único que hay que tener abierto mientras se cablea.
 - `docs/MANUAL_DESPLIEGUE.md` — los diez pasos y la ficha de las 28 tablas. Se genera del modelo.
 - `docs/GUIA_IMPLEMENTACION_FUNCIONAL.md` — cómo se procede y cómo se comprueba cada etapa.
-- `docs/sdd/RECONSTRUCCION_EXPRESIONES.md` — las 20 expresiones sin cortar.
+- `docs/sdd/RECONSTRUCCION_EXPRESIONES.md` — las 21 expresiones sin cortar, y las 39 referencias.
 - `docs/sdd/PRUEBA-003-despliegue.md` — cómo se demuestra que funcionó.
 
 ## Cuánto le cuesta
@@ -273,9 +305,10 @@ capturarlas en un recorrido de campo **con el mismo celular que usará el técni
 levantamiento topográfico previo. El `ROADMAP.md` propone hacerlo como la primera orden de trabajo
 del propio sistema, que es la forma barata: se prueba la aplicación y se levanta el dato en el mismo
 viaje.
-*Verificable: ninguna fila de* `ACT_Activos.Observaciones` *dice ya* `ACTIVO SINTETICO DE PRUEBA`
-*ni* `FIXTURE DE LA FASE A`*, y las coordenadas de* `Ubicacion` *son todas distintas y están sobre
-el corredor.*
+*Verificable: ninguna fila de* `ACT_Activos.Observaciones` *dice ya* `ACTIVO SINTETICO DE PRUEBA`*,
+y* `ACT_Activos.Ubicacion_LatLong` *no tiene ninguna celda vacía, con valores todos distintos y
+sobre el corredor.* **Hoy están vacías las 368**, así que el punto de partida es cero, no «hay unas
+coordenadas que hay que mejorar».
 
 **2. Validar los 24 bancos de preguntas que están en borrador.**
 La hoja trae 27 formularios y **333 preguntas que cubren los 27**. Tres están acordados —`FRM_SOS`,
@@ -459,8 +492,8 @@ renombrar una tabla durante el diagnóstico. Rodar atrás no sirve: una pestaña
 hoja y cualquier versión antigua apunta a una pestaña que no existe.
 
 **Lo razonable es despublicarla, y conviene hacerlo pronto.** Entre el 6 y el 10 de agosto quedaron
-**cinco aplicaciones** en pie —las cuatro superadas están nombradas en `scripts/sistema.py` con su
-motivo—. Mientras una aplicación vieja apunte a una hoja viva, sigue pudiendo escribir con permisos
+**seis aplicaciones** en pie —**las cinco superadas** están nombradas en la lista `SUPERADOS` de
+`scripts/sistema.py` con su motivo, junto con las dos hojas que también quedaron atrás—. Mientras una aplicación vieja apunte a una hoja viva, sigue pudiendo escribir con permisos
 que el modelo nuevo ya no concede. El backend es una hoja de cálculo: no impone unicidad, ni tipos,
 ni integridad referencial.
 
@@ -481,22 +514,37 @@ documentación no vuelva a divergir del archivo**, que es la avería que costó 
 
 ## Qué tiene que hacer, cada vez
 
-**1. Correr los cuatro verificadores antes de dar nada por cerrado.** Ninguno sustituye a otro.
+**1. Correr los cinco verificadores antes de dar nada por cerrado.** Ninguno sustituye a otro.
 
 | Script | Mide | Estado hoy |
 |---|---|---|
 | `python scripts/validar_modelo.py` | El modelo consigo mismo | `APTO PARA DESPLEGAR`, 0 errores |
-| `python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"` | El modelo contra la hoja | `FASE A CERRADA`, 52 conformes, 0 fallos |
+| `python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"` | El modelo contra la hoja | `FASE A CERRADA`, 82 conformes, 4 avisos, 0 fallos |
 | `python scripts/verificar_documentos.py` | La prosa contra el modelo | `DOCUMENTOS CONSISTENTES CON EL MODELO`, 0 fallos |
 | `python scripts/verificar_enlaces.py` | Que todo enlace entre documentos resuelve | Se corre al mover, renombrar o retirar cualquier documento |
+| `python scripts/verificar_reproducible.py` | Que generar la plantilla dos veces dé lo mismo | Se corre al tocar `generar_plantilla.py` o cualquier cosa que siembre claves |
+
+**El quinto se añadió el 2026-08-10 y nació de lo que los otros cuatro no pueden ver.** Al resembrar
+las claves numéricas a `SED-001`, `USR-001` y las demás, el generador dejó de ser idempotente: la
+garantía de catálogo buscaba las filas **por clave**, la resiembra cambiaba esa clave, y en la pasada
+siguiente las volvía a añadir. `SED_Sedes` acabó con las seis edificaciones **duplicadas**, y cada
+ejecución habría añadido seis más. **Pasó los otros cuatro**: el modelo era coherente, la Fase A
+cerraba, la prosa cuadraba y los enlaces resolvían. Los cuatro miran un archivo, y ese defecto solo
+existe **entre dos ejecuciones**.
 
 **`validar_modelo.py` en 0 errores es el único gate objetivo.** Lo que ninguno mide es si algo es
 buena idea.
 
 **2. No editar a mano lo que se genera.** Un cambio de diseño se hace en `scripts/modelo_objetivo.py`
 y de ahí salen `docs/ARQUITECTURA_OBJETIVO_SGMC.md`, `docs/MANUAL_DESPLIEGUE.md`,
-`docs/GUIA_IMPLEMENTACION_FUNCIONAL.md` y `docs/bd.md`. Editar el documento en vez del generador
-garantiza que dentro de dos días diga otra cosa que el archivo.
+`docs/GUIA_IMPLEMENTACION_FUNCIONAL.md`, `docs/REGLAS_DEL_MODELO_DE_DATOS.md`,
+`docs/PROMPT_CABLEADO.md`, `docs/sdd/RECONSTRUCCION_EXPRESIONES.md` y `docs/bd.md`. Editar el
+documento en vez del generador garantiza que dentro de dos días diga otra cosa que el archivo.
+
+**Y antes de cambiar el modelo, `docs/REGLAS_DEL_MODELO_DE_DATOS.md`.** Reúne las diez reglas que
+manda el motor —clave alfanumérica, sufijo `_LatLong`, referencias a mano, y las demás—, cada una
+con el fallo del que salió y **quién la hace cumplir**. Se genera de `modelo_objetivo.py`, así que
+sus listas no pueden derivar.
 
 ```
 1. editar  scripts/modelo_objetivo.py
@@ -527,8 +575,8 @@ Revisado el 2026-08-10. **Los cuatro puntos que había aquí están cerrados**, 
 qué los cerró para que nadie los vuelva a abrir.
 
 **1. La plantilla ya pasa la Fase A. CERRADO.** Traía cinco fallos —`F-15` sobre la fila 34 y cuatro
-`F-16` de tipo mezclado en las claves— y hoy devuelve `FASE A CERRADA` con **52 conformes y 0
-fallos**:
+`F-16` de tipo mezclado en las claves— y hoy devuelve `FASE A CERRADA` con **82 conformes, 4 avisos
+y 0 fallos**:
 
 ```bash
 python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"
@@ -561,7 +609,7 @@ seguidas dan las 29 pestañas idénticas.
 
 ## Cuánto le cuesta
 
-**Minutos por cambio, si se hace en el orden correcto.** Los cuatro verificadores tardan segundos.
+**Minutos por cambio, si se hace en el orden correcto.** Los cinco verificadores tardan segundos.
 Los arreglos de arriba están cerrados; lo que queda es no volver a abrirlos.
 
 ---
