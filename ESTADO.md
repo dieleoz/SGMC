@@ -125,22 +125,55 @@ coordenada, la fecha, el decimal— y qué columnas hay que completar.
 
 ### Lo que sí está anclado en fuente
 
-**Las cuatro unidades funcionales son las reales**, de la ANI: Sisga–Guateque (49 km),
-Guateque–Macanal (22), Macanal–Santa María (18) y Santa María–San Luis de Gaceno–Aguaclara (47).
-**No son cuartos iguales**, que es como estaban repartidas hasta el 2026-08-10 — y al corregirlo
-resultó que **103 de los 368 activos estaban en la unidad funcional equivocada**. Importa porque
-`RG-04` filtra por UF: cada técnico habría visto un conjunto de activos que no es el suyo.
+**Las cuatro unidades funcionales son las del contrato**, Apéndice Técnico 1, Tabla 3:
 
-**El origen del corredor es el PR 0+000 de la Ruta INVÍAS `55CN03`**, sector El Sisga.
+```
+UF1  Sisga - Machetá - Manta - Guateque                      50,01 km
+UF2  Guateque - Garagoa - Macanal                            22,00 km
+UF3  Macanal - Santa María                                   17,80 km
+UF4  Santa María - Cachipay - San Luis de Gaceno - Aguaclara 47,36 km
+```
 
-> **Y de ahí sale una carencia del modelo que no se puede tapar con datos: un PR no identifica un
-> punto por sí solo.** Los PR pertenecen a un tramo de INVÍAS y **cada tramo reinicia su
-> numeración**; este corredor cruza Cundinamarca, Boyacá y Casanare, así que atraviesa varios. Dos
-> equipos a 60 km uno de otro pueden estar los dos en el «PR 34+500».
+**No son cuartos iguales**, que es como estaban repartidas hasta el 2026-08-10. Al corregirlo
+resultó que **113 de los 368 activos estaban en la unidad funcional equivocada**. Importa porque
+`RG-04` filtra por UF: cada técnico habría visto un conjunto de activos que no es el suyo, y nada lo
+habría detectado, porque la referencia resolvía.
+
+> **Y el contrato prueba una carencia del modelo que hasta ahora era una sospecha: un PR no
+> identifica un punto.** El corredor **atraviesa tres rutas de INVÍAS**, no una — `55CN03` del
+> PR0+0+000 al PR6+194, `5607` del PR7+146 al PR46+080 y `5608` del PR0+000 al PR92+048.
 >
-> Lo resuelve el **PK**, que es lineal y continuo de 0 a 137,03 en todo el corredor. Están
+> **Hay dos puntos distintos llamados «PR 0+000»**: el arranque en El Sisga sobre la `55CN03` y
+> Guateque sobre la `5608`, separados por unos 50 km. Un técnico enviado al «PR 0+000» no sabe a
+> cuál de los dos.
+>
+> Lo resuelve declarar la ruta, o el **PK**, que es lineal y continuo en todo el corredor. Están
 > declaradas como columnas propuestas `ACT_Activos.PK` y `ACT_Activos.TramoINVIAS`, sin implementar:
 > es cambio de modelo y pasa por especificación.
+
+### Quince túneles, y un tercio de la UF3 bajo tierra
+
+El contrato los lista con su PR de entrada y salida —tablas 13, 19 y 20—. Son **7.224 metros**, y
+no están repartidos: **la UF3 tiene once túneles que suman 6.000 de sus 17.800 metros**. Un tercio
+de ese tramo va bajo tierra, con `El Polvorín` de 1.649 m como el más largo.
+
+> **Dentro de un túnel el GPS no fija posición, y `RG-01` comprueba la distancia al activo al
+> cerrar.** Todo equipo dentro de un túnel **falla esa comprobación siempre**, por diseño y no por
+> avería.
+>
+> Hoy eso se manejaría como excepción caso por caso, y el supervisor vería a un técnico acumulando
+> cierres con excepción **sin saber que es el túnel y no el técnico**. Está declarada la tabla
+> `TUN_Tuneles` en `PROPUESTAS`, sin especificar.
+
+Y el contrato apunta otra cosa: **la ventilación de los túneles figura como `N/A`** y lo único que
+exige es iluminación. Si no hay ventilación ni detección de incendios, esos túneles no aportan los
+activos que cabría esperar — pero **falta leer la página 27**, donde continúa la tabla de los cinco
+últimos.
+
+**Y el contrato da el dato que a `SED_Sedes` le faltaba:** el peaje de Machetá está en el
+**PR27+240 de la Ruta 5607**, cobro bidireccional, unidad funcional 1. El de San Luis de Gaceno
+aparece en el mapa del contrato marcado como **peaje nuevo**, sin fila de tabla ni abscisa: está
+proyectado, no construido. `SED_Sedes` los lista como si los dos existieran.
 
 ### Por qué el catálogo tiene 27 tipos y el Plan Maestro 18 familias
 

@@ -910,6 +910,17 @@ CLAVE_GENERADA = {
 # verificar_documentos.py falla si una tabla aparece aqui y en MODELO a la vez.
 # Esa comprobacion es lo unico que impide repetirlo.
 PROPUESTAS = {
+    "TUN_Tuneles": ("Los 15 tuneles del corredor, con su PR de entrada y salida. "
+                    "DENTRO DE UN TUNEL EL GPS NO FIJA POSICION, y RG-01 comprueba la "
+                    "distancia al activo al cerrar: todo equipo dentro de un tunel falla esa "
+                    "comprobacion SIEMPRE, por diseno y no por averia. Hoy eso se manejaria "
+                    "como excepcion caso por caso y el supervisor veria a un tecnico "
+                    "acumulando cierres con excepcion sin saber que es el tunel y no el "
+                    "tecnico. Con los tramos declarados se sabe de antemano. No es marginal: "
+                    "son 7.224 metros, y en la UF3 son 6.000 de sus 17.800 -un tercio del "
+                    "tramo va bajo tierra-. Datos en el contrato, Apendice Tecnico 1, "
+                    "tablas 13, 19 y 20",
+                    "sin especificar"),
     "TAR_Tareas": ("Un tipo de equipo tiene VARIAS tareas, cada una con su "
                    "periodicidad y su formulario. Hoy la periodicidad cuelga del "
                    "activo y el formulario del tipo, y ambos sitios son erroneos",
@@ -969,11 +980,13 @@ COLUMNAS_PROPUESTAS = {
         "El tramo al que pertenece el PR, con la nomenclatura de INVIAS: 55CN03 es Ruta "
         "Nacional 55, codigo departamental CN de Cundinamarca, tramo 03. La concesion arranca "
         "en el PR 0+000 de ese tramo, en El Sisga. "
-        "POR QUE HACE FALTA: un PR SOLO NO IDENTIFICA UN PUNTO. Los PR pertenecen al tramo y "
-        "cada tramo reinicia su numeracion, y este corredor cruza Cundinamarca, Boyacá y "
-        "Casanare, asi que atraviesa varios. Dos equipos a 60 km uno de otro pueden estar los "
-        "dos en el 'PR 34+500'. Hoy ACT_Activos.PR guarda el numero sin el tramo, de modo que "
-        "el dato es ambiguo en cuanto se pasa de tramo, y nada lo detecta.",
+        "POR QUE HACE FALTA, y no es una hipotesis: EL CORREDOR TIENE DOS PUNTOS DISTINTOS "
+        "LLAMADOS 'PR 0+000'. Uno es el arranque de la concesion en El Sisga, sobre la 55CN03; "
+        "el otro es Guateque, sobre la 5608. Estan a unos 50 km. Cada ruta reinicia su "
+        "numeracion, asi que el mismo PR designa sitios distintos segun la ruta, y hoy "
+        "ACT_Activos.PR guarda el numero sin ella. El dato es ambiguo y nada lo detecta: un "
+        "tecnico enviado al 'PR 0+000' no sabe a cual de los dos. Lo resuelve declarar la ruta, "
+        "o el PK, que es lineal y continuo en todo el corredor.",
     ("ACT_Activos", "ActivoPadreID"):
         "Ref a ACT_Activos. El equipo compuesto: un panel de mensaje variable tiene portico, "
         "fuentes y camaras, y hoy cada pieza seria un activo suelto sin nada que diga de quien "

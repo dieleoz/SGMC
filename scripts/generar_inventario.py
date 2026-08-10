@@ -45,19 +45,26 @@ TRAZADO = [
     (4.795, -73.020, "El Secreto"),
     (4.780, -72.900, "Aguaclara"),
 ]
-LARGO_KM = 137.03   # longitud oficial del corredor
-# Confirmado el 2026-08-10 contra la ANI y el Ministerio de Transporte.
+LARGO_KM = 137.17   # suma de las cuatro Unidades Funcionales del contrato
+# Apendice Tecnico 1, Tabla 3, paginas 5 y 6: 50,01 + 22,00 + 17,80 + 47,36.
+# La ANI y el Ministerio publican 137 km, y otros documentos del proyecto 137,03.
+# Se usa la del contrato porque es la fuente contractual, y porque el propio
+# contrato advierte que las longitudes son aproximadas y que mandan los PR.
 #
-# EL ORIGEN, que da operacion: la concesion arranca en el PR 0+000 de la Ruta
-# INVIAS 55CN03 -Ruta Nacional 55, codigo departamental CN de Cundinamarca,
-# tramo 03-, sector El Sisga.
+# EL CORREDOR ATRAVIESA TRES RUTAS DE INVIAS, no una (Tabla 1, pagina 4):
 #
-# Y de ahi sale una distincion que el modelo todavia no representa: el PK es
-# lineal y continuo de 0 a 137,03 en todo el corredor, mientras que el PR
-# pertenece a un tramo de INVIAS y REINICIA en cada uno. Como el corredor cruza
-# Cundinamarca, Boyaca y Casanare, un PR sin su tramo no identifica un punto.
-# Lo que este script genera es PR sin tramo, asi que vale para repartir los
-# activos por el corredor y NO vale como referencia de campo.
+#   55CN03   Cruce Ruta 55, Desviacion del Sisga   PR0+0+000 -> PR6+194
+#   5607     Choconta (Brisas)                     PR7+146   -> PR46+080
+#   5608     Guateque                              PR0+000   -> PR92+048
+#
+# Y AQUI ESTA LA PRUEBA DE QUE UN PR NO IDENTIFICA UN PUNTO: el corredor tiene
+# DOS puntos distintos llamados "PR 0+000" -el arranque en el Sisga sobre la
+# 55CN03 y Guateque sobre la 5608-, separados por unos 50 km. La ambiguedad no
+# es una hipotesis: esta en la tabla del contrato.
+#
+# El PK, que es lineal y continuo de 0 al final, si identifica. Lo que este
+# script genera es PR sin ruta, asi que vale para repartir los activos por el
+# corredor y NO vale como referencia de campo.
 
 # El trazado de arriba es una aproximacion de 7 puntos: su poligonal mide menos
 # que el corredor real, que serpentea. El PR se escala a los 137,03 oficiales
@@ -102,15 +109,29 @@ def pr(frac):
 # se alejaba de los extremos.
 #
 # (id, nombre, km_desde, km_hasta)
+#
+# Estas son las del CONTRATO, Apendice Tecnico 1, Tabla 3, paginas 5 y 6.
+# Sustituyen a las de la pagina de la ANI, que venian redondeadas -49, 22, 18 y
+# 47- y con los nombres cortos. El contrato manda.
 UNIDADES = [
-    (7,  "Sisga - Guateque",                              0.0,  49.0),
-    (8,  "Guateque - Macanal",                           49.0,  71.0),
-    (9,  "Macanal - Santa Maria",                        71.0,  89.0),
-    (10, "Santa Maria - San Luis de Gaceno - Aguaclara", 89.0, 136.0),
+    (7,  "Sisga - Macheta - Manta - Guateque",                     0.00,  50.01),
+    (8,  "Guateque - Garagoa - Macanal",                          50.01,  72.01),
+    (9,  "Macanal - Santa Maria",                                 72.01,  89.81),
+    (10, "Santa Maria - Cachipay - San Luis de Gaceno - Aguaclara", 89.81, 137.17),
 ]
-# Las cuatro suman 136 km y la longitud oficial son 137,03. La diferencia sale
-# de que la ANI publica las longitudes redondeadas. El ultimo tramo se estira
-# hasta el final para que ningun activo quede fuera de toda unidad funcional.
+
+# LOS LIMITES DE VERDAD SON PR, NO KILOMETROS, y el contrato lo dice: "las
+# longitudes son aproximadas. El Concesionario sera responsable de ejecutar las
+# obras correspondientes a la longitud efectiva de cada Unidad Funcional
+# considerando los PR inicial y final identificados en las tablas anteriores"
+# (Tabla 3, nota 1, pagina 6). Los kilometros de arriba son la suma acumulada de
+# las longitudes por UF y sirven para repartir activos sinteticos; para situar un
+# equipo de verdad se usa su PR con su ruta.
+#
+#   UF1  Sisga PR0+0+000 (55CN03)      -> Guateque PR4+885 (5608)    50,01 km
+#   UF2  Guateque PR4+885 (5608)       -> Macanal PR26+879 (5608)    22,00 km
+#   UF3  Macanal PR26+879 (5608)       -> Santa Maria PR44+680       17,80 km
+#   UF4  Santa Maria PR44+680 (5608)   -> Aguaclara PR92+048 (5608)  47,36 km
 
 
 def unidad_funcional(frac):
