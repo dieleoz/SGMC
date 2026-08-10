@@ -98,13 +98,27 @@ que llega solo con tiempo, y no llega — llega con la decisión de licenciamien
 
 ## 3. Estado por fase
 
+> ### La decisión del 2026-08-09, que reordena lo que queda
+>
+> **Se migra a la hoja limpia, y el Excel del repositorio es lo que se entrega.** El funcional parte
+> de ese archivo y desde ahí sigue las guías, así que tiene que salir generado y limpio, no ser una
+> hoja heredada con 47 columnas escondidas encima.
+>
+> **Lo que cambia:** ocultar esas 47 en la aplicación **deja de estar en el plan** — desaparecen del
+> archivo, y con ellas las tres trampas. Lo que queda en el editor son dos cosas, la regla del
+> umbral de GPS y las tres expresiones de prueba.
+>
+> **Lo que abre:** `scripts/generar_plantilla.py`, que todavía no existe. Hoy la plantilla no la
+> reproduce ningún comando, y eso la convierte en un artefacto que se conserva en vez de generarse.
+> Es lo primero al retomar.
+
 | Fase | Estado | Criterio de cierre |
 |---|---|---|
 | Sprint 0. Definición funcional | **Cerrado por supuestos.** No se espera respuesta | Los catorce adoptados por escrito en `ALCANCE_Y_SUPUESTOS_SGMC.md`, con su estado de cierre |
 | Fase 0.5. Reconciliación de modelos | **CERRADA** el 2026-08-07 | `modelo_objetivo.py` es la fuente única; los documentos se generan de él. Ver 4.5 |
 | **Fase A. La hoja** | **CERRADA.** Actas `ACTA-001` a `ACTA-004` | `verificar_faseA.py` en 0 fallos. Hoy: **61 conformes** sobre `Modelo_Datos_09082026.xlsx` y **60** sobre `Modelo_Datos_PLANTILLA.xlsx` |
 | Reconstrucción de la aplicación | **HECHA** el 2026-08-09 | `SISGA`, con las 28 tablas dadas de alta sobre la hoja |
-| **Fase B. Cableado y reglas** | **En ejecución** | Las **38** referencias puestas —ya lo están—, las sobrantes ocultas o migradas, y `PRUEBA-003` pasada |
+| **Fase B. Cableado y reglas** | **En ejecución** | Las **38** referencias puestas —ya lo están—, la migración a la hoja limpia hecha, y `PRUEBA-003` pasada |
 | Fase 1. Datos maestros | Bloqueada por D-01 y D-09 | Coordenadas reales cargadas, sedes realineadas, bancos de preguntas construidos |
 | Fase 2. Configuración de interfaz | Bloqueada por Fase 1 y por declarar vistas | Reportes y pantallas construidos. **Antes hay que declarar la interfaz en el modelo**: hoy no tiene vistas, ni acciones, ni slices |
 | Fase 3. Prueba controlada | Bloqueada por Fase 2 | Registros reales en `MAN_Mantenimientos` y en las tablas de evidencia, verificados leyendo el archivo |

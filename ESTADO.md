@@ -8,11 +8,16 @@ Actualizado el 2026-08-09.
 
 ```
 Aplicación   SISGA
-             https://www.appsheet.com/template/appdef?appId=9e947fce-c445-4477-af20-a6c6c984bd1e
+             https://www.appsheet.com   ->   entrar por el listado de aplicaciones
 
-Datos        Modelo_Datos_09082026   ·   32 pestañas   ·   propiedad de la Concesión
+Datos        Modelo_Datos_09082026   ·   32 pestañas   ·   0 ocultas
              https://docs.google.com/spreadsheets/d/1LGabjn1iNDKiJNP7CUD4_LwCH2BGXC8oTBfXmuuAkFs
 ```
+
+> **El enlace directo a la aplicación que había aquí daba 404**, y también `/Home/MyApps`. El
+> `appId=9e947fce-...` no resuelve. `SISGA` sí existe y aparece en el listado de
+> `https://www.appsheet.com`, junto a `SGMC2` y al `SGMC` de la cuenta anterior, los dos con aviso
+> de error. **Hasta tener el identificador bueno, se entra por el listado**, no por enlace directo.
 
 ## En una frase
 
@@ -51,20 +56,24 @@ El agente del editor avanzó bastante antes de que se parara. **Esto es lo que q
 | # | Qué | Por qué importa |
 |---|---|---|
 | 1 | **La regla del umbral de GPS con el `OR(ISBLANK(...))`** | Sin él, si alguien borra la fila del parámetro **todos los cierres salen limpios y nadie se entera** |
-| 2 | **Las columnas retiradas, a medias** | Quedaron por `FOT_Fotografias`, `FRM_Formularios`, `FRM_Preguntas` y `USR_Usuarios` |
+| 2 | ~~Las columnas retiradas, a medias~~ | **Ya no aplica.** Ver la decisión de abajo |
 | 3 | **Las tres expresiones de prueba** | Es lo que dice si el cableado funciona de verdad |
 
-Todo en [`docs/prompts/PROMPT_CONTINUAR_DESPLIEGUE.md`](docs/prompts/PROMPT_CONTINUAR_DESPLIEGUE.md).
+La 1 y la 3 siguen pendientes, en
+[`docs/prompts/PROMPT_CONTINUAR_DESPLIEGUE.md`](docs/prompts/PROMPT_CONTINUAR_DESPLIEGUE.md).
 
-> ## Pero antes hay una decisión
+> ## La decisión, tomada el 2026-08-09: la hoja limpia
 >
-> **Si se migra a la hoja limpia, el punto 2 deja de hacer falta.** Las 47 columnas desaparecen del
-> archivo en vez de esconderse en la aplicación, y con ellas las tres trampas.
+> **El funcional parte del Excel que le entreguemos y a partir de ahí sigue las guías.** Por eso lo
+> que se le entrega tiene que salir limpio del repositorio, no ser una hoja heredada con 47 columnas
+> escondidas encima.
 >
-> **No termine de ocultar hasta decidirlo:** sería trabajo que se tira.
+> **Eso cancela el punto 2.** Las 47 columnas desaparecen del archivo en vez de esconderse en la
+> aplicación, y con ellas las tres trampas. Ocultarlas ahora sería trabajo que se tira.
 >
-> El coste está medido en [`docs/MIGRACION_HOJA_LIMPIA.md`](docs/MIGRACION_HOJA_LIMPIA.md): 8 tablas
-> de 28 y 14 reglas a reponer.
+> El coste de la migración está medido en
+> [`docs/MIGRACION_HOJA_LIMPIA.md`](docs/MIGRACION_HOJA_LIMPIA.md): 8 tablas de 28 y 14 reglas a
+> reponer.
 
 ## 3. La plantilla de datos
 
@@ -104,6 +113,37 @@ Se regenera con:
 python scripts/generar_hoja_limpia.py "BD/<origen>.xlsx"
 python scripts/generar_inventario.py
 ```
+
+> **A medio hacer, y es lo primero al retomar.** Esos dos comandos **no reproducen la plantilla**:
+> dan la estructura y los 355 por separado. Unirlos, añadir `_LEEME` y poblar el radio no está
+> escrito en ningún script, así que hoy la plantilla es un artefacto que se conserva, no que se
+> genera — justo lo que este proyecto decidió no volver a tener.
+>
+> **Y arrastra un defecto de datos que ya está resuelto en el catálogo, pero no en el archivo.**
+
+### El catálogo de tipos, corregido el 2026-08-09
+
+**Había dos taxonomías y nadie lo había escrito.** `TIP_TiposActivo` tenía 18 tipos, que es lo que
+decide **qué checklist ve el técnico**; el Plan Maestro tiene 18 familias, que es como operación
+cuenta los equipos. **No son la misma lista.** Nueve familias no tenían tipo propio y se colgaban
+del tipo de otra cosa:
+
+```
+la impresora heredaba el checklist del NAS
+el portátil, el del servidor
+el carril de peaje, el de la báscula
+```
+
+**Eran 78 activos de 355 —el 22%— con el checklist equivocado.** Y como `TipoActivoID` resolvía
+contra una fila que existe, **ningún verificador lo veía**: es el mismo patrón que el inventario que
+pisó los 34 reales.
+
+**`scripts/catalogo_tipos.py` lo cierra** como fuente única de los dos generadores: 27 tipos —los 18
+de siempre más los 9 que faltaban—, cada familia con tipo, checklist y radio propios. Trae
+`comprobar()`, que falla si dos familias comparten tipo o si un tipo se queda sin radio.
+
+**Falta llevarlo al archivo:** `BD/Modelo_Datos_PLANTILLA.xlsx` todavía tiene los 18 tipos viejos y
+los 78 activos mal asignados. Eso es `generar_plantilla.py`, que no existe todavía.
 
 ## 4. Qué leer, según lo que necesite
 

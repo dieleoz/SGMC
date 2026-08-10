@@ -539,6 +539,27 @@ retiradas», «las trampa» o «los valores correspondientes», esta mal escrita
 `SLICES` no existen en `modelo_objetivo.py` —comprobado—, asi que el paso de vistas del manual
 sigue siendo «se construye sola», exactamente la clase de instruccion que esta regla prohibe.
 
+## 7.10 Dos taxonomias con el mismo nombre (regla nueva, 2026-08-09)
+
+`TIP_TiposActivo` tenia 18 tipos. El Plan Maestro tiene 18 familias. **Nadie habia escrito que no
+son la misma lista**, y como los dos numeros coincidian, parecia que si.
+
+No lo eran. Nueve familias no tenian tipo propio y colgaban del tipo de otra cosa: la impresora
+heredaba el checklist del NAS, el portatil el del servidor, el carril de peaje el de la bascula.
+**78 activos de 355 —el 22%— con el checklist equivocado.**
+
+**Y ningun verificador lo veia, por la misma razon de siempre: la referencia resolvia.**
+`TipoActivoID = 17` apunta a una fila que existe. `V-05` comprueba que no haya huerfanos, y no los
+habia. Es el mismo patron que el inventario sintetico que reescribio los 34 activos reales.
+
+**La regla: dos listas del mismo tamano no son la misma lista.** Cuando dos vocabularios describen
+lo mismo desde sitios distintos —el catalogo de la aplicacion y el inventario de operacion—, la
+correspondencia entre ellos **se escribe y se comprueba**, no se supone. Vive en
+`scripts/catalogo_tipos.py`, con `comprobar()`, que falla si dos familias comparten tipo.
+
+**Lo que hay que preguntarse ante una referencia que resuelve:** no «apunta a algo», sino **«apunta
+a lo correcto»**. Lo primero lo dice un verificador; lo segundo hay que derivarlo del dominio.
+
 ## 8. Deriva documental: ahora es mecanica
 
 Este archivo llevaba una lista escrita a mano de contradicciones conocidas entre documentos. Esa
