@@ -24,33 +24,46 @@ una afirmación falsa que alguien crea.
 
 ### 1. Declara contra cuál de los dos modelos estás mirando
 
-El Excel local y el Sheets de producción **son modelos distintos y ninguno es superconjunto del
-otro**. Toda afirmación es ambigua hasta que digas cuál leíste.
+Cuál es la aplicación y cuál es la hoja vigentes **no se copia a mano**: sale de
+`python scripts/sistema.py`, que también lista las aplicaciones y hojas superadas para poder
+reconocerlas. Un identificador que no aparezca ahí como vigente no es este sistema.
+
+El volcado local (`BD/Modelo_Datos_PLANTILLA.xlsx` hoy, según ese mismo script) y el Sheets de
+producción **pueden divergir en cuanto operación empiece a completar la hoja a mano**: mientras la
+hoja publicada sea exactamente la plantilla generada son el mismo archivo, pero eso deja de ser
+cierto en el momento en que alguien edita el Sheets directamente. Toda afirmación es ambigua hasta
+que digas cuál de los dos leíste.
 
 ```bash
 python -c "
 import openpyxl
-wb = openpyxl.load_workbook('BD/Modelo de Datos (2).xlsx', read_only=True)
+wb = openpyxl.load_workbook('BD/Modelo_Datos_PLANTILLA.xlsx', read_only=True)
 ws = wb['NOMBRE_TABLA']
 print([c.value for c in next(ws.iter_rows(min_row=1,max_row=1))])
 "
 ```
 
-Para producción, el conector de Google Drive con
-`fileId = 1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc`. **El Sheets es el que corre la app**: ante
-discrepancia, manda producción.
+Para producción, el conector de Google Drive con el `fileId` que `scripts/sistema.py` declara como
+`HOJA_ID`. **El Sheets es el que corre la app**: ante discrepancia, manda producción.
 
 ### 2. Separa estructura de población
 
 Que la columna exista no significa que tenga datos. Que la tabla exista no significa que el flujo
-se haya ejercitado nunca. `MAN_Mantenimientos`, `FOT_Fotografias`, `FIR_Firmas` y `GPS` están
-vacías. Cuenta filas, no supongas.
+se haya ejercitado nunca. `MAN_Mantenimientos`, `FOT_Fotografias` y `FIR_Firmas` están vacías.
+Cuenta filas, no supongas. (`GPS` no es una de las 28 tablas del modelo vigente: está en
+`RETIRADAS` de `scripts/modelo_objetivo.py` porque duplicaba `Coordenadas_Cierre` y
+`Precision_GPS` de `MAN_Mantenimientos` y nunca recibió un registro. Si la encuentras citada en un
+documento, es deriva.)
 
 ### 3. Busca el campo lleno que disfraza el vacío
 
-Es el error más caro de este proyecto y el más difícil de ver. `ACT_Activos.CodigoQR` está poblado
-en los 34 activos y parece resuelto; su valor es una copia literal de `CodigoActivo`, y no existe
-ninguna etiqueta física. Cuando encuentres un campo poblado, **mira los valores**, no el conteo.
+Es el error más caro de este proyecto y el más difícil de ver. Verificado hoy contra
+`BD/Modelo_Datos_PLANTILLA.xlsx`: `ACT_Activos.CodigoQR` trae valor en solo 33 de los 368 activos,
+copia literal de `CodigoActivo` (`SOS-001`, `CCTV-001`...); en los 335 restantes está en blanco.
+Ninguno de los dos estados es un código QR real: los 33 son el ejemplo autocompletado de la
+plantilla (§3 de `ESTADO.md`), y no existe ninguna etiqueta física — el código QR está fuera de
+alcance desde el 2026-08-07. Cuando encuentres un campo poblado, **mira los valores**, no el
+conteo.
 
 ## Qué entregas
 

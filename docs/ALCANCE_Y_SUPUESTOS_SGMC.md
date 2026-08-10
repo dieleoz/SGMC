@@ -7,8 +7,10 @@
 > D-03, D-04, D-06, D-07, D-08, D-10 y D-11, las ocho del apartado 3.2—, y alguna se cerró con un
 > valor distinto del que aquí se propuso.
 >
-> - **La aplicación se reconstruyó desde cero.** `SGMC-886843353` se abandonó; la nueva es `SISGA`.
-> - **La hoja se genera del modelo**, no se hereda: `BD/Modelo_Datos_PLANTILLA.xlsx`.
+> - **La aplicación se reconstruyó desde cero**, y la vigente es `SISGA_-323965761-26-08-10`. Las
+>   aplicaciones y hojas superadas están nombradas, con su motivo, en `scripts/sistema.py`.
+> - **La hoja se genera del modelo**, no se hereda: `BD/Modelo_Datos_PLANTILLA.xlsx` es el mismo
+>   archivo que está publicado como `Modelo_Datos_10082026`.
 > - **D-02 se cerró con otros números.** Aquí se proponían 200 m; lo que hay es radio por familia
 >   de activo, entre 50 m y 1,5 km.
 > - **D-04 se cerró con 40 m, no con 50.**
@@ -48,15 +50,20 @@ ser el validador de algo que puede tocar.
 No es el alcance mínimo. Es el sistema que se puede usar y del que se puede opinar. La columna de
 la derecha dice dónde está hoy cada dimensión:
 
+**Antes de leer la columna de la derecha:** declarada en el modelo, presente en la hoja y montada en
+la aplicación son tres cosas distintas. La aplicación de hoy tiene **las 28 tablas dadas de alta y
+nada más**; referencias, reglas y filtros están sin poner. Donde abajo dice «declarado», léase que la
+expresión existe escrita y verificada, no que esté configurada.
+
 | Dimensión | Alcance | Hoy |
 |---|---|---|
-| Modelo de datos | Referencias cableadas de extremo a extremo, sin tablas huérfanas ni duplicadas | **Hecho.** 28 tablas, 202 columnas, 38 referencias |
-| Formularios | Los 27 tipos de activo con banco de preguntas redactado | **1 de 27** en la plantilla. `FRM_Preguntas` tiene 15 filas, todas de `FRM_SOS` |
-| Flujos | Preventivo programado, correctivo desde campo, segunda visita, devolución y aprobación | Preventivo sí. Correctivo no: no hay criticidad, ni hora de aviso, ni escalado |
-| Evidencia | Fotografías y firma con una sola vía de captura | **Hecho.** `FOT_Fotografias` y `FIR_Firmas`, con `IsPartOf` |
-| Control | Geofencing operativo con excepción supervisada | Puesto. **No probado**: falta la coordenada real (D-01) |
+| Modelo de datos | Referencias cableadas de extremo a extremo, sin tablas huérfanas ni duplicadas | **Declarado.** 28 tablas, 202 columnas, 38 referencias, 20 reglas, `validar_modelo.py` en 0 errores. **Sin cablear en la aplicación** |
+| Formularios | Los 27 tipos de activo con banco de preguntas redactado | **Redactado: 27 de 27.** `FRM_Preguntas` tiene **333 filas**; 288 llevan `[BORRADOR: validar con operacion]` y 45 —SOS, CCTV y PMV fijo— ya estaban acordadas |
+| Flujos | Preventivo programado, correctivo desde campo, segunda visita, devolución y aprobación | Preventivo sí. Correctivo no: no hay criticidad, ni hora de aviso, ni escalado. La devolución no tiene estado al que mover la orden |
+| Evidencia | Fotografías y firma con una sola vía de captura | **Declarado.** `FOT_Fotografias` y `FIR_Firmas` como tablas hijas con `IsPartOf`, y los campos embebidos retirados |
+| Control | Geofencing operativo con excepción supervisada | **Declarado**, con el radio por tipo poblado en los 27. **Sin poner en la aplicación y sin probar**: falta la coordenada real (D-01) |
 | Reportes | Los seis reportes propuestos, construidos y con datos | **No.** El modelo no declara vistas, acciones ni slices |
-| Datos | Toda la base poblada con datos de prueba realistas | **Hecho.** 389 activos en la plantilla: 34 de fixture y 355 sintéticos |
+| Datos | Toda la base poblada con datos de prueba realistas | **A medias.** 368 filas en `ACT_Activos` —334 sintéticas y 34 del juego de arranque— y los catálogos completos, pero **ningún registro transaccional**: `OT`, `MAN`, `CHK`, `CHD`, `FOT`, `FIR`, `NOV` y `PLA` están vacías |
 | Documentación | Manual de uso por rol, con modos, usos y reportes explicados | Reparto por rol en `INDICACIONES_POR_ROL.md`. El manual de usuario **no se entrega** |
 
 ---
@@ -78,7 +85,7 @@ siguen siendo suposiciones.**
 | D-07 | Trabajo incompleto | Cierre parcial con motivo tipificado que genera orden de seguimiento. Devolución reabre el mismo registro con traza | **CERRADA en el motivo, ABIERTA en la segunda visita** |
 | D-08 | Activo no inventariado | El técnico levanta novedad con foto y coordenada; el supervisor decide el alta. Fuera de servicio genera orden correctiva automática | **CERRADA en la estructura.** El alta automática no |
 | D-09 | Tipos priorizados | **Se construyen los 27.** Se redactan a partir de los tres existentes y de la práctica de mantenimiento; el funcional corrige sobre texto concreto | **ABIERTA en la validación, no en la redacción.** Los 27 formularios de la plantilla tienen banco de preguntas: 3 acordados —SOS, CCTV y PMV fijo, 15 cada uno— y 24 en borrador, con sus 288 preguntas marcadas `[BORRADOR: validar con operacion]` |
-| D-10 | Evidencia | Tablas hijas para fotografías y firmas. Mínimo 3 fotos, máximo 6, tipificadas. El supervisor aprueba en el portal, no firma en campo | **CERRADA.** Falta declarar los valores de `FIR_Firmas.TipoFirma` |
+| D-10 | Evidencia | Tablas hijas para fotografías y firmas. Mínimo 3 fotos, máximo 6, tipificadas. El supervisor aprueba en el portal, no firma en campo | **CERRADA, y entera.** `FIR_Firmas.TipoFirma` **ya declara sus valores**: la lista es `Tecnico`, y solo ese, que es lo coherente con que el supervisor no firme. Lo que ninguna regla impone todavía es el mínimo y el máximo de fotografías |
 | D-11 | Trazabilidad | El detalle guarda `PreguntaID`; los formularios se versionan | **CERRADA** |
 | D-12 | Reportes | Se construyen los seis propuestos. Productividad del técnico queda desactivado por defecto | **ABIERTA.** El modelo no describe interfaz |
 | D-13 | Indicadores | Cumplimiento sobre órdenes cerradas en fecha. Excepción de GPS cuenta como cumplida y se reporta aparte. Disponibilidad por tiempo fuera de servicio | **ABIERTA** |
@@ -104,22 +111,41 @@ lleva dónde vive la decisión, para que nadie la vuelva a abrir por escrito.
 | D-10 | `FOT_Fotografias` y `FIR_Firmas` como tablas hijas con `IsPartOf`; los campos de imagen y firma embebidos en `MAN_Mantenimientos` están retirados | `CAMPOS_RETIRADOS` en `scripts/modelo_objetivo.py` |
 | D-11 | `CHD_ChecklistDetalle.PreguntaID` es referencia a `FRM_Preguntas`, y `CHK_Checklists.VersionFormulario` congela la versión con `RG-09` | `python scripts/validar_modelo.py` |
 
-**Dos avisos que estas decisiones dejan abiertos y no son supuestos, son trabajo:** `QuienCambia`
-no la impone ninguna regla, y `FIR_Firmas.TipoFirma` no tiene valores declarados. Los dos están en
-`FUNCIONAL_SGMC.md` §4.
+**Un aviso que estas decisiones dejan abierto y no es un supuesto, es trabajo:** `QuienCambia` está
+escrita y poblada en las siete filas, y **ninguna de las 20 reglas del modelo la lee**. Hasta que
+alguna lo haga, la separación entre quien ejecuta y quien certifica está descrita y no aplicada. Está
+en `FUNCIONAL_SGMC.md` §4.
 
 ### 3.3 Lo que sigue abierto
 
 | # | Qué falta decidir | Quién |
 |---|---|---|
-| D-01 | Las coordenadas reales. Los 34 activos de fixture comparten una coordenada de Bogotá y los 355 sintéticos llevan coordenadas interpoladas sobre el corredor. **Ninguna sirve para cerrar una orden con un técnico delante** | Operación |
+| D-01 | Las coordenadas reales. Los 34 activos del juego de arranque comparten una coordenada de Bogotá y las 334 filas sintéticas llevan coordenadas interpoladas sobre el corredor. **Ninguna sirve para cerrar una orden con un técnico delante** | Operación |
 | D-05 | Qué pasa si la inspección se interrumpe. No hay columna de «en curso» ni regla que la cierre en la jornada | Operación |
 | D-07 | Si volver es `MAN_Mantenimientos.RequiereSegundaVisita` o una orden nueva encadenada por `OT_OrdenesTrabajo.OTOrigenID`. **Los dos existen en el modelo**, que es exactamente lo que la regla de una sola forma por propósito prohíbe | Operación |
-| D-09 | Los 26 bancos de preguntas que faltan, uno por cada formulario de la plantilla salvo `FRM_SOS` | Operación |
+| D-09 | **Validar las 288 preguntas en borrador**, repartidas en 24 de los 27 formularios. No están por escribir: están escritas y marcadas `[BORRADOR: validar con operacion]` en su ayuda. Buscar esa marca en la hoja dice exactamente qué queda | Operación |
 | D-12 | Los seis reportes. Antes hace falta declarar la interfaz: hoy `modelo_objetivo.py` no tiene vistas, ni acciones, ni slices | Operación, y luego quien construya |
 | D-13 | La definición de cumplimiento y disponibilidad, si van a interventoría | Operación y Dirección |
 | D-14 | Accesos de interventoría y regla escrita de quién edita el backend | Dirección |
 | — | Los cinco tipos que no se visitan —antivirus, licencias, certificados SSL, radios e internet—: camino sin evidencia de coordenada, o fuera de alcance | Operación |
+
+### 3.4 Cuáles de estos supuestos no caben en el modelo de hoy
+
+**Distinguir «falta decidirlo» de «no hay dónde ponerlo» evita construir dos veces.** Contrastado
+contra las 28 tablas y 202 columnas de `scripts/modelo_objetivo.py`:
+
+| # | Qué le falta al modelo | Cabe hoy |
+|---|---|---|
+| D-05 | Ninguna columna dice que una inspección quedó en curso. `CHK_Checklists.Finalizado` distingue terminado de no terminado, pero **nada la cierra en la jornada** ni marca el borrador local | Sí: es una regla, no una tabla |
+| D-06 | El rechazo necesita **una fila `Devuelta` en `EOT_EstadosOrden`**. `MAN_Mantenimientos.ObservacionRechazo` ya existe. Imponer `QuienCambia` es una regla sobre una columna que ya está poblada | Sí, sin tocar el esquema |
+| D-12 | `modelo_objetivo.py` **no tiene vistas, ni acciones, ni slices**. No es que falten reportes: falta la capa donde declararlos | No. Es una estructura nueva en el modelo |
+| D-13 | Cumplimiento es «planeadas contra ejecutadas», y **no hay puente entre `PLA_PlanMantenimiento` y `OT_OrdenesTrabajo`**: ninguna columna de la orden dice qué fila del plan satisface. `validar_modelo.py` ya lo avisa con `V-06`, «`PLA_PlanMantenimiento` no es referenciada por nadie». Disponibilidad necesita además el tiempo fuera de servicio, que hoy no se registra | No. Necesita `TAR_Tareas` y una referencia desde la orden |
+| — | Los cinco tipos sin ubicación **no tienen fila** en `TIP_TiposActivo`, y `ACT_Activos.Ubicacion` es obligatoria para todos. Faltaría `TIP_TiposActivo.SeVisita`, ya declarada en `COLUMNAS_PROPUESTAS` | No |
+
+**Y al revés, lo que ya está y algún documento anterior daba por pendiente:** el radio de geofencing
+por tipo, poblado en los 27; el umbral de GPS como parámetro y no como literal; los valores de
+`FIR_Firmas.TipoFirma`; los modos de falla, con `FAL_ModosFalla` poblada; y la segunda visita
+encadenada, con `OT_OrdenesTrabajo.OTOrigenID`.
 
 ### 3.1 D-09 diverge de lo que se envió al funcional
 
@@ -135,11 +161,11 @@ patrón existente, y el líder técnico corrige sobre texto concreto. Redactar e
 es barato.
 
 El riesgo que permanece es distinto y hay que nombrarlo, y con el catálogo de 27 pesa más que
-antes: **cerca de cuatrocientas preguntas escritas por quien no hace el mantenimiento** —26 bancos
-por las 15 preguntas del molde de `FRM_SOS`—. Saldrán razonables por venir del patrón de los tres
-existentes, pero no
-son la práctica real del equipo. Deben presentarse como borrador técnico, nunca como definitivas,
-y la revisión del líder técnico es obligatoria antes del piloto.
+antes: **288 preguntas escritas por quien no hace el mantenimiento**, repartidas en 24 bancos de
+entre 10 y 13 preguntas. Saldrán razonables por venir del patrón de los tres existentes, pero no
+son la práctica real del equipo. Por eso **cada una lleva `[BORRADOR: validar con operacion]` en su
+ayuda**: la marca es la que distingue lo acordado de lo redactado, y el día que no aparezca ninguna
+el banco está cerrado. La revisión del líder técnico es obligatoria antes del piloto.
 
 Si al revisar aparece que la mayoría no sirve, se vuelve a la propuesta original de tres tipos.
 
@@ -174,12 +200,11 @@ Un supuesto corregido no es un error del método: es el método funcionando.
 ## 6. Relación con los documentos existentes
 
 - El documento de mesa de trabajo y su correo **ya se enviaron**. No se remiten de nuevo. Lo que
-  responda el líder funcional se contrasta contra estos supuestos y se integra. El documento está
-  en [`historico/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md`](historico/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md).
+  responda el líder funcional se contrasta contra estos supuestos y se integra. El documento era
+  `DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md`, retirado en la limpieza del 2026-08-10.
 - `ESTADO.md` dice dónde va el proyecto hoy. **Es la verdad del estado**; este documento solo dice
   bajo qué supuestos se construyó.
 - `docs/ROADMAP.md` §2 recoge el orden de implementación y por qué es ese.
 - `docs/INDICACIONES_POR_ROL.md` reparte por rol lo que sigue abierto en el apartado 3.3.
-- La directiva de construcción original está en
-  [`historico/PROMPT_CONSTRUCCION_SGMC.md`](historico/PROMPT_CONSTRUCCION_SGMC.md); la vigente es
-  [`prompts/PROMPT_CONTINUAR_DESPLIEGUE.md`](prompts/PROMPT_CONTINUAR_DESPLIEGUE.md).
+- La directiva de construcción original, `PROMPT_CONSTRUCCION_SGMC.md`, y la que la sucedió,
+  `PROMPT_CONTINUAR_DESPLIEGUE.md`, se retiraron en la limpieza del 2026-08-10.

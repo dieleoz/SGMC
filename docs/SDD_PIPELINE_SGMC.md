@@ -1,6 +1,6 @@
 # Pipeline SDD del SGMC
 
-> ## Qué cambió desde que se escribió (2026-08-09)
+> ## Qué cambió desde que se escribió (revisado el 2026-08-10)
 >
 > **El pipeline sigue vigente y sus cinco agentes existen**, con los modelos que esta tabla declara:
 > `sgmc-especificador`, `sgmc-verificador`, `sgmc-arquitecto`, `sgmc-ejecutor` y `sgmc-probador`,
@@ -9,12 +9,14 @@
 > Lo que cambió es **el frente sobre el que corre**:
 >
 > - **La Fase A dejó de ser trabajo manual sobre el Sheets.** La hoja se genera del modelo con
->   `scripts/generar_hoja_limpia.py`. Sus especificaciones `ESPEC-001`, `001B` y `001C` están en
->   `historico/`, ejecutadas y cerradas.
-> - **La Fase B dejó de ser «convertir 15 columnas».** La aplicación `SGMC-886843353` se abandonó y
->   **se reconstruyó desde cero como `SISGA`**, porque *Regenerate* fusiona en vez de reemplazar.
->   Sobre una aplicación nueva no sobrevive ninguna referencia: son **38**. `ORDEN-002`, que
->   autorizaba la conversión sobre la aplicación vieja, está en `historico/` sin acta de cierre.
+>   `python scripts/generar_plantilla.py`, y dos ejecuciones seguidas dan las 29 pestañas idénticas.
+> - **La Fase B dejó de ser «convertir 15 columnas».** La aplicación se reconstruyó desde cero,
+>   porque *Regenerate* fusiona en vez de reemplazar. Sobre una aplicación nueva no sobrevive
+>   ninguna referencia: son **38**.
+> - **El 2026-08-10 se fijó un punto de partida y se volvió a reconstruir.** El sistema es la
+>   aplicación `SISGA_-323965761-26-08-10` sobre la hoja `Modelo_Datos_10082026`; las cinco
+>   aplicaciones y las tres hojas anteriores están nombradas en `scripts/sistema.py` con el motivo
+>   por el que dejaron de serlo. **La aplicación tiene las 28 tablas dadas de alta y nada más.**
 > - **El apartado 7 está reescrito** con los frentes de hoy.
 >
 > Lo que no cambió, y es lo importante: nada se ejecuta contra producción sin las tres firmas, y
@@ -23,7 +25,7 @@
 Cómo se construye cualquier cambio en este proyecto: especificado y probado sobre papel y sobre el
 modelo **antes** de gastar tokens y riesgo manejando el navegador contra producción.
 
-Adoptado el 7 de agosto de 2026. Revisado el 9 de agosto de 2026.
+Adoptado el 7 de agosto de 2026. Revisado el 10 de agosto de 2026.
 
 ## 1. Por qué existe
 
@@ -127,7 +129,13 @@ Todos en `docs/sdd/`, numerados en serie y compartiendo número dentro de un mis
 
 **Un acta no caduca:** registra un hecho fechado y se queda en `docs/sdd/` aunque después se
 demuestre que lo que certificó era incompleto. Las especificaciones y las órdenes sí caducan, y
-cuando su frente se cierra o se abandona pasan a `docs/historico/` con el motivo.
+cuando su frente se cierra o se abandona se retiran del repositorio.
+
+> **La limpieza del 2026-08-10 retiró también las actas**, junto con `docs/historico/` entero.
+> Fue deliberado: al fijar un punto de partida, todo lo que certificaba estados anteriores describía
+> un sistema que ya no existe, y un documento vigente que remita a él manda a quien retoma el
+> proyecto al sitio equivocado. **Lo retirado no se perdió**: la etiqueta
+> `antes-de-la-limpieza-2026-08-10` devuelve el repositorio entero tal como estaba.
 
 ## 5.1 Dos fases, dos gates de peso distinto
 
@@ -169,10 +177,11 @@ huérfana.
 **Toda fila de prueba lleva el prefijo `TEST-` en su clave, y el paso que la borra se escribe en la
 misma especificación que la crea.** No en otra, y no «después».
 
-No es celo: es que este proyecto ya arrastra basura de prueba en producción. `CHK_Checklists`
-todavía tiene una fila con `TecnicoID = "Santiago Moreno"` y `FechaInicio = "NOW()"` como texto
-literal. Entró así, sin marca y sin fecha de caducidad, y hoy es una tarea de limpieza. Poblar sin
-esta regla es fabricar el próximo hallazgo.
+No es celo: es que este proyecto ya lo pagó. `CHK_Checklists` llegó a tener una fila con
+`TecnicoID = "Santiago Moreno"` y `FechaInicio = "NOW()"` como texto literal, entrada sin marca y
+sin fecha de caducidad. **La hoja vigente va sin registros de prueba** —`OT`, `MAN`, `CHK`, `CHD`,
+`FOT`, `FIR` y `NOV` están vacías, y se comprueba contando sus filas—, y es la primera vez que eso
+pasa. Poblar sin esta regla es fabricar el próximo hallazgo.
 
 ## 6. Qué NO pasa por el pipeline
 
@@ -187,23 +196,23 @@ en `scripts/modelo_objetivo.py`.**
 
 ## 7. Estado de los frentes
 
-Actualizado el 2026-08-09. **La verdad del estado está en `ESTADO.md`**; esto solo dice qué frente
+Actualizado el 2026-08-10. **La verdad del estado está en `ESTADO.md`**; esto solo dice qué frente
 corre por el pipeline y cuál no.
 
 | Frente | Estado |
 |---|---|
-| Fase A, la hoja | **CERRADA.** Actas `ACTA-001` a `ACTA-004`. Hoy la hoja se genera del modelo y la fase se reduce a verificarla: `FASE A CERRADA` sobre las dos, con **61 conformes** en `BD/Modelo_Datos_09082026.xlsx` y **52** en `BD/Modelo_Datos_PLANTILLA.xlsx` — son menos porque la plantilla va sin registros de prueba y las comprobaciones que necesitan filas se saltan |
-| Reconstrucción de la aplicación | **Hecha.** `SGMC-886843353` se abandonó; la aplicación es `SISGA`, con las 28 tablas dadas de alta y las 38 referencias puestas |
-| Fase B, el editor | **Frente activo, en cierre. Faltan dos cosas:** el `OR(ISBLANK(...))` de la regla del umbral de GPS y correr las tres expresiones de prueba. Todo lo demás del editor está hecho. Guion en `prompts/PROMPT_CONTINUAR_DESPLIEGUE.md` |
-| Migración a la hoja limpia | **Decidida el 2026-08-09: se migra.** Preparada y sin ejecutar; el procedimiento y su coste están en `MIGRACION_HOJA_LIMPIA.md`. Con ella las columnas sobrantes desaparecen del archivo, así que **ocultarlas salió del plan** y ya no es trabajo de nadie |
+| Fase A, la hoja | **CERRADA.** Hoy la hoja se genera del modelo y la fase se reduce a verificarla: `FASE A CERRADA` con **52 conformes** sobre `BD/Modelo_Datos_PLANTILLA.xlsx`. Son menos que los 61 de las descargas antiguas porque esta hoja va sin registros de prueba y las comprobaciones que necesitan filas se saltan |
+| Reconstrucción de la aplicación | **Hecha el 2026-08-10.** La aplicación es `SISGA_-323965761-26-08-10`, **con las 28 tablas dadas de alta y nada más** |
+| Fase B, el editor | **Frente activo, y se repone entero:** las 38 referencias, las 20 reglas, los dos filtros de seguridad, las cuatro marcas de tiempo y retirar `Deletes`. Qué poner: `MANUAL_DESPLIEGUE.md`. Cómo y cómo se comprueba: `GUIA_IMPLEMENTACION_FUNCIONAL.md`. Las expresiones enteras: `sdd/RECONSTRUCCION_EXPRESIONES.md` |
+| Migración a la hoja limpia | **CERRADA. Ya no es trabajo de nadie.** La hoja vigente se genera del modelo, así que las columnas sobrantes y las tres trampas no existen. Lo comprueba la regla `F-19` en cada verificación |
 | `ESPEC-003`, modelo de dominio | **BLOQUEADA** por el arquitecto, con 14 condiciones sin resolver. No es un paso disponible: es un documento por terminar |
 | Coordenadas reales (D-01) | Bloqueado por levantamiento en campo |
 | Código QR | **Fuera de alcance por decisión del 2026-08-07.** Ver sección 8 |
 
-**`ESPEC-002` y `ORDEN-002` describían la Fase B sobre la aplicación anterior**, donde quedaban 15
-columnas por convertir porque otras 23 ya estaban puestas. Sobre una aplicación reconstruida no
-sobrevive ninguna: son 38. La orden nunca se cerró y no hay `ACTA-005`. **Cuando una especificación
-y `modelo_objetivo.py` discrepan, manda el modelo.**
+**Hubo una especificación de Fase B que hablaba de convertir 15 columnas**, y era correcta sobre la
+aplicación de entonces, donde otras 23 ya estaban puestas. Sobre una aplicación reconstruida no
+sobrevive ninguna: son 38. Ese documento y su orden están retirados, y nunca hubo acta de cierre.
+**Cuando una especificación y `modelo_objetivo.py` discrepan, manda el modelo.**
 
 ## 8. Decisión sobre el código QR
 
@@ -211,9 +220,9 @@ Se descarta del alcance actual. La razón es de secuencia, no de mérito: **prim
 funcionar el ciclo básico.**
 
 Lo verificado, que se conserva porque el hallazgo es real: `ACT_Activos.CodigoQR` está poblado en
-los 34 activos, pero su valor es una copia literal de `CodigoActivo` (`SOS-001`, `CCTV-001`). Nada
-en el repositorio genera, imprime ni asigna una etiqueta física, y AppSheet **lee** códigos pero no
-los produce.
+**34 de los 368 activos** de la hoja vigente, y en 33 de esos 34 su valor es una copia literal de
+`CodigoActivo` (`SOS-001`, `CCTV-001`). Nada en el repositorio genera, imprime ni asigna una
+etiqueta física, y AppSheet **lee** códigos pero no los produce.
 
 Consecuencias de descartarlo, que hay que asumir a conciencia:
 

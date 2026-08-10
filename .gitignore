@@ -31,3 +31,12 @@ Thumbs.db
 
 # Scripts de trabajo desechables
 scripts/scratch_*.py
+
+# Archivos de claves y credenciales (SEGUROS)
+.env
+.env.*
+!.env.example
+credentials.json
+*_llaves.py
+llaves.py
+

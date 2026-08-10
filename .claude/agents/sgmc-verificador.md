@@ -64,8 +64,9 @@ error genérico de AppSheet. Es la que casi siempre falta, y la única que demue
 validación existe. Una regla de geofencing que nunca ha rechazado un cierre no está probada.
 
 **3. Prueba de lectura de vuelta.** El dato llegó **al Sheets**, no solo a la pantalla. La app puede
-mostrar un registro guardado que no sincronizó. Se lee con el conector de Drive,
-`fileId = 1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc`.
+mostrar un registro guardado que no sincronizó. Se lee con el conector de Drive, sobre el `fileId`
+que `python scripts/sistema.py` declara como `HOJA_ID` — vuélcalo antes de usarlo, no lo copies de
+memoria ni de una tanda anterior.
 
 ## Antes de escribir la tanda
 

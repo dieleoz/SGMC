@@ -5,7 +5,7 @@ Lo lee del ARCHIVO, no de la memoria de nadie. Cruza lo que la hoja tiene hoy
 contra lo que scripts/modelo_objetivo.py dice que debe tener, y marca cada
 columna con su estado.
 
-Uso:  python scripts/generar_diccionario_bd.py "BD/Modelo_Datos_09082026.xlsx"
+Uso:  python scripts/generar_diccionario_bd.py "BD/Modelo_Datos_PLANTILLA.xlsx"
 
 Por que se genera y no se escribe
 ---------------------------------
@@ -23,6 +23,7 @@ import sys
 from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from sistema import APP_NOMBRE, HOJA_NOMBRE, VOLCADO
 from modelo_objetivo import (MODELO, RENOMBRADOS, RETIPADOS, CAMPOS_RETIRADOS,
                              COLUMNAS_SIN_DECIDIR,
                              RETIRADAS, PARAMETROS)
@@ -33,7 +34,7 @@ except ImportError:
     print("Falta openpyxl."); sys.exit(2)
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ruta = sys.argv[1] if len(sys.argv) > 1 else "BD/Modelo_Datos_09082026.xlsx"
+ruta = sys.argv[1] if len(sys.argv) > 1 else VOLCADO
 if not os.path.isabs(ruta):
     ruta = os.path.join(RAIZ, ruta)
 SALIDA = os.path.join(RAIZ, "docs", "bd.md")
@@ -95,8 +96,8 @@ w("forma de que mienta es que mienta el archivo**.")
 w("")
 w("| | |")
 w("|---|---|")
-w("| Backend de producción | Google Sheets `Modelo_Datos_09082026` |")
-w("| Aplicación | AppSheet `SISGA` |")
+w("| Backend de producción | Google Sheets `%s` |" % HOJA_NOMBRE)
+w("| Aplicación | AppSheet `%s` |" % APP_NOMBRE)
 w("| Archivo leído | `%s` |" % os.path.basename(ruta))
 w("| Hojas | **%d** |" % len(hojas))
 w("| Filas con datos | **%d** |" % sum(n_filas.values()))
@@ -217,7 +218,7 @@ for h in hojas:
 
 w("---")
 w("*Documento generado. Para actualizarlo, descarga la hoja a `BD/` y ejecuta*")
-w("*`python scripts/generar_diccionario_bd.py \"BD/Modelo_Datos_09082026.xlsx\"`.*")
+w("*`python scripts/generar_diccionario_bd.py \"BD/Modelo_Datos_PLANTILLA.xlsx\"`.*")
 
 with open(SALIDA, "w", encoding="utf-8") as f:
     f.write("\n".join(L) + "\n")

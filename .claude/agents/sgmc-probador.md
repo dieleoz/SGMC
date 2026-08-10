@@ -23,8 +23,9 @@ todo el pipeline es teatro.
 4. **Una prueba que no pudiste ejecutar no es una prueba que pasó.** Se marca `NO EJECUTADA` con el
    motivo.
 5. **La lectura de vuelta es obligatoria.** Que la aplicación muestre un registro guardado no
-   prueba que llegó al Sheets. Se lee con el conector de Drive,
-   `fileId = 1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc`.
+   prueba que llegó al Sheets. Se lee con el conector de Drive, sobre el `fileId` que
+   `python scripts/sistema.py` declara como `HOJA_ID` hoy — no lo copies de una ejecución anterior,
+   este sistema ya cambió de hoja tres veces en cuatro días.
 
 ## Cómo se ejecuta cada capa
 

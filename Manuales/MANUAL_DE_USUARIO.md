@@ -1,37 +1,40 @@
 # Manual de usuario y guía de operación — SGMC
 
 **Sistema de Gestión de Mantenimiento en Campo**
-Concesión Transversal del Sisga S.A.S. · Google AppSheet **`SISGA`**
+Concesión Transversal del Sisga S.A.S. · Google AppSheet **`SISGA_-323965761-26-08-10`**
 
 Reescrito el 2026-08-07 contra [`docs/FUNCIONAL_SGMC.md`](../docs/FUNCIONAL_SGMC.md) y verificado
 sobre `scripts/modelo_objetivo.py`. **La versión anterior describía un sistema que no existe** —
 incluía escáner QR, que se retiró del alcance, e indicaba editar la tabla de respuestas para cambiar
 las preguntas, lo que corrompe el histórico.
 
-**Cabecera y recuadro de estado actualizados el 2026-08-09** contra [`ESTADO.md`](../ESTADO.md), que
-es el estado vigente. La aplicación anterior, `SGMC-886843353`, **se abandonó**: el 2026-08-09 se
-reconstruyó desde cero sobre la hoja `Modelo_Datos_09082026`. Si alguien le pasa un enlace a
-`SGMC-886843353`, no es este sistema.
+**Cabecera y recuadro de estado actualizados el 2026-08-10** contra [`ESTADO.md`](../ESTADO.md), que
+es el estado vigente. Ese día se fijó un punto de partida: la aplicación se reconstruyó desde cero
+sobre una hoja generada del modelo, `Modelo_Datos_10082026`. **Entre el 6 y el 10 de agosto hubo
+cinco aplicaciones y tres hojas.** Los nombres de las superadas están en `scripts/sistema.py`, con
+el motivo de cada una; para verlos, `python scripts/sistema.py`. Si alguien le pasa un enlace que no
+sea el de arriba, no es este sistema.
 
 > ## Antes de usar este manual
 >
-> **El sistema está en construcción.** Lo que sigue describe cómo se opera, y una parte todavía no
-> está montada. Cada apartado afectado lo dice en su sitio, y el resumen es este:
+> **El sistema está en construcción, y está menos avanzado de lo que decían las versiones anteriores
+> de este manual.** Lo que sigue describe cómo se opera; buena parte todavía no está montada. Cada
+> apartado afectado lo dice en su sitio, y el resumen es este:
 >
 > | Función | Estado |
 > |---|---|
-> | Órdenes, checklist, fotografías, firmas, histórico | Construido. Las 28 tablas dadas de alta en la aplicación reconstruida |
-> | Referencias entre tablas | **Puestas.** Las 38 del modelo, con `IsPartOf` en las cuatro que lo llevan |
-> | Radio de cierre por tipo de activo | **Vacío en la hoja que la aplicación lee.** Sus 18 tipos lo tienen en blanco, así que rige el literal de 1,0 km para todos. Los valores por familia —0,05 / 0,1 / 1,5 km— están en `Modelo_Datos_PLANTILLA.xlsx`, poblados en sus 27 tipos, y esa hoja **no está desplegada** |
-> | Que la coordenada de cierre no se pueda mover a mano | **Impuesto.** `Editable_If = FALSE` en las cuatro columnas de captura |
-> | Que no se pueda borrar una orden ni una ejecución | **Impuesto.** Se retiró el botón de borrado en las dos tablas: un error se corrige con `Activo = FALSE`, que deja traza |
+> | Órdenes, checklist, fotografías, firmas, histórico | **Solo las tablas.** Las 28 dadas de alta sobre la hoja limpia, y nada más |
+> | Referencias entre tablas | **Sin poner.** Las 38 del modelo se reponen enteras: la aplicación se reconstruyó desde cero |
+> | Radio de cierre por tipo de activo | **Poblado en los 27 tipos** de la hoja vigente: 0,05 km en 18, 0,1 km en 8 y 1,5 km en la fibra. **Falta cablear la regla que lo lee** |
+> | Que la coordenada de cierre no se pueda mover a mano | **Pendiente.** `Editable_If = FALSE` está especificado y no puesto |
+> | Que no se pueda borrar una orden ni una ejecución | **Pendiente.** Falta retirar `Deletes` en las dos tablas |
+> | Que cada técnico solo descargue lo de sus zonas | **Pendiente.** Los dos filtros de seguridad —activos por unidad funcional, órdenes por técnico— están especificados y no puestos |
 > | Que el técnico no pueda cerrar su propia orden | **Pendiente.** Está definido en el catálogo de estados, no impuesto como regla |
-> | Coordenadas de los activos | **No son las reales.** De los 389 de la plantilla, 34 comparten una coordenada en Bogotá y 355 son sintéticas repartidas sobre el corredor. **Ninguna sirve para operar** |
+> | Coordenadas de los activos | **No son las reales.** De los **368** de la hoja vigente, 34 comparten una coordenada en Bogotá y **334** llevan coordenada propia, pero calculada sobre el trazado y no medida. **Ninguna sirve para operar** |
 > | Creación automática de las órdenes del mes | **No cabe en el plan actual** |
 >
-> **Lo que falta para que el geofencing funcione de verdad son las coordenadas**, no el cableado.
-> Con las de hoy, cualquier cierre en la vía queda fuera de rango y cualquier cierre en Bogotá queda
-> dentro.
+> **Y aunque se cableara todo mañana, faltarían las coordenadas.** Con las de hoy, cualquier cierre
+> en la vía queda fuera de rango y cualquier cierre en Bogotá queda dentro.
 
 ---
 
@@ -69,6 +72,9 @@ está previsto y no construido.
 3. El sistema descarga a su teléfono **solo los activos y las órdenes de las unidades funcionales
    que tiene asignadas**. Si no ve un activo que espera ver, el problema está en su asignación de
    zona, no en la aplicación — ver 6.2.
+
+> **Estado:** ese recorte todavía no está puesto. Hasta que se cablee, la aplicación descarga el
+> inventario entero a todos los teléfonos.
 
 ### 3.2 El día de trabajo
 
@@ -128,14 +134,21 @@ Conviene saber qué prueba y qué no: **confirma que usted estaba cerca, no que 
 trabajando**. Lo que sí aporta valor son las fotografías, porque cada una lleva su propia
 coordenada y su hora.
 
-> **Estado: hoy el radio no depende del tipo.** En la hoja que la aplicación lee, la columna está
-> **vacía en sus 18 tipos** —comprobado en Drive el 2026-08-09—, así que rige un literal de 1,0 km
-> para todo, del poste al tramo de fibra. Los valores por familia —0,05 km, 0,1 km o 1,5 km— existen
-> en `BD/Modelo_Datos_PLANTILLA.xlsx`, poblados en los 27 tipos que esa hoja trae, y **no está
-> desplegada**.
+Los radios están puestos por familia en la hoja vigente, en `TIP_TiposActivo.RadioGeofencingKm`:
+
+```
+0,05 km   18 tipos   poste SOS, cámaras, sensores, paso seguro y equipos de TI
+0,1  km    8 tipos   paneles de mensaje variable, básculas, peajes, generador y subestación
+1,5  km    1 tipo    el tramo de fibra, que es lineal
+```
+
+> **Estado: el radio está en la hoja, pero la regla que lo lee todavía no está puesta.** Los 27
+> tipos lo traen poblado —se comprueba sobre `BD/Modelo_Datos_PLANTILLA.xlsx`, que es el mismo
+> archivo publicado como `Modelo_Datos_10082026`—, y lo que falta es cablear el cierre en la
+> aplicación. **El radio no se ajusta en la tabla de parámetros:** ver 5.4.
 >
-> Y aunque lo estuviera, **la coordenada del activo tampoco es la real**: ninguna de las 389 lo es.
-> Hasta cargarlas, la comprobación de distancia no significa nada en campo.
+> Y aunque estuviera cableado, **la coordenada del activo tampoco es la real**: ninguna de las 368
+> lo es. Hasta cargarlas, la comprobación de distancia no significa nada en campo.
 
 ## 4. Guía del supervisor
 
@@ -221,11 +234,13 @@ la aplicación.
 ### 5.4 Parámetros
 
 El umbral de precisión de GPS se ajusta **en la tabla de parámetros**, sin abrir el editor de la
-aplicación.
+aplicación. Hoy vale **40 metros**.
 
 **El radio de cierre no está ahí: va por tipo de activo**, en el campo `RadioGeofencingKm` de la
-tabla de tipos. La tabla de parámetros conserva un radio general, pero es un valor provisional que
-la regla de cierre ya no usa.
+tabla de tipos, y está poblado en los 27 —los valores están en 3.5—. La tabla de parámetros
+conserva un `RADIO_GEOFENCING_KM` de 1 km, pero es un **valor provisional histórico que la regla de
+cierre no lee**. Cambiarlo ahí no cambia nada: si alguien le dice lo contrario, está describiendo
+el sistema anterior.
 
 ## 6. Problemas frecuentes
 

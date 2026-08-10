@@ -323,7 +323,7 @@ Taxonomia de activos. Determina que checklist abre la aplicacion.
 | `TipoActivoID` | Text | PK |  |  |  |
 | `Nombre` | Text |  |  | Sí |  |
 | `Categoria` | Enum |  |  |  |  |
-| `FormularioID` | Ref |  | `FRM_Formularios` | Sí | Sin este mapeo no hay checklist dinamico. Estuvo vacio en la hoja de la aplicacion abandonada SGMC-886843353, y de ahi viene el aviso. HOY ESTA POBLADO EN LAS DOS HOJAS VIVAS: 18 de 18 en la de produccion y 27 de 27 en la plantilla |
+| `FormularioID` | Ref |  | `FRM_Formularios` | Sí | Sin este mapeo no hay checklist dinamico. Estuvo vacio en la hoja de la aplicacion anterior, y de ahi viene el aviso. HOY ESTA POBLADO EN LAS DOS HOJAS VIVAS: 18 de 18 en la de produccion y 27 de 27 en la plantilla |
 | `TieneQR` | Yes/No |  |  |  | Valor inicial: `TRUE` |
 | `RequiereGPS` | Yes/No |  |  |  | Valor inicial: `TRUE` |
 | `RadioGeofencingKm` | Decimal |  |  |  | Supuesto D-02: radio por tipo, no un numero unico. El catalogo (scripts/catalogo_tipos.py) lo fija por tipo y la plantilla lo trae poblado en los 27; el valor inicial solo aplica a un tipo nuevo. Valor inicial: `0.2` |

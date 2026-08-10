@@ -39,28 +39,17 @@ innegociables.**
 > **Repasadas contra el archivo el 2026-08-09. Dos siguen abiertas y una está cerrada.** Cada una
 > lleva debajo su estado y el comando con el que se comprobó.
 
-**C-1 — ABIERTA, y ahora depende de contra qué hoja se despliegue.**
-`RECONSTRUCCION_EXPRESIONES.md` §2 trae RG-01 en su variante por tipo:
-`... <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]`. Si esa columna está vacía compara
-contra blanco y **rechaza también el cierre legítimo**: `P-08` y `P-09` fallarían las dos y la tanda
-dejaría de discriminar.
+**C-1 — CERRADA el 2026-08-10.** Estuvo abierta mientras convivieron dos hojas: una con el radio
+poblado y otra con la columna vacía, y la misma expresión era correcta en una y desastrosa en la
+otra. Contra vacío, RG-01 compara con blanco y **rechaza también el cierre legítimo**, con lo que
+`P-08` y `P-09` fallarían las dos y la tanda dejaría de discriminar.
 
-**Y las dos hojas del proyecto no dicen lo mismo**, leídas con `openpyxl` y `data_only=True`:
+**Ya no hay dos hojas.** La vigente trae el radio poblado en sus 27 tipos, así que RG-01 va en su
+variante por tipo, sin alternativa. Comprobado con:
 
-| Hoja | `TIP_TiposActivo.RadioGeofencingKm` |
-|---|---|
-| `BD/Modelo_Datos_09082026.xlsx` — sobre la que corre la app hoy | **vacía en sus 18 tipos** |
-| `BD/Modelo_Datos_PLANTILLA.xlsx` — generada del modelo | **poblada en sus 27 tipos**, de `0,05` a `1,5` km |
-
-Las dos hojas tampoco tienen el mismo número de tipos: la de producción trae 18 y la plantilla 27,
-desde que el catálogo le dio tipo y formulario propios a las nueve familias que colgaban del de otra
-cosa. Es un motivo más para que el ejecutor sepa contra cuál trabaja.
-
-**Sobre la hoja actual el literal `1.0` sigue siendo lo vigente**, y así está en el manual. **Sobre
-la plantilla la variante por tipo es la correcta y el literal es el error**, porque `1,0` km mete
-una media de 8 activos dentro de cada geofence y el sistema pasa a probar «estás en el corredor» en
-vez de «estás frente al equipo». La contradicción se cierra sola el día que se migre a la plantilla;
-hasta entonces, **el ejecutor tiene que saber contra qué hoja está trabajando**.
+```bash
+python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"
+```
 
 **C-2 — ABIERTA. El modelo y la prueba discrepan sobre `Adds`.** `modelo_objetivo.py` RG-14 sigue
 diciendo `"Updates, Adds"`; `ESPEC-002` §7 y `P-11` exigen que el botón de añadir **no aparezca** en
@@ -78,17 +67,22 @@ lleva además una nota de alcance en su cabecera. Ya no hay documento vigente qu
 **Qué demuestra.** Que AppSheet no combinó dos columnas al dar de alta. Contra una clave compuesta
 **no resuelve ninguna referencia**, y el síntoma es que falla todo el bloque sin decir por qué.
 
-**Pre-vuelo, ya ejecutado sobre el archivo:** simulando la regla oficial —primera columna de
-izquierda a derecha con valores únicos— las 28 coinciden con la clave declarada. Ninguna candidata a
-compuesta.
+**Y ahora el riesgo es mayor que cuando se escribió esta prueba.** Entonces las tablas de
+movimiento traían una fila de ensayo, y con una fila cualquier columna parece única. **Hoy están
+vacías a propósito**: se retiraron los registros de prueba del entregable. Sobre una pestaña sin
+datos AppSheet no tiene con qué distinguir una columna única, así que **es justo donde va a
+componer**.
 
-**Con una letra pequeña:** `NOV_Novedades`, `FIR_Firmas` y `CHK_Checklists` tienen **una sola fila**,
-y con una fila cualquier columna parece única. Si alguien vacía una de esas pestañas antes del alta,
-AppSheet no encontrará columna única y compondrá.
+Las ocho a vigilar, que son las que llegan sin filas:
 
-**Cómo se ejecuta.** Antes de empezar, confirmar que ninguna pestaña quedó vacía. Después de cada
-alta, mirar la casilla `KEY`: si hay dos marcadas o aparece como combinación, corregir **antes de la
-siguiente tabla**. Criterio: 28 claves simples, todas `Text`.
+```
+OT_OrdenesTrabajo · MAN_Mantenimientos · CHK_Checklists · CHD_ChecklistDetalle
+FOT_Fotografias   · FIR_Firmas         · NOV_Novedades  · PLA_PlanMantenimiento
+```
+
+**Cómo se ejecuta.** Después de dar de alta cada una de esas ocho, mirar la casilla `KEY`: si hay
+dos marcadas o aparece como combinación, **corregir antes de pasar a la siguiente**, poniendo la
+clave que declara el modelo. Criterio final: 28 claves simples, todas `Text`.
 
 ### P-22 — Las tablas son 28, ninguna dada de alta dos veces
 
@@ -221,25 +215,22 @@ Las otras cuatro detectan fallos ruidosos: una expresión que no resuelve, un ci
 rechaza, una fila que no llega. **P-27 es la única que mira los fallos que un despliegue verde no
 distingue de un acierto.**
 
-### La causa raíz, en una frase
+### La causa raíz, y por qué dejó de existir
 
-Los **47** campos retirados **siguen en la hoja a propósito**. El procedimiento da de alta cada tabla
-**leyendo la hoja**. Luego vuelven al esquema como columnas reales, y **toda expresión que las cite
-resolverá**.
+**El procedimiento da de alta cada tabla leyendo la hoja.** Mientras la hoja arrastró 47 columnas
+que el modelo no declara, esas columnas volvían al esquema como columnas reales y **toda expresión
+que las citara resolvía** — incluidas tres cuyo nombre coincide con la clave de otra tabla, que
+AppSheet convertía en referencia por su cuenta.
 
-> **Corregido el 2026-08-09: aquí decía 45.** Son **47**, y el número está derivado del archivo, no
-> contado: columnas presentes en `BD/Modelo_Datos_09082026.xlsx` que el modelo no declara vivas. Es
-> el mismo 47 de `ESTADO.md` y de `docs/prompts/PROMPT_CONTINUAR_DESPLIEGUE.md`.
+> **Cerrado el 2026-08-10 al construir sobre la hoja limpia.** Esas 47 columnas **ya no existen en
+> el archivo**, así que no hay nada que ocultar ni ninguna trampa que deshacer. Se comprueba con
+> `verificar_faseA.py`, cuya regla `F-19` distingue tres estados: están las 43 —la hoja heredada—,
+> no está ninguna —la limpia, que es la vigente— o **están algunas**, que es el peligroso, porque
+> entonces la documentación generada manda ocultar columnas que ya no existen.
 >
-> **Durante unas horas hubo un 45 que también era correcto, por otro camino, y eso era el síntoma
-> de un hueco.** `RECONSTRUCCION_EXPRESIONES.md` §5 se genera del modelo, y el modelo solo describía
-> 45: **43** de `CAMPOS_RETIRADOS` más **2** de `COLUMNAS_SIN_DECIDIR`. Las dos que faltaban estaban
-> en la hoja y el modelo no las mencionaba de ninguna forma.
->
-> **Cerrado el 2026-08-09 en la fuente.** `FRM_Formularios.Orden` y `FRM_Preguntas.ValorDefecto`
-> están declaradas en `COLUMNAS_SIN_DECIDIR` con su motivo, así que **el modelo y la hoja dicen 47
-> los dos** y `D-06` avisa de las cuatro indecisas, no de dos. Se corrigió la fuente, no el
-> documento: es lo que exige `CLAUDE.md` §7.9.
+> **Los once casos de abajo se conservan.** No describen un riesgo vivo: describen **qué clase de
+> fallo hay que buscar**, y esa clase —una referencia que resuelve contra lo que no es— volvió a
+> aparecer dos veces con otro disfraz.
 
 ### Los once casos
 

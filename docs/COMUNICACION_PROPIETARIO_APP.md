@@ -13,7 +13,7 @@ Se resolvió por otro camino, y ahora lo que queda es **avisar y cerrar un punto
 | Actualizado | 2026-08-09 |
 | Aplicación original | `SGMC-886843353`, de `[correo del Propietario]` |
 | Aplicación nueva | `SISGA`, propiedad de `[correo de la Concesión]` |
-| Hoja de producción | `Modelo_Datos_09082026`, 32 pestañas |
+| Hoja de producción | La que declara `scripts/sistema.py`, generada del modelo |
 
 > **Y aquí hay un punto que no se puede cerrar desde el repositorio.** `ESTADO.md` y `CLAUDE.md` §2
 > dan esa hoja como **propiedad de la Concesión**; este documento la daba como del Propietario,

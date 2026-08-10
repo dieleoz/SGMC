@@ -12,6 +12,7 @@ import sys
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(RAIZ, "scripts"))
+from catalogo_tipos import TIPOS_ACTIVO
 from modelo_objetivo import (MODELO, REGLAS, RENOMBRADOS, CAMPOS_RETIRADOS,
                              COLUMNAS_SIN_DECIDIR)
 
@@ -23,6 +24,13 @@ w("")
 w("**Generado de `scripts/modelo_objetivo.py`.** Es lo que tiene que existir en la aplicacion.")
 w("**Ninguna expresion esta truncada**: se copian y se pegan enteras.")
 w("")
+def reparto_radios():
+    """El reparto de radios, derivado del catalogo. Nunca escrito a mano."""
+    from collections import Counter
+    c = Counter(t[7] for t in TIPOS_ACTIVO)
+    return " · ".join("%s km en %d" % (k, n) for k, n in sorted(c.items()))
+
+
 w("## 1. Los nombres viejos, y por que la lista NO se aplica en bloque")
 w("")
 w("La Fase A renombro columnas en la hoja. Toda expresion que cite un nombre viejo quedo rota.")
@@ -63,30 +71,23 @@ for r in REGLAS:
     if r.get("nota"):
         w("> %s" % r["nota"].replace("\n", " "))
         w("")
-    # RG-01 es la unica regla cuya expresion correcta DEPENDE de contra que hoja
-    # se pegue, porque la columna que desreferencia esta poblada en una y vacia
-    # en la otra. Sin decirlo, quien la copia sobre la hoja de produccion pega
-    # una comparacion contra blanco que rechaza tambien el cierre legitimo.
+    # RG-01 desreferencia una columna que puede estar vacia, y contra vacio la
+    # comparacion rechaza TAMBIEN el cierre legitimo. La expresion es la de
+    # arriba y no tiene variante: lo que hay que comprobar es que la columna
+    # este poblada, y eso se deriva del archivo, no se supone.
     if r.get("id") == "RG-01":
-        w("**Contra que hoja va cada version.** Esta regla desreferencia")
-        w("`TIP_TiposActivo.RadioGeofencingKm`, y esa columna no esta igual en las dos hojas:")
+        w("**Antes de pegarla, compruebe que el radio esta poblado.** Esta regla desreferencia")
+        w("`TIP_TiposActivo.RadioGeofencingKm`. **Si esa columna esta vacia, la comparacion se hace")
+        w("contra blanco y rechaza tambien el cierre legitimo**: fallarian las dos pruebas del par,")
+        w("la que debe aceptar y la que debe rechazar, y la tanda dejaria de discriminar.")
         w("")
-        w("| Hoja | Que se pega | Por que |")
-        w("|---|---|---|")
-        w("| `BD/Modelo_Datos_PLANTILLA.xlsx` | **La expresion de arriba, la variante por tipo** | "
-          "El radio esta poblado en sus 27 tipos: 0.05 km en 18, 0.1 km en 8 y 1.5 km en la fibra |")
-        w("| `Modelo_Datos_09082026`, la hoja de produccion | **El literal `1.0`** en lugar de la "
-          "desreferencia | Ahi la columna sigue **vacia en sus 18 tipos**. La variante por tipo "
-          "compararia contra blanco y rechazaria tambien el cierre legitimo |")
-        w("")
-        w("```")
-        w("DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= 1.0")
+        w("```bash")
+        w("python scripts/verificar_faseA.py \"BD/Modelo_Datos_PLANTILLA.xlsx\"")
         w("```")
         w("")
-        w("> **El literal `1.0` no es el valor bueno: es el provisional mientras la aplicacion lea la")
-        w("> hoja de produccion.** Al migrar a la hoja limpia se sustituye por la variante por tipo, y")
-        w("> ese cambio es parte del paso 6 de `MIGRACION_HOJA_LIMPIA.md`. Comprobar cual esta puesta")
-        w("> es leer la formula entera, no dar por hecho que se pego bien.")
+        w("En la hoja vigente estan **poblados los %d**, con %s. Un literal en su lugar "
+          "-por ejemplo `<= 1.0`- hace que el sistema pruebe \"estas en el corredor\" en vez de "
+          "\"estas frente al equipo\", que es su proposito." % (len(TIPOS_ACTIVO), reparto_radios()))
         w("")
 w("## 3. Las claves, todas `Text`")
 w("")

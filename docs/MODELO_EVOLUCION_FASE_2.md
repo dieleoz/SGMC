@@ -6,17 +6,20 @@ o una conversación con operación.
 
 **Esto no invalida la Fase B.** Ver la sección 9.
 
-> ## Qué cambió desde que se escribió (2026-08-09)
+> ## Qué cambió desde que se escribió (revisado el 2026-08-10)
 >
-> El backlog sigue en pie entero. Dos cosas que este documento daba por pendientes ya no lo están:
+> El backlog sigue en pie entero. Tres cosas que este documento daba por pendientes ya no lo están:
 >
-> - **`TIP_TiposActivo.RadioGeofencingKm` ya no está vacío en `BD/Modelo_Datos_PLANTILLA.xlsx`.** Se
->   pobló por familia de activo, y con los valores que la sección 6 pedía, en los **27 tipos** que
->   trae hoy la plantilla. Deja de ser deuda; pasa a ser una decisión tomada. **En la hoja de
->   producción sigue vacío en sus 18 tipos**, y eso no ha cambiado.
-> - **Los 355 activos ya están en `BD/Modelo_Datos_PLANTILLA.xlsx`**, como inventario **sintético**
->   de prueba. Son códigos reales del Plan Maestro con coordenadas interpoladas, y cada fila lo dice
->   de sí misma. No es el registro real, así que el hueco de la sección 13.1 sigue abierto.
+> - **`TIP_TiposActivo.RadioGeofencingKm` ya no está vacío.** Se pobló por familia de activo, y con
+>   los valores que la sección 6 pedía, en los **27 tipos**. Deja de ser deuda; pasa a ser una
+>   decisión tomada.
+> - **Y ya no hay dos hojas.** `BD/Modelo_Datos_PLANTILLA.xlsx` es el mismo archivo que está
+>   publicado como `Modelo_Datos_10082026`, que es la hoja que la aplicación lee. La hoja heredada
+>   de 18 tipos con el radio vacío **está superada**, y con ella el literal provisional de 1,0 km.
+> - **Los 355 activos contables ya están en la hoja**, como inventario **sintético** de prueba —368
+>   filas en total, con las 13 del juego de arranque que el Plan Maestro no cuenta por unidades—. Son
+>   códigos reales del Plan Maestro con coordenadas interpoladas, y cada fila lo dice de sí misma. No
+>   es el registro real, así que el hueco de la sección 13.1 sigue abierto.
 >
 > Y una cifra que estaba mal: la cuota de Drive **no** se agota antes de la retención con este
 > inventario. Ver la sección 8, corregida contra `scripts/capacidad.py`.
@@ -51,22 +54,32 @@ Lo que sigue en este documento son los huecos de modelo; lo que aporta cada fuen
 
 ## 2. El tamaño real
 
-| | Modelo | Realidad |
-|---|---|---|
-| Activos | 34 | **355** contables |
-| Tipos | 18 —hoy 27 en el catálogo, ver el recuadro | **24** |
-| Postes SOS | 3 | **54** |
-| Switches capa 2 | 0 | **142** |
-| Fibra troncal | 1 fila | **137 km**, ~600 cajas |
+La columna «Modelo» es lo que había cuando se escribió este documento; la de la derecha, la operación
+real. **La tercera dice dónde quedó al 2026-08-10**, para que nadie siga leyendo un hueco cerrado:
 
-Los 34 se reparten entre uno y tres por tipo sobre los 18 que había: una muestra sintética. El
-piloto corre sobre el 10% del parque.
+| | Modelo, al escribirlo | Realidad | En la hoja de hoy |
+|---|---|---|---|
+| Activos | 34 | **355** contables | 368 filas: los 355 más 13 del juego de arranque |
+| Tipos | 18 | **24** en el Plan Maestro | **27** en `TIP_TiposActivo`, que es otra lista — ver el recuadro |
+| Postes SOS | 3 | **54** | 54 |
+| Switches capa 2 | 0 | **142** | 142 |
+| Fibra troncal | 1 fila | **137 km**, ~600 cajas | 1 fila. **El hueco sigue abierto**: un tramo lineal no es un activo puntual |
 
-> **Desde el 2026-08-09 la plantilla lleva los 355**, con los códigos del Plan Maestro —`SOS_1` a
-> `SOS_54`, `SWIT_1` a `SWIT_142`— y coordenadas interpoladas sobre los 137 km del corredor. **Son
-> de prueba**: sirven para ejercitar el filtro por zona, la navegación y el volumen de
-> sincronización, y cada fila lo declara en `ACT_Activos.Observaciones`. Con los 34 de fixture
-> delante, la plantilla tiene **389 filas**.
+Los 34 del juego de arranque se repartían entre uno y tres por tipo sobre los 18 que había: una
+muestra sintética.
+
+> **La hoja lleva hoy los 355 contables**, con los códigos que usa operación —`SOS-001` a `SOS-054`,
+> `SWIT-001` a `SWIT-142`, con ceros a la izquierda y guion, no el `SOS_1` que se usó al principio— y
+> coordenadas interpoladas sobre los 137 km del corredor. **Son de prueba**: sirven para ejercitar el
+> filtro por zona, la navegación y el volumen de sincronización, y cada fila lo declara en
+> `ACT_Activos.Observaciones`.
+>
+> **`ACT_Activos` tiene 368 filas, no 389.** Las familias del Plan Maestro suman 355 y el juego de
+> arranque aporta 13 equipos más que el Plan no cuenta por unidades —generador, báscula estática,
+> fibra, video wall, router, cortafuegos, UPS, NAS y subestación—. Las otras 21 filas del juego de
+> arranque **están dentro de esos 355**: `scripts/generar_inventario.py` completa cada familia hasta
+> la cantidad del Plan en lugar de sumarse a ella, y sumar los dos conjuntos por separado es lo que
+> hacía que la cuenta saliera 389.
 >
 > **Y los tipos del catálogo pasaron de 18 a 27**, no a 24. Se sumaron los nueve que le faltaban a
 > las familias del Plan Maestro —báscula dinámica, carril de peaje, electrónica de peaje, estación
@@ -216,8 +229,8 @@ una coordenada representativa.
 ### El radio de geofencing dejó de ser deuda
 
 `TIP_TiposActivo.RadioGeofencingKm` se creó por tipo de activo y estuvo vacío en los 18 tipos que
-había entonces. **Se pobló el 2026-08-09** en `BD/Modelo_Datos_PLANTILLA.xlsx`, y con los valores
-que este apartado pedía. Al pasar el catálogo a 27 tipos, los 27 lo llevan:
+había entonces. **Se pobló el 2026-08-09**, y con los valores que este apartado pedía. Al pasar el
+catálogo a 27 tipos, los 27 lo llevan:
 
 | Familia | Radio | Tipos |
 |---|---|---|
@@ -225,32 +238,44 @@ que este apartado pedía. Al pasar el catálogo a 27 tipos, los 27 lo llevan:
 | Voluminoso o con recinto: PMV fijos y móviles, generador, básculas, peajes y subestación | **0,1 km** — 100 m | 8 |
 | **Tramo de fibra** | **1,5 km** | 1 |
 
-**En la hoja de producción esa columna sigue vacía en sus 18 tipos.** Lo poblado es la plantilla,
-que todavía no se ha desplegado.
+**Y ya está en la hoja que la aplicación lee.** No hay una segunda hoja con la columna vacía: la
+heredada de 18 tipos quedó superada el 2026-08-10.
 
-Sin él, o el poste admite 1 km —y no prueba nada— o el tramo rechaza cierres legítimos. Y con los 355
-sintéticos repartidos por el corredor deja de ser una preferencia. Medido sobre las coordenadas de la
-plantilla, contando cada activo dentro de su propio geofence:
+Sin él, o el poste admite 1 km —y no prueba nada— o el tramo rechaza cierres legítimos. Y con los
+sintéticos repartidos por el corredor deja de ser una preferencia. Medido sobre las **334 filas con
+coordenada sobre el corredor** de `BD/Modelo_Datos_PLANTILLA.xlsx` —las 34 del juego de arranque
+quedan fuera del cálculo porque comparten un punto de Bogotá—, contando cada activo dentro de su
+propio geofence:
 
-| Radio | Activos por geofence | Máximo |
-|---|---|---|
-| 1 km, el literal provisional | **7,9 de media** | 14 |
-| 0,05 km, el de los puntuales | 1,1 | 2 |
-| 0,1 km | 1,3 | 4 |
-| 1,5 km, el de la fibra | 11,7 | 20 |
+| Radio | Activos por geofence | Máximo | Solos en su geofence |
+|---|---|---|---|
+| 1 km, el literal provisional | **7,4 de media** | 14 | 1 de 334 |
+| 0,05 km, el de los puntuales | 1,1 | 3 | **303 de 334, el 91 %** |
+| 0,1 km | 1,3 | 4 | 256, el 77 % |
+| 1,5 km, el de la fibra | 11,1 | 18 | 0 |
 
 **Con 1 km ninguno queda identificado de forma única**: el sistema probaría «estás en el corredor»,
-no «estás frente al equipo». Con 50 m, **313 de los 355 —el 88 %— quedan solos en su geofence**. Ahí
-está la diferencia entre una prueba de presencia y una de tránsito.
+no «estás frente al equipo». Con 50 m, nueve de cada diez quedan solos en su geofence. Ahí está la
+diferencia entre una prueba de presencia y una de tránsito.
 
-**El precio de la fibra, dicho claro:** 1,5 km mete 11,7 activos de media dentro del geofence, así
+> **Estas cuatro filas se rederivan, no se citan.** Las coordenadas sintéticas se generan con
+> dispersión aleatoria, así que cambian en cada ejecución de `scripts/generar_inventario.py` y con
+> ellas las densidades. Lo que no cambia es el orden de magnitud, que es lo que decide el radio.
+
+**El precio de la fibra, dicho claro:** 1,5 km mete once activos de media dentro del geofence, así
 que confirma que el técnico estaba en ese tramo del corredor, no que estuviera trabajando en la
 fibra. Un trabajo lineal no admite la misma prueba que uno puntual. Lo que conserva su valor son las
 fotografías con coordenada propia.
 
-**Lo que todavía no está cerrado es la expresión.** `PAR_Parametros` sigue llevando
-`RADIO_GEOFENCING_KM = 1` como literal provisional, y hay documentos que mandan pegar esa variante.
-Mientras la aplicación no lea el radio por tipo, la columna poblada no cambia nada.
+**La expresión ya está cerrada, y es la del radio por tipo.** `RG-01` desreferencia
+`[OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]`, y como la hoja que la aplicación lee trae esa
+columna poblada en los 27, **el literal `1.0` dejó de aplicar**. `PAR_Parametros.RADIO_GEOFENCING_KM`
+queda como valor provisional histórico que ninguna regla lee. Un documento que mande pegar el literal
+describe un estado superado.
+
+**Lo que sigue sin estar es la configuración.** La regla está declarada y verificada; la aplicación
+tiene las 28 tablas dadas de alta y nada más. Y aun puesta, el geofencing no significa nada hasta
+D-01: ninguna coordenada de la hoja es el sitio real del equipo.
 
 ---
 
@@ -297,8 +322,11 @@ para una retención de 5, y menos si el parque crece» decide.
 
 Fuente: `2-MANTENIMIENTO.pdf` §6 y §7. Detalle en [`CONTEXTO_OPERACION.md`](CONTEXTO_OPERACION.md) §3.
 
-**Hoy `OT_OrdenesTrabajo` tiene `FechaProgramada` y `FechaCierre`.** Verificado contra
-`BD/Modelo de Datos (11).xlsx` y `modelo_objetivo.py`: **no existe ninguna fecha de creación**.
+**Hoy `OT_OrdenesTrabajo` tiene `FechaProgramada` y `FechaCierre`.** Verificado el 2026-08-10 contra
+`scripts/modelo_objetivo.py` y `BD/Modelo_Datos_PLANTILLA.xlsx`, volcando las **12 columnas** de esa
+tabla: `OTID`, `ActivoID`, `TecnicoID`, `SupervisorID`, `Tipo`, `FechaProgramada`, `EstadoOrdenID`,
+`OTOrigenID`, `Observaciones`, `FechaCierre`, `CerradaPor` y `Activo`. **No existe ninguna fecha de
+creación, ni hora de aviso, ni criticidad.**
 
 Y eso es peor de lo que parece. `FechaCierre` menos `FechaProgramada` **no es una duración**: es
 adherencia al cronograma —si se cerró antes o después de lo previsto—. El sistema no sabe cuándo
@@ -326,17 +354,29 @@ salen los plazos.
 **Qué cambia**
 
 ```
-OT_OrdenesTrabajo gana   CriticidadID · HoraAviso · HoraInicioTrabajos
+OT_OrdenesTrabajo gana   CriticidadID · HoraAviso · CanalAviso
                           NivelAtencion (N1 · N2 · N3)  ← para el escalado
 CRI_Criticidad     nuevo  catálogo con los plazos, para no enterrarlos en una expresión
-EVT_EventosOrden   nuevo  hija de la orden: inicio · fin · motivo. El reloj parado se DERIVA
+EVT_EventosOrden   nuevo  una fila por TRANSICIÓN de estado. Solo se añade
+PAU_Pausas         nuevo  una fila por BLOQUEO. El reloj parado se DERIVA con SUM()
 ```
+
+> **`EVT_EventosOrden` y `PAU_Pausas` son dos tablas y no una.** Una registra transiciones de
+> estado, la otra bloqueos que paran el reloj. Ya se confundieron una vez y el resultado fueron dos
+> tablas con el mismo nombre y claves distintas; `PROPUESTAS` en `scripts/modelo_objetivo.py` las
+> lleva declaradas por separado.
+>
+> **Y `HoraInicioTrabajos` no es una columna de la orden.** Se deriva: es la fila de `EVT` más
+> antigua con estado `En ejecucion`. Una columna, o incluso un `ChangeTimestamp` sobre la orden, se
+> reescribe en la segunda ida a `En ejecucion` y **acorta el tiempo de respuesta solo**. El detalle
+> está en [`sdd/ESPEC-003-modelo-de-dominio.md`](sdd/ESPEC-003-modelo-de-dominio.md) §6.2.
 
 **`RelojParadoMin` no puede ser una columna acumulada.** Un total que se lee y se reescribe
 **compite consigo mismo** en un backend offline-first sin transacciones: dos pausas registradas sin
 señal producen una pérdida de actualización silenciosa. Es literalmente el argumento por el que
-`OT_OrdenesTrabajo` perdió `Adds` en `ESPEC-002`. Va como tabla hija de eventos —solo se añade,
-nunca se recalcula— y el total sale de un `SUM()`.
+`OT_OrdenesTrabajo` no admite crear órdenes desde la aplicación mientras `OTID` haga de clave y de
+etiqueta legible a la vez. Va como tabla hija de eventos —solo se añade, nunca se recalcula— y el
+total sale de un `SUM()`.
 
 **`HoraInicioTrabajos` no se teclea, o no prueba nada.** RG-20 nos enseñó que un `Initial value` es
 editable, y que en offline-first `NOW()` es el reloj del teléfono. Las tres formas obvias fallan:
@@ -406,8 +446,9 @@ baratas:
 
 - Reactivar `Diagnostico` y `Repuestos_Utilizados`, condicionados al tipo de la **orden**. La
   expresión es `[OTID].[Tipo]`, no `[Tipo]`: `MAN_Mantenimientos` no tiene `Tipo` —se retiró porque
-  el tipo es de la orden, no de la ejecución—. **Y esa expresión no se puede escribir hasta que la
-  Fase B convierta `OTID` en `Ref`**: hoy es texto y no se desreferencia.
+  el tipo es de la orden, no de la ejecución—. **Y esa expresión no se puede escribir hasta que
+  `MAN_Mantenimientos.OTID` esté cableada como `Ref` en la aplicación**: el modelo ya la declara así,
+  pero la aplicación tiene las 28 tablas dadas de alta y ninguna referencia puesta.
 - O que el correctivo use un **formulario propio** con esas preguntas — más coherente con la capa de
   tareas de la sección 3, y no cuesta columnas.
 
@@ -416,9 +457,10 @@ se retiró porque «se cubre con `MotivoPendienteID` = Falta de repuesto», y de
 `Repuestos_Utilizados` dejaría dos registros del mismo hecho sin forma de saber cuál miente. Un
 formulario propio para el correctivo no duplica nada y encaja en la capa de tareas.
 
-**Lo que no cambia:** los tres campos siguen marcados como retirados y **siguen presentes en la
-hoja**. Eso ya era así —la Fase A no borra nada— y no es una decisión nueva. Se confirma, no se
-revierte.
+**Lo que no cambia, y una cosa que sí.** Los tres campos siguen marcados como retirados, y la
+decisión se confirma. Lo que cambió el 2026-08-10 es que **ya no están en la hoja**: al generarla del
+modelo desaparecieron las 43 columnas retiradas, así que `Diagnostico`, `Trabajo_Realizado` y
+`Repuestos_Utilizados` no existen en ningún sitio desde el que reactivarlos por accidente.
 
 **Y dos patrones vistos en el informe de Neiva–Girardot**, que **no son huecos del Sisga** hasta que
 operación lo confirme:
@@ -434,9 +476,10 @@ operación lo confirme:
 
 Conviene decirlo, porque llevamos once rondas de revisión sobre la Fase B y sigue siendo válida.
 
-El cableado de referencias, el geofencing, el filtro por zona, el histórico que no se borra, la
-cadena de evidencia y las 17 pruebas de `PRUEBA-002` **valen igual**. Todo eso opera sobre activos
-que sí son puntos en el mapa, que son la mayoría y los que más órdenes generan.
+El cableado de referencias, el geofencing, el filtro por zona, el histórico que no se borra y la
+cadena de evidencia **valen igual**, y su plan de pruebas vigente es
+[`sdd/PRUEBA-003-despliegue.md`](sdd/PRUEBA-003-despliegue.md). Todo eso opera sobre activos que sí
+son puntos en el mapa, que son la mayoría y los que más órdenes generan.
 
 Lo que este documento añade es **una capa entre el tipo y el trabajo**, y **una jerarquía de
 ubicación**. Se retiran dos columnas que estaban mal colocadas. Nada de lo construido se tira.

@@ -50,7 +50,7 @@ try:
 except ImportError:
     print("Falta openpyxl."); sys.exit(2)
 
-ORIGEN = sys.argv[1] if len(sys.argv) > 1 else "BD/Modelo_Datos_09082026.xlsx"
+ORIGEN = sys.argv[1] if len(sys.argv) > 1 else "BD/Modelo_Datos_PLANTILLA.xlsx"
 if not os.path.isabs(ORIGEN):
     ORIGEN = os.path.join(RAIZ, ORIGEN)
 SALIDA = os.path.join(RAIZ, "BD", "Modelo_Datos_PLANTILLA.xlsx")

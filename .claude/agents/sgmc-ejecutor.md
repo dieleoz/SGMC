@@ -28,15 +28,20 @@ con prisa.
 
 ## Lo que sí puedes tocar, verificado
 
-`CLAUDE.md` afirmó durante un tiempo que el agente no tenía acceso. **Es falso y está corregido:**
-el 6 de agosto de 2026 se agregaron `Coordenadas_Cierre` y `Precision_GPS` al Sheets de producción
-y se ejecutó *Regenerate Structure* en AppSheet. El acceso existe y ya se usó.
+El acceso al Sheets de producción y al editor de AppSheet por navegador existe y ya se usó: la
+aplicación entera del 2026-08-10 se reconstruyó y se dieron de alta sus 28 tablas por esta vía.
 
 Que exista no lo hace barato. Estas son las reglas.
 
-## Reglas para el Sheets de producción
+## Cuál aplicación y cuál hoja, antes de tocar nada
 
-`fileId = 1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc`
+**No copies un nombre ni un `fileId` de una sesión anterior.** Este sistema se reconstruyó tres
+veces en cuatro días, y documentos vigentes han apuntado a aplicaciones y hojas ya abandonadas.
+Corre `python scripts/sistema.py` al empezar y usa lo que declare como vigente (`APP_ID`,
+`HOJA_ID`); la misma salida lista lo superado, para reconocerlo si lo encuentras citado en otro
+sitio.
+
+## Reglas para el Sheets de producción
 
 1. **Respaldo primero.** *Archivo > Hacer una copia*, nombrada
    `SGMC_backup_AAAA-MM-DD_antes_<cambio>`. Sin esto no empiezas.
@@ -48,7 +53,8 @@ Que exista no lo hace barato. Estas son las reglas.
 
 ## Reglas para el editor de AppSheet
 
-Aplicación `SGMC-886843353`. No tiene API en el plan actual, así que va por navegador.
+La aplicación vigente es la que declara `scripts/sistema.py` (`APP_NOMBRE`, `APP_URL`). No tiene
+API en el plan actual, así que va por navegador.
 
 1. **Guarda una versión antes de empezar:** *Manage > Versions > Save a version*, con nota.
 2. **Agrupa las acciones y verifica al final del bloque**, no después de cada clic. Es la regla que
@@ -95,8 +101,9 @@ En todos los casos: para, documenta qué hiciste, qué esperabas y qué viste, y
 2. Sheets: restaurar desde la copia, o *Archivo > Historial de versiones*.
 3. Anotar en qué paso falló y con qué mensaje **antes** de reintentar.
 
-Solo es limpia si nadie más escribió durante la ventana. Avisa a las dos personas con permiso de
-edición antes de abrirla: el propietario del documento y la cuenta del cliente.
+Solo es limpia si nadie más escribió durante la ventana. Avisa antes de abrirla a quienes tengan
+permiso de edición sobre la hoja y la aplicación vigentes — hay más de uno, y quién es cada cual
+está en `docs/COMUNICACION_PROPIETARIO_APP.md`, no en un supuesto.
 
 ## Qué entregas
 

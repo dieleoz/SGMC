@@ -13,14 +13,11 @@ de un sistema construido sobre **Google AppSheet** (no-code) con backend en **Go
 El entregable de este repo es el As-Built: especificaciones, diccionario de datos, manuales,
 dictámenes de auditoría y el archivo Excel maestro.
 
-- Aplicación: AppSheet **`SISGA`** (app en vivo, enlaces en `ESTADO.md` y en `README.md`)
-- Backend de producción: Google Sheets `Modelo_Datos_09082026`,
-  `1LGabjn1iNDKiJNP7CUD4_LwCH2BGXC8oTBfXmuuAkFs`
-- Repositorio remoto: `github.com/dieleoz/SGMC`
+**Cuál es la aplicación y cuál es la hoja lo dice `scripts/sistema.py`, y nada más.** Vuélcalo con
+`python scripts/sistema.py`. No copies un identificador aquí: es lo que produjo cinco aplicaciones y
+tres hojas mencionadas por el repositorio en cuatro días. Ver §9.2.
 
-**La aplicación anterior, `SGMC-886843353`, se abandonó el 2026-08-09**, y con ella su hoja
-`1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc`. Los dos identificadores siguen apareciendo en
-documentos generados y en el histórico: si te encuentras uno, no es este sistema.
+- Repositorio remoto: `github.com/dieleoz/SGMC`
 
 ## 2. Dónde está la verdad
 
@@ -28,14 +25,16 @@ documentos generados y en el histórico: si te encuentras uno, no es este sistem
 manual de despliegue y la lista de reposición. Nada se documenta a mano.
 
 **El dato vive en Google Sheets** y se verifica descargándolo a `BD/` y corriendo
-`verificar_faseA.py`. La hoja vigente es `Modelo_Datos_09082026`, propiedad de la Concesión: 32
-pestañas, ninguna oculta, `FASE A CERRADA`.
+`verificar_faseA.py`. La hoja vigente es la que declara `scripts/sistema.py`, y el volcado local con
+el que se comprueba es `BD/Modelo_Datos_PLANTILLA.xlsx`: 28 pestañas de datos más `_LEEME`, ninguna
+oculta, `FASE A CERRADA`.
 
-### La divergencia de agosto está cerrada
+### La divergencia de agosto está cerrada, y de raíz
 
 Durante días el Excel local y el Sheets de producción fueron modelos distintos, y esa brecha causó
-media docena de hallazgos. **Convergieron el 2026-08-07**: los dos tienen hoy 32 pestañas y el
-mismo esquema.
+media docena de hallazgos. **Desde el 2026-08-10 no pueden divergir: son el mismo archivo.** La hoja
+publicada es la plantilla que genera `scripts/generar_plantilla.py`, así que no hay dos cosas que
+comparar.
 
 Lo que queda de aquello son tres reglas que siguen valiendo:
 
@@ -47,11 +46,10 @@ Lo que queda de aquello son tres reglas que siguen valiendo:
 
 ## 2.1 Propiedad y edición del backend
 
-**La hoja vigente, `Modelo_Datos_09082026`, es propiedad de la Concesión.** Eso cierra el punto
-para el backend nuevo.
+**La hoja vigente es propiedad de la Concesión.** Eso cierra el punto para el backend.
 
-Lo que sigue abierto es la aplicación y la hoja anteriores: `SGMC-886843353` y su Sheets son de
-`[correo del Propietario]`, que es el desarrollador y product owner. Qué comunicarle está en
+Lo que sigue abierto es la aplicación y la hoja **anteriores**, que son del desarrollador y product
+owner. Están nombradas en `SUPERADOS` de `scripts/sistema.py`, y qué comunicarle está en
 `docs/COMUNICACION_PROPIETARIO_APP.md`.
 
 Nota de método: `get_file_permissions` devuelve únicamente al propietario, pero eso **no** implica
@@ -76,11 +74,11 @@ como supuesto, en la tabla del final de ese documento.
 - Para el Excel, usa `openpyxl` (disponible, 3.1.5) y muestra el dato leído, no un resumen.
 - Distingue siempre **estructura** de **población**: que exista la columna no significa que el
   campo tenga datos, y que la tabla exista no significa que el flujo se haya ejercitado.
-  Vale también al revés: `MAN_Mantenimientos`, `FOT_Fotografias` y `FIR_Firmas` **ya no están
-  vacías** —traen 2, 3 y 1 fila de fixture—, y eso **no** significa que el ciclo se haya recorrido
-  de extremo a extremo. Sigue sin ejercitarse. Y de los formularios —**18 en la hoja de producción,
-  27 en `BD/Modelo_Datos_PLANTILLA.xlsx`**— solo `FRM_SOS` tiene banco de preguntas, en las dos.
-  Cuenta las filas del archivo antes de afirmar cualquiera de las dos cosas.
+  Los dos ejemplos vivos: **las tablas de movimiento están vacías a propósito** desde que se
+  retiraron los registros de prueba, así que el ciclo **sigue sin ejercitarse de extremo a extremo**;
+  y **los 27 formularios tienen banco de preguntas, pero 288 de las 333 son borrador** y lo dicen en
+  su ayuda. Que exista la fila no significa que esté acordada. Cuenta el archivo antes de afirmar
+  cualquiera de las dos cosas.
 - Al cerrar un hallazgo, deja constancia de con qué comando y qué salida lo cerraste.
 - **Al leer un `.xlsx` con openpyxl, `data_only=True` o estarás leyendo fórmulas.** Sin él,
   `TIP_TiposActivo.FormularioID` devolvía `=CONCAT("FRM_",MID(B2,1,4))` en vez de `FRM_SOS`: 18
@@ -249,9 +247,8 @@ Ubicación fuera de rango: debe estar junto al activo para cerrar.
 **Ese radio ya está poblado en la plantilla, y solo ahí.** `TIP_TiposActivo.RadioGeofencingKm` trae
 valor en los **27 tipos** de `BD/Modelo_Datos_PLANTILLA.xlsx`: `0.05` en 18 —poste SOS, cámaras,
 sensores, paso seguro y equipos de TI—, `0.1` en 8 —paneles de mensaje variable, básculas, peajes,
-generador y subestación— y `1.5` en el tramo de fibra, que es lineal. **En el Sheets de producción
-`Modelo_Datos_09082026` esa columna sigue vacía en sus 18 tipos, y eso no ha cambiado**: mientras la
-aplicación lea esa hoja, la variante por tipo compara contra blanco.
+generador y subestación— y `1.5` en el tramo de fibra, que es lineal. **Y esa es la única hoja que hay**, desde que el
+2026-08-10 se reconstruyó sobre ella: ya no existe una segunda con la columna vacía.
 
 Sobre la plantilla, **el literal `1.0` ya no se usa**, y `PAR_Parametros.RADIO_GEOFENCING_KM` queda
 como valor provisional histórico: la regla no lo lee. Un documento que mande el literal `1.0` sin
@@ -565,9 +562,9 @@ correspondencia entre ellos **se escribe y se comprueba**, no se supone. Vive en
 **Como quedo, y contra que archivo.** El catalogo pasa a **27 tipos** —los 18 de siempre mas los 9
 que faltaban—, con **27 formularios**, uno por tipo, y el radio poblado en los 27. Eso esta en
 `BD/Modelo_Datos_PLANTILLA.xlsx` desde el 2026-08-10, generado por `scripts/generar_plantilla.py`.
-**El Sheets de produccion `Modelo_Datos_09082026` sigue con 18 tipos y 18 formularios**, y esa cifra
-no es un error que corregir en la prosa: es el estado de esa hoja. Un «18» solo se corrige si la
-frase habla de la plantilla.
+Durante un dia convivieron dos hojas, una con 18 tipos y otra con 27, y eso hizo que un mismo «18»
+fuera correcto o falso segun de cual hablara la frase. **Desde el 2026-08-10 hay una sola**, con 27:
+si un documento vigente dice 18, esta desactualizado.
 
 **Lo que hay que preguntarse ante una referencia que resuelve:** no «apunta a algo», sino **«apunta
 a lo correcto»**. Lo primero lo dice un verificador; lo segundo hay que derivarlo del dominio.
@@ -607,17 +604,12 @@ README.md          Entrada: qué es el proyecto y cómo funciona
 CLAUDE.md          Este archivo
 MAP.md             Índice maestro y referencias cruzadas
 
-BD/                Hojas de datos. Modelo_Datos_PLANTILLA.xlsx es el entregable,
-                   generado del modelo. Modelo_Datos_09082026.xlsx es la descarga
-                   del Sheets de producción
+BD/                Modelo_Datos_PLANTILLA.xlsx: el entregable, generado del
+                   modelo. Es el único archivo de datos del repositorio
 docs/              Documentación técnica y funcional (.md)
-  historico/       Documentos retirados. No usar como fuente
-    images_manual/ Maquetas del manual antiguo (img_01 a img_06)
-  sdd/             Artefactos del pipeline: ESPEC, PRUEBA y ACTA
-  prompts/         Directivas para agentes
+  sdd/             Artefactos del pipeline: ESPEC, PRUEBA y RECONSTRUCCION
   images/          Figuras de los documentos (fig_01 a fig_07)
 Manuales/          MANUAL_DE_USUARIO.md
-entregables/       Word y Excel listos para enviar al cliente
 scripts/           Fuente del modelo, validadores y generadores
 contexto/          Material de contexto operativo. No es la vara
 archivo/           Material de origen. No versionado (en .gitignore)
@@ -628,13 +620,44 @@ Reglas de ubicación al crear archivos:
 - Un `.md` de documentación va en `docs/`. Solo ESTADO, README, CLAUDE y MAP viven en la raíz.
 - Un `.py` va en `scripts/` y resuelve sus rutas desde la raíz del repositorio con
   `os.path.dirname(os.path.dirname(os.path.abspath(__file__)))`. Nunca rutas absolutas `D:\`.
-- Un `.docx` o `.xlsx` destinado al cliente va en `entregables/`. El manual de usuario va en
-  `Manuales/`.
 - Las figuras de un documento van en `docs/images/`.
 - Todo documento nuevo se enlaza en `MAP.md` y en la tabla de `README.md`.
-- **Nada se borra: se mueve a `docs/historico/`**, con un aviso en su cabecera que diga de dónde
-  vino y por qué salió, y una fila en `docs/historico/README.md`. Después se arreglan los enlaces
-  que apuntaban a su sitio anterior — un enlace roto es peor que no tener enlace.
+
+### 9.1 Qué se retira, y cómo (regla reescrita el 2026-08-10)
+
+**Antes esta regla decía «nada se borra: se mueve a `docs/historico/`».** Sonaba prudente y salió
+cara. En cuatro días esa carpeta juntó 26 documentos que describían aplicaciones y hojas
+abandonadas, con enlaces vivos apuntando a ellos desde documentos vigentes. Quien llegaba no podía
+distinguir el sistema de sus tres versiones anteriores, y lo dijo con estas palabras: **«cuando leo
+los documentos principales, siguen locuras y legacy»**.
+
+**El error era creer que la preservación necesita una carpeta. La hace git.**
+
+- **Antes de una limpieza grande, una etiqueta.** `git tag -a <nombre> -m "<qué contiene>"`. Eso
+  convierte el borrado en reversible con un comando, y es lo que permite limpiar de verdad en vez
+  de acumular. La del punto de partida es `antes-de-la-limpieza-2026-08-10`.
+- **Después, se borra.** Un documento que describe un sistema que ya no existe no se archiva: se
+  quita del árbol de trabajo. Su valor histórico ya está en la etiqueta.
+- **Y se arreglan los enlaces**, que es la parte que nadie hace. `verificar_enlaces.py` la vuelve
+  mecánica: no se cierra una retirada mientras no diga `TODOS LOS ENLACES RESUELVEN`.
+
+**Lo que sí se conserva en el árbol es la lección, no el documento.** Por qué se abandonó algo vale
+más que el algo: vive en `ESTADO.md` §6 y en las secciones 7.x de este archivo.
+
+### 9.2 Los identificadores viven en un solo sitio
+
+**`scripts/sistema.py` dice cuál es la aplicación y cuál es la hoja.** Nada más lo dice.
+
+Estaban escritos a mano en 37 documentos y 10 scripts. El sistema se reconstruyó tres veces en
+cuatro días, y cada vez había que perseguirlos uno por uno: nunca se perseguían todos. El resultado
+fue cinco aplicaciones y tres hojas mencionadas por el repositorio, con la portada ofreciendo un
+enlace que daba 404.
+
+- **Un generador nunca escribe un identificador a mano.** Lo pide a `sistema.py`.
+- **Un `.md` vigente que nombre una aplicación o una hoja que no sea la de `sistema.py` está
+  desactualizado**, o habla del pasado y entonces tiene que decirlo en la misma frase.
+- Las superadas están en `SUPERADOS`, con el motivo por el que dejaron de serlo. **No se borran de
+  ahí:** son lo que hay que reconocer para poder descartarlo.
 
 ## 10. Alcance y método de construcción
 

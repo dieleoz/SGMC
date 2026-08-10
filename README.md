@@ -9,16 +9,16 @@ eléctrica y de TI del corredor vial de la **Concesión Transversal del Sisga S.
 > `ESTADO.md` dice en qué punto está hoy, qué falta y quién lo bloquea. Si los dos discrepan, manda
 > `ESTADO.md`.
 >
-> En una frase, a 2026-08-09: **la aplicación está reconstruida y cableada; faltan cuatro ajustes,
-> probarla y cargar las coordenadas reales antes de que salga a campo.**
+> En una frase, a 2026-08-10: **la hoja de datos está terminada y verificada. La aplicación tiene las
+> 28 tablas dadas de alta y nada más: falta cablearla entera.**
 
 Construida sobre **Google AppSheet** con backend en **Google Sheets**. Sin servidores propios,
 sin compilación de APK, sin Play Console: los técnicos instalan la app de AppSheet e inician
 sesión con su cuenta corporativa.
 
-**La aplicación vigente es `SISGA`.** La anterior, `SGMC-886843353`, se abandonó el 2026-08-09: su
-esquema divergía demasiado y el *Regenerate* de AppSheet fusiona en vez de reemplazar. El porqué
-está en [`BASE_CONOCIMIENTO_APPSHEET.md`](docs/BASE_CONOCIMIENTO_APPSHEET.md) §11 y §12.
+**La aplicación vigente es `SISGA_-323965761-26-08-10`.** Las versiones anteriores se abandonaron
+el 2026-08-10 al limpiar el repositorio e iniciar la reconstrucción limpia sobre `Modelo_Datos_10082026`.
+El porqué está en [`BASE_CONOCIMIENTO_APPSHEET.md`](docs/BASE_CONOCIMIENTO_APPSHEET.md) §11 y §12.
 
 ---
 
@@ -39,15 +39,10 @@ físicamente frente al equipo, y que la evidencia que lo respalda es difícil de
 
 ## 2. Qué gestiona
 
-La plantilla de datos, [`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTILLA.xlsx), tiene
-**389 activos** repartidos así:
+La plantilla de datos, [`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTILLA.xlsx), contiene
+**368 activos** repartidos sobre los 137 km del corredor vial de la Concesión.
 
-- **34 activos de fixture**, repartidos sobre los 18 tipos que ya existían —entre uno y tres por
-  tipo—. Son los que traían las seis órdenes de trabajo existentes y se conservan intactos.
-- **355 activos sintéticos** con los códigos del Plan Maestro repartidos sobre los 137 km del
-  corredor. Cada fila lo dice en `Observaciones`: son de prueba, no son inventario real.
-
-**En la operación real hay 355 activos contables sobre 24 tipos**, confirmados por operación el
+**En la operación real hay 355 activos contables sobre 18 familias**, confirmados por operación el
 2026-08-07 desde el Plan Maestro. La aritmética y el desglose están en
 [`CONTEXTO_OPERACION.md`](docs/CONTEXTO_OPERACION.md).
 **Tenemos el censo, no el registro**: sabemos cuántos postes SOS hay, no cuál es cada uno ni dónde
@@ -65,9 +60,8 @@ veían el checklist equivocado. La lista sale de `scripts/catalogo_tipos.py`, qu
 - **TI**, 9 — Servidores, NAS, switches, switches de capa 3, routers, firewalls, videowall,
   computadores portátiles, impresoras
 
-> **Ninguna coordenada es la real.** Los 34 de fixture comparten un punto en Bogotá y las 355
-> sintéticas se generaron sobre el trazado. Cargar las reales es el bloqueante D-01 para salir a
-> campo.
+> **Ninguna coordenada es la real.** Los 368 activos tienen sus coordenadas calculadas sobre el
+> trazado del corredor. Cargar las reales es el bloqueante D-01 para salir a campo.
 
 ## 3. Actores
 
@@ -97,7 +91,7 @@ graph TD
         B[Bot de correo por activo fuera de servicio]
     end
     subgraph C3[Capa 3: Datos]
-        GS[Google Sheets Modelo_Datos_09082026 - 32 pestanas]
+        GS[Google Sheets Modelo_Datos_10082026 - 29 pestanas]
         X[Plantilla generada - BD/Modelo_Datos_PLANTILLA.xlsx]
         OD[Almacenamiento de evidencias fotograficas]
     end
@@ -192,17 +186,20 @@ admiten la misma tolerancia:
 DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]
 ```
 
-**Está cableada y puesta.** En [`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTILLA.xlsx),
-`TIP_TiposActivo.RadioGeofencingKm` trae valor en los **27 tipos**: 0,05 km en 18 —poste SOS,
-cámara, sensores, paso seguro y equipos de TI—, 0,1 km en 8 —paneles de mensaje variable, básculas,
-peajes, generador y subestación— y 1,5 km en el tramo de fibra, que es lineal. Y las cuatro columnas
-de captura llevan `Editable_If = FALSE`, sin lo cual el técnico podría arrastrar el pin del mapa
-encima del activo.
+**No está cableada en la aplicación.** La app tiene hoy las 28 tablas dadas de alta y nada más
+—ver [`ESTADO.md`](ESTADO.md)—; esta regla, el `Editable_If = FALSE` de las cuatro columnas de
+captura y el resto de las 20 reglas están escritas y listas para reponer en
+[`docs/sdd/RECONSTRUCCION_EXPRESIONES.md`](docs/sdd/RECONSTRUCCION_EXPRESIONES.md).
 
-**En la hoja de producción `Modelo_Datos_09082026` esa columna sigue vacía en sus 18 tipos**, así
-que hasta que se despliegue la plantilla rige el literal provisional de 1,0 km.
+**Lo que sí está resuelto es el dato.** En
+[`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTILLA.xlsx) —el mismo archivo publicado
+como `Modelo_Datos_10082026`— `TIP_TiposActivo.RadioGeofencingKm` trae valor en los **27 tipos**:
+0,05 km en 18 —poste SOS, cámara, sensores, paso seguro y equipos de TI—, 0,1 km en 8 —paneles de
+mensaje variable, básculas, peajes, generador y subestación— y 1,5 km en el tramo de fibra, que es
+lineal.
 
-**Lo que falta es la coordenada del activo**, no la regla.
+**Y aunque se cablee, falta la coordenada real del activo** (bloqueante D-01). Sin ella, cualquier
+cierre queda dentro o fuera de rango por azar, no por la posición real del técnico.
 
 ## 6. Estado, hallazgos y bloqueantes
 
@@ -223,8 +220,7 @@ Todos en [`ESTADO.md`](ESTADO.md), que se actualiza; aquí no, para que no se co
 ## 7. Método: nada se ejecuta contra producción sin las tres firmas
 
 El método vigente es SDD, descrito en [`docs/SDD_PIPELINE_SGMC.md`](docs/SDD_PIPELINE_SGMC.md):
-especificar, probar y aprobar antes de tocar producción. Los cinco agentes están en
-`.claude/agents/`, y **`python scripts/validar_modelo.py` en 0 errores es el único gate objetivo**.
+especificar, probar y aprobar antes de tocar producción. `python scripts/validar_modelo.py` en 0 errores es el único gate objetivo.
 
 Los cuatro verificadores, que no se sustituyen entre sí:
 
@@ -245,10 +241,8 @@ MAP.md         Índice maestro y referencias cruzadas
 
 BD/            Hojas de datos. Modelo_Datos_PLANTILLA.xlsx es el entregable de datos
 docs/          Documentación técnica y funcional
-  historico/   Documentos retirados. No usar como fuente
   images/      Figuras de los documentos
-  prompts/     Directivas para agentes
-  sdd/         Artefactos del pipeline: ESPEC, PRUEBA y ACTA
+  sdd/         Artefactos del pipeline: ESPEC, PRUEBA y RECONSTRUCCION_EXPRESIONES
 Manuales/      Manual de usuario
 entregables/   Word y Excel listos para enviar al cliente
 scripts/       Fuente del modelo, validadores y generadores
@@ -264,7 +258,6 @@ archivo/       Material de origen, no versionado
 | [docs/ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) | Modelo objetivo, generado desde `scripts/modelo_objetivo.py` y validado |
 | [docs/bd.md](docs/bd.md) | Diccionario As-Built, generado del archivo |
 | [docs/MANUAL_DESPLIEGUE.md](docs/MANUAL_DESPLIEGUE.md) | De cero a app desplegada, con la ficha de las 28 tablas columna por columna |
-| [docs/MIGRACION_HOJA_LIMPIA.md](docs/MIGRACION_HOJA_LIMPIA.md) | El coste de migrar a la hoja limpia, para poder decidirlo |
 | [docs/GUIA_IMPLEMENTACION_FUNCIONAL.md](docs/GUIA_IMPLEMENTACION_FUNCIONAL.md) | La implementación vista desde la operación |
 | [docs/MODELO_EVOLUCION_FASE_2.md](docs/MODELO_EVOLUCION_FASE_2.md) | Lo que viene después del piloto |
 | [docs/BASE_CONOCIMIENTO_APPSHEET.md](docs/BASE_CONOCIMIENTO_APPSHEET.md) | Cómo se comporta AppSheet, con cita textual y URL oficial |
@@ -273,9 +266,7 @@ archivo/       Material de origen, no versionado
 | [docs/CONTEXTO_OPERACION.md](docs/CONTEXTO_OPERACION.md) | Cómo se mantiene el corredor, y la procedencia de cada documento de contexto |
 | [docs/COMUNICACION_PROPIETARIO_APP.md](docs/COMUNICACION_PROPIETARIO_APP.md) | Qué decirle al dueño de la aplicación anterior |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Fases con criterio de cierre verificable |
-| [docs/prompts/PROMPT_CONTINUAR_DESPLIEGUE.md](docs/prompts/PROMPT_CONTINUAR_DESPLIEGUE.md) | Lo que falta para el agente que está en el editor |
-| [docs/sdd/](docs/sdd/) | Especificaciones, pruebas y actas del pipeline |
-| [docs/historico/](docs/historico/) | **Documentos retirados.** Describen estados superados; seguirlos induce a deshacer trabajo correcto |
+| [docs/sdd/](docs/sdd/) | Especificaciones y pruebas del pipeline (`ESPEC-003`, `PRUEBA-003`, `RECONSTRUCCION_EXPRESIONES`) |
 | [Manuales/MANUAL_DE_USUARIO.md](Manuales/MANUAL_DE_USUARIO.md) | Guía de operación por rol. **No se entrega todavía**: describe funciones que aún no están montadas, y lo dice en su cabecera |
 | [MAP.md](MAP.md) | Índice maestro y referencias cruzadas |
 | [CLAUDE.md](CLAUDE.md) | Reglas de trabajo para agentes sobre este repositorio |
@@ -284,18 +275,18 @@ archivo/       Material de origen, no versionado
 
 | Archivo | Estado |
 |---|---|
-| [`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTILLA.xlsx) | **El entregable de datos.** Generado del modelo: 28 pestañas de datos más `_LEEME`, 202 columnas, ninguna de sobra. 27 tipos de activo, 27 formularios y 389 activos |
+| [`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTILLA.xlsx) | **El entregable de datos.** Generado del modelo: 28 pestañas de datos más `_LEEME`, 202 columnas, ninguna de sobra. 27 tipos de activo, 27 formularios y 368 activos |
 | `entregables/Propuesta_Arquitectura_SGMC.docx` | Enviado a Dirección y al funcional. Describe el alcance anterior al QR retirado |
 | `entregables/Definicion_Funcional_SGMC_Mesa_de_Trabajo.docx` | Enviado. 14 decisiones con propuesta marcada, hoy adoptadas como supuestos |
 | `entregables/CORREO_ENVIO_MESA_DE_TRABAJO.md` | Texto del correo de envío |
-| `entregables/Especificaciones_Tecnicas_SGMC_AsBuilt.docx` | v2.0. **Desactualizado**: describe el modelo de 24 tablas anterior a la reconstrucción |
+| `entregables/Especificaciones_Tecnicas_SGMC_AsBuilt.docx` | v2.0. **Desactualizado**: describe el modelo anterior a la reconstrucción |
 | `entregables/Modelo_Datos_SGMC_AsBuilt.xlsx` | Copia publicada del maestro anterior. Sustituida por la plantilla |
 
 ## 9. Enlaces
 
-- Aplicación AppSheet `SISGA`: se entra por el listado de [appsheet.com](https://www.appsheet.com). **El enlace directo con `appId=9e947fce-…` no resuelve** — ver [`ESTADO.md`](ESTADO.md)
-- Backend Google Sheets `Modelo_Datos_09082026`, 32 pestañas, propiedad de la Concesión:
-  [abrir](https://docs.google.com/spreadsheets/d/1LGabjn1iNDKiJNP7CUD4_LwCH2BGXC8oTBfXmuuAkFs)
+- Aplicación AppSheet `SISGA_-323965761-26-08-10`: [abrir en AppSheet](https://www.appsheet.com/template/appdef?appId=d180a1b5-19ca-448e-a44c-f985396dce12)
+- Backend Google Sheets `Modelo_Datos_10082026`, 29 pestañas, propiedad de la Concesión:
+  [abrir](https://docs.google.com/spreadsheets/d/1h9kyCYGK6esRL1UiTcPXHlSmDQcPb13fNZ0hBznYOa0)
 - Repositorio: [github.com/dieleoz/SGMC](https://github.com/dieleoz/SGMC)
 
 ---

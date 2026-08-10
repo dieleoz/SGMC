@@ -6,10 +6,10 @@
 
 > # BLOQUEADA. No se aplica nada de este documento.
 >
-> **Estado al 2026-08-09: bloqueada por el arquitecto, con 14 condiciones sin resolver.**
-> Así consta en [`ESTADO.md`](../../ESTADO.md) §6, que es el estado vigente. El veredicto en sí no
-> está versionado en el repositorio: si alguien va a levantar el bloqueo, **pídalo antes de tocar
-> `scripts/modelo_objetivo.py`**.
+> **Bloqueada por el arquitecto el 2026-08-09, con 14 condiciones sin resolver.** El veredicto en sí
+> no está versionado en el repositorio: si alguien va a levantar el bloqueo, **pídalo antes de tocar
+> `scripts/modelo_objetivo.py`**. El estado vigente del proyecto está en
+> [`ESTADO.md`](../../ESTADO.md).
 >
 > **Qué significa en la práctica.** Nada de aquí —ni las tablas nuevas de §7.1, ni las columnas de
 > §7.2, ni las reglas RG-21 en adelante de §12.1— se escribe en `scripts/modelo_objetivo.py`.
@@ -20,14 +20,29 @@
 > cambia cómo se generan las órdenes —un poste SOS tiene tarea semanal, mensual y trimestral, no
 > una— y no se toca con el piloto a punto de arrancar.
 >
-> **Dos referencias suyas ya caducaron, y no invalidan el resto:**
+> ## Lo que caducó de este documento el 2026-08-10, y lo que no
 >
-> - Su cabecera dice que precede a **`ESPEC-002` cerrada con su acta**. `ESPEC-002` nunca se cerró:
->   se autorizó con `ORDEN-002` sobre la aplicación `SGMC-886843353`, que **se abandonó** el
->   2026-08-09 y se reconstruyó desde cero como `SISGA`. No hay `ACTA-005`. La secuencia real es
->   ahora: terminar el despliegue de `SISGA`, probarlo con `PRUEBA-003`, y solo después esto.
-> - Donde dice «Fase C, posterior al cierre de la Fase B», léase «posterior al cierre del despliegue
->   reconstruido».
+> **La secuencia.** La cabecera dice que esto precede a `ESPEC-002` «cerrada con su acta».
+> `ESPEC-002` nunca se cerró, describía el cableado de una aplicación abandonada y **se retiró en la
+> limpieza del 2026-08-10** junto con `PRUEBA-002` y las cuatro actas. No hay `ACTA-005`. La
+> secuencia real es: **cablear entero** el despliegue de la aplicación vigente, probarlo con
+> [`PRUEBA-003-despliegue.md`](PRUEBA-003-despliegue.md), y solo después esto. Donde el documento
+> dice «Fase C, posterior al cierre de la Fase B», léase «posterior a ese cierre».
+>
+> **El cuerpo cita `ESPEC-002` unas quince veces.** Léase como el registro de decisiones que aquella
+> especificación dejó tomadas —retirar `Adds` de `OT_OrdenesTrabajo`, la cadena de evidencia sin
+> atomicidad, el aplazamiento de `RG-11`—, no como un documento consultable. Lo que sobrevive de ella
+> está repartido en [`RECONSTRUCCION_EXPRESIONES.md`](RECONSTRUCCION_EXPRESIONES.md), con las 20
+> expresiones sin cortar, y en [`../MANUAL_DESPLIEGUE.md`](../MANUAL_DESPLIEGUE.md), con la ficha por
+> tabla. **Y una de esas citas ya no vale: el literal `1.0` del geofencing.** La hoja que la
+> aplicación lee trae el radio poblado en los 27 tipos, así que se cablea la expresión por tipo.
+> Corregido en §9 y en el recuadro de §12.2.
+>
+> **El punto de partida.** Todo lo que la sección 2 verificó salía de `BD/Modelo de Datos (11).xlsx`,
+> **un archivo que ya no está en el repositorio**. La hoja de hoy se genera del modelo y es
+> `BD/Modelo_Datos_PLANTILLA.xlsx`. Seis hechos del volcado de §2.2 cambiaron, y están corregidos en
+> el recuadro que abre esa sección. **Ninguno tumba el argumento**; el que más muerde es que las
+> claves `19` a `23` que §5.3.1 manda usar **ya están ocupadas**.
 >
 > **Lo que no caduca** es el plano de dominio: las secciones 3 a 6 describen la operación, no la
 > plataforma, y sobreviven aunque mañana el backend no sea Google Sheets. Es la mejor descripción
@@ -41,8 +56,8 @@ tarea de configuración sino un dominio.
 | | |
 |---|---|
 | Qué toca | `scripts/modelo_objetivo.py` y, después, la estructura del Sheets |
-| Qué **no** toca | El editor de AppSheet. Eso es Fase C, posterior al cierre de la Fase B |
-| Precede | `ESPEC-002` **cerrada con su acta**. Ver el bloqueo de la sección 2.4: no es una preferencia de orden, es un fallo duro |
+| Qué **no** toca | El editor de AppSheet. Eso es Fase C, posterior al cierre del cableado |
+| Precede | El cierre del cableado de la aplicación y su `PRUEBA-003`. Ver el bloqueo de la sección 2.4: no es una preferencia de orden, es un fallo duro |
 | Alcance | Capa de tareas, jerarquía de ubicación, roles, tipos de mantenimiento, correctivo y recepción del trabajo |
 | Fuera | Almacén, SAT, flotas, QR, y todo lo que `ESPEC-002` ya decidió |
 
@@ -108,6 +123,29 @@ todavía no se conocen.
 existía una columna `FechaCreacion` que no existe. Aquí está lo que se leyó, con qué comando y qué
 devolvió.
 
+> ## Qué de esta sección dejó de ser cierto el 2026-08-10
+>
+> **El archivo contra el que se verificó, `BD/Modelo de Datos (11).xlsx`, ya no está en el
+> repositorio.** La hoja se genera hoy del modelo y es `BD/Modelo_Datos_PLANTILLA.xlsx`, la misma que
+> está publicada. Lo que sigue se rederivó de ella y de `scripts/modelo_objetivo.py`:
+>
+> | Lo que dice esta sección | Lo que hay hoy |
+> |---|---|
+> | «Columnas: 200 · Campos retirados de MAN: 14» (§2.1) | **202 columnas · 13 campos retirados de `MAN_Mantenimientos`.** Tablas, referencias y reglas no cambiaron: 28, 38 y 20 |
+> | «`TIP_TiposActivo` tiene 18 filas» (§2.2, §2.2.1, §5.3.1) | **27.** Se añadieron nueve tipos el 2026-08-09 para que cada familia del Plan Maestro tenga checklist propio. `RequiereGPS = FALSE` sigue valiendo solo en `SERVIDOR` y `NAS`, que es lo que sostiene 5.3 |
+> | «`TIP_TiposActivo.RadioGeofencingKm` sigue vacío» | **Poblado en los 27**: 0,05 km en 18 tipos, 0,1 en 8 y 1,5 en la fibra |
+> | «Los 34 activos comparten una coordenada» | **368 filas.** Las 34 del juego de arranque siguen compartiendo el punto de Bogotá; las otras 334 llevan coordenadas interpoladas sobre el corredor, y **ninguna de las dos clases es real** (D-01) |
+> | «`UNF_UnidadesFuncionales.PRInicial` y `PRFinal` están vacías» | **Pobladas en las cuatro filas**, de `00+000` a `137+030`. Lo que sigue faltando es el PK, y el argumento de 4.2 no cambia |
+> | «`MAN` 2 filas, `OT` 6, `CHD` 15…» | **Todas las transaccionales están vacías.** La hoja se entrega sin registros de prueba, así que la conversión de `OTID` a `Ref` no arrastra ninguna fila: es aún más barata que cuando se escribió esto |
+> | «`FIR_Firmas.TipoFirma` no declara valores» | **Ya los declara**, y con el único valor que §7.6 propone: `Tecnico`. Esa parte de la especificación está aplicada |
+>
+> **Y el que sí obliga a corregir la especificación: las claves `19` a `23` que §5.3.1 manda usar
+> para los cinco tipos sin coordenada están ocupadas.** El catálogo llega hoy a `27`. Ver el recuadro
+> de 5.3.1.
+>
+> Lo que no cambió es el dominio: los conteos del Plan Maestro y del cronograma contractual de §2.5
+> salen de `contexto/`, que no se ha tocado.
+
 **Se verificó contra dos fuentes, ninguna de ellas producción:**
 
 | Fuente | Papel |
@@ -162,6 +200,11 @@ empiezan en `RG-21`.**
 | `MAN_Mantenimientos` tiene **2 filas**, no 0 | Conteo | **`CLAUDE.md` §7 dice «0 filas» y está desactualizado.** `ESPEC-002` §1 ya lo había corregido a 2. Sigue siendo el momento más barato para convertir `OTID`, pero no es gratis: son 2 filas que la conversión tiene que resolver |
 
 ### 2.2.1 `TIP_TiposActivo`, los 18 tipos completos
+
+> **Volcado histórico: el catálogo tiene hoy 27 tipos y el radio poblado en los 27.** Se deja tal
+> como se leyó porque de él cuelga el argumento de 5.3, y ese argumento **no cambia**: `RequiereGPS`
+> sigue valiendo `FALSE` solo en `SERVIDOR` y `NAS`. El catálogo vigente se vuelca con
+> `python scripts/catalogo_tipos.py`.
 
 El arquitecto lo pidió y tenía razón en pedirlo: **la columna `RequiereGPS` no está vacía ni está
 toda a `TRUE`**, y una lectura descuidada habría construido encima una exención silenciosa.
@@ -603,8 +646,9 @@ firma». Es menos, y es honesto: no hay equipo frente al que estar.
 
 #### 5.3.1 Los cinco tipos **no existen como filas**, y sin ellas esta sección no se puede aplicar
 
-`TIP_TiposActivo` tiene 18 filas y el Plan Maestro tiene 24 tipos. **No son el mismo conjunto ni uno
-contiene al otro**, y ninguno de los cinco sin coordenada está en la hoja. Cruzados uno a uno:
+`TIP_TiposActivo` tenía 18 filas y el Plan Maestro tiene 24 tipos. **No son el mismo conjunto ni uno
+contiene al otro**, y ninguno de los cinco sin coordenada está en la hoja. El cruce que se hizo
+entonces era este:
 
 | | Cuántos | Cuáles |
 |---|---|---|
@@ -613,17 +657,46 @@ contiene al otro**, y ninguno de los cinco sin coordenada está en la hoja. Cruz
 | Tipos del Plan **sin fila** en `TIP` | **12** | ETD, Pasos Seguros, Peaje-Carriles, Peaje-Electrónica, OCR de pesaje, **Antivirus, Licencias, Radios, SSL, ISP**, Computadores, Impresoras |
 | Filas de `TIP` **sin tipo** en el Plan | **7** | GENERADOR, VW, ROUTER, FIREWALL, UPS, NAS, SUBESTACIÓN |
 
+> ## Corrección del 2026-08-10: siete de esas doce ya tienen fila, y las claves 19 a 23 están tomadas
+>
+> El 2026-08-09 el catálogo pasó de 18 a 27 tipos, para que **cada familia del Plan Maestro tenga
+> checklist propio**: hasta entonces la impresora heredaba el del NAS y el portátil el del servidor,
+> y eran 78 activos de 355 con el checklist equivocado. El reparto vive en
+> `scripts/catalogo_tipos.py`, que es la fuente única y lo comprueba con `comprobar()`.
+>
+> **Los nueve tipos añadidos ocupan las claves `19` a `27`**: báscula dinámica, carril de peaje,
+> electrónica de peaje, estación de toma de datos, paso seguro, switch de capa 3, computador
+> portátil, impresora y cámara OCR de pesaje. Cargar los cinco de la tabla de abajo con las claves
+> `19` a `23` **pisaría cinco tipos vivos**, y como `ACT_Activos.TipoActivoID` guarda esos números,
+> el efecto sería el de siempre: la referencia sigue resolviendo y apunta a otra cosa.
+>
+> **El cruce corregido, derivado de `scripts/catalogo_tipos.py`:**
+>
+> | | Cuántos | Cuáles |
+> |---|---|---|
+> | Tipos del Plan con fila propia en `TIP` | **19** | Las 18 familias que se cuentan por unidades, cada una con su tipo y su formulario, más la fibra |
+> | Tipos del Plan **sin fila** | **5** | **Antivirus, Licencias, SSL, ISP y Radios.** Son exactamente los cinco que no se visitan |
+> | Filas de `TIP` **sin tipo** en el Plan | **8** | GENERADOR, BASCULA, VW, ROUTER, FIREWALL, UPS, NAS, SUBESTACIÓN |
+>
+> **Las claves de las cinco filas nuevas pasan a ser `28` a `32`**, continuando la serie. Todo lo
+> demás de esta subsección —que hacen falta cinco filas, que la clave es numérica y no `TIP-28`, y
+> que no se pueden cargar sin formulario que apuntar— **sigue valiendo igual**.
+>
+> Y el 12 → 5 no cierra A-14: **las 8 filas sin tipo del Plan siguen ahí**, y ahora son una más,
+> porque `BASCULA` y `BASCULA DINAMICA` son dos tipos distintos desde que la familia contable tiene
+> el suyo.
+
 **Para que 5.3 sea aplicable hacen falta cinco filas nuevas en `TIP_TiposActivo`**, con claves que
-continúan la serie numérica `1..18` que la hoja ya usa —no `TIP-19`, que rompería `F-11` mezclando
+continúan la serie numérica que la hoja ya usa —no `TIP-28`, que rompería `F-11` mezclando
 formatos de clave—:
 
 | Clave | Nombre | Categoria | SeVisita | RequiereGPS | TieneQR | FormularioID |
 |---|---|---|---|---|---|---|
-| `19` | `ANTIVIRUS` | `TI` | `FALSE` | `FALSE` | `FALSE` | pendiente |
-| `20` | `LICENCIAS` | `TI` | `FALSE` | `FALSE` | `FALSE` | pendiente |
-| `21` | `SSL` | `TI` | `FALSE` | `FALSE` | `FALSE` | pendiente |
-| `22` | `ISP` | `Comunicaciones` | `FALSE` | `FALSE` | `FALSE` | pendiente |
-| `23` | `RADIOS` | `Comunicaciones` | `FALSE` | `FALSE` | `FALSE` | pendiente |
+| `28` | `ANTIVIRUS` | `TI` | `FALSE` | `FALSE` | `FALSE` | pendiente |
+| `29` | `LICENCIAS` | `TI` | `FALSE` | `FALSE` | `FALSE` | pendiente |
+| `30` | `SSL` | `TI` | `FALSE` | `FALSE` | `FALSE` | pendiente |
+| `31` | `ISP` | `Comunicaciones` | `FALSE` | `FALSE` | `FALSE` | pendiente |
+| `32` | `RADIOS` | `Comunicaciones` | `FALSE` | `FALSE` | `FALSE` | pendiente |
 
 `FormularioID` queda pendiente porque el formulario pasa a ser de la tarea (3.1), y las tareas de
 estos cinco no existen todavía. **Mientras `TIP_TiposActivo.FormularioID` siga viva —y sigue, hasta
@@ -631,10 +704,17 @@ la Fase C por 7.4— es `obligatoria`, así que estas cinco filas no se pueden c
 que apuntar.** Es una dependencia real y ordena el trabajo: primero `TAR_Tareas` y sus formularios,
 después estas cinco filas.
 
-**Las otras dos diferencias no se resuelven aquí.** Los 12 tipos del Plan sin fila y las 7 filas sin
-tipo del Plan son una reconciliación de inventario que necesita a operación, no una decisión de
-modelo: hay que saber si `VW`, `ROUTER` o `SUBESTACIÓN` se mantienen y nadie los puso en el Plan
-Maestro, o si son parte de otro contrato. Va como **A-14**, y es hermana de A-01.
+**Y hay una segunda dependencia, que no existía cuando se escribió esto:** las cinco filas nuevas se
+cargan editando `scripts/catalogo_tipos.py`, no la hoja. La hoja se genera de ahí con
+`scripts/generar_plantilla.py`, y `comprobar()` falla si un tipo se queda sin radio de geofencing.
+Para un tipo que no se visita **el radio no significa nada**, así que o `comprobar()` aprende a
+eximir a los que llevan `SeVisita = FALSE`, o hay que darles un valor que nadie lee. Eso se decide al
+aplicar, y se decide en el script.
+
+**La otra diferencia no se resuelve aquí.** Las 8 filas de `TIP` sin tipo del Plan son una
+reconciliación de inventario que necesita a operación, no una decisión de modelo: hay que saber si
+`VW`, `ROUTER` o `SUBESTACIÓN` se mantienen y nadie los puso en el Plan Maestro, o si son parte de
+otro contrato. Va como **A-14**, y es hermana de A-01.
 
 ### 5.4 El oficio necesita dónde leerse, o los doce no compran nada
 
@@ -1088,9 +1168,14 @@ o renumerar las siete rompería datos existentes por nada.
 **Añadir la octava fila no rompe `F-06`**, que comprueba `n < minimo` con `minimo = 7` para
 `EOT_EstadosOrden`.
 
-### 7.6 Valores declarados de `FIR_Firmas.TipoFirma`
+### 7.6 Valores declarados de `FIR_Firmas.TipoFirma` — APLICADO
 
-Hoy: `Enum`, obligatoria, con la nota `Tecnico` y sin lista. La hoja tiene una fila con `Tecnico`.
+> **Esta es la única parte de esta especificación que ya está en el modelo.** `FIR_Firmas.TipoFirma`
+> declara hoy la lista con el único valor `Tecnico`, comprobado volcando
+> `MODELO['FIR_Firmas']`. No hay nada que aplicar aquí; el razonamiento se conserva porque es lo que
+> impide que alguien añada `Supervisor` creyendo que falta.
+
+Cuando se escribió: `Enum`, obligatoria, con la nota `Tecnico` y sin lista.
 
 **Se declara la lista con un solo valor: `Tecnico`.**
 
@@ -1126,7 +1211,7 @@ causa y fecha.
 | N-10 | Atributos propios por tipo de equipo, sin columnas vacías | **Sin esquema dinámico** sobre Sheets. Es lo que GIMAN sí hace | Se paga con columnas vacías o con tablas por familia. Ninguna de las dos es gratis |
 | N-11 | Que la cadena de evidencia sea atómica | **No hay transacciones.** Mantenimiento, fotos, firma y checklist son escrituras independientes | Otro backend. Hoy es límite declarado en `ESPEC-002` §6 |
 | N-12 | Integración con el SCADA para abrir la correctiva sola | **Sin plan Core no hay API REST** | Plan Core. Hoy el operador transcribe |
-| N-13 | Archivar por año antes de degradar la sincronización | **~50.000 filas por tabla.** `CHD_ChecklistDetalle` proyecta 28.740 filas/año | Procedimiento de archivo. No es opcional a 5 años |
+| N-13 | Archivar por año antes de degradar la sincronización | **~50.000 filas por tabla.** Con los 355 activos del Plan Maestro, `CHD_ChecklistDetalle` proyecta **76.680 filas/año** y 383.400 a cinco: pasa el umbral en el primer año. Sale de `python scripts/capacidad.py` | Procedimiento de archivo. No es opcional a 5 años |
 
 **Cinco de las trece son la misma causa:** N-02, N-03, N-07, N-09 y, en parte, N-12. Todas dicen
 «plan gratuito». Es la decisión D-B y aquí queda con su factura: sin ella, el sistema registra
@@ -1140,8 +1225,11 @@ trabajo pero no lo programa, y el ahorro que justifica el proyecto no llega.
   después son dos tablas y una referencia desde el mantenimiento.
 - **SAT y flotas de vehículos.** Fuera en GIMAN también.
 - **Código QR.** Fuera por decisión del 2026-08-07.
-- **Todo lo de `ESPEC-002`.** No se toca ni una línea: ni el orden de bloques, ni el literal `1.0` de
-  `RG-01` en la Fase B, ni las diecisiete pruebas.
+- **El cableado de la aplicación.** No se toca ni una línea de lo que hay que reponer: ni el orden de
+  los bloques, ni las 38 referencias, ni las 20 reglas, ni el plan de `PRUEBA-003`. **Con una
+  salvedad que cambió el 2026-08-10:** el literal `1.0` de `RG-01` ya no se pega. La hoja que la
+  aplicación lee trae `TIP_TiposActivo.RadioGeofencingKm` poblado en los 27 tipos, así que se cablea
+  la expresión que desreferencia el radio por tipo.
 - **Certificaciones del técnico con vigencia.** Fase 2, por decisión de operación. Lo que muerde ahí
   no son las dos tablas: es que la vigencia se evalúa contra la fecha del trabajo.
 - **Brigada o cuadrilla** entre técnico y zona.
@@ -1186,8 +1274,8 @@ desmienta:** A-04 (UF vacía), A-05 (catálogo con plazos en blanco), A-06 (`Tip
 ### 11.1 La dependencia dura: esto **bloquea la Fase B** si se aplica antes
 
 Verificado en el código, no supuesto (ver 2.4). En cuanto `TAR_Tareas`, `CRI_Criticidad`,
-`ETR_Estructuras`, `EVT_EventosOrden` o `EVT_EventosOrden` se declaren en `MODELO` sin existir como hoja,
-`F-02` da `FASE A INCOMPLETA`, y `ESPEC-002` §1 exige `FASE A CERRADA` para empezar.
+`ETR_Estructuras`, `EVT_EventosOrden` o `PAU_Pausas` se declaren en `MODELO` sin existir como hoja,
+`F-02` da `FASE A INCOMPLETA`, y el cableado de la aplicación exige `FASE A CERRADA` para empezar.
 
 **Dos salidas, y solo dos:**
 
@@ -1237,12 +1325,12 @@ Todo se edita **solo** en `scripts/modelo_objetivo.py`. Qué estructura toca cad
 
 | Cambio | Estructura |
 |---|---|
-| `TAR_Tareas`, `CRI_Criticidad`, `ETR_Estructuras`, `EVT_EventosOrden`, `EVT_EventosOrden` | `MODELO`, con `nueva=True` |
+| `TAR_Tareas`, `CRI_Criticidad`, `ETR_Estructuras`, `EVT_EventosOrden`, `PAU_Pausas` | `MODELO`, con `nueva=True` |
 | Las 17 columnas de 7.2 | `MODELO`, con `nueva=True` en cada una |
 | `ACT_Activos.FrecuenciaID`, `TIP_TiposActivo.FormularioID`, `PLA_PlanMantenimiento.FrecuenciaID` | `CAMPOS_RETIRADOS`, **y salen de `MODELO`** |
 | Sacar `FrecuenciaID` y `FormularioID` de los retipados | `RETIPADOS` |
 | `TAR_Tareas`, `CRI_Criticidad`, `ETR_Estructuras` | `CLAVE_LEGIBLE` |
-| `EVT_EventosOrden`, `EVT_EventosOrden` | `CLAVE_GENERADA` |
+| `EVT_EventosOrden`, `PAU_Pausas` | `CLAVE_GENERADA` |
 | `RG-21` a `RG-31` | `REGLAS` |
 | Modificación de `RG-01` y `RG-11` | `REGLAS`, y `MODELO` en el `valid_if` de `MAN_Mantenimientos.Coordenadas_Cierre` |
 | Re-apuntar «Checklist por tipo de activo» | **`scripts/validar_modelo.py`, `COBERTURA`.** Fuera del modelo, y con revisión independiente (7.4) |
@@ -1283,11 +1371,15 @@ OR(
 )
 ```
 
-> **Esto NO cambia lo que hace la Fase B.** `ESPEC-002` §7 manda pegar el literal `1.0` porque
-> `RadioGeofencingKm` está vacío en los 18 tipos de la hoja de producción, y esa instrucción sigue
-> igual mientras se despliegue contra ella. La divergencia entre el
-> modelo y lo que la Fase B pega **ya existía** y está declarada allí como deuda. Lo que esta
-> especificación hace es añadir la exención a la versión que entrará cuando se pueblen los radios.
+> **Esto NO cambia lo que hay que cablear, pero el punto de partida sí cambió.** `ESPEC-002` §7
+> mandaba pegar el literal `1.0` porque `RadioGeofencingKm` estaba vacío en los 18 tipos de la hoja
+> heredada, y esa hoja quedó superada el 2026-08-10. **La que la aplicación lee trae el radio poblado
+> en los 27 tipos**, así que lo que se cablea es la expresión que lo desreferencia y el literal deja
+> de tener uso. La divergencia entre el modelo y lo que se pegaba, que allí estaba declarada como
+> deuda, se cerró poblando la columna.
+>
+> Lo que esta especificación añade encima de eso es **solo la exención de los cinco tipos que no se
+> visitan**, que sigue sin poder aplicarse porque esos cinco no tienen fila (5.3.1).
 >
 > El mensaje de error no cambia: `Ubicación fuera de rango: debe estar junto al activo para cerrar.`
 
@@ -1331,32 +1423,34 @@ abiertas.
 **Qué hay que corregir en `PROPUESTAS` al aplicar esto:**
 
 **Aviso de lectura: `PROPUESTAS` es un registro vivo y cambió tres veces mientras se escribía esta
-sección.** Lo que sigue se leyó del archivo, no de memoria:
+sección.** Lo que sigue se releyó del archivo el 2026-08-10, no de memoria:
 
 ```
-$ python -c "import modelo_objetivo as m; print(sorted(m.PROPUESTAS))"
+$ python -c "import sys;sys.path.insert(0,'scripts');import modelo_objetivo as m;print(sorted(m.PROPUESTAS))"
 ['CER_Certificaciones', 'CRI_Criticidad', 'ETR_Estructuras', 'EVT_EventosOrden',
- 'MED_MedicionesHilo', 'ROL_Requeridos', 'TAR_Tareas', 'USR_Certificaciones']
+ 'MED_MedicionesHilo', 'PAU_Pausas', 'ROL_Requeridos', 'TAR_Tareas', 'USR_Certificaciones']
 ```
 
 | Entrada | Estado | Acción |
 |---|---|---|
 | `TAR_Tareas`, `CRI_Criticidad`, `ETR_Estructuras`, `EVT_EventosOrden` | Registradas y coinciden con esta especificación, **incluido el prefijo `ETR_`** de 7.1 | Salen de `PROPUESTAS` y entran en `MODELO`. `D-02` falla si están en los dos a la vez |
-| **`PAU_Pausas`** | **Falta.** Estuvo registrada y desapareció en una edición posterior. Sin ella no hay reloj parado, y `DECISIONES` sigue declarando «`PAU_Pausas` con `SUM()`» como el mecanismo elegido | **Volver a añadirla.** Es la única regresión que deja este cruce |
+| **`PAU_Pausas`** | **Vuelve a estar registrada.** La regresión que denunciaba este cruce está corregida, y `PROPUESTAS` la lleva declarada por separado de `EVT_EventosOrden`, que es lo que 6.2 exige | Ídem: sale de `PROPUESTAS` y entra en `MODELO` |
 | `ROL_Requeridos` | **No se propone aquí.** El rol requerido cabe como columna `TAR_Tareas.RolRequeridoID`; una tabla aparte solo hace falta cuando una tarea exija **varios** roles, que es Fase 2 (5.2) | Retirarla, o dejarla marcada explícitamente como Fase 2 |
 | `MED_MedicionesHilo`, `CER_Certificaciones`, `USR_Certificaciones` | Fuera del alcance de esta especificación (sección 9) | Se quedan como están |
 
-**Salida de la comprobación, con `PROPUESTAS` en el estado de arriba:**
+**Salida de la comprobación, hoy:**
 
 ```
-$ python scripts/verificar_documentos.py | grep ESPEC-003 | sort -u
-x [D-01] ESPEC-003 cita la tabla PAU_Pausas, que no esta en MODELO ni en RETIRADAS ni en PROPUESTAS
-x [D-01] ESPEC-003 cita la tabla EST_Estructuras, que no esta en MODELO ni en RETIRADAS ni en PROPUESTAS
+$ python scripts/verificar_documentos.py
+DOCUMENTOS CONSISTENTES CON EL MODELO
 ```
 
-**Las dos son ciertas y ninguna se arregla reescribiendo prosa.** La primera es la regresión de
-`PAU_Pausas`. La segunda es esta misma sección citando `EST_Estructuras` para explicar por qué **no**
-se llama así: el verificador no distingue una tabla que se propone de una que se descarta por nombre.
+**De los dos `D-01` que este cruce dejaba abiertos no queda ninguno.** El de `PAU_Pausas` se cerró
+declarándola en `PROPUESTAS`, no reescribiendo prosa. El de `EST_Estructuras` —esta misma
+especificación citándolo para explicar por qué **no** se llama así— se cerró con la línea
+`<!-- verificar_documentos: ignorar -->` de la cabecera, que es la salida prevista para un nombre que
+se menciona **para descartarlo**. `MODELO_EVOLUCION_FASE_2.md` §4 ya escribe `ETR_Estructuras`, así
+que el nombre está reconciliado en los dos sitios.
 
 Y un falso positivo que apareció en la primera pasada y volverá: **`ITS_TI` no es una tabla.** Es
 parte del nombre del archivo `contexto/Plan Maestro de Mantenimiento ITS_TI (1).xlsx`, y `RE_TABLA`

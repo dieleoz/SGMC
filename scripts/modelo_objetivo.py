@@ -118,7 +118,7 @@ MODELO = {
             col("Categoria", "Enum", valores=["ITS", "Electrico", "Comunicaciones", "TI"]),
             col("FormularioID", "Ref", ref="FRM_Formularios", obligatoria=True,
                 nota="Sin este mapeo no hay checklist dinamico. Estuvo vacio en la hoja de la "
-                     "aplicacion abandonada SGMC-886843353, y de ahi viene el aviso. HOY ESTA "
+                     "aplicacion anterior, y de ahi viene el aviso. HOY ESTA "
                      "POBLADO EN LAS DOS HOJAS VIVAS: 18 de 18 en la de produccion y 27 de 27 en "
                      "la plantilla"),
             col("TieneQR", "Yes/No", valor_inicial="TRUE"),
@@ -585,7 +585,7 @@ CAMPOS_RETIRADOS = {
 # que alguien recuerde el mapeo.
 #
 # FUENTE: Google Sheets de PRODUCCION, leido el 2026-08-07 con el conector de
-# Drive (fileId 1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc). NO el Excel local.
+# Drive, el que declara scripts/sistema.py. NO el Excel local.
 #
 # Una version anterior de este mapeo se construyo sobre el Excel y era incorrecta
 # para MAN_Mantenimientos: el Excel la llama MantenimientoID y TecnicoID, y
@@ -720,10 +720,10 @@ PARAMETROS = {
                    "GPS.gov, asi que 40 deja unas ocho veces de margen para montana y estructuras. "
                    "D-04 decia 50; se baja a 40 al comprobar que 45 m ya es nueve veces la norma."),
     "RADIO_GEOFENCING_KM": (1.0, "km",
-                            "Radio provisional de RG-01 mientras TIP_TiposActivo.RadioGeofencingKm "
-                            "siga vacio en los 18 tipos de la hoja de produccion. En la plantilla "
-                            "ya esta poblado en los 27, y alli la version definitiva por tipo es "
-                            "la que manda."),
+                            "Valor de respaldo, calibrable por el administrador. RG-01 NO lo lee: "
+                            "el radio va por tipo, en TIP_TiposActivo.RadioGeofencingKm, poblado "
+                            "en los 27. Se conserva porque un umbral escondido en una expresion "
+                            "no se puede calibrar sin abrir el editor."),
     "DISTANCIA_ESCANEO_CIERRE_KM": (0.5, "km",
                                     "Diferencia maxima entre donde se escaneo y donde se cerro "
                                     "antes de senalarlo en el reporte (RG-13). No bloquea."),

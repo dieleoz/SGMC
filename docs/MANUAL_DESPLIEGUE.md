@@ -111,11 +111,13 @@ tablas cuyas claves quedaron fijadas antes.
   FOT_Fotografias          · FIR_Firmas
 ```
 
-### Las que NO se dan de alta
+### Las 5 que el modelo retira
 
-Estan en la hoja y el modelo las retira:
+**Sobre la hoja vigente estas pestanas ya no existen.** La hoja se genera del modelo, asi que no
+aparecen en el desplegable y no hay nada que evitar. La lista se conserva para reconocerlas si
+alguien trabaja sobre una copia antigua:
 
-| Pestana | Por que |
+| Pestana | Por que se retiro |
 |---|---|
 | `FRM_CCTV` | Hoja plana en paralelo al motor FRM_Preguntas. Se migra y se retira. |
 | `FRM_PMVF` | Hoja plana en paralelo al motor FRM_Preguntas. Se migra y se retira. |
@@ -123,8 +125,18 @@ Estan en la hoja y el modelo las retira:
 | `GPS` | Duplica Coordenadas_Cierre y Precision_GPS de MAN_Mantenimientos. Nunca recibio un registro. |
 | `SEC_Secciones` | Duplicada con FRM_Secciones. Se consolida en una sola. |
 
-**No borre esas pestanas de la hoja.** Tres de ellas guardan bancos de preguntas que todavia no se
-han migrado.
+**No lo de por hecho: compruebelo contra el archivo.** Tiene que devolver una lista vacia.
+
+```bash
+python -c "import openpyxl;n=openpyxl.load_workbook('BD/Modelo_Datos_PLANTILLA.xlsx',read_only=True).sheetnames;print([t for t in ['FRM_CCTV', 'FRM_PMVF', 'FRM_SOS', 'GPS', 'SEC_Secciones'] if t in n])"
+```
+
+**Y los bancos de preguntas que guardaban tres de ellas ya estan migrados** a `FRM_Preguntas`, que
+es el motor unico. Se comprueba contando cuantos formularios distintos tienen preguntas:
+
+```bash
+python -c "import openpyxl;s=openpyxl.load_workbook('BD/Modelo_Datos_PLANTILLA.xlsx',read_only=True,data_only=True)['FRM_Preguntas'];f=[r[1] for r in s.iter_rows(min_row=2,values_only=True)];print(len(f),'preguntas en',len(set(f)),'formularios')"
+```
 
 ## Paso 3 — Las claves, todas `Text`
 
@@ -210,9 +222,10 @@ Todo llega de una hoja, asi que entra como texto o numero.
 
 ## Paso 5 — Las 38 referencias
 
-> **Cuidado con las listas de otros documentos.** `ESPEC-002` lista **15**, y es correcto para lo
-> que norma: convertir una aplicacion existente donde otras 23 ya estaban puestas. **Construyendo
-> desde cero no sobrevive ninguna.** Si al terminar cuenta 15, siguio la lista equivocada.
+> **Cuidado con las listas de otros documentos.** Circulo una lista de **15** referencias por
+> convertir, y era correcta para lo que normaba: una aplicacion existente donde otras 23 ya estaban
+> puestas. Ese documento esta retirado. **Construyendo desde cero no sobrevive ninguna: son 38.**
+> Si al terminar cuenta 15, siguio la lista equivocada.
 
 Una referencia de AppSheet **guarda el valor de la clave de la tabla destino**. De ahi que el orden
 importe: primero la clave del destino, despues quien la apunta.
@@ -302,15 +315,29 @@ que la evidencia sea dificil de falsificar, eso se decide, no se hereda de un ej
 filas cuyo valor coincide con la clave del destino; las demas quedan huerfanas **sin mensaje de
 error**.
 
-## Paso 6 — Tres columnas que AppSheet convierte solo, y estan mal
+## Paso 6 — RETIRADO. Sobre la hoja vigente no hay nada que deshacer
 
-> **Este paso es solo para la hoja de produccion heredada, `Modelo_Datos_09082026`.** Sobre
-> `BD/Modelo_Datos_PLANTILLA.xlsx` estas tres columnas **no existen**, asi que no hay nada que
-> deshacer: saltese el paso entero. Lo mismo vale para las marcas `OCULTAR` del anexo.
+> **No ejecute este paso.** Se conserva numerado para que quien tenga una copia antigua del manual
+> sepa que salio del plan, y para poder reconocer el problema si algun dia se trabaja sobre una
+> hoja heredada.
+>
+> Estas columnas **no existen en la hoja vigente**, que se genera del modelo, asi que AppSheet no
+> tiene nada que convertir solo. **Compruebelo usted, con la regla `F-19`:**
+>
+> ```bash
+> python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"
+> ```
+>
+> ```
+> ok Hoja limpia: ninguna de las 43 columnas retiradas existe ya. No hay nada que ocultar
+> ```
+>
+> **Lo mismo vale para las marcas `OCULTAR` y `TRAMPA` del anexo:** describen una hoja que ya no se
+> usa y no aplican a la vigente.
 
-Son columnas muertas que siguen en la hoja **y se llaman igual que la clave de otra tabla**.
-AppSheet infiere referencias por coincidencia de nombre, asi que las convierte sin que nadie se lo
-pida.
+El problema que este paso resolvia: son columnas muertas que **se llaman igual que la clave de otra
+tabla**. Donde existan, AppSheet infiere la referencia por coincidencia de nombre y las convierte
+sin que nadie se lo pida.
 
 | Tabla | Columna | Adonde apunta sola | Por que esta mal |
 |---|---|---|---|
@@ -319,13 +346,11 @@ pida.
 | `OT_OrdenesTrabajo` | `FormularioID` | `FRM_Formularios` | El formulario lo determina el tipo del activo, no la orden. |
 
 **Son 3, derivadas del archivo y no escritas a mano.** Estan tambien en la ficha de cada tabla,
-marcadas como TRAMPA.
+marcadas como TRAMPA, **y esas marcas tampoco aplican a la hoja vigente**.
 
-**Dejelas en `Text` y desmarque `Show?`.** Si se quedan como `Ref`, dibujan rutas de navegacion
-que el modelo prohibe y aparecen en la aplicacion como si fueran buenas.
-
-Un aviso del tipo *was set to be unsearchable because it is Hidden* es **normal**: confirma que la
-columna quedo oculta.
+Si alguna vez aparecen —trabajando sobre una copia antigua del libro—, lo que habria que hacer es
+dejarlas en `Text` y desmarcar `Show?`. Como `Ref` dibujan rutas de navegacion que el modelo
+prohibe y aparecen en la aplicacion como si fueran buenas.
 
 ## Paso 7 — Las reglas
 
@@ -361,19 +386,25 @@ Las 20 del modelo. Las expresiones completas estan en
 
 ```
 Initial value:  HERE()
-Valid_If:       DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= 1.0
+Valid_If:       DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion])
+                  <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]
 Invalid text:   Ubicacion fuera de rango: debe estar junto al activo para cerrar.
 Editable_If:    FALSE
 ```
 
-**El `1.0` es literal a proposito.** El modelo preve un radio por tipo de activo, pero esa columna
-esta vacia en los 18 tipos de la hoja de produccion `Modelo_Datos_09082026`: la version por tipo
-comparia contra una celda en blanco y **rechazaria tambien los cierres legitimos**.
+**El radio va por tipo de activo, no como literal.** Una subestacion y un poste SOS no admiten la
+misma tolerancia, y un tramo de fibra es lineal. `PAR_Parametros.RADIO_GEOFENCING_KM` queda como
+valor provisional historico: **la regla no lo lee.**
 
-**Si despliega contra `BD/Modelo_Datos_PLANTILLA.xlsx`, es al reves.** Alli la columna esta
-poblada en sus 27 tipos, y entonces lo correcto es la variante por tipo:
-`... <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]`. Compruebe contra que hoja esta
-trabajando antes de pegar la expresion.
+**Antes de pegarla, compruebe que la columna esta poblada**, porque contra celdas en blanco esta
+expresion **rechaza tambien los cierres legitimos**:
+
+```bash
+python -c "import openpyxl;s=openpyxl.load_workbook('BD/Modelo_Datos_PLANTILLA.xlsx',read_only=True,data_only=True)['TIP_TiposActivo'];h=[c.value for c in next(s.iter_rows(max_row=1))];i=h.index('RadioGeofencingKm');v=[r[i] for r in s.iter_rows(min_row=2,values_only=True)];print(len(v),'tipos,',sum(1 for x in v if x not in (None,'')),'con radio')"
+```
+
+Sobre la hoja vigente devuelve **27 tipos, 27 con radio**. Si devuelve alguno sin radio, pare: ese
+tipo de activo no se podra cerrar en campo.
 
 **No editables** — en `MAN_Mantenimientos`, `Editable_If = FALSE` en las cuatro columnas de
 captura:
@@ -438,8 +469,9 @@ quitar `Deletes`. Configurar el `IsPartOf` sin esto deja la cascada abierta.
 
 **Este manual no especifica las vistas, y hay que saberlo antes de empezar el paso.** El modelo
 declara datos, no interfaz: `VISTAS`, `ACCIONES` y `SLICES` **no existen** en
-`scripts/modelo_objetivo.py`. Por eso aqui no hay ficha columna por columna como en los pasos
-anteriores, y por eso lo que decida en este paso es lo unico que no queda escrito en ninguna parte.
+`scripts/modelo_objetivo.py` —comprobado al generar este manual, no de memoria—. Por eso aqui no
+hay ficha columna por columna como en los pasos anteriores, y por eso lo que decida en este paso
+es lo unico que no queda escrito en ninguna parte.
 
 **Lo unico que AppSheet crea solo son las columnas virtuales `Related ...`**, que aparecen al poner
 las referencias del paso 5 y traen con ellas la navegacion padre-hijo: al abrir un mantenimiento se
@@ -490,9 +522,11 @@ python scripts/verificar_enlaces.py       # que todo enlace entre documentos res
 
 ## Paso 10 — Publicar
 
-> **Antes de publicar, lea esto.** Los 34 activos de la hoja comparten **una sola coordenada**,
-> `4.728512, -74.114531`, que esta en Bogota y no en el corredor. Con el radio de 1 km, la
-> aplicacion **rechaza todo cierre hecho en via y acepta todo cierre hecho en Bogota**.
+> **Antes de publicar, lea esto.** Ninguna de las coordenadas de `ACT_Activos` se levanto en campo.
+> De los **368 activos** de la hoja vigente, **34 comparten** `4.728512, -74.114531`, que esta en
+> Bogota y no en el corredor, y los **334 restantes** llevan coordenada propia pero **calculada
+> sobre el trazado**, no medida. Con los radios por tipo —0,05 km en la mayoria— la aplicacion
+> **rechaza todo cierre hecho en via y acepta todo cierre hecho en Bogota**.
 >
 > **No es un defecto de la configuracion: faltan las coordenadas reales**, que es la decision
 > D-01. Publicar antes de cargarlas entrega un sistema donde ningun tecnico puede cerrar una
@@ -542,15 +576,16 @@ falsificar cueste mas que hacer el trabajo, no que sea imposible.
 **Columna por columna, sin nada que deducir.** Esta es la referencia contra la que se configura y
 contra la que se valida. Si una columna no aparece aqui, no deberia estar visible en la app.
 
-> ## Antes de usar este anexo: contra que hoja esta escrito
+> ## Las marcas `OCULTAR` y `TRAMPA` NO aplican a la hoja vigente
 >
-> **Las marcas `OCULTAR` describen la hoja de produccion heredada, `Modelo_Datos_09082026`, y
-> solo esa.** Son las columnas que ese libro arrastra y el modelo no declara.
+> **Describen una hoja que ya no se usa:** el libro heredado que arrastraba columnas que el modelo
+> no declara. **La hoja vigente se genera del modelo y no trae ninguna**, asi que no hay nada que
+> ocultar ni ninguna referencia que deshacer. Ignore las dos marcas.
 >
-> **Sobre `BD/Modelo_Datos_PLANTILLA.xlsx` esas columnas no existen**, asi que ahi no hay nada que
-> ocultar y ninguna marca `OCULTAR` de este anexo aplica. La plantilla se genera del modelo con
-> `python scripts/generar_plantilla.py` y sale con las columnas que el modelo declara, ni una mas.
-> Se comprueba con la regla `F-19`:
+> Se conservan por una sola razon: son la lista por nombre que permite reconocer esas columnas si
+> algun dia aparece una copia antigua del libro. **No son trabajo de nadie.**
+>
+> **Compruebelo, con la regla `F-19`:**
 >
 > ```bash
 > python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"
@@ -560,20 +595,18 @@ contra la que se valida. Si una columna no aparece aqui, no deberia estar visibl
 > ok Hoja limpia: ninguna de las 43 columnas retiradas existe ya. No hay nada que ocultar
 > ```
 >
-> **Lo mismo vale para las tres `TRAMPA` del paso 6:** son columnas de la hoja heredada, y sobre la
-> plantilla no estan, asi que AppSheet no tiene nada que convertir solo.
->
-> **Y ocultarlas ya no es trabajo de nadie.** La decision del 2026-08-09 fue migrar a la hoja
-> limpia; el procedimiento esta en `MIGRACION_HOJA_LIMPIA.md`. Este anexo se conserva porque es la
-> lista por nombre que esa migracion necesita para borrarlas, **no para esconderlas**.
+> La plantilla se rehace entera con `python scripts/generar_plantilla.py` y sale con las columnas
+> que el modelo declara, ni una mas.
 
 Leyenda:
 
 - **CLAVE** — casilla `KEY` marcada, tipo `Text`
 - **`Ref` -> Tabla** — tipo `Ref` con esa tabla como *Source table*
 - **IsPartOf** — ademas, casilla `Is a part of` marcada
-- **OCULTAR** — retirada del modelo: tipo `Text`, `Show?` desmarcado, sin formula
-- **TRAMPA** — AppSheet la convierte a `Ref` sola por coincidencia de nombre. **Deshagalo**
+- **OCULTAR** — **no aplica a la hoja vigente.** Columna retirada del modelo que el libro heredado
+  arrastraba. Si apareciera: tipo `Text`, `Show?` desmarcado, sin formula
+- **TRAMPA** — **no aplica a la hoja vigente.** Donde exista, AppSheet la convierte a `Ref` sola
+  por coincidencia de nombre
 - **SIN DECIDIR** — esta en la hoja y el modelo no la declara
 
 ## `ACT_Activos`

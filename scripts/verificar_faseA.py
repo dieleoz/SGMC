@@ -30,7 +30,8 @@ RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Por defecto, la hoja que la aplicacion lee de verdad. Estuvo apuntando a
 # "Modelo de Datos (4).xlsx" mucho despues de que ese libro dejara de ser el
 # vigente: correrlo sin argumento daba un veredicto sobre un archivo muerto.
-ruta = sys.argv[1] if len(sys.argv) > 1 else os.path.join(RAIZ, "BD", "Modelo_Datos_09082026.xlsx")
+from sistema import VOLCADO
+ruta = sys.argv[1] if len(sys.argv) > 1 else os.path.join(RAIZ, VOLCADO)
 if not os.path.isabs(ruta):
     ruta = os.path.join(RAIZ, ruta)
 

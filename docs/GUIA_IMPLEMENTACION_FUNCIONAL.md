@@ -98,12 +98,22 @@ con la cuenta que va a operarla.
 **El orden importa y no es alfabetico.** Determina que referencias infiere AppSheet solo al dar
 de alta cada tabla. La lista esta en `MANUAL_DESPLIEGUE.md` paso 2.
 
-### 2.2 Las que NO se dan de alta
+### 2.2 Las 5 que el modelo retira
 
-`GPS`, `FRM_SOS`, `FRM_CCTV`, `FRM_PMVF`. Estan en la hoja y el modelo las retira.
+```
+`FRM_CCTV` · `FRM_PMVF` · `FRM_SOS` · `GPS` · `SEC_Secciones`
+```
 
-> **No borre esas pestanas.** Tres guardan 15 preguntas cada una que todavia no se han migrado a
-> `FRM_Preguntas`.
+**Sobre la hoja vigente ya no existen**, porque la hoja se genera del modelo: no van a aparecer en
+el desplegable. La lista sirve para reconocerlas si algun dia trabaja sobre una copia antigua del
+libro. **No lo de por hecho, compruebelo:**
+
+```bash
+python -c "import openpyxl;n=openpyxl.load_workbook('BD/Modelo_Datos_PLANTILLA.xlsx',read_only=True).sheetnames;print([t for t in ['FRM_CCTV', 'FRM_PMVF', 'FRM_SOS', 'GPS', 'SEC_Secciones'] if t in n])"
+```
+
+Tiene que devolver `[]`. Y los bancos de preguntas que tres de ellas guardaban **ya estan dentro
+de `FRM_Preguntas`**, que es el motor unico.
 
 ### COMPROBACION de la etapa 2
 
@@ -112,7 +122,7 @@ de alta cada tabla. La lista esta en `MANUAL_DESPLIEGUE.md` paso 2.
 | Son exactamente 28 | Cuentelas en *Data -> Tables* |
 | Ninguna duplicada | Ningun nombre acaba en `_1`, `(2)` ni empieza por `Copy of` |
 | Cada una a su pestana | Abra la ficha de cada una y lea el *Qualifier* |
-| Las cuatro retiradas no estan | `GPS`, `FRM_SOS`, `FRM_CCTV`, `FRM_PMVF` no aparecen |
+| Las 5 retiradas no estan | `FRM_CCTV`, `FRM_PMVF`, `FRM_SOS`, `GPS`, `SEC_Secciones` no aparecen |
 
 > **La duplicada es el fallo tipico de esta etapa.** Si el borrado no se confirma y el alta si,
 > AppSheet crea una segunda tabla sobre la misma pestana. **Las referencias se reparten entre las
@@ -215,8 +225,9 @@ en orden esta en `MANUAL_DESPLIEGUE.md` paso 5.
 
 ### 5.2 Cuidado con las listas de otros documentos
 
-`ESPEC-002` lista **15** referencias, y es correcto para lo que norma: convertir una aplicacion
-existente donde otras 23 ya estaban puestas. **Construyendo desde cero son 38.**
+Circulo una lista de **15** referencias por convertir, y era correcta para lo que normaba: una
+aplicacion existente donde otras 23 ya estaban puestas. Ese documento esta retirado.
+**Construyendo desde cero son 38.** Si al terminar cuenta 15, siguio la lista equivocada.
 
 ### 5.3 `IsPartOf` va en 4, y en ninguna mas
 
@@ -257,15 +268,15 @@ Las dos en verde. **Se cierra sin dar a `Done`.**
 > `App formula` escribiendo la coordenada del activo dentro de una columna retirada, y una
 > `App formula` **escribe en la hoja** cada vez que se modifica la fila.
 
-# Etapa 6 — RETIRADA. Ya no hay nada que ocultar
+# Etapa 6 — RETIRADA. No la haga
 
-**Duracion:** 0. **No la haga.** Se conserva numerada para que quien tenga una copia antigua de
-esta guia sepa que este trabajo salio del plan y no crea que se le olvido.
+**Duracion: 0.** Se conserva numerada para que quien tenga una copia antigua de esta guia sepa que
+este trabajo salio del plan, y no crea que se le olvido.
 
-Esta etapa mandaba ocultar, una por una, las columnas que el modelo no declara: la hoja heredada
-las arrastraba y entraban con `Show?` marcado. **Eso desaparecio al generar la hoja del modelo.**
-En `BD/Modelo_Datos_PLANTILLA.xlsx` esas columnas no existen, asi que no hay nada que esconder, y
-con ellas se fueron las tres que AppSheet convertia en `Ref` sola.
+Esta etapa mandaba ocultar, una por una, las 43 columnas que el modelo no declara, mas las tres que
+AppSheet convertia en `Ref` sola por coincidencia de nombre. **Todas ellas venian de un libro
+heredado. La hoja vigente se genera del modelo y no trae ninguna**, asi que no hay nada que
+esconder ni ninguna referencia que deshacer.
 
 **Compruebelo usted, no lo de por bueno:**
 
@@ -279,9 +290,9 @@ Entre los conformes tiene que salir esta linea, que es la regla `F-19`:
 ok Hoja limpia: ninguna de las 43 columnas retiradas existe ya. No hay nada que ocultar
 ```
 
-> **Si esta trabajando sobre la hoja de produccion `Modelo_Datos_09082026`, ahi si siguen.** No
-> las oculte: la decision del 2026-08-09 fue **migrar a la hoja limpia**, y ocultarlas seria
-> trabajo que la migracion tira. El procedimiento esta en `docs/MIGRACION_HOJA_LIMPIA.md`.
+> **Si no sale, no oculte nada todavia: pare y reportelo.** Significa que la hoja contra la que
+> esta trabajando no es la que se genera del modelo, y entonces el problema no es esta etapa sino
+> de que archivo salio la aplicacion.
 
 # Etapa 7 — Las reglas
 
@@ -296,10 +307,24 @@ En `MAN_Mantenimientos.Coordenadas_Cierre`:
 
 ```
 Initial value:  HERE()
-Valid_If:       DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= 1.0
+Valid_If:       DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion])
+                  <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]
 Invalid text:   Ubicacion fuera de rango: debe estar junto al activo para cerrar.
 Editable_If:    FALSE
 ```
+
+**El radio va por tipo, no como literal**, porque una subestacion y un poste SOS no admiten la
+misma tolerancia. En la hoja vigente esa columna esta poblada en los 27 tipos; contra celdas en
+blanco esta expresion **rechazaria tambien los cierres legitimos**, asi que compruebelo antes de
+pegarla:
+
+```bash
+python -c "import openpyxl;s=openpyxl.load_workbook('BD/Modelo_Datos_PLANTILLA.xlsx',read_only=True,data_only=True)['TIP_TiposActivo'];h=[c.value for c in next(s.iter_rows(max_row=1))];i=h.index('RadioGeofencingKm');v=[r[i] for r in s.iter_rows(min_row=2,values_only=True)];print(len(v),'tipos,',sum(1 for x in v if x not in (None,'')),'con radio')"
+```
+
+**`PAR_Parametros.RADIO_GEOFENCING_KM` no lo lee esta regla.** Es un valor provisional historico
+que sigue en la tabla; si alguien le dice que el radio se cambia ahi, esta describiendo el sistema
+anterior.
 
 **El `Editable_If = FALSE` no es un detalle.** Sin el, el tecnico arrastra el pin del mapa y
 cierra desde su casa. La regla existiria, se veria, y no probaria nada.
@@ -356,8 +381,8 @@ inventario entero al telefono.
 
 **Esta guia no especifica las vistas, y conviene saberlo antes de abrir la etapa.** El modelo
 declara datos, no interfaz: `VISTAS`, `ACCIONES` y `SLICES` **no existen** en
-`scripts/modelo_objetivo.py`. De las etapas anteriores puede fiarse porque salen del modelo; de
-esta no, porque no hay de donde sacarla.
+`scripts/modelo_objetivo.py` —comprobado al generar esta guia, no de memoria—. De las etapas
+anteriores puede fiarse porque salen del modelo; de esta no, porque no hay de donde sacarla.
 
 **Lo unico que AppSheet crea solo son las columnas virtuales `Related ...`**, que aparecen al poner
 las referencias de la etapa 5 y traen con ellas la navegacion padre-hijo: al abrir un mantenimiento
@@ -408,9 +433,10 @@ lejos: **debe rechazarlo** con el mensaje.
 > no se evalua sobre una columna con `Editable_If = FALSE`, y entonces el geofencing es decorativo.
 > Reportelo antes de seguir.
 
-> **Y con el inventario completo hay un limite nuevo:** con 355 activos repartidos por el corredor,
-> un radio de 1 km mete **8 activos de media dentro de cada geofence**. La prueba pasa estando
-> frente al equipo equivocado. **`TIP_TiposActivo.RadioGeofencingKm` deja de ser opcional.**
+> **Y con el inventario completo, el radio por tipo es lo que hace la prueba significativa.** Sobre
+> los 334 activos repartidos por el corredor, un literal de 1 km mete **7,4 activos de media dentro
+> de cada geofence** —la prueba pasaria estando frente al equipo equivocado—; con el radio por tipo
+> de la etapa 7 baja a **1,2**. Por eso el literal no se usa.
 
 ### 9.3 El dato llega a la hoja
 
@@ -441,11 +467,12 @@ por diligencia o por casualidad.**
 
 > ## No publique todavia
 >
-> **Las coordenadas de los activos no son reales.** Los 34 de produccion comparten una, en Bogota;
-> los 355 de la plantilla estan repartidos por el corredor pero **son inventados**.
+> **Las coordenadas de los activos no son reales.** De los **368** de la hoja vigente, **34**
+> comparten `4.728512, -74.114531`, que esta en Bogota, y los **334** restantes llevan coordenada
+> propia pero **calculada sobre el trazado del corredor, no medida en campo**.
 >
-> Con el radio de 1 km, **el primer tecnico en via no podra cerrar ni una orden**. Y se descubre
-> con el tecnico delante.
+> Con radios de 0,05 km en la mayoria de los tipos, **el primer tecnico en via no podra cerrar ni
+> una orden**. Y se descubre con el tecnico delante.
 >
 > Es la decision **D-01** y es trabajo de campo. Hasta que llegue, la aplicacion se prueba pero no
 > se despliega.
@@ -481,7 +508,7 @@ Etapa 5   referencias puestas .................... [  ]   cuantas de 38:
           [OTID].[ActivoID].[Ubicacion] .......... [  ]   salida:
           [OTID].[TecnicoID].[Correo] ............ [  ]   salida:
 
-Etapa 6   RETIRADA. No se ejecuta: sobre la plantilla no hay columnas que ocultar
+Etapa 6   RETIRADA. No se ejecuta: la hoja vigente no trae columnas que ocultar
           F-19 en verde .......................... [  ]   salida:
 
 Etapa 7   reglas puestas ......................... [  ]   cuantas de 20:

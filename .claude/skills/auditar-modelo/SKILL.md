@@ -13,32 +13,40 @@ ninguno de los dos.
 
 **No declares nada conforme por reporte. Verifícalo contra el archivo, y di contra cuál.**
 
-Hay dos fuentes y no coinciden:
+Hay dos fuentes y pueden no coincidir:
 
 | Fuente | Qué es | Cómo se lee |
 |---|---|---|
-| Google Sheets `1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc` | **El que corre la app.** Manda ante discrepancia | Conector de Google Drive, `read_file_content` |
-| `BD/Modelo de Datos (2).xlsx` | Registro local paralelo | `openpyxl` |
+| El Google Sheets que declare `python scripts/sistema.py` como `HOJA_ID` | **El que corre la app.** Manda ante discrepancia | Conector de Google Drive, `read_file_content` |
+| El volcado que declare ese mismo script como `VOLCADO` (hoy, `BD/Modelo_Datos_PLANTILLA.xlsx`) | Registro local | `openpyxl` |
 
-Ninguno es superconjunto del otro. Nunca copies uno sobre el otro sin decisión explícita: se
-destruye trabajo.
+**No copies el `fileId` ni la ruta de una auditoría anterior.** Este sistema se reconstruyó tres
+veces en cuatro días, y `scripts/sistema.py` es el único sitio que no envejece: lista también las
+aplicaciones y hojas superadas, con el motivo, para reconocerlas si aparecen citadas en otro
+documento.
+
+Mientras la hoja publicada sea exactamente la plantilla generada por `scripts/generar_plantilla.py`
+son el mismo archivo. Dejan de serlo en cuanto operación empiece a completar el Sheets a mano, y
+ahí es donde esta auditoría vuelve a tener trabajo real que hacer. Nunca copies uno sobre el otro
+sin decisión explícita: se destruye trabajo.
 
 ## Procedimiento
 
 ### 1. Lee producción primero
 
-Con el conector de Google Drive, `read_file_content` sobre el `fileId` de arriba. Si el conector
-no está disponible, dilo y detente: **no sustituyas producción por el Excel local sin advertirlo**.
+Con el conector de Google Drive, `read_file_content` sobre el `HOJA_ID` de `scripts/sistema.py`. Si
+el conector no está disponible, dilo y detente: **no sustituyas producción por el volcado local sin
+advertirlo**.
 
 Revisa de paso `get_file_metadata`: si `modifiedTime` es reciente, alguien acaba de tocar el
 backend y cualquier hallazgo previo puede haber caducado.
 
-### 2. Lee el Excel local
+### 2. Lee el volcado local
 
 ```bash
 python -c "
 import openpyxl
-wb = openpyxl.load_workbook(r'BD/Modelo de Datos (2).xlsx', read_only=True, data_only=True)
+wb = openpyxl.load_workbook(r'BD/Modelo_Datos_PLANTILLA.xlsx', read_only=True, data_only=True)
 for n in wb.sheetnames:
     ws = wb[n]
     hdr = [c.value for c in next(ws.iter_rows(min_row=1, max_row=1)) if c.value]
@@ -56,21 +64,31 @@ esa marca no sirve.
 Distingue **estructura** de **población**: que exista la columna no significa que tenga datos, y
 que la tabla exista no significa que el flujo se haya ejercitado.
 
-- `MAN_Mantenimientos`: ¿tiene `Coordenadas_Cierre` y `Precision_GPS`? En producción no las tiene,
-  y sin ellas RF-011 y RF-012 no pueden ni configurarse.
+- `MAN_Mantenimientos`: ¿tiene `Coordenadas_Cierre` y `Precision_GPS`? Verificado el 2026-08-10
+  contra `scripts/modelo_objetivo.py`: hoy sí están, en las 28 tablas del modelo y en la hoja
+  generada de él. Si una hoja que estés auditando no las trae, es la hoja la que quedó atrás, no la
+  regla la que cambió.
 - `ACT_Activos.Ubicacion`: ¿cuántas coordenadas **distintas** hay? Si es una sola, el geofencing es
-  inoperante por mucho que la fórmula esté bien.
+  inoperante por mucho que la fórmula esté bien. En `BD/Modelo_Datos_PLANTILLA.xlsx`, 34 de los 368
+  activos comparten la coordenada `4.728512, -74.114531` (Bogotá): son de fixture, no del terreno.
 - `TIP_TiposActivo.FormularioID`: ¿está poblado en **todas** las filas? Sin él no hay checklist
-  dinámico. **Cuenta las filas del archivo que estés auditando, no des por hecho cuántas son:** la
-  hoja de producción trae 18 tipos y `BD/Modelo_Datos_PLANTILLA.xlsx` trae 27.
-- `SedeID`: ¿se intersecan los valores de `USR_Usuarios` y los de `ACT_Activos`? Si no, el Security
-  Filter deja a cada técnico con cero activos.
+  dinámico. **Cuenta las filas del archivo que estés auditando, no des por hecho cuántas son:** el
+  catálogo vigente son 27 tipos (`scripts/catalogo_tipos.py`); si encuentras 18, es una hoja
+  superada, no la de hoy.
+- Security Filter: ¿se intersecan los `UnidadFuncionalID` de `ACT_Activos` con los que
+  `ASG_AsignacionZona` asigna a cada `UsuarioID`? Si no, el filtro deja a ese técnico con cero
+  activos. **No lo compruebes por `SedeID`**: esa columna vive en `USR_Usuarios` —dónde trabaja la
+  persona— y `ACT_Activos` no la tiene; es exactamente la confusión que `CLAUDE.md` §6 (RG-04)
+  señala como la que dejó usuarios y activos en conjuntos disjuntos.
 - `FRM_Preguntas`: ¿cuántas filas de `FRM_Formularios` tienen banco de preguntas, sobre el total de
-  esa misma hoja —18 en producción, 27 en la plantilla—? Las hojas planas
-  `FRM_SOS`, `FRM_CCTV` y `FRM_PMVF` son una arquitectura paralela y **no** alimentan el motor.
-- Integridad referencial: `CHK.OTID` y `MAN.OTID` contra las claves reales de `OT_OrdenesTrabajo`,
-  que son `Numero_OT` con valores tipo `OT-0001`, no `OTID`.
-- Tablas vacías: `MAN_Mantenimientos`, `FOT_Fotografias`, `FIR_Firmas` y `GPS`. Mientras sigan sin
+  esa misma hoja? El catálogo vigente son 27 formularios, uno por tipo, con las 333 preguntas
+  cargadas — 45 acordadas (SOS, CCTV, PMVF) y el resto con la marca `[BORRADOR: validar con
+  operacion]` de `scripts/banco_preguntas.py`. Buscar esa marca dice qué queda por revisar.
+- Integridad referencial: en el modelo vigente `OT_OrdenesTrabajo` tiene clave `OTID` (Text), y
+  `CHK_Checklists` no lleva `OTID` sino `MantenimientoID`, referencia a `MAN_Mantenimientos`.
+  Vuelca `scripts/modelo_objetivo.py` antes de asumir cuál es la clave de cada tabla: ya cambió más
+  de una vez en este proyecto.
+- Tablas vacías: `MAN_Mantenimientos`, `FOT_Fotografias` y `FIR_Firmas`. Mientras sigan sin
   registros, el ciclo de mantenimiento nunca se ha ejecutado y nada está probado.
 - Datos de prueba sin limpiar: nombres donde deberían ir identificadores, `NOW()` como texto.
 
@@ -94,19 +112,17 @@ relación que dabas por hecha no existe.
 
 ## Cómo entrar al editor
 
-```
-https://www.appsheet.com/Template/AppDef?appName=SGMC-886843353
-```
-
-La ruta con `appId` devuelve 404; usa `appName`. Antes de tocar el editor, confirma que exista una
-copia de respaldo de la aplicación: *Regenerate Structure* advierte explícitamente que no se puede
-deshacer.
+La URL vigente es la que `python scripts/sistema.py` declara como `APP_URL` — usa el `appId`, no un
+`appName` copiado de una aplicación anterior: cada reconstrucción cambia los dos. Antes de tocar el
+editor, confirma que exista una copia de respaldo de la aplicación: *Regenerate Structure* advierte
+explícitamente que no se puede deshacer.
 
 ## Al terminar
 
 Actualiza `ESTADO.md` con lo encontrado, y `CLAUDE.md` solo si cambia una **regla**, no el estado.
 Deja constancia del comando y de la salida con que cerraste cada hallazgo.
 
-El dictamen del 2026-08-06 que antes se actualizaba aquí está en
-`docs/historico/AUDITORIA_PLAN_Y_ROADMAP.md`: es histórico y **no se edita**. Sus hallazgos se
-siguen citando como `B-01` a `B-14`.
+El dictamen del 2026-08-06 que antes se actualizaba aquí, y sus hallazgos `B-01` a `B-14`, salieron
+del árbol de trabajo en la limpieza del 2026-08-10. Se recuperan con
+`git checkout antes-de-la-limpieza-2026-08-10`; no los cites como vigentes sin comprobarlos de
+nuevo contra el modelo de hoy, que ya no es el que auditaban.

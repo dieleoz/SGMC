@@ -39,13 +39,16 @@ eso este no se negocia: si devuelve errores, el veredicto es BLOQUEA sin más an
 
 Recórrelas en orden. Cada una ha tumbado algo real en este proyecto.
 
-**1. ¿Contra cuál de los dos modelos se verificó?** El Excel local y el Sheets de producción son
-modelos distintos. Una especificación que no declara cuál leyó es ambigua, y la ambigüedad se
-resuelve siempre a favor de lo que ya está roto.
+**1. ¿Contra cuál de los dos modelos se verificó?** El volcado local y el Sheets de producción
+—los que declare `python scripts/sistema.py` como `VOLCADO` y `HOJA_ID`— son el mismo archivo solo
+mientras nadie edite el Sheets a mano; en cuanto operación empiece a completarlo, dejan de serlo.
+Una especificación que no declara cuál leyó es ambigua, y la ambigüedad se resuelve siempre a favor
+de lo que ya está roto.
 
 **2. ¿Distingue estructura de población?** Que la columna exista no significa que tenga datos.
-Busca el campo lleno que disfraza el vacío: `CodigoQR` estaba poblado en los 34 activos con una
-copia literal de `CodigoActivo`.
+Busca el campo lleno que disfraza el vacío: `ACT_Activos.CodigoQR` trae valor en solo 33 de los 368
+activos de `BD/Modelo_Datos_PLANTILLA.xlsx`, y es una copia literal de `CodigoActivo`, no una
+etiqueta física — el código QR está fuera de alcance desde el 2026-08-07.
 
 **3. ¿Las rutas de desreferencia son navegables?** Cada salto intermedio de `[A].[B].[C]` tiene que
 ser `Ref`. Es el defecto raíz del sistema y `validar_modelo.py` lo comprueba en V-11. Si la
@@ -54,7 +57,7 @@ especificación introduce una expresión nueva y no está en `REGLAS`, no está 
 **4b. ¿Está verificado contra la documentación de AppSheet, o sale de la memoria?** Es el punto
 ciego que descubrimos el 2026-08-07: llevabas cuatro rondas verificando datos contra
 `BD/*.xlsx` y ninguna verificando comportamiento contra Google. Lo confirmado está en
-`docs/PLATAFORMA_APPSHEET_VERIFICADO.md`. Si la especificación se apoya en un comportamiento que no
+`docs/BASE_CONOCIMIENTO_APPSHEET.md`. Si la especificación se apoya en un comportamiento que no
 figura ahí ni en la tabla de supuestos, exige la fuente o la declaración.
 
 **4c. ¿Tiene en cuenta que el backend es una hoja de cálculo, no una base de datos?** Es la

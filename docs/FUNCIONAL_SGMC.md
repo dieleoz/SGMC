@@ -6,15 +6,18 @@ funcional.** Todo lo demás —especificaciones, actas, base de conocimiento— 
 | | |
 |---|---|
 | Sistema | Gestión de Mantenimiento en Campo · Concesión Transversal del Sisga S.A.S. |
-| Plataforma | Google AppSheet `SISGA` sobre Google Sheets |
-| Verificado contra | `scripts/modelo_objetivo.py`, `BD/Modelo_Datos_PLANTILLA.xlsx` y `BD/Modelo_Datos_09082026.xlsx` |
-| Fecha | 2026-08-09 |
+| Plataforma | Google AppSheet `SISGA_-323965761-26-08-10` sobre la hoja `Modelo_Datos_10082026` |
+| Verificado contra | `scripts/modelo_objetivo.py` y `BD/Modelo_Datos_PLANTILLA.xlsx` |
+| Fecha | 2026-08-10 |
 
-> **La aplicación es nueva.** `SGMC-886843353` se abandonó el 2026-08-09: su esquema había divergido
-> tanto del modelo que *Regenerate* no podía converger, porque fusiona en vez de reemplazar. Se
-> reconstruyó desde cero sobre la misma estructura de datos. **Nada de lo funcional cambió por eso**
-> —el modelo es el mismo—, pero cualquier documento que hable de la aplicación anterior describe algo
-> que ya no existe.
+> **Hay una sola aplicación y una sola hoja, y son las de la tabla de arriba.** Entre el 6 y el 10 de
+> agosto de 2026 hubo cinco aplicaciones y tres hojas; las superadas están nombradas, con su motivo,
+> en `scripts/sistema.py`. Si un documento menciona otra, describe algo que ya no existe.
+>
+> **Nada de lo funcional cambió por las reconstrucciones** —el modelo de datos es el mismo—, pero sí
+> cambió lo que está montado: la aplicación de hoy **tiene las 28 tablas dadas de alta y nada más.**
+> Las referencias, las reglas y los filtros están sin poner. Este documento describe qué hace el
+> sistema; qué falta para que lo haga está en [`../ESTADO.md`](../ESTADO.md).
 
 **Regla de este documento: una sola forma por propósito.** Si dos mecanismos pueden resolver lo
 mismo, aquí se elige uno y se dice cuál se descarta. La sección 6 es el registro de esas decisiones,
@@ -69,7 +72,14 @@ TI           servidores 7 · portátiles 29 · impresoras 3
 ```
 
 **Y cinco cosas que no se visitan:** antivirus, licencias, certificados SSL, radios e internet. No
-tienen coordenada. Todo el mecanismo de evidencia de ubicación no les aplica — ver 6.11.
+tienen coordenada. Todo el mecanismo de evidencia de ubicación no les aplica — ver 6.11. **Ninguna de
+las cinco tiene fila en `TIP_TiposActivo`**, así que hoy no se pueden ni registrar.
+
+> **Cuidado al contar activos: 355 y 368 son cifras de cosas distintas.** 355 son los que el Plan
+> Maestro cuenta por unidades. `ACT_Activos` en `BD/Modelo_Datos_PLANTILLA.xlsx` tiene **368 filas**:
+> esos 355 más **13 equipos que solo existen en el juego de datos de arranque** —generador, báscula
+> estática, fibra, video wall, router, cortafuegos, UPS, NAS y subestación— y que el Plan Maestro no
+> cuenta por unidades. Las 368 se derivan leyendo la hoja, no se citan de memoria.
 
 ## 3. Quién lo usa
 
@@ -102,9 +112,18 @@ cambio no toca la comprobación que lo mide.
 > impide que un técnico ponga «Cerrada» él mismo. El modelo describe la separación y no la aplica.
 > Es una de las piezas pendientes — ver sección 8.
 
-Faltan además dos cosas para que la recepción esté completa: **no hay estado de rechazo** —existe
-`ObservacionRechazo` pero la orden no tiene a dónde volver— y `FIR_Firmas.TipoFirma` **no tiene
-valores declarados**: la única firma que existe es la del técnico.
+Falta además una cosa para que la recepción esté completa: **no hay estado de rechazo.**
+`MAN_Mantenimientos.ObservacionRechazo` existe y la orden no tiene a dónde volver, porque
+`EOT_EstadosOrden` tiene siete filas —`Programada`, `Asignada`, `En ejecucion`, `En revision`,
+`Cerrada`, `Suspendida`, `Vencida`— y ninguna es una devolución. **Eso no cuesta una columna: cuesta
+una fila** en un catálogo que ya existe, más la regla que la escriba.
+
+> **Lo que sí está resuelto, y algún documento anterior daba por pendiente:**
+> `FIR_Firmas.TipoFirma` **tiene sus valores declarados** en el modelo —la lista es `Tecnico`, y solo
+> ese—. Es deliberado: por el supuesto D-10 el supervisor aprueba en el portal y no firma en campo, y
+> por eso `MAN_Mantenimientos.Firma_Supervisor` está retirada. La columna sigue siendo `Enum` y no
+> `Text` precisamente para que añadir `Tercero`, si operación lo pide, sea configuración y no
+> migración.
 
 ## 5. Qué prueba el sistema, y qué no
 
@@ -125,6 +144,56 @@ Esto hay que decirlo entero, porque es lo que se defiende ante un tercero.
   la capa de aplicación. Hoy hay dos cuentas con permiso de edición sobre la hoja. **Esto no es
   gobierno, es arquitectura**: la hoja no impone unicidad, ni tipos, ni integridad referencial
 
+## 5.1 Cómo se encadenan las tablas
+
+**Derivado de `scripts/modelo_objetivo.py`**, que declara 28 tablas y 38 referencias. Se pone aquí
+porque tres decisiones de la sección 6 solo se entienden mirando la cadena, y porque varios
+documentos la habían dibujado a mano y de más de una forma.
+
+```
+USR_Usuarios ──> ROL_Roles                ASG_AsignacionZona ──> USR_Usuarios
+             ──> SED_Sedes                                   ──> UNF_UnidadesFuncionales
+
+ACT_Activos  ──> TIP_TiposActivo ──> FRM_Formularios
+             ──> UNF_UnidadesFuncionales     · CAL_Calzadas · SEN_Sentidos
+             ──> EST_Activo                  · FRE_Frecuencias
+
+OT_OrdenesTrabajo ──> ACT_Activos · EOT_EstadosOrden · OT_OrdenesTrabajo (OTOrigenID)
+                  ──> USR_Usuarios, tres veces: TecnicoID, SupervisorID, CerradaPor
+      │
+      └──< MAN_Mantenimientos   SIN IsPartOf
+                  ──> USR_Usuarios · EST_Activo · MOT_MotivosPendiente · FAL_ModosFalla
+             │
+             ├──< FOT_Fotografias        IsPartOf
+             ├──< FIR_Firmas             IsPartOf
+             └──< CHK_Checklists         IsPartOf  ──> FRM_Formularios
+                        └──< CHD_ChecklistDetalle  IsPartOf  ──> FRM_Preguntas
+
+FRM_Preguntas ──> FRM_Formularios · FRM_Secciones · TPR_TiposRespuesta
+LST_ValoresLista ──> FRM_Preguntas
+NOV_Novedades ──> USR_Usuarios · ACT_Activos        PLA_PlanMantenimiento ──> ACT_Activos ·
+FAL_ModosFalla ──> TIP_TiposActivo                                            FRE_Frecuencias ·
+                                                                              USR_Usuarios
+```
+
+Cuatro cosas que hay que leer bien, porque cada una nació de un error real:
+
+- **`IsPartOf` está en cuatro referencias y solo en cuatro:** las tres que cuelgan del mantenimiento
+  y la de `CHD_ChecklistDetalle` contra su checklist. Significa borrado en cascada, no protección: la
+  protección es que `OT_OrdenesTrabajo` y `MAN_Mantenimientos` **van sin `Deletes`**. Se corrige con
+  `Activo = FALSE`.
+- **`MAN_Mantenimientos.OTID` va deliberadamente sin `IsPartOf`.** La ejecución es el registro
+  histórico y sobrevive a su orden. Marcarlo haría que borrar una orden se llevara las fotografías,
+  la firma y el checklist.
+- **`MAN_Mantenimientos` no tiene `ActivoID`.** El activo se alcanza por `[OTID].[ActivoID]`, y esa
+  cadena de dos saltos es la que usa el geofencing. Guardarlo también permitiría que la ejecución
+  diga un activo y su orden diga otro.
+- **`CHK_Checklists` cuelga del mantenimiento, no de la orden.** La inspección es parte de ejecutar.
+  La columna se llamó `OTID` y guardaba números de orden; ese desajuste produjo un checklist huérfano.
+
+**Y una que el diagrama enseña por lo que le falta:** `PLA_PlanMantenimiento` apunta a otras tablas y
+**nadie apunta a ella**. Por eso «planeadas contra ejecutadas» no es hoy una consulta — ver 8.1.
+
 ---
 
 ## 6. Una sola forma por propósito
@@ -144,7 +213,7 @@ manual de usuario.
 | 6.7 | Qué se reparó en una correctiva | Formulario propio de correctivo | Reactivar `Diagnostico` y `Repuestos_Utilizados` | Un formulario no duplica columnas y encaja en la capa de tareas |
 | 6.8 | Cuánto duró | Derivar de `FechaHoraInicio` y `FechaHoraFin` | `Duracion_Minutos` almacenada | Un dato derivable no se guarda |
 | 6.9 | Coordenada de un activo | `Ubicacion`, tipo LatLong | `Latitud` y `Longitud` separadas | AppSheet trata LatLong como un tipo, y `DISTANCE()` lo exige |
-| 6.10 | Preguntas de inspección | `FRM_Formularios` → `FRM_Secciones` → `FRM_Preguntas` | Editar `CHD_ChecklistDetalle` | `CHD` guarda **respuestas**. Editarlo para cambiar preguntas corrompe el histórico |
+| 6.10 | Preguntas de inspección | `FRM_Preguntas`, que apunta a `FRM_Formularios` **y** a `FRM_Secciones` | Editar `CHD_ChecklistDetalle` | `CHD` guarda **respuestas**. Editarlo para cambiar preguntas corrompe el histórico. Y la sección **no cuelga del formulario**: las 14 son un catálogo plano que comparten los 27 |
 | 6.11 | Activos sin ubicación física | Camino sin evidencia de coordenada | Forzarles geofencing | Un certificado SSL no tiene dónde estar. **Decisión pendiente**: camino propio o fuera de alcance |
 | 6.12 | Tiempo de reloj parado | Tabla hija de eventos, total por `SUM()` | Columna acumulada | Un acumulado compite consigo mismo sin señal. Es lo que le costó el `Adds` a las órdenes |
 | 6.13 | Marca de tiempo que sirve de prueba | `ChangeTimestamp` en la transición de estado, con `Editable_If = FALSE` | `Initial value = NOW()` | Un `Initial value` **es editable**, y `NOW()` es el reloj del teléfono |
@@ -206,23 +275,49 @@ también calcula el script, la cuota se agota **en 4,1 años, antes de la retenc
 
 ## 8. Estado: qué existe, qué está especificado, qué es futuro
 
-| | Estado |
+**Tres columnas, porque hay tres cosas distintas.** Que el modelo lo declare no significa que la hoja
+lo traiga, y que la hoja lo traiga no significa que la aplicación lo tenga montado. Confundir las
+tres es lo que hizo que este documento dijera durante un día que las referencias estaban puestas.
+
+| | En el modelo | En la hoja | En la aplicación |
+|---|---|---|---|
+| Modelo de datos, 28 tablas | **Sí.** 202 columnas, 38 referencias, 20 reglas | **Sí.** 28 pestañas más `_LEEME`, ninguna columna de sobra. `FASE A CERRADA` con 52 conformes | **Las 28 tablas dadas de alta, y nada más** |
+| Referencias entre tablas | **Sí.** Las 38, con `IsPartOf` en cuatro: `FOT`, `FIR` y `CHK` contra el mantenimiento, y `CHD` contra su checklist | No aplica: la hoja no tiene integridad referencial | **No. Sin poner** |
+| Geofencing y filtros de seguridad | **Sí.** `RG-01`, `RG-04` y `RG-05` con su expresión completa | El radio por tipo está poblado en los 27 | **No. Sin poner** |
+| Plantillas de checklist | **Sí** — `FRM_Formularios`, `FRM_Secciones`, `FRM_Preguntas`, `TPR_TiposRespuesta` | **27 formularios**, uno por tipo de activo, y 14 secciones | Tablas de alta, sin vistas |
+| Banco de preguntas | — | **333 preguntas, los 27 formularios con contenido.** 288 llevan `[BORRADOR: validar con operacion]`; las 45 acordadas son SOS, CCTV y PMV fijo, 15 cada uno | — |
+| Catálogo de roles | `ROL_Roles` existe | **4 filas**: Administrador, Supervisor, Técnico, Consulta. Faltan los doce oficios del Plan Maestro | — |
+| Inventario | — | **368 filas** en `ACT_Activos`: 334 sintéticas, marcadas como tales en `Observaciones`, y 34 del juego de arranque. **No es el registro real** | — |
+| Coordenadas de los activos | `ACT_Activos.Ubicacion`, `LatLong`, obligatoria | **Ninguna es real.** Las 34 comparten un punto de Bogotá; las 334 están interpoladas sobre el corredor | — |
+| Registros de prueba | — | **Ninguno.** `OT`, `MAN`, `CHK`, `CHD`, `FOT`, `FIR`, `NOV` y `PLA` están vacías | El ciclo no se ha recorrido |
+| Capa de tareas `TAR_Tareas` | **No.** Declarada en `PROPUESTAS` | — | — |
+| Jerarquía de ubicación | **No.** Declarada en `PROPUESTAS` como `ETR_Estructuras` | — | — |
+| Correctivo con criticidad y SLA | **No.** `CRI_Criticidad`, `EVT_EventosOrden` y `PAU_Pausas` en `PROPUESTAS` | — | — |
+| Imponer `QuienCambia` y el rechazo | **No.** Ninguna de las 20 reglas lee `QuienCambia` | Falta la fila `Devuelta` en `EOT_EstadosOrden` | — |
+| Vistas, acciones y slices | **No están en el modelo.** Mientras no se declaren, la interfaz no se puede generar ni auditar | — | — |
+| Certificaciones múltiples, vigencias | `CER_Certificaciones` y `USR_Certificaciones` en `PROPUESTAS` — Fase 2 | — | — |
+| Almacén, SAT, flotas | Fuera de alcance | — | — |
+
+### 8.1 Lo que este documento promete y el modelo no puede sostener
+
+**Cada carencia va con el nombre de lo que faltaría**, para que nadie la resuelva inventándose una
+columna. Todas están declaradas en `PROPUESTAS` o en `COLUMNAS_PROPUESTAS` de
+`scripts/modelo_objetivo.py`, así que no hay que proponerlas otra vez.
+
+| Lo que promete este documento | Qué falta, con nombre |
 |---|---|
-| Modelo de datos, 28 tablas | **Existe.** 202 columnas y 20 reglas. `FASE A CERRADA` con 61 conformes sobre la hoja de producción y 61 sobre la plantilla |
-| Plantillas de checklist | **Existe** — `FRM_Formularios`, `FRM_Secciones`, `FRM_Preguntas`. **27 formularios en la plantilla**, uno por tipo de activo, y 14 secciones. En la hoja de producción siguen siendo 18: no lleva todavía los nueve tipos añadidos el 2026-08-09 |
-| Banco de preguntas | **1 de 27.** Las 15 filas de `FRM_Preguntas` son todas del formulario de postes SOS |
-| Catálogo de roles | **Existe** — `ROL_Roles`, con 4 filas. Faltan los doce oficios del Plan Maestro |
-| Referencias entre tablas | **Puestas.** Las **38** del modelo, sobre la aplicación reconstruida, con `IsPartOf` en las cuatro que lo llevan |
-| Geofencing y filtros de seguridad | **Puestos.** No probados en campo: falta la coordenada real |
-| Capa de tareas `TAR_Tareas` | **En especificación**, y `ESPEC-003` está bloqueada por el arquitecto |
-| Jerarquía de ubicación | **En especificación**, dentro de `ESPEC-003` |
-| Correctivo con criticidad y SLA | **En especificación**, dentro de `ESPEC-003` |
-| Imponer `QuienCambia` y el rechazo | **Pendiente** |
-| Inventario de 355 activos | **En la plantilla como sintético.** 389 filas: 34 de fixture y 355 de prueba, cada una marcada como tal en `ACT_Activos.Observaciones`. **No es el registro real** |
-| Coordenadas de los activos | **No existen.** Los 34 comparten una de Bogotá y las 355 sintéticas están interpoladas sobre el corredor. Se levantan en campo |
-| Vistas, acciones y slices | **No están en el modelo.** Mientras no se declaren, la interfaz no se puede generar ni auditar |
-| Certificaciones múltiples, vigencias | Fase 2 |
-| Almacén, SAT, flotas | Fuera de alcance |
+| §1 — que el porcentaje de cumplimiento **salga solo** | El puente entre lo planeado y lo ejecutado. `PLA_PlanMantenimiento` no la referencia nadie —es el aviso `V-06` de `validar_modelo.py`— y `OT_OrdenesTrabajo` no tiene ninguna columna que diga qué fila del plan satisface. La orden tendría que ganar una referencia a la tarea, y antes hace falta **`TAR_Tareas`** |
+| §6.1 — periodicidad por tarea | **`TAR_Tareas`**, con `FrecuenciaID`. Hoy la periodicidad cuelga de `ACT_Activos.FrecuenciaID`, una sola por activo, y un poste SOS tiene inspección y ejecución con ciclos distintos |
+| §6.2 — el checklist lo decide la tarea | **`TAR_Tareas.FormularioID`**. Hoy lo decide `TIP_TiposActivo.FormularioID`, uno por tipo |
+| §2 — los cinco tipos que no se visitan | **Cinco filas en `TIP_TiposActivo`** y la columna **`TIP_TiposActivo.SeVisita`**. Sin ella `ACT_Activos.Ubicacion` es obligatoria para todos y `RG-01` compara contra una coordenada en blanco, que **rechaza el cierre legítimo** |
+| El Plan Maestro clasifica en cuatro clases de mantenimiento | `OT_OrdenesTrabajo.Tipo` solo admite `Preventivo` y `Correctivo`. `Admin` y `Servicio` no se pueden registrar |
+| §7 — medir tiempos de respuesta y resolución de un correctivo | `OT_OrdenesTrabajo` no tiene **ninguna fecha de creación**. Faltarían `HoraAviso`, `CriticidadID` y **`CRI_Criticidad`**, más **`EVT_EventosOrden`** y **`PAU_Pausas`** para el reloj parado, que no puede ser una columna acumulada |
+| §3 — el oficio decide a quién se asigna | `ROL_Roles` existe y sirve; falta **`USR_Usuarios.OficioID`** y un discriminador de clase en `ROL_Roles` que separe los cuatro perfiles de acceso de los doce oficios, o los doce no tienen dónde leerse |
+| Que el equipo de un peaje herede la unidad funcional del peaje | `SED_Sedes` tiene cuatro columnas y **no sabe dónde está**: sin `UnidadFuncionalID`, sin `PR` y sin `Ubicacion`. Y `ACT_Activos` no tiene recinto ni estructura |
+
+**Y dos cosas que el modelo ya sostiene, y que conviene no volver a construir:** la segunda visita
+encadenada tiene `OT_OrdenesTrabajo.OTOrigenID`; la baja de un activo tiene `FechaBaja`, `MotivoBaja`
+y las reglas `RG-16` y `RG-17`, con `RG-18` protegiendo el histórico.
 
 ## 9. Lo que operación tiene que confirmar
 

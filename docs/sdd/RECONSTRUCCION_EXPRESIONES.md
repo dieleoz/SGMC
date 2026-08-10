@@ -54,22 +54,16 @@ y devuelve lista vacia.
 DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]
 ```
 
-**Contra que hoja va cada version.** Esta regla desreferencia
-`TIP_TiposActivo.RadioGeofencingKm`, y esa columna no esta igual en las dos hojas:
+**Antes de pegarla, compruebe que el radio esta poblado.** Esta regla desreferencia
+`TIP_TiposActivo.RadioGeofencingKm`. **Si esa columna esta vacia, la comparacion se hace
+contra blanco y rechaza tambien el cierre legitimo**: fallarian las dos pruebas del par,
+la que debe aceptar y la que debe rechazar, y la tanda dejaria de discriminar.
 
-| Hoja | Que se pega | Por que |
-|---|---|---|
-| `BD/Modelo_Datos_PLANTILLA.xlsx` | **La expresion de arriba, la variante por tipo** | El radio esta poblado en sus 27 tipos: 0.05 km en 18, 0.1 km en 8 y 1.5 km en la fibra |
-| `Modelo_Datos_09082026`, la hoja de produccion | **El literal `1.0`** en lugar de la desreferencia | Ahi la columna sigue **vacia en sus 18 tipos**. La variante por tipo compararia contra blanco y rechazaria tambien el cierre legitimo |
-
-```
-DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= 1.0
+```bash
+python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"
 ```
 
-> **El literal `1.0` no es el valor bueno: es el provisional mientras la aplicacion lea la
-> hoja de produccion.** Al migrar a la hoja limpia se sustituye por la variante por tipo, y
-> ese cambio es parte del paso 6 de `MIGRACION_HOJA_LIMPIA.md`. Comprobar cual esta puesta
-> es leer la formula entera, no dar por hecho que se pego bien.
+En la hoja vigente estan **poblados los 27**, con 0.05 km en 18 · 0.1 km en 8 · 1.5 km en 1. Un literal en su lugar -por ejemplo `<= 1.0`- hace que el sistema pruebe "estas en el corredor" en vez de "estas frente al equipo", que es su proposito.
 
 ### RG-02 — `MAN_Mantenimientos` · `Precision_GPS`
 
