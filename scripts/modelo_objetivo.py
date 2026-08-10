@@ -67,7 +67,7 @@ MODELO = {
                 nota="La ruta a la que pertenece ese PR. El peaje de Macheta esta en la 5607"),
             col("PK", "Text", nueva=True,
                 nota="Punto kilometrico del proyecto, lineal. El que no es ambiguo"),
-            col("Ubicacion", "LatLong", nueva=True, nota="Coordenada de la edificacion"),
+            col("Ubicacion_LatLong", "LatLong", nueva=True, nota="Coordenada de la edificacion"),
             col("Activo", "Yes/No", valor_inicial="TRUE"),
         ]),
 
@@ -252,7 +252,7 @@ MODELO = {
             col("PR", "Text", nota="Punto de referencia vial"),
             col("CalzadaID", "Ref", ref="CAL_Calzadas"),
             col("SentidoID", "Ref", ref="SEN_Sentidos"),
-            col("Ubicacion", "LatLong", obligatoria=True,
+            col("Ubicacion_LatLong", "LatLong", obligatoria=True,
                 nota="Coordenada real. Hoy los 34 activos comparten un punto en Bogota"),
             col("PK", "Text", nueva=True,
                 nota="Punto kilometrico DEL PROYECTO: lineal y continuo desde 0+000 hasta el "
@@ -324,7 +324,7 @@ MODELO = {
             col("OrigenApertura", "Enum", valores=["QR", "Lista"], valor_inicial="Lista",
                 nota="Abrir por lista no prueba presencia; se marca para poder exigir "
                      "QR donde importe y para medir cuantos cierres carecen de escaneo. El QR esta fuera de alcance desde el 2026-08-07, asi que hoy el valor inicial es Lista"),
-            col("UbicacionEscaneo", "LatLong", editable=False,
+            col("UbicacionEscaneo_LatLong", "LatLong", editable=False,
                 nota="Donde estaba el tecnico al escanear. Junto con Coordenadas_Cierre permite "
                      "comprobar que llego y se quedo, no que paso cerca"),
             col("FechaHoraEscaneo", "DateTime", editable=False,
@@ -332,8 +332,8 @@ MODELO = {
             col("EstadoActivoID", "Ref", ref="EST_Activo", obligatoria=True, nueva=True,
                 nota="Estado en que queda el activo tras la intervencion. No existe en produccion: "
                      "se crea. El Excel local tiene 'Estado Final', que produccion no tiene"),
-            col("Coordenadas_Cierre", "LatLong", obligatoria=True, valor_inicial="HERE()", editable=False,
-                valid_if="DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]",
+            col("Coordenadas_Cierre_LatLong", "LatLong", obligatoria=True, valor_inicial="HERE()", editable=False,
+                valid_if="DISTANCE([Coordenadas_Cierre_LatLong], [OTID].[ActivoID].[Ubicacion_LatLong]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]",
                 mensaje_error="Ubicacion fuera de rango: debe estar junto al activo para cerrar."),
             col("Precision_GPS", "Number", valor_inicial="USERLOCATIONACCURACY()", editable=False),
             col("CierreConExcepcion", "Yes/No",
@@ -367,7 +367,7 @@ MODELO = {
             col("Tipo", "Enum", obligatoria=True,
                 valores=["Activo no inventariado", "Falla detectada"]),
             col("Descripcion", "LongText", obligatoria=True),
-            col("Ubicacion", "LatLong", obligatoria=True, valor_inicial="HERE()"),
+            col("Ubicacion_LatLong", "LatLong", obligatoria=True, valor_inicial="HERE()"),
             col("Fotografia", "Image", obligatoria=True),
             col("ActivoID", "Ref", ref="ACT_Activos", nota="Solo si la novedad es sobre uno existente"),
             col("Estado", "Enum", valor_inicial="Reportada",
@@ -419,7 +419,7 @@ MODELO = {
             col("Archivo", "Image", obligatoria=True,
                 nota="Calidad baja, 600 px. La camara debe forzarse en la app: si permite elegir "
                      "de la galeria, toda la cadena de evidencia pierde valor"),
-            col("Ubicacion", "LatLong", obligatoria=True, valor_inicial="HERE()",
+            col("Ubicacion_LatLong", "LatLong", obligatoria=True, valor_inicial="HERE()",
                 nota="Coordenada de CADA fotografia. La compresion a 600 px descarta el EXIF, "
                      "asi que la geolocalizacion debe guardarse como dato, no confiarse a la imagen"),
             col("PrecisionGPS", "Number", valor_inicial="USERLOCATIONACCURACY()"),
@@ -892,6 +892,21 @@ CLAVE_LEGIBLE = {
     "FRM_Preguntas",           # SOS001
     "PLA_PlanMantenimiento",   # PLA-001
     "PAR_Parametros",          # UMBRAL_GPS
+    # Las once que se resembraron el 2026-08-10. Tenian clave numerica heredada
+    # de la hoja vieja, y AppSheet la tipaba Number aunque el modelo dijera Text:
+    # una fila con clave alfanumerica se descartaba sin avisar. Con prefijo, la
+    # infiere Text sola.
+    "SED_Sedes",               # SED-001
+    "UNF_UnidadesFuncionales", # UNF-01
+    "ROL_Roles",               # ROL-01
+    "USR_Usuarios",            # USR-001
+    "TIP_TiposActivo",         # TIP-001
+    "EST_Activo",              # EST-01
+    "FRE_Frecuencias",         # FRE-01
+    "CAL_Calzadas",            # CAL-01
+    "ACT_Activos",             # ACT-0001
+    "FRM_Secciones",           # SEC-01
+    "TPR_TiposRespuesta",      # TPR-01
     "LST_ValoresLista",        # SOS001-1, derivada de la pregunta que la usa.
                                # Cuatro de sus claves eran 1, 2, 3 y 4, y como el
                                # resto es texto AppSheet las habria descartado:
@@ -1098,9 +1113,9 @@ DECISIONES_ABIERTAS = [
 
 # --------------------------------------------------------- reglas de la app
 REGLAS = [
-    dict(id="RG-01", tabla="MAN_Mantenimientos", columna="Coordenadas_Cierre",
+    dict(id="RG-01", tabla="MAN_Mantenimientos", columna="Coordenadas_Cierre_LatLong",
          tipo="Valid_If", cubre="RF-012",
-         expresion="DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]",
+         expresion="DISTANCE([Coordenadas_Cierre_LatLong], [OTID].[ActivoID].[Ubicacion_LatLong]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]",
          descripcion=("Impide cerrar lejos del activo, con radio por tipo. La ruta atraviesa dos "
                       "referencias, de ahi que cablearlas sea el primer paso de todo.")),
     dict(id="RG-21", tabla="ACT_Activos", columna="UnidadFuncionalID",
@@ -1155,7 +1170,7 @@ REGLAS = [
                       "se ejecutan.")),
     dict(id="RG-13", tabla="MAN_Mantenimientos", columna="(tabla)",
          tipo="Verificacion de evidencia", cubre="Prueba de presencia",
-         expresion="DISTANCE([UbicacionEscaneo], [Coordenadas_Cierre]) <= 0.5",
+         expresion="DISTANCE([UbicacionEscaneo_LatLong], [Coordenadas_Cierre_LatLong]) <= 0.5",
          descripcion=("Contrasta donde escaneo con donde cerro. Una diferencia grande indica que "
                       "escaneo en un sitio y cerro en otro. No bloquea: se reporta.")),
     dict(id="RG-20", tabla="MAN_Mantenimientos", columna="(varias)",

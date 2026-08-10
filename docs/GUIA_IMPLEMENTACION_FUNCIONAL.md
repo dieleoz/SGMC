@@ -184,7 +184,7 @@ Todo llega de una hoja de calculo, asi que entra como texto o numero. La lista c
 ### La que no se puede fallar
 
 ```
-MAN_Mantenimientos.Coordenadas_Cierre  ->  LatLong
+MAN_Mantenimientos.Coordenadas_Cierre_LatLong  ->  LatLong
 ```
 
 **Sobre ella se monta el geofencing, y `DISTANCE()` no funciona sobre texto.** Si esta columna
@@ -207,7 +207,7 @@ no prueba nada** — que es justo lo que el sistema existe para sostener.
 
 | Que | Como se ve |
 |---|---|
-| `Coordenadas_Cierre` | Tipo `LatLong` |
+| `Coordenadas_Cierre_LatLong` | Tipo `LatLong` |
 | Las cuatro marcas | Tipo `ChangeTimestamp` |
 | Las imagenes y la firma | `Image` y `Signature`, no `Text` |
 | Los `Enum` | Con sus valores declarados, no vacios |
@@ -258,7 +258,7 @@ demas quedan huerfanas sin mensaje de error**: la celda se queda en blanco.
 **Y la prueba de la cadena**, en el Asistente de Expresiones sobre `MAN_Mantenimientos`:
 
 ```
-[OTID].[ActivoID].[Ubicacion]
+[OTID].[ActivoID].[Ubicacion_LatLong]
 [OTID].[TecnicoID].[Correo]
 ```
 
@@ -303,11 +303,11 @@ Son 21. Las expresiones completas, sin truncar, en
 
 ### 7.1 El geofencing, y por que sin `Editable_If` no vale nada
 
-En `MAN_Mantenimientos.Coordenadas_Cierre`:
+En `MAN_Mantenimientos.Coordenadas_Cierre_LatLong`:
 
 ```
 Initial value:  HERE()
-Valid_If:       DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion])
+Valid_If:       DISTANCE([Coordenadas_Cierre_LatLong], [OTID].[ActivoID].[Ubicacion_LatLong])
                   <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]
 Invalid text:   Ubicacion fuera de rango: debe estar junto al activo para cerrar.
 Editable_If:    FALSE
@@ -329,7 +329,7 @@ anterior.
 **El `Editable_If = FALSE` no es un detalle.** Sin el, el tecnico arrastra el pin del mapa y
 cierra desde su casa. La regla existiria, se veria, y no probaria nada.
 
-Lo mismo en `Precision_GPS`, `UbicacionEscaneo` y `FechaHoraEscaneo`.
+Lo mismo en `Precision_GPS`, `UbicacionEscaneo_LatLong` y `FechaHoraEscaneo`.
 
 > **Y un supuesto que sigue sin verificar, el peor del sistema.** No hay pagina oficial que
 > confirme si AppSheet evalua un `Valid_If` sobre una columna con `Editable_If = FALSE`. **Si no lo
@@ -505,7 +505,7 @@ Etapa 3   claves simples y Text .................. [  ]   cuantas de 28:
 Etapa 5   referencias puestas .................... [  ]   cuantas de 39:
           IsPartOf ............................... [  ]   cuantas de 4:
           MAN.OTID desmarcado .................... [  ]
-          [OTID].[ActivoID].[Ubicacion] .......... [  ]   salida:
+          [OTID].[ActivoID].[Ubicacion_LatLong] .......... [  ]   salida:
           [OTID].[TecnicoID].[Correo] ............ [  ]   salida:
 
 Etapa 6   RETIRADA. No se ejecuta: la hoja vigente no trae columnas que ocultar

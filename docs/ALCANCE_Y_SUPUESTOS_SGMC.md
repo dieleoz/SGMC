@@ -140,7 +140,7 @@ contra las 28 tablas y 205 columnas de `scripts/modelo_objetivo.py`:
 | D-06 | El rechazo necesita **una fila `Devuelta` en `EOT_EstadosOrden`**. `MAN_Mantenimientos.ObservacionRechazo` ya existe. Imponer `QuienCambia` es una regla sobre una columna que ya está poblada | Sí, sin tocar el esquema |
 | D-12 | `modelo_objetivo.py` **no tiene vistas, ni acciones, ni slices**. No es que falten reportes: falta la capa donde declararlos | No. Es una estructura nueva en el modelo |
 | D-13 | Cumplimiento es «planeadas contra ejecutadas», y **no hay puente entre `PLA_PlanMantenimiento` y `OT_OrdenesTrabajo`**: ninguna columna de la orden dice qué fila del plan satisface. `validar_modelo.py` ya lo avisa con `V-06`, «`PLA_PlanMantenimiento` no es referenciada por nadie». Disponibilidad necesita además el tiempo fuera de servicio, que hoy no se registra | No. Necesita `TAR_Tareas` y una referencia desde la orden |
-| — | Los cinco tipos sin ubicación **no tienen fila** en `TIP_TiposActivo`, y `ACT_Activos.Ubicacion` es obligatoria para todos. Faltaría `TIP_TiposActivo.SeVisita`, ya declarada en `COLUMNAS_PROPUESTAS` | No |
+| — | Los cinco tipos sin ubicación **no tienen fila** en `TIP_TiposActivo`, y `ACT_Activos.Ubicacion_LatLong` es obligatoria para todos. Faltaría `TIP_TiposActivo.SeVisita`, ya declarada en `COLUMNAS_PROPUESTAS` | No |
 
 **Y al revés, lo que ya está y algún documento anterior daba por pendiente:** el radio de geofencing
 por tipo, poblado en los 27; el umbral de GPS como parámetro y no como literal; los valores de

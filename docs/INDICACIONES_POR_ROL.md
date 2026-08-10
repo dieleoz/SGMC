@@ -191,10 +191,10 @@ seguro porque el mantenimiento nunca se borra.
 
 **3. Las 21 reglas.** Las cuatro que no pueden faltar:
 
-- **El geofencing de cierre**, en `MAN_Mantenimientos.Coordenadas_Cierre`, comparando contra
+- **El geofencing de cierre**, en `MAN_Mantenimientos.Coordenadas_Cierre_LatLong`, comparando contra
   `[OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]`. **El radio va por tipo y está poblado en
   los 27**; el literal `1.0` describe el sistema anterior y no se usa.
-- **`Editable_If = FALSE`** en las cuatro columnas de captura —`Coordenadas_Cierre`,
+- **`Editable_If = FALSE`** en las cuatro columnas de captura —`Coordenadas_Cierre_LatLong`,
   `Precision_GPS`, `UbicacionEscaneo` y `FechaHoraEscaneo`—. **Sin esto el geofencing es
   decorativo:** el técnico arrastra el pin del mapa y cierra desde donde quiera.
 - **El umbral de GPS** en `CierreConExcepcion`, con el `OR(ISBLANK(...))` entero. Sin él, borrar la
@@ -214,7 +214,7 @@ nada** — que es justo lo que el sistema existe para sostener.
 **5. Las tres expresiones, en el Asistente de Expresiones y no en una columna.**
 
 ```
-[OTID].[ActivoID].[Ubicacion]              debe salir en verde
+[OTID].[ActivoID].[Ubicacion_LatLong]              debe salir en verde
 [OTID].[TecnicoID].[Correo]                debe salir en verde
 REF_ROWS("OT_OrdenesTrabajo", "Activo")    anote literalmente qué dice
 ```

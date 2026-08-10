@@ -630,7 +630,7 @@ sobre `RG-01` habría eximido del geofencing a los servidores y los NAS sin dec�
 | Pieza | Cómo |
 |---|---|
 | Marcar los tipos sin lugar al que ir | `TIP_TiposActivo.SeVisita = FALSE` en los cinco |
-| Que `ACT_Activos.Ubicacion` deje de ser obligatoria para ellos | `RG-22`: `Required_If = [TipoActivoID].[SeVisita] = TRUE` |
+| Que `ACT_Activos.Ubicacion_LatLong` deje de ser obligatoria para ellos | `RG-22`: `Required_If = [TipoActivoID].[SeVisita] = TRUE` |
 | Que el geofencing no los rechace | **`RG-01` se modifica**, con `[...].[SeVisita] = FALSE` en el `OR`. Ver 12.2 |
 | Los servidores y los NAS | **Siguen con geofencing.** Su problema es de precisión bajo techo, y para eso ya están `RadioGeofencingKm` por tipo y `RG-19`, que marca el cierre como excepcional cuando el error del satélite se dispara. No se les exime |
 
@@ -1332,7 +1332,7 @@ Todo se edita **solo** en `scripts/modelo_objetivo.py`. Qué estructura toca cad
 | `TAR_Tareas`, `CRI_Criticidad`, `ETR_Estructuras` | `CLAVE_LEGIBLE` |
 | `EVT_EventosOrden`, `PAU_Pausas` | `CLAVE_GENERADA` |
 | `RG-21` a `RG-31` | `REGLAS` |
-| Modificación de `RG-01` y `RG-11` | `REGLAS`, y `MODELO` en el `valid_if` de `MAN_Mantenimientos.Coordenadas_Cierre` |
+| Modificación de `RG-01` y `RG-11` | `REGLAS`, y `MODELO` en el `valid_if` de `MAN_Mantenimientos.Coordenadas_Cierre_LatLong` |
 | Re-apuntar «Checklist por tipo de activo» | **`scripts/validar_modelo.py`, `COBERTURA`.** Fuera del modelo, y con revisión independiente (7.4) |
 
 **Nada de esto se ejecuta hasta que `python scripts/validar_modelo.py` devuelva 0 errores.**
@@ -1366,7 +1366,7 @@ compara un `Ref` contra texto es `RG-30`, y su destino `EOT_EstadosOrden` **sí 
 ```
 OR(
   [OTID].[ActivoID].[TipoActivoID].[RequiereGPS] = FALSE,
-  DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion])
+  DISTANCE([Coordenadas_Cierre_LatLong], [OTID].[ActivoID].[Ubicacion_LatLong])
       <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]
 )
 ```

@@ -39,19 +39,19 @@ NIVELES = [
 
 # Tipos que AppSheet no infiere desde una hoja de texto.
 TIPOS_MANUALES = [
-    ("ACT_Activos", "Ubicacion", "LatLong", "Sobre ella se calcula la distancia al activo"),
+    ("ACT_Activos", "Ubicacion_LatLong", "LatLong", "Sobre ella se calcula la distancia al activo"),
     ("ACT_Activos", "FechaBaja", "Date", ""),
     ("ACT_Activos", "Activo", "Yes/No", ""),
-    ("MAN_Mantenimientos", "Coordenadas_Cierre", "LatLong", "**La mas importante.** DISTANCE() no funciona sobre texto"),
-    ("MAN_Mantenimientos", "UbicacionEscaneo", "LatLong", ""),
+    ("MAN_Mantenimientos", "Coordenadas_Cierre_LatLong", "LatLong", "**La mas importante.** DISTANCE() no funciona sobre texto"),
+    ("MAN_Mantenimientos", "UbicacionEscaneo_LatLong", "LatLong", ""),
     ("MAN_Mantenimientos", "Precision_GPS", "Number", ""),
     ("MAN_Mantenimientos", "CierreConExcepcion", "Yes/No", ""),
     ("MAN_Mantenimientos", "OrigenApertura", "Enum", "Valores: `QR`, `Lista`"),
     ("OT_OrdenesTrabajo", "Tipo", "Enum", "Valores: `Preventivo`, `Correctivo`"),
-    ("FOT_Fotografias", "Ubicacion", "LatLong", ""),
+    ("FOT_Fotografias", "Ubicacion_LatLong", "LatLong", ""),
     ("FOT_Fotografias", "Archivo", "Image", ""),
     ("FIR_Firmas", "Imagen", "Signature", ""),
-    ("NOV_Novedades", "Ubicacion", "LatLong", ""),
+    ("NOV_Novedades", "Ubicacion_LatLong", "LatLong", ""),
     ("NOV_Novedades", "Fotografia", "Image", ""),
     ("MAN_Mantenimientos", "FechaHoraRegistro", "ChangeTimestamp", "**Marca del servidor.** AppSheet no lo infiere nunca"),
     ("FOT_Fotografias", "FechaHora", "ChangeTimestamp", "**Sin esto la hora de la fotografia no prueba nada**"),
@@ -349,11 +349,11 @@ for r in REGLAS:
 w("")
 w("### Las cuatro que no pueden faltar")
 w("")
-w("**Geofencing** — en `MAN_Mantenimientos.Coordenadas_Cierre`:")
+w("**Geofencing** — en `MAN_Mantenimientos.Coordenadas_Cierre_LatLong`:")
 w("")
 w("```")
 w("Initial value:  HERE()")
-w("Valid_If:       DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion])")
+w("Valid_If:       DISTANCE([Coordenadas_Cierre_LatLong], [OTID].[ActivoID].[Ubicacion_LatLong])")
 w("                  <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]")
 w("Invalid text:   Ubicacion fuera de rango: debe estar junto al activo para cerrar.")
 w("Editable_If:    FALSE")
@@ -380,7 +380,7 @@ w("**No editables** — en `MAN_Mantenimientos`, `Editable_If = FALSE` en las cu
 w("captura:")
 w("")
 w("```")
-w("Coordenadas_Cierre · Precision_GPS · UbicacionEscaneo · FechaHoraEscaneo")
+w("Coordenadas_Cierre_LatLong · Precision_GPS · UbicacionEscaneo_LatLong · FechaHoraEscaneo")
 w("```")
 w("")
 w("**Sin esto el geofencing es decorativo:** el tecnico arrastra el pin del mapa y cierra desde donde")
@@ -474,7 +474,7 @@ w("")
 w("**La cadena navega** — en el Asistente de Expresiones, sobre `MAN_Mantenimientos`:")
 w("")
 w("```")
-w("[OTID].[ActivoID].[Ubicacion]")
+w("[OTID].[ActivoID].[Ubicacion_LatLong]")
 w("[OTID].[TecnicoID].[Correo]")
 w("```")
 w("")

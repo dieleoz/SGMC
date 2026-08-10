@@ -159,7 +159,7 @@ def unidad_funcional(frac):
 
 
 COLS = ["ActivoID", "CodigoActivo", "Nombre", "TipoActivoID", "UnidadFuncionalID",
-        "PR", "PK", "TramoINVIAS", "CalzadaID", "Ubicacion", "EstadoActivoID", "CodigoQR", "SentidoID",
+        "PR", "PK", "TramoINVIAS", "CalzadaID", "Ubicacion_LatLong", "EstadoActivoID", "CodigoQR", "SentidoID",
         "Activo", "FrecuenciaID", "Observaciones", "Criticidad", "FechaBaja", "MotivoBaja"]
 
 
@@ -200,7 +200,7 @@ def generar_filas(existentes=None):
                 "PR": "",   # el de INVIAS. No lo sabemos: lo pone operacion
                 "TramoINVIAS": "",
                 "CalzadaID": 1 + (n % 2),
-                "Ubicacion": punto(frac),
+                "Ubicacion_LatLong": punto(frac),
                 "EstadoActivoID": 1,
                 "CodigoQR": "",
                 "SentidoID": "SA" if n % 2 else "AS",
@@ -239,7 +239,7 @@ if __name__ == "__main__":
     print("Muestra:")
     for f in [filas[0], filas[53], filas[54], filas[200], filas[-1]]:
         print("   %-10s %-26s UF%-3s PK %-8s %s"
-              % (f["CodigoActivo"], f["Nombre"][:26], f["UnidadFuncionalID"], f["PK"], f["Ubicacion"]))
+              % (f["CodigoActivo"], f["Nombre"][:26], f["UnidadFuncionalID"], f["PK"], f["Ubicacion_LatLong"]))
     print()
     print("Coordenadas: interpoladas sobre el trazado real del corredor,")
     print("con +-150 m de dispersion. SINTETICAS, no de campo.")

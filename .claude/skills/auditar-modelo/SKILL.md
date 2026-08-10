@@ -64,11 +64,11 @@ esa marca no sirve.
 Distingue **estructura** de **población**: que exista la columna no significa que tenga datos, y
 que la tabla exista no significa que el flujo se haya ejercitado.
 
-- `MAN_Mantenimientos`: ¿tiene `Coordenadas_Cierre` y `Precision_GPS`? Verificado el 2026-08-10
+- `MAN_Mantenimientos`: ¿tiene `Coordenadas_Cierre_LatLong` y `Precision_GPS`? Verificado el 2026-08-10
   contra `scripts/modelo_objetivo.py`: hoy sí están, en las 28 tablas del modelo y en la hoja
   generada de él. Si una hoja que estés auditando no las trae, es la hoja la que quedó atrás, no la
   regla la que cambió.
-- `ACT_Activos.Ubicacion`: ¿cuántas coordenadas **distintas** hay? Si es una sola, el geofencing es
+- `ACT_Activos.Ubicacion_LatLong`: ¿cuántas coordenadas **distintas** hay? Si es una sola, el geofencing es
   inoperante por mucho que la fórmula esté bien. En `BD/Modelo_Datos_PLANTILLA.xlsx`, 34 de los 368
   activos comparten la coordenada `4.728512, -74.114531` (Bogotá): son de fixture, no del terreno.
 - `TIP_TiposActivo.FormularioID`: ¿está poblado en **todas** las filas? Sin él no hay checklist

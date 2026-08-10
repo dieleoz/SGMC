@@ -229,7 +229,7 @@ for rid, desc in [
     w(f"| {rid} | {desc} |")
 w("")
 w("**V-11 es la regla que habría evitado el defecto raíz del modelo actual:** comprueba que")
-w("`DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion])` sea navegable. Contra el modelo")
+w("`DISTANCE([Coordenadas_Cierre_LatLong], [OTID].[ActivoID].[Ubicacion_LatLong])` sea navegable. Contra el modelo")
 w("en producción falla, porque `OTID` es texto y no referencia. Esa comprobación, hecha en su")
 w("momento, habría ahorrado meses.")
 w("")

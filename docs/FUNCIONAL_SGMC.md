@@ -288,7 +288,7 @@ tres es lo que hizo que este documento dijera durante un día que las referencia
 | Banco de preguntas | — | **333 preguntas, los 27 formularios con contenido.** 288 llevan `[BORRADOR: validar con operacion]`; las 45 acordadas son SOS, CCTV y PMV fijo, 15 cada uno | — |
 | Catálogo de roles | `ROL_Roles` existe | **4 filas**: Administrador, Supervisor, Técnico, Consulta. Faltan los doce oficios del Plan Maestro | — |
 | Inventario | — | **368 filas** en `ACT_Activos`: 334 sintéticas, marcadas como tales en `Observaciones`, y 34 del juego de arranque. **No es el registro real** | — |
-| Coordenadas de los activos | `ACT_Activos.Ubicacion`, `LatLong`, obligatoria | **Ninguna es real.** Las 34 comparten un punto de Bogotá; las 334 están interpoladas sobre el corredor | — |
+| Coordenadas de los activos | `ACT_Activos.Ubicacion_LatLong`, `LatLong`, obligatoria | **Ninguna es real.** Las 34 comparten un punto de Bogotá; las 334 están interpoladas sobre el corredor | — |
 | Registros de prueba | — | **Ninguno.** `OT`, `MAN`, `CHK`, `CHD`, `FOT`, `FIR`, `NOV` y `PLA` están vacías | El ciclo no se ha recorrido |
 | Capa de tareas `TAR_Tareas` | **No.** Declarada en `PROPUESTAS` | — | — |
 | Jerarquía de ubicación | **No.** Declarada en `PROPUESTAS` como `ETR_Estructuras` | — | — |
@@ -309,7 +309,7 @@ columna. Todas están declaradas en `PROPUESTAS` o en `COLUMNAS_PROPUESTAS` de
 | §1 — que el porcentaje de cumplimiento **salga solo** | El puente entre lo planeado y lo ejecutado. `PLA_PlanMantenimiento` no la referencia nadie —es el aviso `V-06` de `validar_modelo.py`— y `OT_OrdenesTrabajo` no tiene ninguna columna que diga qué fila del plan satisface. La orden tendría que ganar una referencia a la tarea, y antes hace falta **`TAR_Tareas`** |
 | §6.1 — periodicidad por tarea | **`TAR_Tareas`**, con `FrecuenciaID`. Hoy la periodicidad cuelga de `ACT_Activos.FrecuenciaID`, una sola por activo, y un poste SOS tiene inspección y ejecución con ciclos distintos |
 | §6.2 — el checklist lo decide la tarea | **`TAR_Tareas.FormularioID`**. Hoy lo decide `TIP_TiposActivo.FormularioID`, uno por tipo |
-| §2 — los cinco tipos que no se visitan | **Cinco filas en `TIP_TiposActivo`** y la columna **`TIP_TiposActivo.SeVisita`**. Sin ella `ACT_Activos.Ubicacion` es obligatoria para todos y `RG-01` compara contra una coordenada en blanco, que **rechaza el cierre legítimo** |
+| §2 — los cinco tipos que no se visitan | **Cinco filas en `TIP_TiposActivo`** y la columna **`TIP_TiposActivo.SeVisita`**. Sin ella `ACT_Activos.Ubicacion_LatLong` es obligatoria para todos y `RG-01` compara contra una coordenada en blanco, que **rechaza el cierre legítimo** |
 | §5 — **el punto kilométrico** | La columna **`ACT_Activos.PK`**. Hoy solo existe `PR`, y operación usa los dos: un panel está «en el PR 34+500 y el PK 25+00». Son dos sistemas de referencia distintos y el modelo solo guarda uno, así que el otro se pierde o se mete a mano en `Observaciones` |
 | §5 — **el equipo compuesto** | Una referencia de `ACT_Activos` a sí misma, **`ACT_Activos.ActivoPadreID`**. Un panel de mensaje variable tiene pórtico, fuentes y cámaras, y hoy cada pieza sería un activo suelto sin nada que diga de quién cuelga. Sin eso no se puede responder «qué se le hizo al panel», solo «qué se le hizo a esta fuente» |
 | El Plan Maestro clasifica en cuatro clases de mantenimiento | `OT_OrdenesTrabajo.Tipo` solo admite `Preventivo` y `Correctivo`. `Admin` y `Servicio` no se pueden registrar |

@@ -237,7 +237,7 @@ for tabla, campos in CAMPOS_RETIRADOS.items():
 
 # ------------------------------------------------ V-13 cobertura de los flujos
 COBERTURA = {
-    "Geofencing de cierre": ("MAN_Mantenimientos", "Coordenadas_Cierre"),
+    "Geofencing de cierre": ("MAN_Mantenimientos", "Coordenadas_Cierre_LatLong"),
     "Precision del GPS": ("MAN_Mantenimientos", "Precision_GPS"),
     "Excepcion por GPS deficiente": ("MAN_Mantenimientos", "CierreConExcepcion"),
     "Segunda visita": ("MAN_Mantenimientos", "RequiereSegundaVisita"),

@@ -270,7 +270,7 @@ Edificaciones del corredor: CCO, peajes y basculas. Cada una esta al lado de la 
 | `PR` | Text |  |  |  | Punto de referencia de INVIAS del edificio |
 | `TramoINVIAS` | Text |  |  |  | La ruta a la que pertenece ese PR. El peaje de Macheta esta en la 5607 |
 | `PK` | Text |  |  |  | Punto kilometrico del proyecto, lineal. El que no es ambiguo |
-| `Ubicacion` | LatLong |  |  |  | Coordenada de la edificacion |
+| `Ubicacion_LatLong` | LatLong |  |  |  | Coordenada de la edificacion |
 | `Activo` | Yes/No |  |  |  | Valor inicial: `TRUE` |
 
 #### `UNF_UnidadesFuncionales` · **NUEVA**
@@ -448,7 +448,7 @@ Inventario de los activos del corredor. Es el eje del sistema.
 | `PR` | Text |  |  |  | Punto de referencia vial |
 | `CalzadaID` | Ref |  | `CAL_Calzadas` |  |  |
 | `SentidoID` | Ref |  | `SEN_Sentidos` |  |  |
-| `Ubicacion` | LatLong |  |  | Sí | Coordenada real. Hoy los 34 activos comparten un punto en Bogota |
+| `Ubicacion_LatLong` | LatLong |  |  | Sí | Coordenada real. Hoy los 34 activos comparten un punto en Bogota |
 | `PK` | Text |  |  |  | Punto kilometrico DEL PROYECTO: lineal y continuo desde 0+000 hasta el final. Es el unico que identifica un punto sin ambiguedad en todo el corredor |
 | `TramoINVIAS` | Text |  |  |  | La ruta de INVIAS a la que pertenece el PR: 55CN03, 5607 o 5608. SIN ELLA EL PR NO IDENTIFICA UN PUNTO, y no es teoria: el corredor tiene dos sitios distintos llamados PR 0+000 -el arranque en El Sisga sobre la 55CN03 y Guateque sobre la 5608-, separados por unos 50 km |
 | `SedeID` | Ref |  | `SED_Sedes` |  | Solo para el equipo bajo techo -servidores, NAS, impresoras, video wall-, que vive DENTRO de una edificacion y no en un punto de la via. Vacia en el equipo de corredor, que tiene su propio PR y su propia coordenada. Cuando esta puesta, RG-21 obliga a que la unidad funcional del activo sea la de su edificacion: la UF se guarda en un solo sitio y no en dos |
@@ -494,10 +494,10 @@ Ejecucion real en campo. Cuelga de la orden y es padre de la evidencia.
 | `FechaHoraInicio` | DateTime |  |  | Sí | Valor inicial: `NOW()` |
 | `FechaHoraFin` | DateTime |  |  |  |  |
 | `OrigenApertura` | Enum |  |  |  | Abrir por lista no prueba presencia; se marca para poder exigir QR donde importe y para medir cuantos cierres carecen de escaneo. El QR esta fuera de alcance desde el 2026-08-07, asi que hoy el valor inicial es Lista. Valor inicial: `Lista` |
-| `UbicacionEscaneo` | LatLong |  |  |  | Donde estaba el tecnico al escanear. Junto con Coordenadas_Cierre permite comprobar que llego y se quedo, no que paso cerca |
+| `UbicacionEscaneo_LatLong` | LatLong |  |  |  | Donde estaba el tecnico al escanear. Junto con Coordenadas_Cierre permite comprobar que llego y se quedo, no que paso cerca |
 | `FechaHoraEscaneo` | DateTime |  |  |  | Con FechaHoraFin da la duracion real de la intervencion |
 | `EstadoActivoID` | Ref |  | `EST_Activo` | Sí | Estado en que queda el activo tras la intervencion. No existe en produccion: se crea. El Excel local tiene 'Estado Final', que produccion no tiene |
-| `Coordenadas_Cierre` | LatLong |  |  | Sí | Valor inicial: `HERE()` |
+| `Coordenadas_Cierre_LatLong` | LatLong |  |  | Sí | Valor inicial: `HERE()` |
 | `Precision_GPS` | Number |  |  |  | Valor inicial: `USERLOCATIONACCURACY()` |
 | `CierreConExcepcion` | Yes/No |  |  |  | Se calcula, no se edita (RG-19). El umbral vive en PAR_Parametros |
 | `MotivoExcepcion` | LongText |  |  |  | Obligatorio si CierreConExcepcion es verdadero |
@@ -522,7 +522,7 @@ Hallazgos del tecnico en ruta: activos no inventariados o fallas fuera de progra
 | `UsuarioID` | Ref |  | `USR_Usuarios` | Sí | Valor inicial: `LOOKUP(USEREMAIL(), "USR_Usuarios", "Correo", "UsuarioID")` |
 | `Tipo` | Enum |  |  | Sí |  |
 | `Descripcion` | LongText |  |  | Sí |  |
-| `Ubicacion` | LatLong |  |  | Sí | Valor inicial: `HERE()` |
+| `Ubicacion_LatLong` | LatLong |  |  | Sí | Valor inicial: `HERE()` |
 | `Fotografia` | Image |  |  | Sí |  |
 | `ActivoID` | Ref |  | `ACT_Activos` |  | Solo si la novedad es sobre uno existente |
 | `Estado` | Enum |  |  |  | Valor inicial: `Reportada` |
@@ -554,7 +554,7 @@ Fotografias del mantenimiento. Supuesto D-10: minimo 3, maximo 6, tipificadas. S
 | `MantenimientoID` | Ref |  | `MAN_Mantenimientos` · IsPartOf | Sí |  |
 | `Tipo` | Enum |  |  | Sí |  |
 | `Archivo` | Image |  |  | Sí | Calidad baja, 600 px. La camara debe forzarse en la app: si permite elegir de la galeria, toda la cadena de evidencia pierde valor |
-| `Ubicacion` | LatLong |  |  | Sí | Coordenada de CADA fotografia. La compresion a 600 px descarta el EXIF, asi que la geolocalizacion debe guardarse como dato, no confiarse a la imagen. Valor inicial: `HERE()` |
+| `Ubicacion_LatLong` | LatLong |  |  | Sí | Coordenada de CADA fotografia. La compresion a 600 px descarta el EXIF, asi que la geolocalizacion debe guardarse como dato, no confiarse a la imagen. Valor inicial: `HERE()` |
 | `PrecisionGPS` | Number |  |  |  | Valor inicial: `USERLOCATIONACCURACY()` |
 | `FechaHora` | ChangeTimestamp |  |  |  | Marca del servidor, no del reloj del telefono, que el usuario puede alterar |
 | `Usuario` | Text |  |  |  | Valor inicial: `USEREMAIL()` |
@@ -676,12 +676,12 @@ Opciones de las preguntas de tipo lista.
 
 ## 5. Reglas y automatizaciones
 
-### RG-01 · Valid_If sobre `MAN_Mantenimientos`.`Coordenadas_Cierre`
+### RG-01 · Valid_If sobre `MAN_Mantenimientos`.`Coordenadas_Cierre_LatLong`
 
 Impide cerrar lejos del activo, con radio por tipo. La ruta atraviesa dos referencias, de ahi que cablearlas sea el primer paso de todo.
 
 ```
-DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]
+DISTANCE([Coordenadas_Cierre_LatLong], [OTID].[ActivoID].[Ubicacion_LatLong]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]
 ```
 
 Cubre: RF-012
@@ -801,7 +801,7 @@ Cubre: Plan de mantenimiento
 Contrasta donde escaneo con donde cerro. Una diferencia grande indica que escaneo en un sitio y cerro en otro. No bloquea: se reporta.
 
 ```
-DISTANCE([UbicacionEscaneo], [Coordenadas_Cierre]) <= 0.5
+DISTANCE([UbicacionEscaneo_LatLong], [Coordenadas_Cierre_LatLong]) <= 0.5
 ```
 
 Cubre: Prueba de presencia
@@ -910,7 +910,7 @@ El modelo se comprueba con `python scripts/validar_modelo.py`, que aplica diecis
 | V-16 | Lo retipado coincide en tipo y destino con lo que declara el modelo |
 
 **V-11 es la regla que habría evitado el defecto raíz del modelo actual:** comprueba que
-`DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion])` sea navegable. Contra el modelo
+`DISTANCE([Coordenadas_Cierre_LatLong], [OTID].[ActivoID].[Ubicacion_LatLong])` sea navegable. Contra el modelo
 en producción falla, porque `OTID` es texto y no referencia. Esa comprobación, hecha en su
 momento, habría ahorrado meses.
 

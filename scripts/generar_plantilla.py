@@ -293,18 +293,18 @@ CATALOGO_MINIMO = {
     # aqui donde esta.
     "SED_Sedes": [
         {"SedeID": "1", "Nombre": "CCO", "Ciudad": "Sutatenza",
-         "UnidadFuncionalID": "", "PR": "", "Ubicacion": "", "Activo": "TRUE"},
+         "UnidadFuncionalID": "", "PR": "", "Ubicacion_LatLong": "", "Activo": "TRUE"},
         {"SedeID": "2", "Nombre": "Bogota", "Ciudad": "Bogota",
-         "UnidadFuncionalID": "", "PR": "", "Ubicacion": "", "Activo": "TRUE"},
+         "UnidadFuncionalID": "", "PR": "", "Ubicacion_LatLong": "", "Activo": "TRUE"},
         {"SedeID": "3", "Nombre": "Peaje Macheta", "Ciudad": "Macheta",
          "UnidadFuncionalID": "7", "PR": "27+240", "TramoINVIAS": "5607",
-         "PK": "", "Ubicacion": "", "Activo": "TRUE"},
+         "PK": "", "Ubicacion_LatLong": "", "Activo": "TRUE"},
         {"SedeID": "4", "Nombre": "Peaje SLG", "Ciudad": "San Luis de Gaceno",
-         "UnidadFuncionalID": "", "PR": "", "Ubicacion": "", "Activo": "TRUE"},
+         "UnidadFuncionalID": "", "PR": "", "Ubicacion_LatLong": "", "Activo": "TRUE"},
         {"SedeID": "5", "Nombre": "Bascula Macheta", "Ciudad": "Macheta",
-         "UnidadFuncionalID": "", "PR": "", "Ubicacion": "", "Activo": "TRUE"},
+         "UnidadFuncionalID": "", "PR": "", "Ubicacion_LatLong": "", "Activo": "TRUE"},
         {"SedeID": "6", "Nombre": "Bascula SLG", "Ciudad": "San Luis de Gaceno",
-         "UnidadFuncionalID": "", "PR": "", "Ubicacion": "", "Activo": "TRUE"},
+         "UnidadFuncionalID": "", "PR": "", "Ubicacion_LatLong": "", "Activo": "TRUE"},
         ],
     "CAL_Calzadas": [
         {"CalzadaID": "3", "Nombre": "Separador",
@@ -565,6 +565,66 @@ LEEME = [
     ("Documentacion: repositorio del proyecto, empezando por ESTADO.md", False),
 ]
 
+# ------------------------- claves alfanumericas, para que AppSheet infiera Text
+#
+# AppSheet infiere el tipo de una columna mirando el nombre de la cabecera Y el
+# contenido de las filas. Una clave cuyos valores son 1, 2, 3 la tipa Number
+# aunque el modelo la declare Text, y entonces pasan dos cosas malas: una fila
+# con clave alfanumerica -las que genera UNIQUEID desde la aplicacion- se
+# DESCARTA sin avisar, y las referencias comparan numero contra texto.
+#
+# Once tablas tenian clave numerica, heredada de la hoja vieja. Las otras diez
+# del modelo ya usaban clave legible -OT-0001, MOT-01, FAL-01, ASG-01, PLA-001,
+# FRM_SOS, SOS001, UMBRAL_GPS-, asi que esto no inventa una convencion: la
+# completa.
+#
+# El cambio se PROPAGA solo: se reescribe la clave y todas las columnas Ref que
+# apuntan a esa tabla, derivadas de MODELO. Hacerlo a mano seria garantizar el
+# olvido de una.
+SEMILLA_CLAVES = {
+    "SED_Sedes":               ("SED-%03d", 1),
+    "UNF_UnidadesFuncionales": ("UNF-%02d", 1),
+    "ROL_Roles":               ("ROL-%02d", 1),
+    "USR_Usuarios":            ("USR-%03d", 1),
+    "TIP_TiposActivo":         ("TIP-%03d", 1),
+    "EST_Activo":              ("EST-%02d", 1),
+    "FRE_Frecuencias":         ("FRE-%02d", 1),
+    "CAL_Calzadas":            ("CAL-%02d", 1),
+    "ACT_Activos":             ("ACT-%04d", 1),
+    "FRM_Secciones":           ("SEC-%02d", 1),
+    "TPR_TiposRespuesta":      ("TPR-%02d", 1),
+    }
+
+resembradas = []
+for tabla, (patron, desde) in SEMILLA_CLAVES.items():
+    filas = leer(tabla)
+    if not filas:
+        continue
+    clave = columnas(tabla)[0]
+    mapa = {}
+    for i, f in enumerate(filas, desde):
+        viejo = texto(f[clave])
+        if not viejo:
+            continue
+        mapa[viejo] = patron % i
+        f[clave] = mapa[viejo]
+    escribir(tabla, filas)
+    # y ahora todo lo que apuntaba a esa tabla
+    tocadas = 0
+    for t2 in MODELO:
+        cols_ref = [c["nombre"] for c in MODELO[t2]["columnas"] if c.get("ref") == tabla]
+        if not cols_ref:
+            continue
+        filas2 = leer(t2)
+        for f2 in filas2:
+            for c2 in cols_ref:
+                v = texto(f2.get(c2))
+                if v in mapa:
+                    f2[c2] = mapa[v]
+                    tocadas += 1
+        escribir(t2, filas2)
+    resembradas.append("%s (%d claves, %d referencias)" % (tabla, len(mapa), tocadas))
+
 # --------------------------------------- claves y referencias, todas a texto
 #
 # El modelo declara las claves como Text y las referencias apuntan a ellas. La
@@ -620,6 +680,8 @@ print("Pestanas: %d + _LEEME   ·   Columnas: %d   ·   Filas: %d"
          sum(v[1] for v in resumen.values())))
 print()
 print("Activos recolocados en su unidad funcional real: %d" % recolocados)
+for r in resembradas:
+    print("Clave resembrada: %s" % r)
 print("Claves y referencias normalizadas a texto: %d" % normalizadas)
 if anadidos_catalogo:
     print("Valores de catalogo anadidos: %s" % " · ".join(anadidos_catalogo))

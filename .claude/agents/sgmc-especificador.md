@@ -51,7 +51,7 @@ Para producción, el conector de Google Drive con el `fileId` que `scripts/siste
 Que la columna exista no significa que tenga datos. Que la tabla exista no significa que el flujo
 se haya ejercitado nunca. `MAN_Mantenimientos`, `FOT_Fotografias` y `FIR_Firmas` están vacías.
 Cuenta filas, no supongas. (`GPS` no es una de las 28 tablas del modelo vigente: está en
-`RETIRADAS` de `scripts/modelo_objetivo.py` porque duplicaba `Coordenadas_Cierre` y
+`RETIRADAS` de `scripts/modelo_objetivo.py` porque duplicaba `Coordenadas_Cierre_LatLong` y
 `Precision_GPS` de `MAN_Mantenimientos` y nunca recibió un registro. Si la encuentras citada en un
 documento, es deriva.)
 

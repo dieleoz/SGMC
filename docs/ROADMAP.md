@@ -221,7 +221,7 @@ en código no puede divergir en silencio de otro, porque solo hay uno.
 
 | Decisión | Cómo quedó |
 |---|---|
-| Columnas de GPS en `MAN_Mantenimientos` | `Coordenadas_Cierre` como `LatLong` y `Precision_GPS` como `Number`. AppSheet las había inferido mal y cruzadas |
+| Columnas de GPS en `MAN_Mantenimientos` | `Coordenadas_Cierre_LatLong` como `LatLong` y `Precision_GPS` como `Number`. AppSheet las había inferido mal y cruzadas |
 | `EOT_EstadosOrden` | Sus claves son el nombre del estado, no `1..7`. Un catálogo se diseña mirando los datos que va a resolver |
 | `IsPartOf` sobre `MAN_Mantenimientos.OTID` | **Va sin él.** La ejecución es el registro histórico y sobrevive a su orden |
 | Borrado del histórico | Se retira `Deletes` en `OT_OrdenesTrabajo` y `MAN_Mantenimientos` (RG-14 y RG-15). Un error se corrige con `Activo = FALSE` |
@@ -244,7 +244,7 @@ Eso se resolvió el 2026-08-09 reconstruyéndola, no reconciliando nada más.
 Es la fase más larga y la que fija el cronograma. **Todo su contenido es trabajo de operación**,
 y por eso no hay forma de adelantarlo desde el repositorio.
 
-- [ ] **D-01.** Levantamiento en campo de las coordenadas reales y carga en `ACT_Activos.Ubicacion`.
+- [ ] **D-01.** Levantamiento en campo de las coordenadas reales y carga en `ACT_Activos.Ubicacion_LatLong`.
       Los 34 del juego de arranque comparten una coordenada de Bogotá; las 334 sintéticas están
       interpoladas sobre el corredor. **Ninguna sirve para cerrar una orden con un técnico delante**
 - [ ] **D-09.** Validación de las **288 preguntas en borrador** de `FRM_Preguntas`, repartidas en 24
@@ -291,7 +291,7 @@ Declarado en el modelo, con su expresión completa en
 [`sdd/RECONSTRUCCION_EXPRESIONES.md`](sdd/RECONSTRUCCION_EXPRESIONES.md), y **sin poner**:
 
 - [ ] Geofencing, con la expresión que atraviesa la orden y el activo:
-      `DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]`
+      `DISTANCE([Coordenadas_Cierre_LatLong], [OTID].[ActivoID].[Ubicacion_LatLong]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]`
       y mensaje de error en texto plano. **El literal `1.0` ya no se usa**: la hoja que la aplicación
       lee trae el radio poblado en los 27 tipos
 - [ ] `Editable_If = FALSE` en las cuatro columnas de captura de `MAN_Mantenimientos` (`RG-20`). **Sin

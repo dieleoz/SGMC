@@ -183,7 +183,7 @@ La tabla `GPS` **se retiró**: la traza de posición vive en las columnas de cap
 admiten la misma tolerancia:
 
 ```
-DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]
+DISTANCE([Coordenadas_Cierre_LatLong], [OTID].[ActivoID].[Ubicacion_LatLong]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]
 ```
 
 **No está cableada en la aplicación.** La app tiene hoy las 28 tablas dadas de alta y nada más

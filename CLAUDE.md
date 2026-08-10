@@ -196,7 +196,7 @@ hoja y deja las 6 órdenes huérfanas en cuanto se cablea. `UNF_UnidadesFunciona
 ninguna. **Un catálogo se diseña mirando los datos que va a tener que resolver.**
 
 **R-9. La cadena se prueba en el Asistente de Expresiones, no en la aplicación.** Escribir
-`[OTID].[ActivoID].[Ubicacion]` sobre `MAN_Mantenimientos` y ver que resuelve es la prueba de que
+`[OTID].[ActivoID].[Ubicacion_LatLong]` sobre `MAN_Mantenimientos` y ver que resuelve es la prueba de que
 la referencia quedó. Es más rápido y más seguro que ejercitar la app.
 
 **R-10. Un `Ref` guarda la clave, no el nombre — pero no toda comparación contra un literal está
@@ -235,7 +235,7 @@ LatLong; no existen columnas `Latitud`/`Longitud` separadas. El radio sale del t
 porque una subestación y un poste SOS no admiten la misma tolerancia:
 
 ```
-DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]
+DISTANCE([Coordenadas_Cierre_LatLong], [OTID].[ActivoID].[Ubicacion_LatLong]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]
 ```
 
 Mensaje de error, en texto plano:
@@ -255,17 +255,17 @@ como valor provisional histórico: la regla no lo lee. Un documento que mande el
 decir que habla de la hoja de producción describe un estado superado.
 
 Y la regla no basta por sí sola: las cuatro columnas de captura de `MAN_Mantenimientos`
-—`Coordenadas_Cierre`, `Precision_GPS`, `UbicacionEscaneo` y `FechaHoraEscaneo`— van con
-`Editable_If = FALSE` (RG-20). Sin eso, `Coordenadas_Cierre` dibuja un pin arrastrable sobre el
+—`Coordenadas_Cierre_LatLong`, `Precision_GPS`, `UbicacionEscaneo` y `FechaHoraEscaneo`— van con
+`Editable_If = FALSE` (RG-20). Sin eso, `Coordenadas_Cierre_LatLong` dibuja un pin arrastrable sobre el
 mapa, el técnico lo suelta encima del activo y RG-01 valida sin protestar.
 
 Son incorrectas contra este modelo, y fallan en ejecución, todas estas variantes:
 
 | Variante | Por qué falla |
 |---|---|
-| `[ActivoID].[Ubicacion]` desde `MAN_Mantenimientos` | Esa columna se retira: el activo va por la orden |
+| `[ActivoID].[Ubicacion_LatLong]` desde `MAN_Mantenimientos` | Esa columna se retira: el activo va por la orden |
 | `LATLONG([ActivoID].[Latitud], [ActivoID].[Longitud])` | No existen columnas de latitud y longitud separadas |
-| `[OTID].[Activo].[Ubicacion]` | `Activo` es el nombre **anterior** al renombrado. Después de migrar apunta a la bandera `Yes/No` |
+| `[OTID].[Activo].[Ubicacion_LatLong]` | `Activo` es el nombre **anterior** al renombrado. Después de migrar apunta a la bandera `Yes/No` |
 
 Security Filter por sede (RG-04, RF-004): filtra `ACT_Activos` por las unidades funcionales
 asignadas al usuario resuelto vía `USEREMAIL()`. No por `SedeID`, que es donde trabaja la persona
@@ -393,7 +393,7 @@ siempre se abren, y el viewport cambia de tamaño entre llamadas y desplaza las 
   la aplicación.
 - Prefiere leer el backend con el conector de Google Drive antes que navegar la interfaz.
 
-Lo que sí está verificado como resuelto: `Coordenadas_Cierre` y `Precision_GPS` existen en
+Lo que sí está verificado como resuelto: `Coordenadas_Cierre_LatLong` y `Precision_GPS` existen en
 `MAN_Mantenimientos`, y la columna `Observaciones` ya no está duplicada. **El recuento de columnas
 de esa tabla se deriva, no se cita de memoria** —el modelo declara hoy 23— porque esa cifra cambió
 tres veces y cada versión sobrevivió en algún documento.
@@ -460,7 +460,7 @@ aplicación existente, donde otras 23 ya estaban puestas.
 
 **Al reconstruir la aplicación desde cero, no sobrevivió ninguna: eran 38.** Y siguiendo la
 especificación al pie de la letra, `OT_OrdenesTrabajo.ActivoID` quedó en `Number`, de modo que
-`[OTID].[ActivoID].[Ubicacion]` —la desreferencia que la propia especificación usa como prueba— no
+`[OTID].[ActivoID].[Ubicacion_LatLong]` —la desreferencia que la propia especificación usa como prueba— no
 resolvía.
 
 **El documento no mentía. Le faltaba declarar desde dónde se parte.**
@@ -716,7 +716,7 @@ enlace que daba 404.
 
 > **CORRECCIÓN DEL 2026-08-07.** Este apartado afirmaba que el agente no tenía acceso al editor de
 > AppSheet ni al Sheets de producción. **Es falso.** El 6 de agosto de 2026 se agregaron
-> `Coordenadas_Cierre` y `Precision_GPS` al Sheets y se ejecutó *Regenerate Structure* en AppSheet.
+> `Coordenadas_Cierre_LatLong` y `Precision_GPS` al Sheets y se ejecutó *Regenerate Structure* en AppSheet.
 > El acceso existe y ya se usó.
 
 El acceso existe, pero es **caro y frágil**: manejar el editor de AppSheet clic a clic consume

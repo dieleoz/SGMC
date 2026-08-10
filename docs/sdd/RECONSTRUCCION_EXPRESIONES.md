@@ -45,12 +45,12 @@ y devuelve lista vacia.
 
 ## 2. Las 21 reglas, con su expresion completa
 
-### RG-01 — `MAN_Mantenimientos` · `Coordenadas_Cierre`
+### RG-01 — `MAN_Mantenimientos` · `Coordenadas_Cierre_LatLong`
 
 **Tipo:** Valid_If · cubre RF-012
 
 ```
-DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]
+DISTANCE([Coordenadas_Cierre_LatLong], [OTID].[ActivoID].[Ubicacion_LatLong]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]
 ```
 
 **Antes de pegarla, compruebe que el radio esta poblado.** Esta regla desreferencia
@@ -157,7 +157,7 @@ AND([EstadoOrdenID].[EsFinal] = FALSE, [FechaProgramada] < TODAY())
 **Tipo:** Verificacion de evidencia · cubre Prueba de presencia
 
 ```
-DISTANCE([UbicacionEscaneo], [Coordenadas_Cierre]) <= 0.5
+DISTANCE([UbicacionEscaneo_LatLong], [Coordenadas_Cierre_LatLong]) <= 0.5
 ```
 
 ### RG-20 — `MAN_Mantenimientos` · `(varias)`

@@ -230,19 +230,19 @@ AppSheet conserva el tipo de las columnas que ya existen.
 
 | Tabla | Columna | Tipo | |
 |---|---|---|---|
-| `ACT_Activos` | `Ubicacion` | `LatLong` | Sobre ella se calcula la distancia al activo |
+| `ACT_Activos` | `Ubicacion_LatLong` | `LatLong` | Sobre ella se calcula la distancia al activo |
 | `ACT_Activos` | `FechaBaja` | `Date` |  |
 | `ACT_Activos` | `Activo` | `Yes/No` |  |
-| `MAN_Mantenimientos` | `Coordenadas_Cierre` | `LatLong` | **La mas importante.** DISTANCE() no funciona sobre texto |
-| `MAN_Mantenimientos` | `UbicacionEscaneo` | `LatLong` |  |
+| `MAN_Mantenimientos` | `Coordenadas_Cierre_LatLong` | `LatLong` | **La mas importante.** DISTANCE() no funciona sobre texto |
+| `MAN_Mantenimientos` | `UbicacionEscaneo_LatLong` | `LatLong` |  |
 | `MAN_Mantenimientos` | `Precision_GPS` | `Number` |  |
 | `MAN_Mantenimientos` | `CierreConExcepcion` | `Yes/No` |  |
 | `MAN_Mantenimientos` | `OrigenApertura` | `Enum` | Valores: `QR`, `Lista` |
 | `OT_OrdenesTrabajo` | `Tipo` | `Enum` | Valores: `Preventivo`, `Correctivo` |
-| `FOT_Fotografias` | `Ubicacion` | `LatLong` |  |
+| `FOT_Fotografias` | `Ubicacion_LatLong` | `LatLong` |  |
 | `FOT_Fotografias` | `Archivo` | `Image` |  |
 | `FIR_Firmas` | `Imagen` | `Signature` |  |
-| `NOV_Novedades` | `Ubicacion` | `LatLong` |  |
+| `NOV_Novedades` | `Ubicacion_LatLong` | `LatLong` |  |
 | `NOV_Novedades` | `Fotografia` | `Image` |  |
 | `MAN_Mantenimientos` | `FechaHoraRegistro` | `ChangeTimestamp` | **Marca del servidor.** AppSheet no lo infiere nunca |
 | `FOT_Fotografias` | `FechaHora` | `ChangeTimestamp` | **Sin esto la hora de la fotografia no prueba nada** |
@@ -395,7 +395,7 @@ Las 21 del modelo. Las expresiones completas estan en
 
 | # | Tabla | Columna | Tipo |
 |---|---|---|---|
-| RG-01 | `MAN_Mantenimientos` | `Coordenadas_Cierre` | Valid_If |
+| RG-01 | `MAN_Mantenimientos` | `Coordenadas_Cierre_LatLong` | Valid_If |
 | RG-21 | `ACT_Activos` | `UnidadFuncionalID` | Valid_If |
 | RG-02 | `MAN_Mantenimientos` | `Precision_GPS` | Initial value |
 | RG-03 | `MAN_Mantenimientos` | `MotivoExcepcion` | Required_If |
@@ -419,11 +419,11 @@ Las 21 del modelo. Las expresiones completas estan en
 
 ### Las cuatro que no pueden faltar
 
-**Geofencing** — en `MAN_Mantenimientos.Coordenadas_Cierre`:
+**Geofencing** — en `MAN_Mantenimientos.Coordenadas_Cierre_LatLong`:
 
 ```
 Initial value:  HERE()
-Valid_If:       DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion])
+Valid_If:       DISTANCE([Coordenadas_Cierre_LatLong], [OTID].[ActivoID].[Ubicacion_LatLong])
                   <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]
 Invalid text:   Ubicacion fuera de rango: debe estar junto al activo para cerrar.
 Editable_If:    FALSE
@@ -447,7 +447,7 @@ tipo de activo no se podra cerrar en campo.
 captura:
 
 ```
-Coordenadas_Cierre · Precision_GPS · UbicacionEscaneo · FechaHoraEscaneo
+Coordenadas_Cierre_LatLong · Precision_GPS · UbicacionEscaneo_LatLong · FechaHoraEscaneo
 ```
 
 **Sin esto el geofencing es decorativo:** el tecnico arrastra el pin del mapa y cierra desde donde
@@ -536,7 +536,7 @@ comprobacion contra el archivo, y las tres veces lo paro un script.
 **La cadena navega** — en el Asistente de Expresiones, sobre `MAN_Mantenimientos`:
 
 ```
-[OTID].[ActivoID].[Ubicacion]
+[OTID].[ActivoID].[Ubicacion_LatLong]
 [OTID].[TecnicoID].[Correo]
 ```
 
@@ -660,7 +660,7 @@ Inventario de los activos del corredor. Es el eje del sistema.
 | `PR` | `Text` |  |
 | `CalzadaID` | `Ref` | `Ref` -> `CAL_Calzadas` · IsPartOf desmarcado |
 | `SentidoID` | `Ref` | `Ref` -> `SEN_Sentidos` · IsPartOf desmarcado |
-| `Ubicacion` | `LatLong` |  |
+| `Ubicacion_LatLong` | `LatLong` |  |
 | `PK` | `Text` |  |
 | `TramoINVIAS` | `Text` |  |
 | `SedeID` | `Ref` | `Ref` -> `SED_Sedes` · IsPartOf desmarcado |
@@ -820,7 +820,7 @@ Fotografias del mantenimiento. Supuesto D-10: minimo 3, maximo 6, tipificadas. S
 | `MantenimientoID` | `Ref` | `Ref` -> `MAN_Mantenimientos` · **IsPartOf** |
 | `Tipo` | `Enum` | Valores: `Antes` · `Despues` · `Novedad` |
 | `Archivo` | `Image` |  |
-| `Ubicacion` | `LatLong` | `Initial value` = `HERE()` |
+| `Ubicacion_LatLong` | `LatLong` | `Initial value` = `HERE()` |
 | `PrecisionGPS` | `Number` | `Initial value` = `USERLOCATIONACCURACY()` |
 | `FechaHora` | `ChangeTimestamp` |  |
 | `Usuario` | `Text` | `Initial value` = `USEREMAIL()` |
@@ -925,10 +925,10 @@ Ejecucion real en campo. Cuelga de la orden y es padre de la evidencia.
 | `FechaHoraInicio` | `DateTime` | `Initial value` = `NOW()` |
 | `FechaHoraFin` | `DateTime` |  |
 | `OrigenApertura` | `Enum` | Valores: `QR` · `Lista` · `Initial value` = `Lista` |
-| `UbicacionEscaneo` | `LatLong` |  |
+| `UbicacionEscaneo_LatLong` | `LatLong` |  |
 | `FechaHoraEscaneo` | `DateTime` |  |
 | `EstadoActivoID` | `Ref` | `Ref` -> `EST_Activo` · IsPartOf desmarcado |
-| `Coordenadas_Cierre` | `LatLong` | `Initial value` = `HERE()` |
+| `Coordenadas_Cierre_LatLong` | `LatLong` | `Initial value` = `HERE()` |
 | `Precision_GPS` | `Number` | `Initial value` = `USERLOCATIONACCURACY()` |
 | `CierreConExcepcion` | `Yes/No` |  |
 | `MotivoExcepcion` | `LongText` |  |
@@ -982,7 +982,7 @@ Hallazgos del tecnico en ruta: activos no inventariados o fallas fuera de progra
 | `UsuarioID` | `Ref` | `Ref` -> `USR_Usuarios` · IsPartOf desmarcado · `Initial value` = `LOOKUP(USEREMAIL(), "USR_Usuarios", "Correo", "UsuarioID")` |
 | `Tipo` | `Enum` | Valores: `Activo no inventariado` · `Falla detectada` |
 | `Descripcion` | `LongText` |  |
-| `Ubicacion` | `LatLong` | `Initial value` = `HERE()` |
+| `Ubicacion_LatLong` | `LatLong` | `Initial value` = `HERE()` |
 | `Fotografia` | `Image` |  |
 | `ActivoID` | `Ref` | `Ref` -> `ACT_Activos` · IsPartOf desmarcado |
 | `Estado` | `Enum` | Valores: `Reportada` · `Aceptada` · `Descartada` · `Initial value` = `Reportada` |
@@ -1066,7 +1066,7 @@ Edificaciones del corredor: CCO, peajes y basculas. Cada una esta al lado de la 
 | `PR` | `Text` |  |
 | `TramoINVIAS` | `Text` |  |
 | `PK` | `Text` |  |
-| `Ubicacion` | `LatLong` |  |
+| `Ubicacion_LatLong` | `LatLong` |  |
 | `Activo` | `Yes/No` | `Initial value` = `TRUE` |
 
 ## `SEN_Sentidos`

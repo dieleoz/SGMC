@@ -16,7 +16,7 @@ forma de que mienta es que mienta el archivo**.
 | Aplicación | AppSheet `SISGA_-323965761-26-08-10` |
 | Archivo leído | `Modelo_Datos_PLANTILLA.xlsx` |
 | Hojas | **29** |
-| Filas con datos | **1007** |
+| Filas con datos | **1014** |
 | Generado el | 2026-08-10 |
 
 ---
@@ -40,7 +40,7 @@ forma de que mienta es que mienta el archivo**.
 | Hoja | Columnas | Filas | En el modelo objetivo |
 |---|---|---|---|
 | `_LEEME` | 1 | 54 | No figura |
-| `SED_Sedes` | 9 | 6 | Sí |
+| `SED_Sedes` | 9 | 12 | Sí |
 | `UNF_UnidadesFuncionales` | 7 | 4 | Sí · **nueva** |
 | `ROL_Roles` | 4 | 4 | Sí |
 | `USR_Usuarios` | 9 | 11 | Sí |
@@ -51,7 +51,7 @@ forma de que mienta es que mienta el archivo**.
 | `MOT_MotivosPendiente` | 4 | 5 | Sí · **nueva** |
 | `PAR_Parametros` | 6 | 3 | Sí · **nueva** |
 | `FRE_Frecuencias` | 4 | 8 | Sí |
-| `CAL_Calzadas` | 3 | 3 | Sí |
+| `CAL_Calzadas` | 3 | 4 | Sí |
 | `SEN_Sentidos` | 3 | 2 | Sí |
 | `ACT_Activos` | 20 | 368 | Sí |
 | `OT_OrdenesTrabajo` | 12 | 0 | Sí |
@@ -103,7 +103,7 @@ Leyenda del estado de cada columna:
 
 Edificaciones del corredor: CCO, peajes y basculas. Cada una esta al lado de la via, en un PR concreto, y por tanto dentro de una unidad funcional. Es el PADRE DE UBICACION del equipo bajo techo: un servidor, un NAS o una impresora no estan en un punto de la via, estan DENTRO de un edificio, y de el heredan donde estan.
 
-9 columnas · 6 filas · clave: `1`, `2`
+9 columnas · 12 filas · clave: `SED-001`, `SED-002`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -114,14 +114,14 @@ Edificaciones del corredor: CCO, peajes y basculas. Cada una esta al lado de la 
 | 5 | `PR` | Text |  |
 | 6 | `TramoINVIAS` | Text |  |
 | 7 | `PK` | Text |  |
-| 8 | `Ubicacion` | LatLong |  |
+| 8 | `Ubicacion_LatLong` | LatLong |  |
 | 9 | `Activo` | Yes/No |  |
 
 ### `UNF_UnidadesFuncionales`
 
 Tramos del corredor donde estan los activos. Se separa de SED_Sedes porque son dos conceptos distintos que el modelo anterior mezclaba en una sola columna, dejando usuarios y activos en conjuntos disjuntos.
 
-7 columnas · 4 filas · clave: `7`, `8`
+7 columnas · 4 filas · clave: `UNF-01`, `UNF-02`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -137,7 +137,7 @@ Tramos del corredor donde estan los activos. Se separa de SED_Sedes porque son d
 
 Perfiles de acceso: Administrador, Supervisor, Tecnico y Consulta.
 
-4 columnas · 4 filas · clave: `2`, `3`
+4 columnas · 4 filas · clave: `ROL-01`, `ROL-02`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -150,7 +150,7 @@ Perfiles de acceso: Administrador, Supervisor, Tecnico y Consulta.
 
 Personas del sistema. El correo resuelve la sesion contra USEREMAIL().
 
-9 columnas · 11 filas · clave: `2`, `3`
+9 columnas · 11 filas · clave: `USR-001`, `USR-002`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -181,7 +181,7 @@ Que unidades funcionales atiende cada tecnico. Resuelve el supuesto D-03: un tec
 
 Taxonomia de activos. Determina que checklist abre la aplicacion.
 
-8 columnas · 27 filas · clave: `1`, `2`
+8 columnas · 27 filas · clave: `TIP-001`, `TIP-002`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -198,7 +198,7 @@ Taxonomia de activos. Determina que checklist abre la aplicacion.
 
 Estados del activo: Operativo, En mantenimiento, Fuera de servicio, Retirado.
 
-4 columnas · 4 filas · clave: `1`, `2`
+4 columnas · 4 filas · clave: `EST-01`, `EST-02`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -254,7 +254,7 @@ Umbrales que el administrador ajusta con las pruebas de campo, sin tocar la conf
 
 Periodicidad del mantenimiento preventivo.
 
-4 columnas · 8 filas · clave: `1`, `2`
+4 columnas · 8 filas · clave: `FRE-01`, `FRE-02`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -267,7 +267,7 @@ Periodicidad del mantenimiento preventivo.
 
 Calzadas del corredor.
 
-3 columnas · 3 filas · clave: `1`, `2`
+3 columnas · 4 filas · clave: `CAL-01`, `CAL-02`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -291,7 +291,7 @@ Sentidos de circulacion.
 
 Inventario de los activos del corredor. Es el eje del sistema.
 
-20 columnas · 368 filas · clave: `1`, `2`
+20 columnas · 368 filas · clave: `ACT-0001`, `ACT-0002`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -303,7 +303,7 @@ Inventario de los activos del corredor. Es el eje del sistema.
 | 6 | `PR` | Text |  |
 | 7 | `CalzadaID` | Ref → `CAL_Calzadas` | **Pendiente `Ref`** hacia `CAL_Calzadas` (hoy `Number`) |
 | 8 | `SentidoID` | Ref → `SEN_Sentidos` | **Pendiente `Ref`** hacia `SEN_Sentidos` (hoy `Number`) |
-| 9 | `Ubicacion` | LatLong |  |
+| 9 | `Ubicacion_LatLong` | LatLong |  |
 | 10 | `PK` | Text |  |
 | 11 | `TramoINVIAS` | Text |  |
 | 12 | `SedeID` | Ref → `SED_Sedes` |  |
@@ -351,10 +351,10 @@ Ejecucion real en campo. Cuelga de la orden y es padre de la evidencia.
 | 4 | `FechaHoraInicio` | DateTime | Antes `Fecha_Hora_Inicio`. Convencion de nombres. |
 | 5 | `FechaHoraFin` | DateTime | Antes `Fecha_Hora_Fin`. Convencion de nombres. |
 | 6 | `OrigenApertura` | Enum |  |
-| 7 | `UbicacionEscaneo` | LatLong |  |
+| 7 | `UbicacionEscaneo_LatLong` | LatLong |  |
 | 8 | `FechaHoraEscaneo` | DateTime |  |
 | 9 | `EstadoActivoID` | Ref → `EST_Activo` |  |
-| 10 | `Coordenadas_Cierre` | LatLong |  |
+| 10 | `Coordenadas_Cierre_LatLong` | LatLong |  |
 | 11 | `Precision_GPS` | Number |  |
 | 12 | `CierreConExcepcion` | Yes/No |  |
 | 13 | `MotivoExcepcion` | LongText |  |
@@ -381,7 +381,7 @@ Hallazgos del tecnico en ruta: activos no inventariados o fallas fuera de progra
 | 2 | `UsuarioID` | Ref → `USR_Usuarios` |  |
 | 3 | `Tipo` | Enum |  |
 | 4 | `Descripcion` | LongText |  |
-| 5 | `Ubicacion` | LatLong |  |
+| 5 | `Ubicacion_LatLong` | LatLong |  |
 | 6 | `Fotografia` | Image |  |
 | 7 | `ActivoID` | Ref → `ACT_Activos` |  |
 | 8 | `Estado` | Enum |  |
@@ -430,7 +430,7 @@ Fotografias del mantenimiento. Supuesto D-10: minimo 3, maximo 6, tipificadas. S
 | 2 | `MantenimientoID` | Ref → `MAN_Mantenimientos` |  |
 | 3 | `Tipo` | Enum |  |
 | 4 | `Archivo` | Image |  |
-| 5 | `Ubicacion` | LatLong |  |
+| 5 | `Ubicacion_LatLong` | LatLong |  |
 | 6 | `PrecisionGPS` | Number |  |
 | 7 | `FechaHora` | ChangeTimestamp |  |
 | 8 | `Usuario` | Text |  |
@@ -501,7 +501,7 @@ Registro maestro de los checklists, uno por tipo de activo: 27 en BD/Modelo_Dato
 
 Agrupacion de preguntas dentro del formulario.
 
-4 columnas · 14 filas · clave: `1`, `2`
+4 columnas · 14 filas · clave: `SEC-01`, `SEC-02`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -540,7 +540,7 @@ Banco unico de preguntas. Es el motor: se retiran las hojas planas FRM_SOS, FRM_
 
 Tipo de dato esperado en cada respuesta.
 
-3 columnas · 10 filas · clave: `1`, `2`
+3 columnas · 10 filas · clave: `TPR-01`, `TPR-02`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
