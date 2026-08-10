@@ -277,6 +277,7 @@ del modelo sino un **auditor del cableado real**:
 | Script | Mide |
 |---|---|
 | [`scripts/auditar_cableado.py`](scripts/auditar_cableado.py) | El cableado **real** de la aplicación contra el modelo. Emite [`docs/CORRECCIONES_CABLEADO.md`](docs/CORRECCIONES_CABLEADO.md) |
+| [`scripts/probar_auditor.py`](scripts/probar_auditor.py) | Que el auditor **caza lo que dice cazar**: le mete seis defectos a propósito, incluido el real del 2026-08-10 |
 
 Existe porque el 2026-08-10 el cableado se reportó como «39/39 asignadas» y no lo estaba: dos
 referencias apuntaban a `SED_Sedes` en vez de a `CAL_Calzadas` y a `TIP_TiposActivo`, y tres columnas

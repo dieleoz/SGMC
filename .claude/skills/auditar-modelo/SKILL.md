@@ -99,6 +99,23 @@ Filters, `IsPartOf`, tipos de columna ni bots. Para verificar eso hay que entrar
 AppSheet por navegador. Si un hallazgo depende de la configuración, márcalo como **no verificado**
 en lugar de suponerlo.
 
+**Con una excepción, y conviene conocer sus límites: las referencias sí se pueden leer, de lado.**
+Al definir una `Ref`, AppSheet crea en la tabla **destino** una columna virtual `Related <Origen>`
+—o `Related <Origen> By <Columna>` si hay varias entre el mismo par—, y esos nombres **sí viajan en
+las filas**. `python scripts/auditar_cableado.py` reconstruye el grafo con eso.
+
+Tres límites que hay que respetar al citarlo:
+
+- **Sin ` By `, la columna no está probada.** AppSheet solo nombra la tabla, y atribuir la columna
+  exige preguntárselo al modelo, que es lo que se quería verificar. El script las llama
+  *compatibles no atribuidas* y **no debes sumarlas a las verificadas**: esa suma inflada ya se
+  publicó una vez.
+- **Si la tabla destino está vacía, no se puede decir nada.** No están bien ni mal. Confundir «no lo
+  puedo ver» con «está bien» es como se llegó al informe de «39/39 asignadas» con cinco rotas.
+- **El método es más fuerte cuando el cableado está mal.** Varias referencias al mismo destino
+  obligan a desambiguar con ` By `; cuando todo está bien, deja de nombrar la columna. Es decir:
+  **no sirve para confirmar una corrección recién hecha.** Eso se mira en el editor.
+
 **Lección del 2026-08-06.** Que dos tablas compartan un nombre de columna no significa que estén
 relacionadas. En este proyecto, la cadena Activo → Orden → Mantenimiento existía en el diccionario
 de datos, en los diagramas y en todos los documentos, pero en la aplicación `OTID` estaba tipada

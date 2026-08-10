@@ -242,9 +242,21 @@ python -c "import sys;sys.path.insert(0,'scripts');import modelo_objetivo as M;p
 resiembra del 2026-08-10 significa «la clave es alfanumérica con prefijo» —`EST-01`, `ACT-0001`—,
 que es otra cosa. `EST_Activo` entró en la lista por lo segundo, así que **V-17 exime justamente la
 comparación que nació para cazar**: `[EstadoActivoID] <> "Retirado"` pasa el validador sin un solo
-error. Comprobado el 2026-08-10 reintroduciendo el defecto sobre `REGLAS` en memoria. **Mientras eso
-no se separe en el modelo, V-17 no cubre a `CLAVE_LEGIBLE`: la ruta `[Columna].[Nombre]` se
-comprueba a mano.**
+error. Comprobado el 2026-08-10 reintroduciendo el defecto sobre `REGLAS` en memoria.
+
+**Se separó ese mismo día, y ahora son dos listas.** `CLAVE_LEGIBLE` sigue diciendo *cómo se ve una
+clave*; **`CLAVE_ES_LA_PALABRA`** dice *contra cuáles es legítimo comparar un literal*, y de las 22
+solo son **cuatro** —`EOT_EstadosOrden`, `FRM_Formularios`, `PAR_Parametros`, `SEN_Sentidos`—,
+comprobado contra los datos. V-17 pregunta a la segunda y vuelve a cazar
+`[EstadoActivoID] <> "Retirado"`, probado reintroduciéndolo.
+
+**`CLAVE_ES_LA_PALABRA` se declara a mano y no se deriva, a propósito.** Derivarla la habría hecho
+apagarse sola el día que alguien resembrara una clave — que es exactamente lo que acababa de pasar.
+Una salvaguarda que se desactiva sola cuando cambia el terreno no es una salvaguarda.
+
+**Y la lección general, que vale más que el arreglo: un nombre que sirve para dos cosas acaba
+sirviendo mal para una.** La lista no cambió de contenido por descuido, cambió de *significado*, y
+nada podía avisar porque ningún verificador comprueba que un nombre siga queriendo decir lo mismo.
 
 Y lo peligroso no es que la expresión falle: **no falla**. Devuelve siempre lo mismo. Si además es
 una `App formula`, **escribe** ese resultado constante sobre los datos.
