@@ -73,8 +73,8 @@ De ahí salen tres clases, y el orden entre ellas no es negociable:
 
 | # | Paso | Contenido | Depende de |
 |---|---|---|---|
-| **0** | **Cerrar la aplicación** | Las **38 referencias** ya están puestas. Falta la regla del umbral de GPS con su `OR(ISBLANK(...))`, terminar las columnas retiradas y correr las tres expresiones de prueba | En ejecución. Guion en `prompts/PROMPT_CONTINUAR_DESPLIEGUE.md`; ficha por tabla en `MANUAL_DESPLIEGUE.md` |
-| **0b** | **Decidir la migración a la hoja limpia** | Si se migra, las 47 columnas sobrantes desaparecen del archivo y el trabajo de ocultarlas se tira | **Se decide antes de terminar el paso 0**, o es trabajo perdido. Coste en `MIGRACION_HOJA_LIMPIA.md` |
+| **0** | **Cerrar la aplicación** | Las **38 referencias** ya están puestas. Faltan **dos cosas**: la regla del umbral de GPS con su `OR(ISBLANK(...))` y correr las tres expresiones de prueba | En ejecución. Guion en `prompts/PROMPT_CONTINUAR_DESPLIEGUE.md`; ficha por tabla en `MANUAL_DESPLIEGUE.md` |
+| **0b** | ~~Decidir la migración~~ | **Decidido el 2026-08-09: se migra.** Las 47 columnas desaparecen del archivo, así que ocultarlas sale del paso 0 | Cerrado. Coste en `MIGRACION_HOJA_LIMPIA.md` |
 | **1** | **Esquema completo** | `TAR_Tareas` · poblar `ROL_Roles` con los 12 · jerarquía de ubicación · columnas de tiempo en la orden · retirar `ACT.FrecuenciaID` y `TIP.FormularioID` | `ESPEC-003` y su veredicto |
 | **2** | **Carga del inventario real** | Los 355 con identidad, serie y ubicación. **Los que hay hoy son sintéticos** y lo dicen de sí mismos | Paso 1, y que operación confirme que 355 son los de este corredor |
 | **3** | **Reglas de integridad** | Imponer `QuienCambia` · estado de rechazo · valores de `TipoFirma` | Paso 1 |
@@ -108,15 +108,15 @@ que llega solo con tiempo, y no llega — llega con la decisión de licenciamien
 > archivo, y con ellas las tres trampas. Lo que queda en el editor son dos cosas, la regla del
 > umbral de GPS y las tres expresiones de prueba.
 >
-> **Lo que abre:** `scripts/generar_plantilla.py`, que todavía no existe. Hoy la plantilla no la
-> reproduce ningún comando, y eso la convierte en un artefacto que se conserva en vez de generarse.
-> Es lo primero al retomar.
+> **Lo que abrió, y ya está hecho el 2026-08-10:** `scripts/generar_plantilla.py`. La plantilla sale
+> entera de un comando y se reproduce celda por celda, con los 27 tipos del catálogo y **cero
+> activos viendo el checklist de otro equipo**.
 
 | Fase | Estado | Criterio de cierre |
 |---|---|---|
 | Sprint 0. Definición funcional | **Cerrado por supuestos.** No se espera respuesta | Los catorce adoptados por escrito en `ALCANCE_Y_SUPUESTOS_SGMC.md`, con su estado de cierre |
 | Fase 0.5. Reconciliación de modelos | **CERRADA** el 2026-08-07 | `modelo_objetivo.py` es la fuente única; los documentos se generan de él. Ver 4.5 |
-| **Fase A. La hoja** | **CERRADA.** Actas `ACTA-001` a `ACTA-004` | `verificar_faseA.py` en 0 fallos. Hoy: **61 conformes** sobre `Modelo_Datos_09082026.xlsx` y **60** sobre `Modelo_Datos_PLANTILLA.xlsx` |
+| **Fase A. La hoja** | **CERRADA.** Actas `ACTA-001` a `ACTA-004` | `verificar_faseA.py` en 0 fallos. Hoy: **61 conformes** sobre las dos, `Modelo_Datos_09082026.xlsx` y `Modelo_Datos_PLANTILLA.xlsx` |
 | Reconstrucción de la aplicación | **HECHA** el 2026-08-09 | `SISGA`, con las 28 tablas dadas de alta sobre la hoja |
 | **Fase B. Cableado y reglas** | **En ejecución** | Las **38** referencias puestas —ya lo están—, la migración a la hoja limpia hecha, y `PRUEBA-003` pasada |
 | Fase 1. Datos maestros | Bloqueada por D-01 y D-09 | Coordenadas reales cargadas, sedes realineadas, bancos de preguntas construidos |

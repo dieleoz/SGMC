@@ -430,18 +430,35 @@ if "ACT_Activos" in wb.sheetnames:
 #
 # Es la misma familia que F-18: el modelo dice una cosa, el archivo otra, y
 # nadie los cruzaba.
+#
+# AMPLIADA el 2026-08-10, al aparecer una segunda clase de libro. Hay dos
+# estados sanos y uno peligroso, y antes solo se contemplaba el primero:
+#
+#   estan las 43   la hoja heredada. Se retiran ocultandolas, a proposito
+#   no esta ninguna la hoja limpia generada del modelo. Es el objetivo
+#   estan algunas  alguien borro parte a mano y dejo el resto. ESTE es el malo
+#
+# El estado mixto es el que hace dano: la documentacion generada manda ocultar
+# columnas que ya no existen, y quien lo ejecuta las busca en vano, mientras las
+# que si quedan siguen apareciendo en el formulario del tecnico.
 fantasma = []
+presente = []
 for tabla, campos in CAMPOS_RETIRADOS.items():
     if tabla not in wb.sheetnames:
         continue
     presentes = set(encabezados(tabla))
     for campo in campos:
-        if campo not in presentes:
-            fantasma.append("%s.%s" % (tabla, campo))
-if fantasma:
-    avisos.append("[F-19] %d columnas declaradas en CAMPOS_RETIRADOS que ya NO estan en la "
-                  "hoja: %s. Retirar la entrada del modelo: genera instrucciones sobre "
-                  "columnas que no existen" % (len(fantasma), ", ".join(sorted(fantasma))))
+        (presente if campo in presentes else fantasma).append("%s.%s" % (tabla, campo))
+
+if fantasma and not presente:
+    oks.append("Hoja limpia: ninguna de las %d columnas retiradas existe ya. "
+               "No hay nada que ocultar" % len(fantasma))
+elif fantasma:
+    avisos.append("[F-19] ESTADO MIXTO: de las %d columnas retiradas quedan %d en la hoja y "
+                  "%d ya no estan (%s). O se conservan todas -y se ocultan- o no queda "
+                  "ninguna. A medias, la documentacion generada manda ocultar columnas "
+                  "inexistentes" % (len(fantasma) + len(presente), len(presente),
+                                    len(fantasma), ", ".join(sorted(fantasma))))
 else:
     oks.append("Toda columna declarada como retirada sigue presente en la hoja")
 

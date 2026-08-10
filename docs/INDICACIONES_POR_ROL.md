@@ -490,11 +490,11 @@ dice 47 y 61, y el prompt del Funcional dice 47 sin las dos columnas vivas dentr
 sean ciertas. **Esa es su limitación y hay que tenerla presente** — es la razón de que cada cifra de
 este documento venga con el comando que la produce.
 
-**4. La plantilla no se reproduce con un comando. ABIERTO.** `generar_hoja_limpia.py` y
-`generar_inventario.py` producen `Modelo_Datos_LIMPIO.xlsx` y `ACT_Activos_355_SINTETICO.xlsx`;
-**unirlos, añadir la pestaña `_LEEME` y poblar `TIP_TiposActivo.RadioGeofencingKm` no está escrito
-en ningún script.** Mientras siga así, la plantilla es un artefacto que hay que conservar, no
-regenerar, y eso es justo lo que este proyecto decidió no volver a hacer.
+**4. La plantilla no se reproducía con un comando. CERRADO el 2026-08-10.** Hacían falta dos
+scripts y varios pasos a mano —unir los libros, añadir `_LEEME`, poblar
+`TIP_TiposActivo.RadioGeofencingKm`— que no estaban escritos en ningún sitio, así que había que
+conservarla en vez de regenerarla. Ahora es `python scripts/generar_plantilla.py`, y dos ejecuciones
+seguidas dan las 29 pestañas idénticas.
 
 ## Qué leer
 

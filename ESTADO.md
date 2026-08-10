@@ -107,19 +107,17 @@ Sirven para ejercitar el filtro por zona, la navegación y el volumen de sincron
 **El principio, que es de operación:** entregamos la estructura; el dato real lo pone quien lo
 conoce. Los bloqueantes se resuelven descargando el Excel y completándolo.
 
-Se regenera con:
+Se regenera entera con **un comando**, desde el 2026-08-10:
 
 ```bash
-python scripts/generar_hoja_limpia.py "BD/<origen>.xlsx"
-python scripts/generar_inventario.py
+python scripts/generar_plantilla.py
+python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"   # FASE A CERRADA, 61 conformes
 ```
 
-> **A medio hacer, y es lo primero al retomar.** Esos dos comandos **no reproducen la plantilla**:
-> dan la estructura y los 355 por separado. Unirlos, añadir `_LEEME` y poblar el radio no está
-> escrito en ningún script, así que hoy la plantilla es un artefacto que se conserva, no que se
-> genera — justo lo que este proyecto decidió no volver a tener.
->
-> **Y arrastra un defecto de datos que ya está resuelto en el catálogo, pero no en el archivo.**
+**Y se reproduce:** dos ejecuciones seguidas dan las 29 pestañas idénticas, celda por celda. Antes
+hacían falta dos scripts y varios pasos a mano —unir, añadir `_LEEME`, poblar el radio— que no
+estaban escritos en ninguna parte, así que la plantilla era un artefacto que se conservaba en vez de
+generarse. Es justo lo que este proyecto decidió no volver a tener.
 
 ### El catálogo de tipos, corregido el 2026-08-09
 
@@ -142,8 +140,15 @@ pisó los 34 reales.
 de siempre más los 9 que faltaban—, cada familia con tipo, checklist y radio propios. Trae
 `comprobar()`, que falla si dos familias comparten tipo o si un tipo se queda sin radio.
 
-**Falta llevarlo al archivo:** `BD/Modelo_Datos_PLANTILLA.xlsx` todavía tiene los 18 tipos viejos y
-los 78 activos mal asignados. Eso es `generar_plantilla.py`, que no existe todavía.
+**Llevado al archivo el 2026-08-10.** La plantilla trae los **27 tipos**, los 27 formularios —nueve
+nuevos, uno por tipo, porque un tipo sin formulario deja la referencia rota— y **cero activos con el
+tipo equivocado**, comprobado sobre el archivo generado y no sobre el informe del script.
+
+De paso desaparecieron dos cosas que venían de la hoja heredada: el nombre de la subestación con la
+tilde rota, y la mezcla de tipos en las claves —el fixture guardaba `'1'` como texto y los generados
+salían como número—. **Las claves y las 38 referencias viajan todas como texto**, que es como el
+modelo las declara. Son 2.424 celdas, y la regla se deriva del modelo, no se decide archivo a
+archivo.
 
 ## 4. Qué leer, según lo que necesite
 

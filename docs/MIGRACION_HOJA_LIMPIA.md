@@ -7,13 +7,15 @@
 | Estado | Preparado, sin ejecutar |
 | **El entregable** | `BD/Modelo_Datos_PLANTILLA.xlsx` — 28 pestañas de datos más `_LEEME`, con los 34 activos de fixture y 355 sintéticos |
 | Intermedio | `BD/Modelo_Datos_LIMPIO.xlsx` — la estructura sin inventario. **No se entrega** |
-| Lo genera | `python scripts/generar_hoja_limpia.py "BD/<origen>.xlsx"` produce el intermedio; `python scripts/generar_inventario.py`, los 355 sintéticos |
+| Lo genera | `python scripts/generar_plantilla.py` — la plantilla entera, en un comando |
 
-> **Lo que hay que saber antes de regenerar: la plantilla no sale de un solo comando.** Esos dos
-> scripts producen `Modelo_Datos_LIMPIO.xlsx` y `ACT_Activos_355_SINTETICO.xlsx`. **Unirlos, añadir
-> la pestaña `_LEEME` y poblar `TIP_TiposActivo.RadioGeofencingKm` son pasos que hoy no están
-> escritos en ningún script**, así que la plantilla del repositorio no se reproduce ejecutando lo de
-> arriba. Es deuda del generador, y hasta que se cierre **la plantilla se conserva, no se rehace**.
+> **Cerrado el 2026-08-10.** Antes hacían falta dos scripts y varios pasos a mano —unir los dos
+> libros, añadir `_LEEME`, poblar `TIP_TiposActivo.RadioGeofencingKm`— que no estaban escritos en
+> ninguna parte, así que la plantilla no se reproducía y había que conservarla.
+>
+> **Ahora sale de un comando y se reproduce:** dos ejecuciones seguidas dan las 29 pestañas
+> idénticas, celda por celda. `generar_hoja_limpia.py` y `generar_inventario.py` siguen existiendo
+> y producen sus piezas por separado, pero **el entregable es el del comando de arriba**.
 
 ## Por qué existe esta migración
 

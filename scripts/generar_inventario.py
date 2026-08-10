@@ -26,7 +26,7 @@ try:
 except ImportError:
     print("Falta openpyxl."); sys.exit(2)
 
-random.seed(20260809)   # reproducible: el mismo inventario en cada ejecucion
+
 
 # Los sinteticos arrancan en 1000 para NO pisar identificadores vivos.
 # El 2026-08-09 arrancaban en 1 y reescribieron los 34 activos reales: las seis
@@ -51,30 +51,14 @@ LARGO_KM = 137.03   # longitud oficial del corredor
 # que el corredor real, que serpentea. El PR se escala a los 137,03 oficiales
 # para que las cifras sean las que usa operacion.
 
-# Los 18 tipos que se cuentan por unidades, del Plan Maestro. Suman 355.
-# La frecuencia sale de la columna PERIODICIDAD del Plan Maestro, mapeada contra
-# FRE_Frecuencias: 4=Mensual 5=Bimensual 6=Trimestral 7=Semestral 8=Anual.
-# PORT va sin frecuencia: su periodicidad es "A demanda", que no es una.
-TIPOS = [
-    ("SOS",  "S.O.S (Postes de Auxilio)",        54, 1,  4),
-    ("CCTV", "Camara CCTV",                      26, 2,  6),
-    ("PMVF", "PMV Fijo (Portico)",               11, 3,  5),
-    ("PMVM", "PMV Movil (Remolque)",             19, 4,  4),
-    ("SGE",  "Galibo Electronico",                4, 6,  6),
-    ("SGM",  "Galibo Mecanico",                   4, 5,  7),
-    ("SSA",  "Sensor Ambiental",                  4, 7,  7),
-    ("ETD",  "Estacion Toma Datos",               4, 7,  7),
-    ("PSEG", "Paso Seguro",                      16, 7,  6),
-    ("SWL3", "Switch Capa 3",                     4, 12, 6),
-    ("SWIT", "Switch Capa 2",                   142, 12, 7),
-    ("PJC",  "Peaje Carril",                     12, 9,  4),
-    ("PJE",  "Peaje Electronica",                12, 9,  4),
-    ("SERV", "Servidor",                          7, 16, 4),
-    ("BASC", "Bascula Dinamica",                  2, 9,  7),
-    ("OCR",  "Camara OCR Pesaje",                 2, 2,  4),
-    ("PORT", "Computador Portatil",              29, 16, ""),
-    ("IMPR", "Impresora",                         3, 17, 4),
-]
+# Las familias y su tipo salen de catalogo_tipos.py, que es la fuente unica.
+#
+# Aqui estaban escritas a mano, con el TipoActivoID puesto al lado de cada una.
+# Nueve apuntaban al tipo de otra cosa -la impresora al del NAS, el portatil al
+# del servidor, el carril de peaje al de la bascula- y eran 78 activos de 355
+# con el checklist equivocado. Al no vivir el reparto en ningun sitio
+# comprobable, nadie podia verlo.
+from catalogo_tipos import FAMILIAS, tipo_de_familia
 
 
 def punto(frac):
@@ -102,61 +86,75 @@ def unidad_funcional(frac):
     return 7 + min(int(frac * 4), 3)
 
 
-filas = []
-n = 0
-for prefijo, nombre, cantidad, tipo_id, frec in TIPOS:
-    for i in range(1, cantidad + 1):
-        n += 1
-        # repartidos uniformemente, cada tipo con su propio desfase
-        # desfase determinista por familia. hash() NO sirve: va salado por proceso
-        desfase = sum(ord(x) for x in prefijo) % 7 / 100.0
-        frac = ((i - 0.5) / cantidad + desfase) % 1.0
-        filas.append({
-            "ActivoID": BASE_ID + n,
-            "CodigoActivo": "%s_%d" % (prefijo, i),
-            "Nombre": "%s %03d" % (nombre, i),
-            "TipoActivoID": tipo_id,
-            "UnidadFuncionalID": unidad_funcional(frac),
-            "PR": pr(frac),
-            "CalzadaID": 1 + (n % 2),
-            "Ubicacion": punto(frac),
-            "EstadoActivoID": 1,
-            "CodigoQR": "",
-            "SentidoID": "SA" if n % 2 else "AS",
-            "Activo": "TRUE",
-            "FrecuenciaID": frec,
-            "Observaciones": "ACTIVO SINTETICO DE PRUEBA - NO ES INVENTARIO REAL",
-            "Criticidad": "",
-            "FechaBaja": "",
-            "MotivoBaja": "",
-        })
-
 COLS = ["ActivoID", "CodigoActivo", "Nombre", "TipoActivoID", "UnidadFuncionalID",
         "PR", "CalzadaID", "Ubicacion", "EstadoActivoID", "CodigoQR", "SentidoID",
         "Activo", "FrecuenciaID", "Observaciones", "Criticidad", "FechaBaja", "MotivoBaja"]
 
-wb = openpyxl.Workbook()
-ws = wb.active
-ws.title = "ACT_Activos"
-ws.append(COLS)
-for f in filas:
-    ws.append([f[c] for c in COLS])
 
-salida = os.path.join(RAIZ, "BD", "ACT_Activos_355_SINTETICO.xlsx")
-wb.save(salida)
+def generar_filas():
+    """Los 355 activos sinteticos. Lo llama tambien generar_plantilla.py.
 
-print("Generado:", salida)
-print()
-print("%-6s %-32s %6s" % ("COD", "TIPO", "CANT"))
-for prefijo, nombre, cantidad, _, frec in TIPOS:
-    print("%-6s %-32s %6d  frec=%s" % (prefijo, nombre, cantidad, frec or "a demanda"))
-print()
-print("TOTAL: %d activos" % len(filas))
-print()
-print("Muestra:")
-for f in [filas[0], filas[53], filas[54], filas[200], filas[-1]]:
-    print("   %-10s %-26s UF%-3s PR %-8s %s"
-          % (f["CodigoActivo"], f["Nombre"][:26], f["UnidadFuncionalID"], f["PR"], f["Ubicacion"]))
-print()
-print("Coordenadas: interpoladas sobre el trazado real del corredor,")
-print("con +-150 m de dispersion. SINTETICAS, no de campo.")
+    Reproducible: misma semilla, mismo reparto, mismas coordenadas. El desfase
+    por familia se deriva de las letras del prefijo porque hash() de una cadena
+    va salado por proceso y reasignaba PR, unidad funcional y coordenada de los
+    355 en cada ejecucion.
+    """
+    random.seed(20260809)
+    filas = []
+    n = 0
+    for prefijo, nombre, cantidad, clave_tipo, frec in FAMILIAS:
+        for i in range(1, cantidad + 1):
+            n += 1
+            desfase = sum(ord(x) for x in prefijo) % 7 / 100.0
+            frac = ((i - 0.5) / cantidad + desfase) % 1.0
+            filas.append({
+                "ActivoID": BASE_ID + n,
+                "CodigoActivo": "%s_%d" % (prefijo, i),
+                "Nombre": "%s %03d" % (nombre, i),
+                "TipoActivoID": tipo_de_familia(clave_tipo),
+                "UnidadFuncionalID": unidad_funcional(frac),
+                "PR": pr(frac),
+                "CalzadaID": 1 + (n % 2),
+                "Ubicacion": punto(frac),
+                "EstadoActivoID": 1,
+                "CodigoQR": "",
+                "SentidoID": "SA" if n % 2 else "AS",
+                "Activo": "TRUE",
+                "FrecuenciaID": frec,
+                "Observaciones": "ACTIVO SINTETICO DE PRUEBA - NO ES INVENTARIO REAL",
+                "Criticidad": "",
+                "FechaBaja": "",
+                "MotivoBaja": "",
+            })
+    return filas
+
+
+if __name__ == "__main__":
+    filas = generar_filas()
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "ACT_Activos"
+    ws.append(COLS)
+    for f in filas:
+        ws.append([f[c] for c in COLS])
+
+    salida = os.path.join(RAIZ, "BD", "ACT_Activos_355_SINTETICO.xlsx")
+    wb.save(salida)
+
+    print("Generado:", salida)
+    print()
+    print("%-6s %-32s %6s %6s" % ("COD", "TIPO", "CANT", "TIPO_ID"))
+    for prefijo, nombre, cantidad, clave, frec in FAMILIAS:
+        print("%-6s %-32s %6d %6d  frec=%s"
+              % (prefijo, nombre, cantidad, tipo_de_familia(clave), frec or "a demanda"))
+    print()
+    print("TOTAL: %d activos" % len(filas))
+    print()
+    print("Muestra:")
+    for f in [filas[0], filas[53], filas[54], filas[200], filas[-1]]:
+        print("   %-10s %-26s UF%-3s PR %-8s %s"
+              % (f["CodigoActivo"], f["Nombre"][:26], f["UnidadFuncionalID"], f["PR"], f["Ubicacion"]))
+    print()
+    print("Coordenadas: interpoladas sobre el trazado real del corredor,")
+    print("con +-150 m de dispersion. SINTETICAS, no de campo.")
