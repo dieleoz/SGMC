@@ -167,6 +167,52 @@ enlace que daba 404.
 **Quién la hace cumplir:** nadie automáticamente. `scripts/sistema.py` es la fuente, y su lista
 `SUPERADOS` permite reconocer los abandonados.
 
+### R-11 · La clave y la referencia se llaman igual, y eso decide en qué tabla haces clic
+
+**33 de las 39 referencias** llevan un nombre que **además es clave primaria** de otra tabla.
+`EstadoActivoID` es la clave de `EST_Activo` y la referencia hacia ella en `ACT_Activos`. Mismo
+nombre, papel opuesto.
+
+**Por qué.** El 2026-08-10, cableando, alguien puso `EstadoActivoID` como `Ref` estando **dentro
+de `EST_Activo`**. AppSheet lo rechazó: `contains a cyclical table reference`. Se corrigió sin
+daño, pero el error no fue un descuido aislado —es el 84% de los clics posibles—, y esta vez
+**AppSheet avisó**, que es lo excepcional: casi todo lo demás de esa semana falló en silencio.
+
+**Qué hacer.** Antes de tocar una columna, mirar en qué tabla estás. En la tabla **destino** ese
+nombre es la **clave** y va `Text`; en la tabla **origen** es la **referencia** y va `Ref`. Si
+AppSheet habla de referencia cíclica, estás en la tabla equivocada: no cambies la expresión ni
+busques otro nombre de columna, cambia de tabla.
+
+**Quién la hace cumplir:** nadie. Es la única de estas reglas que se aplica con el ratón. Lo más
+cerca que hay es `scripts/auditar_cableado.py`, que lo ve **después** de hecho.
+
+<details><summary>Las 20 expuestas</summary>
+
+| Columna | Es clave en | Es referencia en |
+|---|---|---|
+| `ActivoID` | `ACT_Activos` | `OT_OrdenesTrabajo`, `NOV_Novedades`, `PLA_PlanMantenimiento` |
+| `CalzadaID` | `CAL_Calzadas` | `ACT_Activos` |
+| `ChecklistID` | `CHK_Checklists` | `CHD_ChecklistDetalle` |
+| `EstadoActivoID` | `EST_Activo` | `ACT_Activos`, `MAN_Mantenimientos` |
+| `EstadoOrdenID` | `EOT_EstadosOrden` | `OT_OrdenesTrabajo` |
+| `FormularioID` | `FRM_Formularios` | `TIP_TiposActivo`, `CHK_Checklists`, `FRM_Preguntas` |
+| `FrecuenciaID` | `FRE_Frecuencias` | `ACT_Activos`, `PLA_PlanMantenimiento` |
+| `MantenimientoID` | `MAN_Mantenimientos` | `FOT_Fotografias`, `FIR_Firmas`, `CHK_Checklists` |
+| `ModoFallaID` | `FAL_ModosFalla` | `MAN_Mantenimientos` |
+| `MotivoPendienteID` | `MOT_MotivosPendiente` | `MAN_Mantenimientos` |
+| `OTID` | `OT_OrdenesTrabajo` | `MAN_Mantenimientos` |
+| `PreguntaID` | `FRM_Preguntas` | `CHD_ChecklistDetalle`, `LST_ValoresLista` |
+| `RolID` | `ROL_Roles` | `USR_Usuarios` |
+| `SeccionID` | `FRM_Secciones` | `FRM_Preguntas` |
+| `SedeID` | `SED_Sedes` | `ACT_Activos` |
+| `SentidoID` | `SEN_Sentidos` | `ACT_Activos` |
+| `TipoActivoID` | `TIP_TiposActivo` | `ACT_Activos`, `FAL_ModosFalla` |
+| `TipoRespuestaID` | `TPR_TiposRespuesta` | `FRM_Preguntas` |
+| `UnidadFuncionalID` | `UNF_UnidadesFuncionales` | `SED_Sedes`, `ASG_AsignacionZona`, `ACT_Activos` |
+| `UsuarioID` | `USR_Usuarios` | `ASG_AsignacionZona`, `NOV_Novedades` |
+
+</details>
+
 ---
 
 ## 3. Lo que ninguna regla evita

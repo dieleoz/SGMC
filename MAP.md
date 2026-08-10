@@ -21,6 +21,7 @@
 | Ver la arquitectura que se va a construir | [docs/ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) |
 | Construir o configurar la aplicación | [docs/MANUAL_DESPLIEGUE.md](docs/MANUAL_DESPLIEGUE.md) |
 | Cablear la aplicación en el editor | [docs/PROMPT_CABLEADO.md](docs/PROMPT_CABLEADO.md) |
+| Saber qué queda mal cableado hoy, y qué no se puede ver | [docs/CORRECCIONES_CABLEADO.md](docs/CORRECCIONES_CABLEADO.md), generado |
 | Saber qué expresión va en cada sitio | [docs/sdd/RECONSTRUCCION_EXPRESIONES.md](docs/sdd/RECONSTRUCCION_EXPRESIONES.md) |
 | Probar que el despliegue funciona | [docs/sdd/PRUEBA-003-despliegue.md](docs/sdd/PRUEBA-003-despliegue.md) |
 | Saber cómo se comporta AppSheet, con la cita oficial | [docs/BASE_CONOCIMIENTO_APPSHEET.md](docs/BASE_CONOCIMIENTO_APPSHEET.md) |
@@ -46,6 +47,8 @@ D:\@Proyect\Sisga\
 │                                      Es el mismo archivo publicado como Modelo_Datos_10082026
 │
 ├── docs/                         Documentación técnica y funcional
+│   ├── CORRECCIONES_CABLEADO.md   Lo que falta cablear en el editor. GENERADO por
+│   │                               auditar_cableado.py contra la aplicación en vivo
 │   ├── images/                    fig_01 a fig_07, figuras de los documentos
 │   └── sdd/                       Artefactos vigentes del pipeline: ESPEC-003 (bloqueada),
 │                                   PRUEBA-003 y RECONSTRUCCION_EXPRESIONES
@@ -53,21 +56,37 @@ D:\@Proyect\Sisga\
 ├── Manuales/                     Manual de usuario
 │   └── MANUAL_DE_USUARIO.md
 │
-├── entregables/                  Word y Excel enviados o publicados antes de la reconstrucción
-│
 ├── scripts/                      Fuente del modelo, validadores y generadores
 │   ├── modelo_objetivo.py         FUENTE ÚNICA. De aquí sale todo lo demás
 │   ├── sistema.py                 La aplicación y la hoja vigentes, y las superadas con su motivo
 │   ├── catalogo_tipos.py          Los 27 tipos de activo y las 18 familias del Plan Maestro
-│   ├── validar_modelo.py          Gate objetivo del pipeline
-│   ├── verificar_faseA.py         El modelo contra la hoja descargada
+│   │
+│   │                              Los SEIS verificadores (CLAUDE.md §7.4). Ninguno
+│   │                              sustituye a otro y los seis se corren antes de cerrar nada
+│   ├── validar_modelo.py          El modelo consigo mismo. Gate objetivo del pipeline
+│   ├── verificar_faseA.py         El modelo contra la hoja descargada: estructura y tipos
+│   ├── verificar_datos.py         Los DATOS de esa hoja: obligatorias vacías, huérfanas, tipos
 │   ├── verificar_documentos.py    La prosa contra el modelo
 │   ├── verificar_enlaces.py       Que todo enlace relativo entre documentos resuelve
+│   ├── verificar_reproducible.py  Que generar la plantilla dos veces dé lo mismo
+│   │
+│   │                              Contra la aplicación en vivo, no contra el repositorio
+│   ├── auditar_cableado.py        El cableado REAL contra el declarado. Emite
+│   │                               docs/CORRECCIONES_CABLEADO.md. Método en
+│   │                               BASE_CONOCIMIENTO_APPSHEET §16, con sus tres límites
+│   ├── probar_auditor.py          Prueba negativa del anterior: le mete defectos y
+│   │                               comprueba que los caza. Sin red
+│   ├── verificar_app.py           Recuento de filas por la API
 │   └── generar_*.py               Generadores de la plantilla y de los documentos
 │
-├── contexto/                     Material de contexto operativo, no versionado. No es la vara
+├── contexto/                     Material de contexto operativo, no versionado. No es la vara.
+│   └── SISGA Contrato/            Cinco PDF del contrato de ESTA Concesión. Sin catalogar,
+│                                   y no son «ejemplo de otro corredor»: véase CLAUDE.md §7.6
 └── archivo/                      Material de origen, no versionado
 ```
+
+> **No hay carpeta `entregables/`.** Este mapa la listó hasta el 2026-08-10, cuando la limpieza se
+> la llevó. Se deja dicho porque un mapa que nombra una carpeta inexistente manda a buscarla.
 
 ---
 
@@ -97,11 +116,12 @@ D:\@Proyect\Sisga\
 
 | Documento | Contenido | Vigencia |
 |---|---|---|
-| [docs/ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) | Modelo objetivo: 28 tablas, 205 columnas, 39 referencias, 21 reglas | Vigente. **Se regenera, no se edita** |
+| [docs/ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) | Modelo objetivo: 28 tablas, 211 columnas, 39 referencias, 21 reglas | Vigente. **Se regenera, no se edita** |
 | [docs/PROMPT_CABLEADO.md](docs/PROMPT_CABLEADO.md) | El encargo de cableado, autocontenido: las 39 referencias, los tipos y el orden | Vigente. **Se regenera, no se edita** |
 | [docs/REGLAS_DEL_MODELO_DE_DATOS.md](docs/REGLAS_DEL_MODELO_DE_DATOS.md) | Las diez reglas que manda el motor de datos, con el fallo del que salió cada una | Vigente. **Se regenera, no se edita** |
 | [docs/bd.md](docs/bd.md) | Diccionario As-Built: lo que la hoja tiene hoy, columna a columna | Vigente. **Se regenera, no se edita** |
 | [docs/MANUAL_DESPLIEGUE.md](docs/MANUAL_DESPLIEGUE.md) | De cero a app desplegada, con la ficha de las 28 tablas columna por columna | Vigente. Generado |
+| [docs/CORRECCIONES_CABLEADO.md](docs/CORRECCIONES_CABLEADO.md) | Qué referencias quedan mal en el editor y en qué orden se arreglan, más **las que el método no puede ver** | Vigente. **Se regenera, no se edita.** Vale para la lectura con que se generó, no para siempre |
 | [docs/sdd/RECONSTRUCCION_EXPRESIONES.md](docs/sdd/RECONSTRUCCION_EXPRESIONES.md) | Los nombres renombrados y las 21 reglas a reponer, sin cortar | Vigente |
 | [docs/sdd/PRUEBA-003-despliegue.md](docs/sdd/PRUEBA-003-despliegue.md) | Las pruebas de aceptación del despliegue reconstruido | Vigente |
 
@@ -138,6 +158,8 @@ D:\@Proyect\Sisga\
 | Comportamiento de la plataforma | [docs/BASE_CONOCIMIENTO_APPSHEET.md](docs/BASE_CONOCIMIENTO_APPSHEET.md) | Cita textual y URL oficial por cada afirmación |
 | Deriva documental | [CLAUDE.md](CLAUDE.md) sección 8 | `python scripts/verificar_documentos.py` |
 | Enlaces rotos entre documentos | — | `python scripts/verificar_enlaces.py` |
+| Columnas obligatorias vacías y referencias huérfanas en los datos | [CLAUDE.md](CLAUDE.md) sección 7.4 | `python scripts/verificar_datos.py` |
+| Cableado real de la aplicación contra el declarado | [docs/BASE_CONOCIMIENTO_APPSHEET.md](docs/BASE_CONOCIMIENTO_APPSHEET.md) §16 | `python scripts/auditar_cableado.py`, que emite [docs/CORRECCIONES_CABLEADO.md](docs/CORRECCIONES_CABLEADO.md) |
 | Capacidad y crecimiento | — | `python scripts/capacidad.py` |
 
 ---

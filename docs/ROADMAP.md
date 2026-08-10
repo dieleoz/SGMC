@@ -2,13 +2,28 @@
 
 **Proyecto:** Sistema de Gestión de Mantenimiento en Campo
 **Cliente:** Concesión Transversal del Sisga S.A.S.
-**Actualizado:** 10 de agosto de 2026 | **Versión:** 4.2
+**Actualizado:** 10 de agosto de 2026 | **Versión:** 4.3
 
 > ## Para qué sirve este documento, y para qué no
 >
 > **El estado del proyecto está en [`ESTADO.md`](../ESTADO.md), no aquí.** Este documento es el
 > **orden de implementación**: qué va antes que qué, y por qué ese orden y no otro. Es lo que no
 > cabe en un tablero de estado y lo que más caro sale improvisar.
+>
+> **Qué cambió en la 4.3, del 2026-08-10 por la tarde:**
+>
+> - **El cableado dejó de estar sin empezar, y dejó de poder afirmarse desde este documento.** Se
+>   cablearon las referencias en el editor y el informe dijo «39/39 asignadas». **No era cierto.** Dos
+>   apuntaban a `SED_Sedes` en vez de a `CAL_Calzadas` y a `TIP_TiposActivo`, y tres columnas de texto
+>   se habían convertido en `Ref`. Ya están corregidas. Lo que queda **no lo sabe este roadmap**: se
+>   pregunta con `python scripts/auditar_cableado.py`, que lee la aplicación en vivo. Ver §6.
+> - **Las 368 coordenadas se perdieron y se repusieron el mismo día.** Al renombrar `Ubicacion` a
+>   `Ubicacion_LatLong` la columna nueva nació vacía y nadie lo vio. Hoy `generar_plantilla.py` las
+>   **deriva del `PK`** sobre el trazado en cada pasada en vez de conservarlas, y están las 368 de 368.
+> - **Hay un sexto verificador**, `scripts/verificar_datos.py`, y **un auditor de cableado**,
+>   `scripts/auditar_cableado.py`. Los dos nacieron de los dos párrafos anteriores.
+> - **`RG-21` se renumeró a `RG-34`.** `ESPEC-003` §12.1 ya usaba `RG-21` para `USR_Usuarios.RolID`, y
+>   dos reglas con el mismo identificador es exactamente el defecto que este documento persigue.
 >
 > **Qué cambió en la 4.2, del 2026-08-10:**
 >
@@ -17,8 +32,9 @@
 >   tres hojas; las superadas están nombradas, con su motivo, en `scripts/sistema.py`. **Vuélquelo
 >   con `python scripts/sistema.py`** en vez de copiar el nombre de aquí.
 > - **El cableado de la aplicación anterior no sobrevivió, y por eso se repone entero.** La versión
->   4.1 daba las 39 referencias por puestas: hoy la aplicación tiene **las 28 tablas dadas de alta y
->   nada más**. Referencias, reglas y filtros están sin poner.
+>   4.1 daba las 39 referencias por puestas; la 4.2 dio la aplicación por tener **las 28 tablas y nada
+>   más**. Las dos afirmaban un estado del cableado desde un documento. **Ninguna volverá a hacerlo:**
+>   ver la 4.3, arriba.
 > - **La migración a la hoja limpia ya se ejecutó**, así que dejó de ser una decisión y pasó a ser un
 >   hecho. `BD/Modelo_Datos_PLANTILLA.xlsx` sale generada del modelo y es el archivo publicado.
 > - **Las referencias son 39, no 15.** Las 15 eran las que faltaban en una aplicación anterior donde
@@ -87,9 +103,9 @@ De ahí salen tres clases, y el orden entre ellas no es negociable:
 
 | # | Paso | Contenido | Depende de |
 |---|---|---|---|
-| **0** | **Cablear la aplicación entera** | **Las 39 referencias**, con `IsPartOf` en las cuatro que lo llevan; **las 21 reglas**; los dos filtros de seguridad; las cuatro marcas de tiempo como `ChangeTimestamp`; retirar `Deletes` en `OT_OrdenesTrabajo` y `MAN_Mantenimientos`; y correr `PRUEBA-003` | Sin empezar. Ficha por tabla en [`MANUAL_DESPLIEGUE.md`](MANUAL_DESPLIEGUE.md); expresión completa en [`sdd/RECONSTRUCCION_EXPRESIONES.md`](sdd/RECONSTRUCCION_EXPRESIONES.md) |
+| **0** | **Cablear la aplicación entera** | **Las 39 referencias**, con `IsPartOf` en las cuatro que lo llevan; **las 21 reglas**; los dos filtros de seguridad; las cuatro marcas de tiempo como `ChangeTimestamp`; retirar `Deletes` en `OT_OrdenesTrabajo` y `MAN_Mantenimientos`; y correr `PRUEBA-003` | **En curso, y su estado no se lee aquí:** `python scripts/auditar_cableado.py`. Ficha por tabla en [`MANUAL_DESPLIEGUE.md`](MANUAL_DESPLIEGUE.md); expresión completa en [`sdd/RECONSTRUCCION_EXPRESIONES.md`](sdd/RECONSTRUCCION_EXPRESIONES.md) |
 | **0b** | ~~Decidir la migración~~ | **Ejecutada el 2026-08-10.** Las 48 columnas sobrantes ya no existen en el archivo, así que ocultarlas dejó de estar en el plan y con ellas se fueron las tres trampas | Cerrado |
-| **1** | **Esquema completo** | `TAR_Tareas` · poblar `ROL_Roles` con los 12 · `ETR_Estructuras`, que es lo que queda de la jerarquía de ubicación · columnas de tiempo en la orden · retirar `ACT.FrecuenciaID` y `TIP.FormularioID` | `ESPEC-003` y su veredicto |
+| **1** | **Esquema completo** | `TAR_Tareas` · poblar `ROL_Roles` con los 12 · `ETR_Estructuras`, que es lo que queda de la jerarquía de ubicación · columnas de tiempo en la orden · retirar `ACT.FrecuenciaID` y `TIP.FormularioID`, **que `verificar_documentos.py` avisa como descartadas y vivas con fecha tope 2026-08-31** | `ESPEC-003` y su veredicto |
 | **2** | **Carga del inventario real** | Los 355 con identidad, serie y ubicación. **Los que hay hoy son sintéticos** y lo dicen de sí mismos. Aquí entran también las cuatro columnas que existen y están vacías en las 368: `Ubicacion_LatLong`, `PR`, `TramoINVIAS` y `SedeID` | Paso 1, y que operación confirme que 355 son los de este corredor |
 | **3** | **Reglas de integridad** | Imponer `QuienCambia` · estado de rechazo · valores de `TipoFirma` | Paso 1 |
 | **4** | **Piloto de campo** | El levantamiento de coordenadas **como primera orden de trabajo** | Pasos 2 y 3 |
@@ -132,7 +148,7 @@ que llega solo con tiempo, y no llega — llega con la decisión de licenciamien
 | Fase 0.5. Reconciliación de modelos | **CERRADA** el 2026-08-07 | `modelo_objetivo.py` es la fuente única; los documentos se generan de él. Ver 4.5 |
 | **Fase A. La hoja** | **CERRADA** | `verificar_faseA.py` en 0 fallos sobre `BD/Modelo_Datos_PLANTILLA.xlsx`. Hoy: **82 conformes y 4 avisos esperados** |
 | Reconstrucción de la aplicación | **HECHA** el 2026-08-10 | `_SISGA_-323965761`, con las 28 tablas dadas de alta sobre `Modelo_Datos_10082026` |
-| **Fase B. Cableado y reglas** | **Sin empezar.** Se repone entero: el cableado de la aplicación anterior no sobrevivió a la reconstrucción | Las 39 referencias con su `IsPartOf`, las 21 reglas, los dos filtros, las cuatro marcas de tiempo, `Deletes` retirado, y `PRUEBA-003` pasada |
+| **Fase B. Cableado y reglas** | **EN CURSO.** Las referencias empezaron a reponerse el 2026-08-10; **ninguna regla, ningún filtro y ninguna marca de tiempo están puestos.** El estado exacto **no lo declara este documento**: `python scripts/auditar_cableado.py` | Las 39 referencias con su `IsPartOf`, las 21 reglas, los dos filtros, las cuatro marcas de tiempo, `Deletes` retirado, y `PRUEBA-003` pasada. **El auditor tiene que salir con 0 correcciones y las 6 no observables miradas una a una en el editor** |
 | Fase 1. Datos maestros | Bloqueada por D-01 y D-09 | Coordenadas reales cargadas, sedes realineadas, bancos de preguntas construidos |
 | Fase 2. Configuración de interfaz | Bloqueada por Fase 1 y por declarar vistas | Reportes y pantallas construidos. **Antes hay que declarar la interfaz en el modelo**: hoy no tiene vistas, ni acciones, ni slices |
 | Fase 3. Prueba controlada | Bloqueada por Fase 2 | Registros reales en `MAN_Mantenimientos` y en las tablas de evidencia, verificados leyendo el archivo |
@@ -149,24 +165,54 @@ la mesa de trabajo, no antes.
 ## 3.1 Lo que sí está construido
 
 Verificado el 2026-08-10 contra `scripts/modelo_objetivo.py` y `BD/Modelo_Datos_PLANTILLA.xlsx`.
-**Cada cifra se rederiva con los cinco verificadores; ninguna está escrita de memoria.**
+**Cada cifra se rederiva con los seis verificadores; ninguna está escrita de memoria.** El sexto,
+`verificar_datos.py`, se añadió ese mismo día y es **el único que abre el archivo de datos** para
+mirar si las columnas obligatorias están pobladas y si las 39 referencias resuelven contra los
+valores reales. Los otros cinco leen declaraciones, estructura, prosa, enlaces o dos pasadas del
+generador entre sí.
+
+> **Y ninguno de los seis mira la aplicación.** Lo que está cableado en `_SISGA_-323965761` **no lo
+> sabe ningún documento generado desde el modelo**, y este es uno de ellos: el modelo declara lo que
+> tiene que existir, no lo que existe. Se pregunta, siempre, con
+>
+> ```bash
+> python scripts/auditar_cableado.py
+> ```
+>
+> que lee la aplicación en vivo por la API y reemite [`CORRECCIONES_CABLEADO.md`](CORRECCIONES_CABLEADO.md).
+> **Y hay que leer su recuento entero, no la primera línea**, porque separa dos cosas que no son lo
+> mismo: las referencias **verificadas** —la aplicación nombra la columna— de las **compatibles no
+> atribuidas** —la aplicación nombra la tabla destino, y que sea la columna que el modelo declara lo
+> dice el modelo, no la aplicación—. Sumarlas infla la cifra, y ya se infló una vez.
 
 - **Modelo de 28 tablas, 211 columnas, 39 referencias y 21 reglas.** `validar_modelo.py` sale
   `APTO PARA DESPLEGAR` con 0 errores y 3 avisos.
 - **La hoja se genera del modelo, y es la que la aplicación lee.** 28 pestañas de datos más `_LEEME`,
-  ninguna oculta, sin una sola columna de sobra ni de menos: las **44** de `CAMPOS_RETIRADOS` más las
-  **4** de `COLUMNAS_SIN_DECIDIR` —las 48 que sobraban— ya no existen en el archivo, y el recuento de
-  los 211 encabezados contra el modelo da cero por los dos lados.
+  ninguna oculta, sin una sola columna de sobra ni de menos: **las 48 que sobraban ya no existen en el
+  archivo**, y el recuento de los 211 encabezados contra el modelo da cero por los dos lados. Las 48
+  están hoy **todas en `CAMPOS_RETIRADOS`, y `COLUMNAS_SIN_DECIDIR` quedó vacío**: las cuatro que
+  nadie había decidido —`USR_Usuarios.UltimaSincronizacion`, `FOT_Fotografias.Fecha`,
+  `FRM_Formularios.Orden` y `FRM_Preguntas.ValorDefecto`— las decidió la regeneración al dejarlas
+  fuera, y un aviso que afirma que están sin decidir se repetiría en cada ejecución siendo falso. El
+  reparto se vuelca, no se cita:
+
+  ```bash
+  python -c "import sys;sys.path.insert(0,'scripts');import modelo_objetivo as M;print(sum(len(v) for v in M.CAMPOS_RETIRADOS.values()),'+',len(M.COLUMNAS_SIN_DECIDIR))"
+  ```
 - **Todas las claves son alfanuméricas con prefijo.** `ACT-0001`, `TIP-001`, `UNF-01`, `SED-001`,
   `USR-001`, `ROL-01`, `EST-01`, `FRE-01`, `CAL-01`, `SEC-01`, `TPR-01`, más las que ya lo eran
   —`OT-0001`, `MOT-01`, `FAL-01`, `ASG-01`, `PLA-001`, `FRM_SOS`, `SOS001`, `UMBRAL_GPS`—.
 - **`SED_Sedes` sabe dónde está**, con `UnidadFuncionalID`, `PR`, `TramoINVIAS`, `PK` y
   `Ubicacion_LatLong`, y `ACT_Activos.SedeID` cuelga de ella para el equipo bajo techo. `RG-34`
-  impide que el activo y su sede declaren unidades funcionales distintas.
+  impide que el activo y su sede declaren unidades funcionales distintas. **Eso es la estructura, no
+  el dato:** `SED_Sedes.UnidadFuncionalID` está poblada en **1 de 6** y `ACT_Activos.SedeID` en **0 de
+  368**, así que hoy `RG-34` no compara nada. Es trabajo de operación y está en §5.
 - **`ACT_Activos` distingue `PK` de `PR`**, y lleva `TramoINVIAS` para que el PR identifique un
   punto. `PK` está poblado en las 368; `PR` y `TramoINVIAS`, vacíos en las 368.
-- **Aplicación reconstruida el 2026-08-10 con las 28 tablas dadas de alta.** Eso es todo lo que
-  tiene: las referencias, las reglas y los filtros **no están puestos**.
+- **Aplicación reconstruida el 2026-08-10 con las 28 tablas dadas de alta, y con el cableado de
+  referencias empezado.** Las reglas, los dos filtros de seguridad y las cuatro marcas de tiempo
+  **siguen sin poner**. Cuántas referencias están puestas, y cuáles, **es lo único de esta lista que
+  no se deriva del modelo**: sale de `python scripts/auditar_cableado.py`.
 - **Inventario de prueba: 368 filas en `ACT_Activos`.** 334 son sintéticas —códigos del Plan Maestro
   repartidos por los 137 km del corredor, y cada una lo declara en `ACT_Activos.Observaciones`— y 34
   son el juego de arranque. Las familias contables suman los 355 del Plan Maestro; las 13 filas
@@ -189,13 +235,24 @@ Verificado el 2026-08-10 contra `scripts/modelo_objetivo.py` y `BD/Modelo_Datos_
   `CHD_ChecklistDetalle`, `FOT_Fotografias`, `FIR_Firmas`, `NOV_Novedades` y `PLA_PlanMantenimiento`
   están vacías. **El ciclo no se ha recorrido de extremo a extremo ni una vez.**
 
-**Y lo que está declarado pero no se puede probar:** el geofencing. **`ACT_Activos.Ubicacion_LatLong`
-está vacía en las 368 filas** —las coordenadas sintéticas que traía se perdieron al renombrar la
-columna, y ninguna era el sitio real del equipo—, así que `RG-01` compararía contra blanco y
-**rechazaría también el cierre legítimo**. Es D-01, y ahora se ve en el archivo:
+- **Las 368 coordenadas, perdidas y repuestas el 2026-08-10.** Al renombrar `Ubicacion` a
+  `Ubicacion_LatLong` la columna nueva nació vacía y la vieja se retiró, y **no lo vio ninguno de los
+  cinco verificadores que había**: `validar_modelo` no abre el `.xlsx`, y `verificar_reproducible`
+  comparaba la pasada N con la N+1, las dos derivadas del archivo ya dañado — demostraba que el daño
+  se reproducía igual. Era además una pérdida **permanente**, porque el generador lee su propia
+  salida y solo completa filas nuevas. **La lección no fue restaurar del git: fue que un dato
+  derivable no se conserva, se vuelve a derivar.** Hoy `generar_plantilla.py` saca la coordenada del
+  `PK` sobre el trazado en cada pasada, y son **368 de 368, todas distintas**.
+
+**Y lo que está declarado pero no se puede probar:** el geofencing. La columna ya no está vacía, y
+por eso **se lee peor que antes, no mejor**: `RG-01` deja de comparar contra blanco y pasa a comparar
+contra un punto que está sobre la vía pero **no frente al equipo**. Con 0,05 km de radio en 18 de los
+27 tipos, **rechaza el cierre legítimo igual que antes, pero ahora sin que nada se vea vacío**. Es
+D-01, y lo que se comprueba en el archivo ya no es que haya dato, sino que el dato **no está medido**:
 
 ```bash
-python -c "import openpyxl;w=openpyxl.load_workbook('BD/Modelo_Datos_PLANTILLA.xlsx',read_only=True,data_only=True)['ACT_Activos'];h=[c.value for c in next(w.iter_rows(max_row=1))];i=h.index('Ubicacion_LatLong');print(sum(1 for r in w.iter_rows(min_row=2,values_only=True) if r[i] in (None,'')))"
+python scripts/verificar_datos.py
+python -c "import openpyxl;w=openpyxl.load_workbook('BD/Modelo_Datos_PLANTILLA.xlsx',read_only=True,data_only=True)['ACT_Activos'];h=[c.value for c in next(w.iter_rows(max_row=1))];i=h.index('Observaciones');print(sum(1 for r in w.iter_rows(min_row=2,values_only=True) if r[i] and 'SINTETICO' in str(r[i])),'filas se declaran sinteticas de las 368')"
 ```
 
 ---
@@ -218,8 +275,10 @@ construir completo, poblar con datos, entregar con manual, y corregir con lo que
 
 ## 4.4 Decisiones pendientes de Dirección
 
-La propuesta `entregables/Propuesta_Arquitectura_SGMC.docx` pide tres decisiones. Las dos primeras
-condicionan la salida a producción y ninguna es técnica:
+La propuesta de arquitectura enviada a Dirección pide tres decisiones. Las dos primeras condicionan
+la salida a producción y ninguna es técnica. **El documento ya no está en el repositorio**: la
+carpeta `entregables/` se retiró entera en la limpieza del 2026-08-10 —`git log --diff-filter=D
+--name-only -- 'entregables/*'`—, y lo que queda vivo son las tres decisiones, que se piden aquí:
 
 - **D-A. Propiedad del backend.** El documento y las fotografías pertenecen a una cuenta personal
   de Gmail. Las imágenes consumen su cuota de 15 GB, que con los 355 activos del Plan Maestro da
@@ -273,16 +332,21 @@ Es la fase más larga y la que fija el cronograma. **Todo su contenido es trabaj
 y por eso no hay forma de adelantarlo desde el repositorio.
 
 - [ ] **D-01.** Levantamiento en campo de las coordenadas reales y carga en `ACT_Activos.Ubicacion_LatLong`.
-      **La columna está vacía en las 368 filas**, así que no hay ni siquiera una coordenada
-      inventada con la que ensayar. Y mientras esté vacía, `DISTANCE()` no da error: da un valor que
-      **rechaza el cierre legítimo**
+      **La columna está poblada en las 368 filas, con 368 valores distintos, y aun así D-01 sigue
+      abierta**: cada punto se **deriva del `PK`** sobre el trazado en cada pasada del generador, y
+      ninguno se midió en campo. `DISTANCE()` no da error ni compara contra blanco: compara contra un
+      punto de la carretera que no es el equipo, y **rechaza el cierre legítimo** con 0,05 km de
+      radio. **Que la celda tenga algo no es que el dato exista**, y esta es la partida donde más
+      barato sale confundirlo
 - [ ] Cargar `ACT_Activos.PR` y `ACT_Activos.TramoINVIAS`, vacías en las 368. **No se deducen del
       `PK`**: la conversión PK↔PR no es una fórmula sino una tabla de equivalencias que no existe, y
       el corredor tiene dos puntos distintos llamados `PR 0+000`
 - [ ] Situar las cinco sedes que faltan. `SED_Sedes` tiene `UnidadFuncionalID`, `PR`, `TramoINVIAS`,
       `PK` y `Ubicacion_LatLong`, y solo el peaje de Machetá trae `UnidadFuncionalID`, `PR` y
       `TramoINVIAS`; **`PK` y `Ubicacion_LatLong` están vacías en las seis**. Y el de San Luis de
-      Gaceno figura en el contrato como peaje nuevo, sin abscisa: está proyectado, no construido
+      Gaceno figura en el contrato como peaje nuevo, sin abscisa: está proyectado, no construido.
+      **`verificar_datos.py` lo saca como aviso, no como fallo, y con fecha tope: el 2026-08-31 pasa
+      a fallo.** Un aviso que no caduca deja de leerse
 - [ ] Colgar de su sede el equipo bajo techo. `ACT_Activos.SedeID` existe, es opcional y **está
       vacía en las 368 filas**, así que los 7 servidores, los 29 portátiles, las 3 impresoras y el
       resto del equipo de interior no dicen dentro de qué edificación están. Mientras esté vacía
@@ -316,9 +380,15 @@ y por eso no hay forma de adelantarlo desde el repositorio.
 - [x] **Checklist huérfano remediado.** `CHK_Checklists` cuelga hoy de `MantenimientoID`, no de la
       orden
 
-**Cierra cuando:** `ACT_Activos.Ubicacion_LatLong` no tiene ninguna celda vacía y sus valores son
-todos distintos y están sobre el corredor; las 288 preguntas en borrador están validadas; y un
-usuario de prueba ve activos al aplicar el filtro.
+**Cierra cuando:** ninguna fila de `ACT_Activos` se declara sintética en `Observaciones` —hoy lo
+hacen **334 de las 368**— y su coordenada quedó **medida en campo**, no derivada del `PK`; las 288
+preguntas en borrador están validadas; y un usuario de prueba ve activos al aplicar el filtro.
+
+> **El criterio anterior de esta fase era «no tiene ninguna celda vacía y sus valores son todos
+> distintos y están sobre el corredor», y hoy se cumple entero sin que la fase esté cerrada.** Es
+> exactamente el defecto que este documento persigue: un criterio que un generador puede satisfacer
+> solo. Una coordenada derivada del `PK` es no vacía, distinta de las demás y está sobre el corredor
+> **por construcción**. Lo que hay que exigir es la procedencia del dato, no su forma.
 
 ---
 
@@ -329,9 +399,45 @@ las daba por configuradas, y describía el cableado de una aplicación que ya no
 de esta fase son dos bloques: reponer el comportamiento, y después la **interfaz**, que además tiene
 un requisito previo que no es de configuración sino de modelo.
 
+> ### Antes de las reglas van las referencias, y cuántas faltan no se lee aquí
+>
+> **Diez de las 21 reglas desreferencian** —`RG-01`, `RG-04`, `RG-05`, `RG-06`, `RG-08`, `RG-09`,
+> `RG-11`, `RG-16`, `RG-17` y `RG-34`; la lista se saca buscando `].[` en las expresiones del
+> modelo—, y cada una **falla o, peor, resuelve contra lo que no es** si la referencia de debajo está
+> mal puesta. Y «mal puesta»
+> no significa ausente: el 2026-08-10, `ACT_Activos.TipoActivoID` apuntaba a `SED_Sedes`, con lo que
+> cada activo leía el checklist de una sede y `RG-01` fallaba con
+> `Can't find column "RadioGeofencingKm" in table "SED_Sedes"` — un mensaje que invita a reescribir
+> una expresión correcta para acomodarla a un cableado roto.
+>
+> **Ninguna regla se cablea hasta que el auditor salga con 0 correcciones**, y hay un resto que el
+> auditor **no puede juzgar**: la columna virtual inversa vive en la tabla destino, y **seis
+> referencias apuntan a tablas que están vacías**, así que de ellas no dice ni bien ni mal. Se abren
+> en el editor una a una, o se siembra una fila en el destino y se vuelve a correr. **Confundir «no lo
+> puedo ver» con «está bien» es como se llegó a las cuatro de arriba.**
+>
+> ```bash
+> python scripts/auditar_cableado.py
+> ```
+
 Declarado en el modelo, con su expresión completa en
 [`sdd/RECONSTRUCCION_EXPRESIONES.md`](sdd/RECONSTRUCCION_EXPRESIONES.md), y **sin poner**:
 
+- [ ] **Terminar las referencias de `ACT_Activos`.** Al correr el auditor el 2026-08-10 quedaban
+      **cuatro sin poner** —`EstadoActivoID`, `FrecuenciaID`, `SentidoID` y `UnidadFuncionalID`, las
+      cuatro `Ref`—, y **la cifra no se copia de aquí**: se vuelve a correr `auditar_cableado.py`,
+      que reemite [`CORRECCIONES_CABLEADO.md`](CORRECCIONES_CABLEADO.md) con lo que quede
+- [ ] **Mirar en el editor las seis que el auditor no puede juzgar**, una a una, y anotar su
+      `Source table`. Son las que apuntan a tablas vacías: `CHD→CHK`, `CHK→MAN`, `FIR→MAN`,
+      `FOT→MAN`, `MAN→OT` y la autorreferencia `OT_OrdenesTrabajo.OTOrigenID`
+- [ ] **Y al cablear `ACT_Activos.EstadoActivoID` se despierta `RG-16`**, que es una `App formula` y
+      por tanto **escribe en la hoja**. Hoy `Activo` está poblada a mano en las 368 y hay **un solo
+      activo con `EST-04` (Retirado)**, que ya trae `Activo = FALSE`: la regla no debería cambiar
+      ninguna celda, y si cambia alguna, el dato y la regla no dicen lo mismo. Con ella viva,
+      `RG-18` —el histórico no filtra por el estado actual del activo— deja de estar dormida, porque
+      por primera vez hay una fila donde la prohibición se nota. Tiene prueba: `P-33` en
+      [`sdd/PRUEBA-003-despliegue.md`](sdd/PRUEBA-003-despliegue.md), y `RG-34` tiene la suya en
+      `P-32`, que hasta hoy no existía
 - [ ] Geofencing, con la expresión que atraviesa la orden y el activo:
       `DISTANCE([Coordenadas_Cierre_LatLong], [OTID].[ActivoID].[Ubicacion_LatLong]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]`
       y mensaje de error en texto plano. **El literal `1.0` ya no se usa**: la hoja que la aplicación
@@ -373,10 +479,13 @@ directamente a los 10 celulares del piloto.
 - [ ] El mismo flujo repetido en modo avión, con verificación de la sincronización posterior
 - [ ] Prueba del bloqueo: intentar cerrar lejos del activo y confirmar que el sistema lo impide
 
-> **El par de pruebas del geofencing no discrimina hoy, y hay que decirlo.** Con
-> `ACT_Activos.Ubicacion_LatLong` vacía en las 368, `DISTANCE()` compara contra blanco: **fallan las
-> dos**, la que debe aceptarse y la que debe rechazarse, y la tanda deja de distinguir una regla
-> correcta de una rota. **Solo D-01 lo arregla.**
+> **El par de pruebas del geofencing sigue sin discriminar, y ahora es más difícil de ver.** Mientras
+> `ACT_Activos.Ubicacion_LatLong` estuvo vacía en las 368, `DISTANCE()` comparaba contra blanco y
+> **fallaban las dos**, la que debe aceptarse y la que debe rechazarse. Hoy la columna trae las 368
+> pobladas y **el resultado no cambia**: el punto derivado del `PK` está sobre la vía pero no frente
+> al equipo, así que con 0,05 km de radio el cierre legítimo se sigue rechazando. **Lo que cambió es
+> que ya no hay una celda vacía que lo delate.** La tanda sigue sin distinguir una regla correcta de
+> una rota, y **solo D-01 lo arregla.**
 
 **Cierra cuando:** hay filas reales en `MAN_Mantenimientos` y en las tablas de evidencia,
 verificadas leyendo el archivo. **Hoy no hay ninguna, ni de prueba**: la hoja se entrega sin

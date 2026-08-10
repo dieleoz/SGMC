@@ -75,7 +75,9 @@ datos: todo lo que las especificaciones afirmaban sobre **cómo se comporta AppS
 memoria. Antes de escribir una regla, un tipo o un paso que dependa del comportamiento de la
 plataforma, **busca la página oficial**. Lo verificado está en
 `docs/BASE_CONOCIMIENTO_APPSHEET.md`, con su URL y su fecha; lo que no se encuentre se declara
-como supuesto, en la tabla del final de ese documento.
+como supuesto, en su sección **«Lo que sigue SIN verificar contra la fuente»** — que ya no está al
+final del documento, porque después de ella se añadieron los puntos 13 a 16. Búscala por el título,
+no por la posición.
 
 - **No declares nada conforme por reporte. Verifícalo contra el archivo.** Vale también para los
   informes de otros agentes, incluidos los que te dan la razón: el arquitecto propuso una lista de
@@ -131,9 +133,19 @@ activo, `ACT_` activos, `OT_` órdenes de trabajo, `MAN_` mantenimientos, `CHK_`
 encabezado y detalle, `FOT_`/`FIR_` evidencias, `FRM_` formularios y preguntas, `TPR_` tipos de
 respuesta, `LST_` listas de valores, `EST_`/`FRE_`/`CAL_`/`SEN_` catálogos.
 
-Advertencia sobre claves: la nomenclatura **no** es uniforme. `OT_OrdenesTrabajo` no tiene columna
-`OTID`; su primera columna es `Numero_OT` con valores `OT-0001`. Otras tablas referencian `OTID`.
-Verifica la clave real antes de asumirla.
+Advertencia sobre claves: **la clave real se vuelca, no se supone.** Un nombre de columna que
+parece una clave puede no serlo, y una tabla puede haber cambiado de clave desde la última vez que
+alguien lo escribió aquí. Se deriva con una línea:
+
+```bash
+python -c "import sys;sys.path.insert(0,'scripts');import modelo_objetivo as M;print({t:next((c['nombre'] for c in d['columnas'] if c.get('pk')),'?') for t,d in M.MODELO.items()})"
+```
+
+**El caso de `OT_OrdenesTrabajo` ya está resuelto y este apartado lo describía al revés.** Su clave
+es hoy `OTID`, con valores `OT-0001`. Se llamó `Numero_OT`, y ese renombrado **está hecho**: figura
+en `RENOMBRADOS` de `scripts/modelo_objetivo.py` y en la tabla §1 de
+`docs/sdd/RECONSTRUCCION_EXPRESIONES.md`. Si un documento vigente dice que la clave es `Numero_OT`,
+está desactualizado.
 
 ## 6. Referencias: las reglas que gobiernan el cableado
 
@@ -147,11 +159,14 @@ El procedimiento vigente está en `docs/sdd/ESPEC-002-cableado-en-appsheet.md`, 
 
 **R-1. Una referencia guarda el valor de la clave del destino.** De ahí todo lo demás. Antes de
 cablear una referencia, verifica cuál es la clave real de la tabla destino: no la supongas por el
-nombre. `OT_OrdenesTrabajo` tiene hoy la clave `Numero_OT`, no `OTID`.
+nombre **ni por lo que diga este archivo**, que es exactamente el fallo que esta regla arrastró:
+durante días afirmó que `OT_OrdenesTrabajo` tenía la clave `Numero_OT` mientras el modelo ya
+declaraba `OTID`. **Hoy la clave es `OTID`**, y la forma correcta de saberlo es volcarla (§5).
 
-**R-2. Renombrar y retipar son la misma tarea, no dos.** Si la clave se llama `Numero_OT` y quien
-la apunta se llama `OTID`, no hay contra qué resolver. Por eso el renombrado no es cosmético y no
-se pospone.
+**R-2. Renombrar y retipar son la misma tarea, no dos.** Si la clave se llama de una forma y quien
+la apunta se llama de otra, no hay contra qué resolver. Fue el caso de `OT_OrdenesTrabajo`:
+`Numero_OT` como clave y `OTID` en quien la apuntaba. **Ese renombrado ya se hizo** y por eso las
+dos se llaman igual. Por eso el renombrado no es cosmético y no se pospone.
 
 **R-3. Primero la clave del destino, después quien la apunta.** Convertir una referencia antes de
 que su destino tenga la clave definitiva deja las filas sin resolver.
@@ -210,12 +225,26 @@ ninguna. **Un catálogo se diseña mirando los datos que va a tener que resolver
 la referencia quedó. Es más rápido y más seguro que ejercitar la app.
 
 **R-10. Un `Ref` guarda la clave, no el nombre — pero no toda comparación contra un literal está
-mal.** `[EstadoActivoID] <> "Retirado"` es siempre cierto, porque `EST_Activo` tiene la clave `1..4`
-y el texto vive en `Nombre`. Se escribe `[EstadoActivoID].[Nombre]`. **En cambio
+mal.** `[EstadoActivoID] <> "Retirado"` es siempre cierto, porque la clave de `EST_Activo` es
+`EST-01`…`EST-04` y el texto vive en `Nombre`. Se escribe `[EstadoActivoID].[Nombre]`. **En cambio
 `[EstadoOrdenID] = "Cerrada"` es correcto**, porque `EOT_EstadosOrden` tiene la palabra como clave,
-por diseño (R-8). La distinción está en `CLAVE_LEGIBLE` de `scripts/modelo_objetivo.py`: las 10
-tablas cuya clave es texto legible, **derivadas del archivo y no de una impresión**. La regla V-17
-lo comprueba.
+por diseño (R-8).
+
+`CLAVE_LEGIBLE` de `scripts/modelo_objetivo.py` reúne hoy **22 tablas** y `CLAVE_GENERADA` las
+otras **6**; entre las dos cubren las 28, sin solaparse. Se cuentan, no se citan:
+
+```bash
+python -c "import sys;sys.path.insert(0,'scripts');import modelo_objetivo as M;print(len(M.CLAVE_LEGIBLE),len(M.CLAVE_GENERADA))"
+```
+
+**Y aquí hay que decir algo incómodo: esa lista ya no distingue lo que R-10 necesita distinguir.**
+`CLAVE_LEGIBLE` nació significando «la clave ES la palabra» —`Cerrada`, `Asignada`—, y tras la
+resiembra del 2026-08-10 significa «la clave es alfanumérica con prefijo» —`EST-01`, `ACT-0001`—,
+que es otra cosa. `EST_Activo` entró en la lista por lo segundo, así que **V-17 exime justamente la
+comparación que nació para cazar**: `[EstadoActivoID] <> "Retirado"` pasa el validador sin un solo
+error. Comprobado el 2026-08-10 reintroduciendo el defecto sobre `REGLAS` en memoria. **Mientras eso
+no se separe en el modelo, V-17 no cubre a `CLAVE_LEGIBLE`: la ruta `[Columna].[Nombre]` se
+comprueba a mano.**
 
 Y lo peligroso no es que la expresión falle: **no falla**. Devuelve siempre lo mismo. Si además es
 una `App formula`, **escribe** ese resultado constante sobre los datos.
@@ -240,8 +269,10 @@ pregunta qué dependía de que no se cumpliera.**
 
 ### Expresiones vigentes
 
-Geofencing de cierre, RG-01 (RF-012). `ACT_Activos` guarda un único campo `Ubicacion` de tipo
-LatLong; no existen columnas `Latitud`/`Longitud` separadas. El radio sale del tipo de activo,
+Geofencing de cierre, RG-01 (RF-012). `ACT_Activos` guarda un único campo `Ubicacion_LatLong` de
+tipo LatLong; no existen columnas `Latitud`/`Longitud` separadas. El nombre lleva el sufijo desde
+el 2026-08-10 y **la forma corta `Ubicacion` ya no existe en ninguna tabla**: si la lees en un
+documento o en un comentario, habla de antes de esa fecha. El radio sale del tipo de activo,
 porque una subestación y un poste SOS no admiten la misma tolerancia:
 
 ```
@@ -265,9 +296,13 @@ como valor provisional histórico: la regla no lo lee. Un documento que mande el
 decir que habla de la hoja de producción describe un estado superado.
 
 Y la regla no basta por sí sola: las cuatro columnas de captura de `MAN_Mantenimientos`
-—`Coordenadas_Cierre_LatLong`, `Precision_GPS`, `UbicacionEscaneo` y `FechaHoraEscaneo`— van con
-`Editable_If = FALSE` (RG-20). Sin eso, `Coordenadas_Cierre_LatLong` dibuja un pin arrastrable sobre el
-mapa, el técnico lo suelta encima del activo y RG-01 valida sin protestar.
+—`Coordenadas_Cierre_LatLong`, `Precision_GPS`, `UbicacionEscaneo_LatLong` y `FechaHoraEscaneo`—
+van con `Editable_If = FALSE` (RG-20). Sin eso, `Coordenadas_Cierre_LatLong` dibuja un pin
+arrastrable sobre el mapa, el técnico lo suelta encima del activo y RG-01 valida sin protestar.
+
+**El nombre completo es `UbicacionEscaneo_LatLong`**, no `UbicacionEscaneo`. La descripción de
+RG-20 en `scripts/modelo_objetivo.py` todavía la abrevia; al configurarla en el editor manda el
+nombre de la columna, que se vuelca de `MODELO['MAN_Mantenimientos']`.
 
 Son incorrectas contra este modelo, y fallan en ejecución, todas estas variantes:
 
@@ -283,15 +318,25 @@ y no donde está el activo; esa confusión es la que dejó a usuarios y activos 
 disjuntos.
 
 **El cableado no basta para que el geofencing funcione, y el radio poblado tampoco.** Lo que falta
-es la coordenada del activo, y eso **no ha cambiado**:
+es la coordenada del activo, y eso **no ha cambiado en el fondo, aunque sí en la forma**:
 
-- Los **34 activos de fixture** comparten la coordenada `4.728512, -74.114531`, en Bogotá.
-- Los **355 sintéticos** llevan coordenadas distintas repartidas sobre el corredor, pero son
-  generadas: **ninguna es el sitio real del equipo.**
+- `ACT_Activos` tiene **368 filas**: **34** del inventario real y **334** sintéticos, que se
+  reconocen porque su `Observaciones` dice `ACTIVO SINTETICO DE PRUEBA - NO ES INVENTARIO REAL`.
+- Las **368** tienen `Ubicacion_LatLong` poblada y **las 368 son distintas**. Ya no hay 34 puntos
+  idénticos en Bogotá: esa descripción quedó obsoleta el 2026-08-10, cuando `generar_plantilla.py`
+  pasó a **derivar la coordenada del `PK`** proyectándolo sobre el trazado del corredor.
+- **Derivada no es levantada.** Ninguna de las 368 es el sitio real del equipo.
 
-Hasta que se carguen coordenadas reales (D-01), cualquier cierre en la vía queda fuera de rango y
-cualquier cierre en Bogotá queda dentro. **No declares el geofencing operativo por haber puesto la
-regla.**
+Se cuenta así, y no se repite de memoria:
+
+```bash
+python -c "import openpyxl;w=openpyxl.load_workbook('BD/Modelo_Datos_PLANTILLA.xlsx',data_only=True)['ACT_Activos'];h=[c.value for c in w[1]];r=[x for x in w.iter_rows(min_row=2,values_only=True) if x[0]];i=h.index('Ubicacion_LatLong');o=h.index('Observaciones');print(len(r),'filas |',sum(1 for x in r if 'SINTETIC' in str(x[o] or '').upper()),'sinteticos |',len({x[i] for x in r}),'coordenadas distintas')"
+```
+
+Hasta que se carguen coordenadas reales (D-01), la comprobación de distancia al cerrar **no
+significa nada**: dice si el técnico está donde el generador colocó el punto, no donde está el
+equipo. **No declares el geofencing operativo por haber puesto la regla, ni por ver la columna
+llena.**
 
 ## 7. Estado: no vive en este archivo
 
@@ -408,23 +453,37 @@ Lo que sí está verificado como resuelto: `Coordenadas_Cierre_LatLong` y `Preci
 de esa tabla se deriva, no se cita de memoria** —el modelo declara hoy 23— porque esa cifra cambió
 tres veces y cada versión sobrevivió en algún documento.
 
-## 7.4 Los cinco verificadores, y qué mide cada uno
+## 7.4 Los seis verificadores, y qué mide cada uno
 
-Ninguno sustituye a otro. Los cinco se corren antes de dar nada por cerrado.
+Ninguno sustituye a otro. Los seis se corren antes de dar nada por cerrado.
 
 | Script | Mide | Cuándo falla |
 |---|---|---|
 | `validar_modelo.py` | El modelo consigo mismo: tipos, claves, rutas de desreferencia, reglas | Siempre. Es el único gate objetivo del pipeline |
-| `verificar_faseA.py` | El modelo contra **la hoja descargada** | Al cerrar una fase de datos |
+| `verificar_faseA.py` | El modelo contra **la hoja descargada**: estructura, tipos, pestañas | Al cerrar una fase de datos |
+| `verificar_datos.py` | **Los datos** de esa misma hoja: obligatorias vacías, referencias huérfanas, homogeneidad de tipo | Al entregar o publicar la plantilla |
 | `verificar_documentos.py` | **La prosa** contra el modelo | Al escribir o tocar cualquier `.md` |
 | `verificar_enlaces.py` | Que todo enlace relativo entre documentos **resuelve** | Al mover, renombrar o retirar cualquier documento |
 | `verificar_reproducible.py` | Que **generar la plantilla dos veces dé lo mismo** | Al tocar cualquier generador |
 
-**El cuarto se añadió el 2026-08-09, y nació de un fallo concreto.** Al retirar 15 documentos a
-`docs/historico/` quedaron **31 enlaces rotos**, y se encontraron leyéndolos uno a uno. Un enlace
-roto no es cosmético: manda a quien retoma el proyecto a un documento que no existe, y lo que hará
-entonces es guiarse por el que sí encuentre, que suele ser el viejo. **Mover un documento es la
-operación que más silenciosamente rompe cosas**, y era la única que no tenía red.
+**`verificar_enlaces.py` se añadió el 2026-08-09, y nació de un fallo concreto.** Al retirar 15
+documentos a `docs/historico/` quedaron **31 enlaces rotos**, y se encontraron leyéndolos uno a uno.
+Un enlace roto no es cosmético: manda a quien retoma el proyecto a un documento que no existe, y lo
+que hará entonces es guiarse por el que sí encuentre, que suele ser el viejo. **Mover un documento
+es la operación que más silenciosamente rompe cosas**, y era la única que no tenía red.
+
+**`verificar_datos.py` es el sexto y se añadió el 2026-08-10**, por el hueco que los otros cinco
+compartían: **ninguno abría el archivo de datos para mirar si las columnas estaban pobladas.** Ocho
+cambios pasaron los cinco en verde y tres eran defectuosos, entre ellos
+`ACT_Activos.Ubicacion_LatLong` vacía en las 368 filas siendo la columna que RG-01 desreferencia.
+`DISTANCE()` contra blanco no da error: da un valor que rechaza el cierre legítimo. Su propio
+encabezado explica cuál de los cinco dejaba pasar cada cosa.
+
+**Hay además un auditor que no es un verificador:** `scripts/auditar_cableado.py` compara el
+cableado **real de la aplicación** contra el que declara el modelo, leyendo por la API. No entra en
+la lista porque no mide el repositorio contra sí mismo sino contra producción, **escribe en el
+repositorio** (`docs/CORRECCIONES_CABLEADO.md`) y hay referencias de las que **no puede decir nada**.
+Su método está asentado en `docs/BASE_CONOCIMIENTO_APPSHEET.md` §16, con sus límites.
 
 **Lo que ninguno mide es si algo es buena idea.** Para eso está el arquitecto, y por eso su
 veredicto no se sustituye por «los scripts pasan».
@@ -452,10 +511,29 @@ tablas a crear. **Vuelca `MODELO` antes de proponer una tabla.**
 
 ## 7.6 Los documentos de contexto no son la vara
 
-`contexto/` tiene **ocho archivos**, de los que `docs/CONTEXTO_OPERACION.md` §1 cataloga siete; el
-octavo, `MATRIZ_MANTENIMIENTO_SISGA_2026.xlsx`, no está en esa tabla. **Tres no son del Sisga**: el
-PDF de ETRA y el informe de enero de 2025 son del corredor Neiva–Girardot, y la propuesta de la
-manta es de INDRA en otra doble calzada. Su procedencia está etiquetada en ese mismo documento.
+`contexto/` tiene **ocho archivos sueltos más la carpeta `SISGA Contrato/`, con cinco PDF**: el
+acta de inicio, el contrato en su parte general y especial, los apéndices 1 y 2, los apéndices 3 al
+9 y los otrosíes 1 a 11. Trece piezas en total, no ocho. Se cuenta, no se recuerda:
+
+```bash
+python -c "import os;r='contexto';print(sum(1 for x in os.listdir(r) if os.path.isfile(os.path.join(r,x))),'sueltos +',{d:len(os.listdir(os.path.join(r,d))) for d in os.listdir(r) if os.path.isdir(os.path.join(r,d))})"
+```
+
+De los ocho sueltos, `docs/CONTEXTO_OPERACION.md` §1 cataloga siete; el octavo,
+`MATRIZ_MANTENIMIENTO_SISGA_2026 (1).xlsx`, no está en esa tabla. **Y la carpeta del contrato
+tampoco está catalogada en ningún sitio**, que es lo que hay que saber antes de fiarse de ese §1
+como inventario.
+
+**Tres de los sueltos no son del Sisga**: el PDF de ETRA y el informe de enero de 2025 son del
+corredor Neiva–Girardot, y la propuesta de la manta es de INDRA en otra doble calzada. Su
+procedencia está etiquetada en ese mismo documento.
+
+**Los cinco PDF de `SISGA Contrato/` son harina de otro costal y conviene no mezclarlos con el
+resto:** son la fuente contractual de esta Concesión, no ejemplos de otro corredor. Aun así **no
+se han vaciado contra el modelo** y esta regla —«no es la vara»— se escribió para el material de
+ejemplo, no para el contrato. Lo que el contrato exija es una obligación, no un supuesto; hasta
+que alguien lo lea y lo destile, **lo prudente es no citarlo de oídas en ninguna de las dos
+direcciones.**
 
 **Son ejemplos que dan contexto, no obligaciones contractuales.** De ellos se copia método. Ninguna
 cifra ni estructura suya se convierte en requisito del Sisga sin que operación lo confirme: entra
@@ -483,8 +561,9 @@ respecto a un estado concreto. Sin esa referencia, la lista se aplica a un estad
 un resultado incompleto que nadie detecta.
 
 **Cuando una especificación y `modelo_objetivo.py` discrepan, manda el modelo.** La especificación
-se generó de él en un momento dado; el modelo es lo que hay. `MODELO` tiene 38 columnas con `ref=`,
-y ese número no opina:
+se generó de él en un momento dado; el modelo es lo que hay. `MODELO` tiene hoy **39** columnas con
+`ref=` —eran 38 cuando se escribió este apartado, y el propio apartado es la razón de que aquí no se
+cite el número sino el comando—:
 
 ```bash
 python -c "import sys;sys.path.insert(0,'scripts');import modelo_objetivo as M;print(sum(1 for d in M.MODELO.values() for c in d['columnas'] if c.get('ref')))"
@@ -529,12 +608,17 @@ Y las trampas son **tres**, derivadas del archivo. Las conte de memoria en vez d
 `OT_OrdenesTrabajo.FormularioID`, `CHK_Checklists.ActivoID` y `CHD_ChecklistDetalle.TipoRespuestaID`:
 retiradas del modelo, pero con nombre de clave de otra tabla, así que invitan a cablearlas.
 
-**El «47» es correcto, y su historia es la mejor ilustración de la regla.** No sale de una sola
-estructura: son **43** de `CAMPOS_RETIRADOS` más **4** de `COLUMNAS_SIN_DECIDIR`. Quien volcaba solo
-la primera obtenía 43 y creía haber pillado un error; quien contaba la hoja obtenía 47. Las dos
-cuentas eran ciertas y el desacuerdo señalaba un hueco real: dos columnas de la hoja
+**El «47» fue correcto en su día, y su historia es la mejor ilustración de la regla.** No salía de
+una sola estructura: eran **43** de `CAMPOS_RETIRADOS` más **4** de `COLUMNAS_SIN_DECIDIR`. Quien
+volcaba solo la primera obtenía 43 y creía haber pillado un error; quien contaba la hoja obtenía 47.
+Las dos cuentas eran ciertas y el desacuerdo señalaba un hueco real: dos columnas de la hoja
 —`FRM_Formularios.Orden` y `FRM_Preguntas.ValorDefecto`— que el modelo no mencionaba de ninguna
 forma. **Se cerró declarándolas en la fuente**, no ajustando la cifra en los documentos.
+
+**Y por eso hoy la cifra es otra: 48.** Al declararlas en la fuente, `COLUMNAS_SIN_DECIDIR` se vació
+—vale `{}`— y `CAMPOS_RETIRADOS` absorbió su contenido, que es exactamente lo que se pretendía. Que
+este apartado siguiera diciendo 47 después de arreglar aquello es la misma deriva que denuncia: una
+cifra correcta el día que se escribió y falsa dos días después.
 
 Se deriva con una línea, y nunca se repite de memoria:
 
@@ -618,6 +702,11 @@ SedeID             Number   el modelo la declara Text
 Ubicacion          Text     es una coordenada
 UnidadFuncionalID  Number   tiene que ser Ref
 ```
+
+Ese volcado es **literal del editor aquel día** y por eso conserva `Ubicacion` a secas. **La columna
+se llama hoy `Ubicacion_LatLong`**: al buscarla en el editor, busca el nombre nuevo. Se deja el
+transcrito sin retocar porque falsearlo destruiría lo único que prueba —qué vio AppSheet—, pero un
+nombre viejo dentro de una cita sigue mandando a la gente a una columna que ya no existe.
 
 **El peor es `TramoINVIAS`.** Los tramos de INVIAS de este corredor son `55CN03`, `5607` y `5608`.
 Dos de los tres son numeros y uno no. Como el unico dato cargado hoy es `5607`, AppSheet la tipa

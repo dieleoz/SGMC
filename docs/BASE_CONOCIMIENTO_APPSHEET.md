@@ -18,7 +18,8 @@ del pipeline, y de él salieron dos correcciones que ninguna otra comprobación 
 
 **Antes de escribir una regla, un tipo o un paso que dependa del comportamiento de AppSheet, se
 busca aquí.** Si no está, se busca la página oficial y se añade. Si no se encuentra, se declara como
-supuesto en la tabla del final — nunca se afirma de memoria.
+supuesto en la sección **«Lo que sigue SIN verificar contra la fuente»** — nunca se afirma de
+memoria.
 
 Para añadir una entrada: cita textual, URL, y **qué sostiene**. Sin la tercera columna la entrada no
 sirve para planificar.
@@ -41,6 +42,14 @@ sirve para planificar.
 | 10 | `LatLong` son grados decimales; el espacio tras la coma no es significativo | Formato de las filas `TEST-`, **P-04** | Confirmado |
 | 11 | *Regenerate* **fusiona**, no reemplaza: conserva las columnas viejas | Explica por que la Fase B no era cablear 15 columnas | Confirmado |
 | 12 | AppSheet **ignora las pestañas ocultas** de un libro | Explica por qué solo cargaban 24 de 32 tablas | Confirmado en la práctica |
+| 13 | AppSheet infiere el tipo de **cada** columna de los datos, no de la hoja | `F-20`, la resiembra de claves con prefijo, `CLAUDE.md` §7.12 | Confirmado |
+| 14 | Cómo sondear el tipo de una columna sin abrir el editor, y hasta dónde vale | Que la clave de las seis tablas de movimiento quedara `Text` | Confirmado con reserva declarada |
+| 15 | Los desplegables de tipo del editor son controles nativos `<select>` | Que el cableado se pueda automatizar sin clics a ciegas | Confirmado en la práctica |
+| 16 | La columna virtual inversa delata la referencia, **y delata más cuanto peor está el cableado** | `scripts/auditar_cableado.py` y sus tres límites; `CLAUDE.md` §7.4 | Confirmado en la práctica |
+
+**El índice llega hasta donde llega el documento.** Los puntos 13 a 16 se añadieron después de la
+sección «Lo que sigue SIN verificar contra la fuente», así que **esa tabla ya no está al final**:
+búsquela por su título.
 
 ---
 
@@ -425,3 +434,113 @@ automatización quita los clics, no la verificación.
 Y va con su riesgo propio: **la interfaz deja de protegerte**. Un valor equivocado aplicado en serie
 se aplica en serie. Por eso conviene ir tabla por tabla y guardar en cada una, en vez de encadenar
 las 28 y descubrir el error al final.
+
+---
+
+## 16. La columna virtual inversa delata la referencia — y delata más cuanto peor está el cableado
+
+**Observado en la aplicación el 2026-08-10.** Es el método con el que hoy se audita el cableado,
+implementado en `scripts/auditar_cableado.py`. Se asienta aquí porque mientras viva solo en la
+cabeza de quien lo usó es memoria, no conocimiento — y porque **su límite es más importante que su
+alcance**.
+
+### El hecho
+
+Al definir una `Ref` a mano, AppSheet crea en la tabla **destino** una columna virtual inversa:
+
+| Situación | Cómo se llama la inversa |
+|---|---|
+| Una sola referencia entre ese par de tablas | `Related <Origen>` |
+| Varias referencias entre el mismo par | `Related <Origen> By <Columna>` |
+
+Es el mismo mecanismo del punto 5 —AppSheet añade columnas virtuales solo, y las de referencia
+salen de las referencias— visto desde el otro lado: aquí no interesa que existan, interesa **cómo
+se llaman**.
+
+**Y al corregir una `Ref` mal puesta, esa inversa desaparece.** Observado sobre `SED_Sedes`, que
+pasó de **seis** inversas `By …` a **una sola**. Las seis venían todas de `ACT_Activos`: la
+legítima `SedeID`, más las cinco que el editor había dejado apuntando a `SED_Sedes` al guardar —tres
+columnas de texto convertidas en `Ref` y dos referencias con la tabla destino equivocada—. Al
+corregir las cinco, las cinco inversas se fueron con ellas y la que quedó ya no necesita
+desambiguar: hoy el modelo declara **una única** referencia hacia `SED_Sedes`.
+
+```bash
+python -c "import sys;sys.path.insert(0,'scripts');import modelo_objetivo as M;print([(t,c['nombre']) for t,d in M.MODELO.items() for c in d['columnas'] if c.get('ref')=='SED_Sedes'])"
+```
+
+### Por qué esto permite auditar sin leer el esquema
+
+**La API v2 devuelve filas, no esquema** (punto 14): no hay forma de preguntarle de qué tipo es una
+columna. Pero las columnas virtuales **sí viajan en las filas**, así que el grafo de referencias se
+reconstruye leyendo los nombres de columna de cada tabla poblada. Es una lectura indirecta y hay
+que decirlo: **se mide la consecuencia de la referencia, no la referencia.**
+
+Así se encontró que `ACT_Activos.TipoActivoID` apuntaba a `SED_Sedes` mientras `validar_modelo.py`
+daba APTO, la API contestaba 28/28 y las 368 filas seguían ahí.
+
+### La consecuencia que casi se pasa por alto
+
+**El método es más fuerte cuando el cableado está MAL y más débil cuando está bien.**
+
+Varias referencias al mismo destino obligan a AppSheet a desambiguar con ` By `, y **ese sufijo es
+lo único que identifica la columna**. Cuando todo está bien, cada par suele tener una sola
+referencia, la inversa dice solo la tabla, y atribuirla a una columna concreta exige preguntárselo
+**al modelo** — que es justo lo que se quería verificar. **Eso es inferencia circular, y hay que
+decirlo en voz alta:** prueba «existe alguna referencia a ese destino», nunca «está en esa
+columna». Si alguien pusiera la referencia correcta en la columna equivocada, la inversa se
+llamaría igual y la auditoría diría que está bien.
+
+No es una hipótesis: se cuenta sobre el modelo de hoy. De las **39** referencias declaradas, solo
+**3** conviven con otra hacia el mismo destino desde la misma tabla —`TecnicoID`, `SupervisorID` y
+`CerradaPor`, las tres de `OT_OrdenesTrabajo` hacia `USR_Usuarios`—. Las otras **36** son la única
+referencia de su par, así que **de ninguna de ellas puede este método nombrar la columna**.
+
+```bash
+python -c "import sys;sys.path.insert(0,'scripts');import modelo_objetivo as M;from collections import defaultdict;p=defaultdict(list);[p[(t,c['ref'])].append(c['nombre']) for t,d in M.MODELO.items() for c in d['columnas'] if c.get('ref')];print('atribuibles',sum(len(v) for v in p.values() if len(v)>1),'| no atribuibles',sum(1 for v in p.values() if len(v)==1))"
+```
+
+**Dicho de otro modo: el día que el cableado quede perfecto, este método deja de poder demostrarlo.**
+Por eso `auditar_cableado.py` no imprime un único total: separa las **verificadas** —la aplicación
+nombra la columna— de las **compatibles, no atribuidas** —la aplicación nombra la tabla y quien
+nombra la columna es el modelo—. Sumarlas en una sola cifra convertiría 3 pruebas y 30 suposiciones
+en «33 correctas», que es la clase de recuento que produjo el «39/39 asignadas» del que salió todo
+esto.
+
+### El segundo agujero: un destino vacío no devuelve nada
+
+**La columna virtual vive en el DESTINO.** Si la tabla destino no tiene filas, la API no devuelve
+ninguna fila y por tanto ningún nombre de columna: de esas referencias el método **no puede decir
+nada**. No las da por buenas ni por malas — las separa. Hoy son las **6** que apuntan a
+`OT_OrdenesTrabajo`, `MAN_Mantenimientos` y `CHK_Checklists`, que están vacías a propósito.
+
+**Confundir «no lo puedo ver» con «está bien» es exactamente como se llegó aquí.**
+
+Para esas seis solo hay dos salidas, y **no valen lo mismo**. Sembrar una fila en la tabla destino
+y volver a correr las vuelve **medibles**. Abrirlas en el editor una por una las deja **miradas**,
+que es mejor que nada y peor que una medición: por eso se anotan aparte, con fecha y con quién las
+miró, y **no ascienden a verificadas**. Una confirmación visual además caduca sola —si alguien
+vuelve a cablear, habla de un estado anterior—, y de ahí que lleve fecha.
+
+### El tercero: la inversa tiene papelera
+
+El punto 11 lo dice al describir por qué las columnas reales no se pueden borrar una a una:
+**solo las virtuales tienen papelera.** Las demás vienen de la hoja y AppSheet no ofrece esa
+opción.
+
+**Para este método eso es una vía de fallo silencioso.** Una inversa borrada a mano deja la `Ref`
+de origen **viva y funcionando**, pero invisible para la auditoría: el script leerá las filas del
+destino, no encontrará esa columna, y clasificará la referencia como *declarada y ausente*. Emitirá
+entonces la instrucción de **poner una `Ref` que ya está puesta**.
+
+Y ese es el modo de fallo peor de los tres, porque los otros dos producen una lectura incompleta
+—que el script sabe declarar— mientras este produce **una lectura equivocada**, que se ejecuta con
+la misma confianza que una buena. Antes de creerse un «declarada y ausente», mírese en
+`Data > Columns` si la columna ya es `Ref`, y en la papelera de columnas virtuales del destino si
+falta su inversa.
+
+### Qué sostiene
+
+**El método de auditoría de cableado entero**, y `CLAUDE.md` §7.4, donde `auditar_cableado.py`
+figura aparte de los seis verificadores precisamente por estos tres límites. Sostiene también que
+`docs/CORRECCIONES_CABLEADO.md` **se genere y no se escriba**: el reparto entre verificadas,
+compatibles, ciegas y ausentes cambia con cada corrección y no se puede mantener a mano.

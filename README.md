@@ -9,8 +9,22 @@ eléctrica y de TI del corredor vial de la **Concesión Transversal del Sisga S.
 > `ESTADO.md` dice en qué punto está hoy, qué falta y quién lo bloquea. Si los dos discrepan, manda
 > `ESTADO.md`.
 >
-> En una frase, a 2026-08-10: **la hoja de datos está terminada y verificada. La aplicación tiene las
-> 28 tablas dadas de alta y nada más: falta cablearla entera.**
+> En una frase, a 2026-08-10: **la hoja de datos está terminada y verificada; la aplicación está a
+> medio cablear.** Las 28 tablas están dadas de alta y las referencias se están reponiendo una a una.
+>
+> **Dónde está el Excel:** [`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTILLA.xlsx). La
+> plantilla sale entera de `python scripts/generar_plantilla.py` y es el mismo archivo publicado como
+> `Modelo_Datos_10082026`, que es la hoja que la aplicación lee. **No se edita a mano.**
+>
+> **Con qué comando se pregunta el estado real del cableado:**
+>
+> ```bash
+> python scripts/auditar_cableado.py
+> ```
+>
+> Lee la aplicación en vivo y reemite [`docs/CORRECCIONES_CABLEADO.md`](docs/CORRECCIONES_CABLEADO.md)
+> con lo que quede pendiente. **Ningún documento generado desde el modelo sabe qué está cableado**: el
+> modelo declara lo que tiene que existir, no lo que existe.
 
 Construida sobre **Google AppSheet** con backend en **Google Sheets**. Sin servidores propios,
 sin compilación de APK, sin Play Console: los técnicos instalan la app de AppSheet e inician
@@ -60,8 +74,13 @@ veían el checklist equivocado. La lista sale de `scripts/catalogo_tipos.py`, qu
 - **TI**, 9 — Servidores, NAS, switches, switches de capa 3, routers, firewalls, videowall,
   computadores portátiles, impresoras
 
-> **Ninguna coordenada es la real.** Los 368 activos tienen sus coordenadas calculadas sobre el
-> trazado del corredor. Cargar las reales es el bloqueante D-01 para salir a campo.
+> **Ninguna coordenada es la real.** `ACT_Activos.Ubicacion_LatLong` está poblada en las **368 de
+> 368** filas y sus **368 valores son distintos**, pero ninguno se levantó en campo: cada uno se
+> **deriva del `PK`** sobre el trazado del corredor, y se vuelve a derivar en **cada pasada** de
+> `generar_plantilla.py`. Esa es la razón de que el renombrado de `Ubicacion` a `Ubicacion_LatLong`,
+> que el 2026-08-10 dejó la columna vacía en las 368, no costara más que volver a generar: **un dato
+> derivable no se conserva, se vuelve a derivar.** Cargar las reales es el bloqueante D-01 para salir
+> a campo, y se comprueba con `python scripts/verificar_datos.py`.
 
 ## 3. Actores
 
@@ -120,7 +139,8 @@ La fuente única es **[`scripts/modelo_objetivo.py`](scripts/modelo_objetivo.py)
 la validación, el diccionario, el manual de despliegue y la plantilla de datos. **Nada se documenta
 a mano.**
 
-**28 tablas · 205 columnas · 39 referencias · 21 reglas.**
+**28 tablas · 211 columnas · 39 referencias · 21 reglas.** La cifra sale de
+`python scripts/validar_modelo.py`, que la imprime en su primera línea; no se cita de memoria.
 
 | Documento | Qué describe |
 |---|---|
@@ -178,18 +198,25 @@ La tabla `GPS` **se retiró**: la traza de posición vive en las columnas de cap
 
 ### Regla de geofencing
 
-`ACT_Activos` guarda un único campo `Ubicacion` de tipo LatLong. No hay columnas `Latitud` y
-`Longitud` separadas. El radio sale del tipo de activo, porque una subestación y un poste SOS no
-admiten la misma tolerancia:
+`ACT_Activos` guarda un único campo `Ubicacion_LatLong` de tipo LatLong —el sufijo está en el nombre
+para que AppSheet acierte el tipo solo—. No hay columnas `Latitud` y `Longitud` separadas. El radio
+sale del tipo de activo, porque una subestación y un poste SOS no admiten la misma tolerancia:
 
 ```
 DISTANCE([Coordenadas_Cierre_LatLong], [OTID].[ActivoID].[Ubicacion_LatLong]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]
 ```
 
-**No está cableada en la aplicación.** La app tiene hoy las 28 tablas dadas de alta y nada más
-—ver [`ESTADO.md`](ESTADO.md)—; esta regla, el `Editable_If = FALSE` de las cuatro columnas de
-captura y el resto de las 21 reglas están escritas y listas para reponer en
-[`docs/sdd/RECONSTRUCCION_EXPRESIONES.md`](docs/sdd/RECONSTRUCCION_EXPRESIONES.md).
+**No está cableada en la aplicación, y ninguna de las 21 reglas lo está.** Todas están escritas y
+listas para reponer en
+[`docs/sdd/RECONSTRUCCION_EXPRESIONES.md`](docs/sdd/RECONSTRUCCION_EXPRESIONES.md), junto con el
+`Editable_If = FALSE` de las cuatro columnas de captura. **Pero antes van las referencias que la
+expresión atraviesa** —orden → activo → tipo—, porque una referencia mal puesta no hace fallar la
+regla: la hace resolver contra lo que no es. El 2026-08-10 `ACT_Activos.TipoActivoID` apuntaba a
+`SED_Sedes`, y esta misma expresión fallaba con
+`Can't find column "RadioGeofencingKm" in table "SED_Sedes"` — un mensaje que invita a reescribir
+una expresión correcta para acomodarla a un cableado roto. **Cuáles faltan hoy no lo dice este README
+ni ningún documento generado del modelo**: lo dice `python scripts/auditar_cableado.py` leyendo la
+aplicación.
 
 **Lo que sí está resuelto es el dato.** En
 [`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTILLA.xlsx) —el mismo archivo publicado
@@ -198,8 +225,12 @@ como `Modelo_Datos_10082026`— `TIP_TiposActivo.RadioGeofencingKm` trae valor e
 mensaje variable, básculas, peajes, generador y subestación— y 1,5 km en el tramo de fibra, que es
 lineal.
 
-**Y aunque se cablee, falta la coordenada real del activo** (bloqueante D-01). Sin ella, cualquier
-cierre queda dentro o fuera de rango por azar, no por la posición real del técnico.
+**Y aunque se cablee, falta la coordenada real del activo** (bloqueante D-01). La columna ya no está
+vacía —las 368 traen su punto derivado del `PK`—, y **eso se lee peor, no mejor**: la regla compara
+contra un punto que está sobre la vía pero no frente al equipo, así que con radios de 0,05 km en 18
+de los 27 tipos **rechaza el cierre legítimo, igual que cuando estaba vacía, pero ya no hay una celda
+en blanco que lo delate**. Publicar antes de cargar las coordenadas reales entrega un sistema donde
+ningún técnico puede cerrar una orden, y se descubre con el técnico delante.
 
 ## 6. Estado, hallazgos y bloqueantes
 
@@ -208,6 +239,7 @@ Todos en [`ESTADO.md`](ESTADO.md), que se actualiza; aquí no, para que no se co
 | Si necesita | Lea |
 |---|---|
 | Qué está hecho y qué falta hoy | [`ESTADO.md`](ESTADO.md) |
+| **Qué está cableado en la aplicación** | `python scripts/auditar_cableado.py`. **No lo sabe ningún documento**; su salida queda en [`docs/CORRECCIONES_CABLEADO.md`](docs/CORRECCIONES_CABLEADO.md) |
 | Qué le toca a usted según su rol | [`docs/INDICACIONES_POR_ROL.md`](docs/INDICACIONES_POR_ROL.md) |
 | Qué hace el sistema, para quién y cómo | [`docs/FUNCIONAL_SGMC.md`](docs/FUNCIONAL_SGMC.md) |
 | Cómo se construye o configura la app | [`docs/MANUAL_DESPLIEGUE.md`](docs/MANUAL_DESPLIEGUE.md) |
@@ -222,7 +254,7 @@ Todos en [`ESTADO.md`](ESTADO.md), que se actualiza; aquí no, para que no se co
 El método vigente es SDD, descrito en [`docs/SDD_PIPELINE_SGMC.md`](docs/SDD_PIPELINE_SGMC.md):
 especificar, probar y aprobar antes de tocar producción. `python scripts/validar_modelo.py` en 0 errores es el único gate objetivo.
 
-Los cinco verificadores, que no se sustituyen entre sí:
+Los **seis** verificadores, que no se sustituyen entre sí:
 
 | Script | Mide |
 |---|---|
@@ -230,6 +262,27 @@ Los cinco verificadores, que no se sustituyen entre sí:
 | [`scripts/verificar_faseA.py`](scripts/verificar_faseA.py) | El modelo contra la hoja descargada |
 | [`scripts/verificar_documentos.py`](scripts/verificar_documentos.py) | La prosa contra el modelo |
 | [`scripts/verificar_enlaces.py`](scripts/verificar_enlaces.py) | Que todo enlace relativo entre documentos resuelve |
+| [`scripts/verificar_reproducible.py`](scripts/verificar_reproducible.py) | Que generar la plantilla dos veces dé el mismo archivo |
+| [`scripts/verificar_datos.py`](scripts/verificar_datos.py) | Que **los datos** sostienen lo que el modelo declara |
+
+**El sexto se añadió el 2026-08-10, y tapa el hueco que los otros cinco compartían: ninguno abría el
+archivo de datos.** `verificar_datos.py` mira si las columnas obligatorias están pobladas en las
+tablas que tienen filas, y si las 39 referencias resuelven **contra los valores reales**. Por ese
+hueco se colaron tres defectos el mismo día, en verde: `Ubicacion_LatLong` vacía en las 368,
+`SED_Sedes.UnidadFuncionalID` vacía en 5 de 6 y `ACT_Activos.SedeID` vacía en las 368.
+
+**Ninguno de los seis mira la aplicación.** Para eso hay un séptimo script, que no es un verificador
+del modelo sino un **auditor del cableado real**:
+
+| Script | Mide |
+|---|---|
+| [`scripts/auditar_cableado.py`](scripts/auditar_cableado.py) | El cableado **real** de la aplicación contra el modelo. Emite [`docs/CORRECCIONES_CABLEADO.md`](docs/CORRECCIONES_CABLEADO.md) |
+
+Existe porque el 2026-08-10 el cableado se reportó como «39/39 asignadas» y no lo estaba: dos
+referencias apuntaban a `SED_Sedes` en vez de a `CAL_Calzadas` y a `TIP_TiposActivo`, y tres columnas
+de texto se habían convertido en `Ref`. **Nada lo detectó**: `validar_modelo.py` daba `APTO`, la API
+respondía 28/28 y las 368 filas seguían ahí. Es la regla `R-04` —*una referencia que resuelve puede
+apuntar a lo que no es*—, y preguntar «apunta a algo» nunca contesta «apunta a lo correcto».
 
 ## 8. Organización del repositorio
 
@@ -244,9 +297,8 @@ docs/          Documentación técnica y funcional
   images/      Figuras de los documentos
   sdd/         Artefactos del pipeline: ESPEC, PRUEBA y RECONSTRUCCION_EXPRESIONES
 Manuales/      Manual de usuario
-entregables/   Word y Excel listos para enviar al cliente
-scripts/       Fuente del modelo, validadores y generadores
-contexto/      Material de contexto operativo. No es la vara
+scripts/       Fuente del modelo, validadores, generadores y el auditor de cableado
+contexto/      Material de contexto operativo. No es la vara, y no se versiona
 archivo/       Material de origen, no versionado
 ```
 
@@ -273,14 +325,19 @@ archivo/       Material de origen, no versionado
 
 **Entregables al cliente**
 
+**Hoy el repositorio tiene un solo entregable, y es de datos:**
+
 | Archivo | Estado |
 |---|---|
-| [`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTILLA.xlsx) | **El entregable de datos.** Generado del modelo: 28 pestañas de datos más `_LEEME`, 205 columnas, ninguna de sobra. 27 tipos de activo, 27 formularios y 368 activos |
-| `entregables/Propuesta_Arquitectura_SGMC.docx` | Enviado a Dirección y al funcional. Describe el alcance anterior al QR retirado |
-| `entregables/Definicion_Funcional_SGMC_Mesa_de_Trabajo.docx` | Enviado. 14 decisiones con propuesta marcada, hoy adoptadas como supuestos |
-| `entregables/CORREO_ENVIO_MESA_DE_TRABAJO.md` | Texto del correo de envío |
-| `entregables/Especificaciones_Tecnicas_SGMC_AsBuilt.docx` | v2.0. **Desactualizado**: describe el modelo anterior a la reconstrucción |
-| `entregables/Modelo_Datos_SGMC_AsBuilt.xlsx` | Copia publicada del maestro anterior. Sustituida por la plantilla |
+| [`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTILLA.xlsx) | **El entregable de datos.** Generado del modelo: 28 pestañas de datos más `_LEEME`, 211 columnas, ninguna de sobra. 27 tipos de activo, 27 formularios y 368 activos |
+
+> **La carpeta `entregables/` ya no existe en el repositorio.** Sus cinco archivos —la propuesta de
+> arquitectura, la definición funcional de la mesa de trabajo, el correo de envío, las
+> especificaciones As-Built v2.0 y el modelo de datos As-Built— **se retiraron en la limpieza del
+> 2026-08-10**, con el resto del material que describía aplicaciones y hojas superadas. Los dos Word
+> ya se habían enviado y no se reenvían; sus catorce decisiones viven hoy como supuestos adoptados en
+> [`docs/ALCANCE_Y_SUPUESTOS_SGMC.md`](docs/ALCANCE_Y_SUPUESTOS_SGMC.md). Se comprueba con
+> `git log --diff-filter=D --name-only -- 'entregables/*'`.
 
 ## 9. Enlaces
 

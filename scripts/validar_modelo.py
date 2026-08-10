@@ -16,6 +16,7 @@ from collections import defaultdict
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from modelo_objetivo import (MODELO, TIPOS, GRUPOS, RETIRADAS, CAMPOS_RETIRADOS, REGLAS,
                              RENOMBRADOS, RETIPADOS, CLAVE_LEGIBLE,
+                             CLAVE_ES_LA_PALABRA,
                              CLAVE_GENERADA)
 
 errores, avisos = [], []
@@ -206,9 +207,16 @@ def _revisar_literales(ident, tabla, expresion):
         if not c or c["tipo"] != "Ref":
             continue
         destino = c.get("ref")
-        # Contra un catalogo de clave legible la comparacion es CORRECTA: la
-        # clave es la palabra. EOT_EstadosOrden se construyo asi a proposito.
-        if destino in CLAVE_LEGIBLE and destino not in CLAVE_GENERADA:
+        # Contra un catalogo cuya clave ES la palabra, la comparacion es
+        # CORRECTA. EOT_EstadosOrden se construyo asi a proposito.
+        #
+        # Se pregunta a CLAVE_ES_LA_PALABRA, no a CLAVE_LEGIBLE. Preguntarselo a
+        # la segunda es lo que apago esta regla el 2026-08-10: la resiembra metio
+        # EST_Activo en CLAVE_LEGIBLE -clave EST-01..EST-04- y con eso V-17 dejo
+        # de cazar [EstadoActivoID] <> "Retirado", que es el defecto para el que
+        # nacio. Una lista que responde "como se ve la clave" no puede responder
+        # tambien "contra que se puede comparar".
+        if destino in CLAVE_ES_LA_PALABRA:
             continue
         pk = next((x["nombre"] for x in MODELO[destino]["columnas"] if x.get("pk")), "?")
         error("V-17", f"{ident}: compara {tabla}.{columna} con el literal '{literal}'. "

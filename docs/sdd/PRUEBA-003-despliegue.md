@@ -6,9 +6,9 @@ aplicación existente; esto mide construir una aplicación de cero.
 | | |
 |---|---|
 | Cubre | `docs/MANUAL_DESPLIEGUE.md`, los 10 pasos, y el encargo generado [`../PROMPT_CABLEADO.md`](../PROMPT_CABLEADO.md), que es lo que se ejecuta en el editor |
-| Sustituye a | `PRUEBA-002` en lo que ya no aplica. Nueve de sus 19 se conservan íntegras |
+| Sustituye a | `PRUEBA-002` en lo que ya no aplica. **Diez de sus 19 siguen valiendo**; de esas diez, **nueve se conservan íntegras** y `P-06` pierde una frase. Cuente la columna «Veredicto» de §1: son las que dicen «Vale» |
 | Innegociables | `P-05`, `P-09`, `P-12`, `P-16` y **`P-27`** |
-| Revisado | **2026-08-10.** Las pruebas no cambian; **lo que citan sí**: claves alfanuméricas, columnas de coordenada con sufijo `_LatLong`, 39 referencias y una hoja que ya no tiene ninguna columna de más |
+| Revisado | **2026-08-10 por la tarde.** Las pruebas no cambian; **lo que citan sí**: claves alfanuméricas, columnas de coordenada con sufijo `_LatLong`, 39 referencias, una hoja que ya no tiene ninguna columna de más, las 368 coordenadas repuestas y `RG-21` renumerada a **`RG-34`** |
 
 ## 1. Qué queda de PRUEBA-002
 
@@ -31,6 +31,14 @@ aplicación existente; esto mide construir una aplicación de cero.
 | `P-17` la baja exige fecha | **Reescribir** | **Solo tiene el caso negativo.** No distingue un `Required_If` bien escrito de uno constante `TRUE` |
 | `P-18` GPS deficiente | **Reescribir** | **Sin lectura de vuelta**, y RG-19 es una `App formula` que escribe — ver `P-31` |
 | `P-13` vistas reparadas | **Sobra** | Mide un daño que ya no puede producirse. Sustituida por `P-23` |
+
+**Diecisiete renglones para diecinueve pruebas: 10 «Vale», 6 «Reescribir» y 1 «Sobra».** `P-14` y
+`P-15` **no están en esta tabla y no se dictaminaron**. La única traza que queda de `P-15` es la
+cita del hallazgo 6 de [`../BASE_CONOCIMIENTO_APPSHEET.md`](../BASE_CONOCIMIENTO_APPSHEET.md) —los
+bots programados no corren sin plan de pago ni app desplegada, decisión **D-B**—; de `P-14` no queda
+ninguna. Y **`PRUEBA-002` se retiró del repositorio en la limpieza del 2026-08-10**, así que no se
+recuperan leyéndola: si hacen falta, se vuelven a escribir. Se deja dicho para que la resta cuadre y
+**nadie dé las 19 por dictaminadas**.
 
 ## 2. Tres contradicciones a resolver antes de ejecutar nada
 
@@ -253,12 +261,14 @@ EOF
 > quitado del formulario dos campos que el sistema usa. Es el mismo patrón de siempre: **una lista
 > escrita a mano se desvía del modelo**.
 >
-> Las que sí quedaron sin decidir son cuatro —`USR_Usuarios.UltimaSincronizacion`,
-> `FOT_Fotografias.Fecha`, `FRM_Formularios.Orden` y `FRM_Preguntas.ValorDefecto`—, viven en
-> `COLUMNAS_SIN_DECIDIR` y las avisa la regla `D-06`. **`FOT_Fotografias.Fecha` sigue mereciendo
-> mirada**: el sistema guarda fecha y coordenada por fotografía, y el modelo llama a la suya
-> `FechaHora`. Ninguna de las cuatro está ya en la hoja, así que **no van a aparecer en el editor**;
-> lo que queda de ellas es la decisión, no la columna.
+> Las cuatro que estuvieron sin decidir —`USR_Usuarios.UltimaSincronizacion`,
+> `FOT_Fotografias.Fecha`, `FRM_Formularios.Orden` y `FRM_Preguntas.ValorDefecto`— **ya están
+> decididas: pasaron a `CAMPOS_RETIRADOS` con su motivo escrito, y `D-06` no las avisa porque
+> `COLUMNAS_SIN_DECIDIR` está vacío**. `FOT_Fotografias.Fecha` se retiró por duplicar a `FechaHora`,
+> que es la que vale como evidencia porque la escribe el servidor: dos fechas para el mismo hecho
+> invitan a discutir cuál manda justo cuando hay que probar algo. Ninguna de las cuatro está ya en la
+> hoja, así que **no van a aparecer en el editor**. Si alguna hace falta, se vuelve a declarar en
+> `MODELO` como columna nueva y con su propósito escrito; **no se recupera «porque estaba»**.
 
 ### P-29 — El filtro de seguridad de las órdenes muerde
 
@@ -292,6 +302,117 @@ sin error**.
 hoja: la celda debe valer **TRUE**. Repetir con el de 8 m: **FALSE**. Si en la hoja siguen como
 estaban mientras la vista previa mostraba otra cosa, **la marca de excepción es decorativa**.
 
+### P-32 — `RG-34` impide que el activo y su sede declaren unidades funcionales distintas
+
+**La regla no tenía prueba.** Es un `Valid_If` sobre `ACT_Activos`·`UnidadFuncionalID`, y un
+`Valid_If` **puede impedir guardar la fila**: eso obliga a la tanda de tres clases entera —positiva,
+negativa y lectura de vuelta—, no a una comprobación en pantalla.
+
+> **Se llamó `RG-21` hasta el 2026-08-10.** Se renumeró a **`RG-34`** porque `ESPEC-003` §12.1 ya
+> usaba `RG-21` para el `Valid_If` de `USR_Usuarios.RolID`. **Una cita a `RG-21` en un documento
+> anterior a esa fecha puede referirse a cualquiera de las dos**, y hay que resolverla mirando la
+> tabla y la columna, no el número. La expresión vigente se vuelca, no se cita:
+
+```bash
+python -c "import sys;sys.path.insert(0,'scripts');import modelo_objetivo as M;print([(r['id'],r['tabla'],r['columna'],r['tipo'],r['expresion']) for r in M.REGLAS if r['id']=='RG-34'])"
+```
+
+```
+OR(ISBLANK([SedeID]), [UnidadFuncionalID] = [SedeID].[UnidadFuncionalID])
+```
+
+**El fixture no es libre, y elegirlo mal invierte el resultado de la prueba.** La regla desreferencia
+`SED_Sedes.UnidadFuncionalID`, y esa columna **está poblada en 1 de las 6 sedes**: solo `SED-003`,
+el peaje de Machetá, con `UNF-01`. Si la prueba se monta sobre cualquiera de las otras cinco,
+`[SedeID].[UnidadFuncionalID]` es blanco, la igualdad es falsa **siempre**, y la fila se vuelve
+imposible de guardar: parecería un `Valid_If` roto y sería un dato que falta. Se comprueba antes de
+empezar, y el aviso caduca el 2026-08-31:
+
+```bash
+python scripts/verificar_datos.py
+```
+
+**Y el segundo fixture tampoco existe todavía:** `ACT_Activos.SedeID` **está vacía en las 368 filas**,
+así que hoy la rama `ISBLANK([SedeID])` es verdadera en todas y **la regla no compara nada**. La
+prueba exige poblar `SedeID` en el activo de ensayo; sin eso da verde sin ejercitar la regla, que es
+el defecto de `P-17` otra vez.
+
+**Cómo se ejecuta**, sobre un activo bajo techo —un servidor, un portátil, una impresora—:
+
+| Clase | Caso | Esperado |
+|---|---|---|
+| **Positiva** | `SedeID = SED-003` y `UnidadFuncionalID = UNF-01` | **Guarda.** La igualdad se cumple |
+| **Positiva de control** | `SedeID` en blanco, `UnidadFuncionalID` cualquiera | **Guarda.** Es la rama `ISBLANK`, y sin ella todo el equipo de corredor sería inguardable |
+| **Negativa** | `SedeID = SED-003` y `UnidadFuncionalID = UNF-02` | **No deja guardar**, y el mensaje dice **qué pasa y qué hacer**, en texto plano. Si sale el mensaje por defecto de AppSheet, la prueba **no pasa**: un rechazo incomprensible se resuelve en campo inventándose un valor que sí entre |
+| **Lectura de vuelta** | Leer la hoja después de las tres | La fila positiva está con `UNF-01`; **la negativa no está escrita en ninguna forma**, ni con el valor viejo ni con el nuevo |
+
+> **La lectura de vuelta se hace sobre `Modelo_Datos_10082026`, la hoja publicada, que es donde
+> escribe la aplicación — no sobre `BD/Modelo_Datos_PLANTILLA.xlsx`.** La plantilla local se
+> **regenera del modelo**, así que no recibe lo que escriba la app y volver a generarla borraría el
+> fixture. Vale igual descargar la hoja y pasarle `verificar_faseA.py`, que acepta ruta.
+
+**Criterio de cierre.** Las cuatro filas de la tabla, y la negativa **rechazada con mensaje legible**.
+Sin la lectura de vuelta la prueba no vale: un `Valid_If` que pinta rojo y guarda igual es
+indistinguible en pantalla de uno que bloquea.
+
+### P-33 — Al cablear `EstadoActivoID` se despierta `RG-16`, que **escribe en la hoja**
+
+**Qué demuestra.** Que poner una referencia no es un cambio inerte. `ACT_Activos.EstadoActivoID` es
+una de las que faltaban por cablear el 2026-08-10, y en cuanto queda como `Ref` hacia `EST_Activo`
+resuelve `RG-16`, que es una **`App formula`** sobre `ACT_Activos`·`Activo`:
+
+```
+[EstadoActivoID].[Nombre] <> "Retirado"
+```
+
+**Una `App formula` materializa su valor al guardar**: no pinta la celda, la escribe. Y `Activo`
+está hoy poblada a mano en las 368 filas, así que la regla y el dato **pueden discrepar sin que nadie
+lo pida**.
+
+**A cuántas filas afecta, derivado y no citado:**
+
+```bash
+python -c "import openpyxl,collections;w=openpyxl.load_workbook('BD/Modelo_Datos_PLANTILLA.xlsx',read_only=True,data_only=True)['ACT_Activos'];r=list(w.iter_rows(values_only=True));h=list(r[0]);d=r[1:];i=h.index('EstadoActivoID');a=h.index('Activo');print(len(d),'activos');print(collections.Counter(x[i] for x in d));print([(x[h.index('ActivoID')],x[i],x[a]) for x in d if x[i]!='EST-01'])"
+```
+
+Hoy: **368 activos, y uno solo con `EST-04`** —`Retirado`, según `EST_Activo`—, que es `ACT-0034` y
+**ya trae `Activo = FALSE`**. Los otros 367 están en `EST-01` con `Activo = TRUE`.
+
+**Cómo se ejecuta.**
+
+| Clase | Caso | Esperado |
+|---|---|---|
+| **Positiva** | Abrir `ACT-0034` (`EST-04`) y guardar sin tocar nada | `Activo` sigue en **FALSE**. La regla coincide con el dato |
+| **Negativa** | Poner un activo cualquiera en `EST-04` y guardar; y devolverlo a `EST-01` | `Activo` pasa a **FALSE** y vuelve a **TRUE**. Si no se mueve, la `App formula` no está puesta o `EstadoActivoID` no quedó `Ref` |
+| **Lectura de vuelta** | Leer la hoja tras cada guardado, no la vista previa | La celda de `Activo` cambió **en el archivo** |
+
+**El criterio de cierre tiene una parte que se mide antes de tocar nada:** correr el comando de
+arriba sobre la hoja, cablear `EstadoActivoID`, y volver a correrlo. **Ninguna de las 368 celdas de
+`Activo` debe haber cambiado.** Si alguna cambia, el dato de la hoja y la regla no dicen lo mismo, y
+la regla gana sin avisar.
+
+> **La segunda pasada se hace sobre `Modelo_Datos_10082026` descargada, no sobre
+> `BD/Modelo_Datos_PLANTILLA.xlsx`.** La plantilla local se regenera del modelo y **nunca contiene lo
+> que escriba la aplicación**: correr el comando contra ella después de cablear daría siempre el
+> mismo resultado que antes, y la prueba pasaría sin haber mirado nada. Es el mismo cuidado que pide
+> `P-12`.
+
+**La trampa concreta, que es la Familia C de `P-27`.** Escribir `[EstadoActivoID] = "Retirado"` en
+vez de `[EstadoActivoID].[Nombre] <> "Retirado"` **no da error**: `EstadoActivoID` guarda la clave
+—`EST-04`—, y el texto vive en `Nombre`. Compara constante, devuelve siempre lo mismo, y **al ser
+`App formula` escribe ese resultado en las 368 filas**. Y **`V-17` no lo avisa**, porque exceptúa por
+diseño a las tablas de `CLAVE_LEGIBLE`, que hoy son 22. Aquí la distinción se hace leyendo.
+
+**Y con `RG-16` viva, `RG-18` deja de estar dormida.** `RG-18` es la doctrina de que ningún reporte,
+vista ni slice filtra por `[ActivoID].[Activo]`. Mientras esa columna la escribía una persona y las
+368 filas se dejaban en TRUE, incumplirla no cambiaba ninguna pantalla. **Con la `App formula`
+puesta, `Activo` pasa a ser una consecuencia del estado**, y hay ya una fila donde vale FALSE: un
+reporte que filtre por ahí hará desaparecer los mantenimientos de `ACT-0034` **en cuanto los tenga**
+—hoy `MAN_Mantenimientos` está vacía, así que el defecto se montaría sin dar síntoma y aparecería
+con el primer histórico real, que es la peor forma de descubrirlo—. La comprobación es de
+inventario, no de ejecución, y va en `P-23`, donde se recorren `UX → Views`, `Data → Slices` y
+`Behavior → Actions` anotando la expresión completa de cada uno.
+
 ---
 
 ## 4. P-27 — Barrido de fallos silenciosos
@@ -316,9 +437,12 @@ AppSheet convertía en referencia por su cuenta.
 > peligroso, porque entonces la documentación generada manda ocultar columnas que ya no existen.
 >
 > **La cifra de arriba, «47», era correcta y hoy son 48**, porque `USR_Usuarios.SedeID` pasó a
-> `CAMPOS_RETIRADOS` ese día. Y no sale de una sola estructura: son **44** declaradas más **4** que
-> nadie ha decidido. **Nunca se cita de memoria** —dos caminos daban 43 y 47, y el desacuerdo
-> señalaba un hueco real en el modelo—:
+> `CAMPOS_RETIRADOS` ese día. **Y ya no se reparte entre dos estructuras: las 48 están en
+> `CAMPOS_RETIRADOS` y `COLUMNAS_SIN_DECIDIR` quedó vacío.** Estuvo en **44 + 4** hasta que las
+> cuatro sin decidir dejaron de estar en la hoja: la decisión la tomó la regeneración al dejarlas
+> fuera, y sostener el aviso habría sido repetir una afirmación falsa en cada ejecución. **Nunca se
+> cita de memoria** —dos caminos daban 43 y 47, y el desacuerdo señalaba un hueco real en el
+> modelo—; hoy el comando imprime `48 + 0`:
 >
 > ```bash
 > python -c "import sys;sys.path.insert(0,'scripts');import modelo_objetivo as M;print(sum(len(v) for v in M.CAMPOS_RETIRADOS.values()),'+',len(M.COLUMNAS_SIN_DECIDIR))"
@@ -405,6 +529,11 @@ inertes en el paso 3.
 **De las 19 de `PRUEBA-002`, una sola trae las tres: `P-16`.** Y no por casualidad — se escribió
 después de que alguien señalara que RG-16 se había corregido sin prueba.
 
+**De las pruebas nuevas, tres traen las tres clases: `P-31`, `P-32` y `P-33`.** Las tres nacieron de
+la misma causa —una regla que **escribe** o que **bloquea el guardado** no se puede dar por buena
+mirando la pantalla—, y las dos últimas cubren `RG-34` y `RG-16`, que hasta el 2026-08-10 no tenían
+ninguna.
+
 **Catorce de diecinueve no leen el Sheets en ningún momento.** Toda la tanda se apoya en tres pruebas
 para saber si algo salió de la pantalla.
 
@@ -419,15 +548,41 @@ Tres déficits que importan más que el recuento:
 
 **Automatizable contra el archivo, y es lo más barato y lo menos usado:** el pre-vuelo de claves, el
 recuento de columnas por tabla —`P-28`, que ya trae su comando—, el inventario de las once trampas, y
-el volcado de **las 39** y de las virtuales esperadas. **Merece un `scripts/verificar_reposicion.py`**
-que falle con código distinto de cero — y que **no lo escriba quien ejecute el despliegue**.
+el volcado de **las 39** y de las virtuales esperadas.
 
-> **Y hay un verificador nuevo desde el 2026-08-10 que no sustituye a este pero conviene conocer:**
-> `python scripts/verificar_reproducible.py`, que genera la plantilla dos veces y compara celda a
-> celda. Nació de un defecto que **pasó los otros cuatro verificadores**, porque todos miran un
-> archivo y aquel solo existía entre dos ejecuciones: la resiembra de claves duplicó las seis
-> edificaciones de `SED_Sedes`, y cada pasada habría añadido seis más. Si `P-28` sale con columnas
-> de más, mírese este antes que el editor.
+> **El `scripts/verificar_reposicion.py` que esta sección pedía ya existe, con otro nombre y
+> midiendo más de lo que se le pedía: `scripts/auditar_cableado.py`.** Sale con código distinto de
+> cero si alguna referencia visible no coincide con el modelo, y **no lo escribió quien ejecutó el
+> despliegue**. No lee el esquema, que la API v2 no devuelve: lee las **columnas virtuales inversas**
+> que AppSheet crea en la tabla destino al poner una `Ref`, y de ahí reconstruye el grafo. Es una
+> lectura indirecta y hay que decirlo así: **mide la consecuencia de la referencia, no la
+> referencia.**
+>
+> **Su recuento se lee entero, no por la primera línea.** Separa las **verificadas** —la aplicación
+> nombra la columna— de las **compatibles no atribuidas** —la aplicación nombra la tabla destino, y
+> que sea la columna que el modelo declara lo dice el modelo, no la aplicación—. **Sumarlas infla la
+> cifra**, y se infló una vez. Y hay un tercer grupo que **no se puede juzgar**: la virtual inversa
+> vive en el destino, y un destino vacío no devuelve columnas. De esas no dice ni bien ni mal, y
+> **confundir «no lo puedo ver» con «está bien» es como se llegó a las referencias mal puestas.**
+>
+> ```bash
+> python scripts/auditar_cableado.py
+> ```
+
+> **Y hay dos verificadores nuevos que no sustituyen a este pero conviene conocer.**
+>
+> `python scripts/verificar_reproducible.py` genera la plantilla dos veces y compara celda a celda.
+> Nació de un defecto que **pasó los otros cuatro verificadores**, porque todos miran un archivo y
+> aquel solo existía entre dos ejecuciones: la resiembra de claves duplicó las seis edificaciones de
+> `SED_Sedes`, y cada pasada habría añadido seis más. Si `P-28` sale con columnas de más, mírese este
+> antes que el editor.
+>
+> `python scripts/verificar_datos.py` es **el sexto, y el único que abre el archivo de datos**: mira
+> si las columnas obligatorias están pobladas en las tablas que tienen filas, y si las 39 referencias
+> resuelven **contra los valores reales**. Los otros cinco leen declaraciones, estructura, prosa,
+> enlaces o dos pasadas del generador entre sí, y por ese hueco pasaron en verde tres defectos el
+> 2026-08-10 —incluido el que dejó `ACT_Activos.Ubicacion_LatLong` vacía en las 368—. **`P-32` no se
+> monta sin correrlo antes**: su fixture depende de una columna poblada en 1 de 6 filas.
 
 **Manual y barato: el Asistente de Expresiones.** `P-05`, `P-25`, `P-27` paso 1. Es el instrumento
 más rentable del proyecto.

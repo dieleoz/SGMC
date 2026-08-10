@@ -223,6 +223,47 @@ w("**Quién la hace cumplir:** nadie automáticamente. `scripts/sistema.py` es l
 w("`SUPERADOS` permite reconocer los abandonados.")
 w("")
 
+w("### R-11 · La clave y la referencia se llaman igual, y eso decide en qué tabla haces clic")
+w("")
+_pk, _fk = {}, {}
+for _t in MODELO:
+    for _c in MODELO[_t]["columnas"]:
+        if _c.get("pk"):
+            _pk.setdefault(_c["nombre"], []).append(_t)
+        if _c.get("ref"):
+            _fk.setdefault(_c["nombre"], []).append(_t)
+_expuestas = sorted(set(_pk) & set(_fk))
+_cuantas = sum(len(_fk[n]) for n in _expuestas)
+w("**%d de las %d referencias** llevan un nombre que **además es clave primaria** de otra tabla."
+  % (_cuantas, len(refs)))
+w("`EstadoActivoID` es la clave de `EST_Activo` y la referencia hacia ella en `ACT_Activos`. Mismo")
+w("nombre, papel opuesto.")
+w("")
+w("**Por qué.** El 2026-08-10, cableando, alguien puso `EstadoActivoID` como `Ref` estando **dentro")
+w("de `EST_Activo`**. AppSheet lo rechazó: `contains a cyclical table reference`. Se corrigió sin")
+w("daño, pero el error no fue un descuido aislado —es el %d%% de los clics posibles—, y esta vez"
+  % (100 * _cuantas // len(refs)))
+w("**AppSheet avisó**, que es lo excepcional: casi todo lo demás de esa semana falló en silencio.")
+w("")
+w("**Qué hacer.** Antes de tocar una columna, mirar en qué tabla estás. En la tabla **destino** ese")
+w("nombre es la **clave** y va `Text`; en la tabla **origen** es la **referencia** y va `Ref`. Si")
+w("AppSheet habla de referencia cíclica, estás en la tabla equivocada: no cambies la expresión ni")
+w("busques otro nombre de columna, cambia de tabla.")
+w("")
+w("**Quién la hace cumplir:** nadie. Es la única de estas reglas que se aplica con el ratón. Lo más")
+w("cerca que hay es `scripts/auditar_cableado.py`, que lo ve **después** de hecho.")
+w("")
+w("<details><summary>Las %d expuestas</summary>" % len(_expuestas))
+w("")
+w("| Columna | Es clave en | Es referencia en |")
+w("|---|---|---|")
+for _n in _expuestas:
+    w("| `%s` | `%s` | %s |" % (_n, "`, `".join(_pk[_n]),
+      ", ".join("`%s`" % x for x in _fk[_n])))
+w("")
+w("</details>")
+w("")
+
 w("---")
 w("")
 w("## 3. Lo que ninguna regla evita")

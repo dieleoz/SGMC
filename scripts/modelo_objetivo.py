@@ -797,6 +797,20 @@ PARAMETROS = {
 # [EstadoActivoID] <> "Retirado" es siempre cierto y hay que escribir
 # [EstadoActivoID].[Nombre].
 #
+# *** ESE PARRAFO DEJO DE SER CIERTO EL 2026-08-10 Y CASI SE LLEVA A V-17 POR
+# DELANTE. *** La resiembra metio EST_Activo en esta lista -su clave paso a ser
+# EST-01..EST-04, alfanumerica- y con ella la lista paso de 10 tablas a 22. Pero
+# la lista CAMBIO DE SIGNIFICADO sin que nadie lo dijera: antes queria decir "la
+# clave ES la palabra", y despues "la clave es alfanumerica con prefijo". Son
+# dos cosas distintas y V-17 seguia leyendola con el sentido viejo, de modo que
+# eximia a EST_Activo y [EstadoActivoID] <> "Retirado" volvia a pasar el
+# validador. Es decir: la regla dejo de cazar el defecto para el que nacio, en
+# silencio, y el defecto es justo el escenario de RG-16.
+#
+# Por eso ahora son DOS listas. Esta sigue diciendo como se ve una clave;
+# CLAVE_ES_LA_PALABRA, mas abajo, dice contra cuales es legitimo comparar un
+# literal. Un nombre que sirve para dos cosas acaba sirviendo mal para una.
+#
 # Derivado del dato el 2026-08-07 sobre BD/Modelo de Datos (7).xlsx, no de una
 # impresion. Si una tabla cambia de clave numerica a legible, se actualiza aqui.
 CLAVE_LEGIBLE = {
@@ -846,6 +860,29 @@ CLAVE_LEGIBLE = {
 # Leccion de metodo: una lista derivada del dato puede ser cierta contra el
 # fixture y falsa contra el diseno. Derivar no basta; hay que preguntarse si el
 # dato del que se deriva es el definitivo.
+# ------------------------------- contra cuales es legitimo comparar un literal
+#
+# NO es la misma pregunta que CLAVE_LEGIBLE, y confundirlas apago V-17 durante
+# unas horas. Aqui solo entran las tablas cuya clave ES la palabra que alguien
+# escribiria en una regla, comprobado contra los datos:
+#
+#     EOT_EstadosOrden     Programada, Asignada, En ejecucion, Cerrada
+#     FRM_Formularios      FRM_SOS, FRM_CCTV, FRM_PMVF
+#     PAR_Parametros       UMBRAL_GPS, RADIO_GEOFENCING_KM
+#     SEN_Sentidos         SA, AS
+#
+# Contra cualquier otra, comparar una columna Ref con un literal da SIEMPRE
+# falso y no da error: la referencia guarda EST-04 y la regla busca "Retirado".
+# Hay que escribir [Columna].[Nombre].
+#
+# Se declara a mano y no se deriva de los datos a proposito. Derivarla haria que
+# la regla se apagara sola el dia que alguien resembrara una clave -que es
+# exactamente lo que paso el 2026-08-10-. Una salvaguarda que se desactiva sola
+# cuando cambia el terreno no es una salvaguarda.
+CLAVE_ES_LA_PALABRA = {
+    "EOT_EstadosOrden", "FRM_Formularios", "PAR_Parametros", "SEN_Sentidos",
+    }
+
 CLAVE_GENERADA = {
     "MAN_Mantenimientos",
     "CHK_Checklists",
