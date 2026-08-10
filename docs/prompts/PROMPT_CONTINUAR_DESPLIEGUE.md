@@ -86,33 +86,105 @@ NOV_Novedades.FechaHora
 usuario puede cambiar la hora del teléfono. Sin esto, **la hora de cada fotografía y de cada firma
 no prueba nada**, que es justo lo que el sistema existe para sostener.
 
-## 5. Ocultar las columnas retiradas
+## 5. Ocultar las columnas retiradas — la lista completa
 
-La hoja arrastra **49 columnas que el modelo no usa**, y al dar de alta las tablas entraron todas
-con `Show? = TRUE`. Aparecen en el formulario del técnico junto a las que sí valen.
+Son **45 columnas**. Estan en la hoja, el modelo no las usa, y al dar de alta las tablas entraron
+con `Show?` marcado: aparecen en el formulario del tecnico junto a las buenas.
 
-**El problema no es estético.** Quedan pares que registran lo mismo en dos sitios:
+**Para cada una: tipo `Text`, `Show?` desmarcado, sin formula.** No se borran.
 
-```
-Requiere_Repuesto        junto a  MotivoPendienteID
-Firma_Tecnico            junto a  FIR_Firmas
-Imagen_Inicio/Final      junto a  FOT_Fotografias
-Diagnostico              junto al checklist
-Trabajo_Realizado        junto al checklist
-```
+**Y siete de ellas son TRAMPA:** su nombre coincide con la clave de otra tabla, asi que **AppSheet
+las convierte en `Ref` sola**. Si las ve como `Ref`, hay que deshacerlo.
 
-**Desmarca `Show?` en todas las columnas retiradas.** La lista completa, tabla por tabla, está en
-`docs/sdd/RECONSTRUCCION_EXPRESIONES.md` §5. Las que más filas tienen:
+### `ACT_Activos` — 1 columnas
 
 ```
-MAN_Mantenimientos     13 columnas
-CHK_Checklists         15
-CHD_ChecklistDetalle   12
-OT_OrdenesTrabajo       3
+SedeID                   <-- TRAMPA
 ```
 
-**No las borres.** Se ocultan, no se eliminan: la Fase A no borra nada, y borrar es lo único que un
-respaldo no devuelve gratis.
+**`SedeID` es TRAMPA**: AppSheet la convierte a `Ref` hacia `SED_Sedes` por coincidencia de
+nombre. Hay que **deshacerlo**: tipo `Text` y `Show?` desmarcado.
+
+### `CHD_ChecklistDetalle` — 12 columnas
+
+```
+Activo                
+EstadoPregunta        
+FechaRespuesta        
+Orden                 
+PreguntaActual        
+RespuestaFecha        
+RespuestaFirma        
+RespuestaFoto         
+RespuestaGPS          
+RespuestaHora         
+TipoRespuestaID          <-- TRAMPA
+TotalPreguntas        
+```
+
+**`TipoRespuestaID` es TRAMPA**: AppSheet la convierte a `Ref` hacia `TPR_TiposRespuesta` por coincidencia de
+nombre. Hay que **deshacerlo**: tipo `Text` y `Show?` desmarcado.
+
+### `CHK_Checklists` — 15 columnas
+
+```
+Activo                
+ActivoID                 <-- TRAMPA
+Estado                
+FechaCreacion         
+FechaEnvioCorreo      
+FirmaSupervisor       
+FirmaTecnico          
+GPSFin                
+GPSInicio             
+Observaciones         
+PDF                   
+Porcentaje            
+PreguntaActual        
+TecnicoID             
+TotalPreguntas        
+```
+
+**`ActivoID` es TRAMPA**: AppSheet la convierte a `Ref` hacia `ACT_Activos` por coincidencia de
+nombre. Hay que **deshacerlo**: tipo `Text` y `Show?` desmarcado.
+
+### `MAN_Mantenimientos` — 14 columnas
+
+```
+ActivoID                 <-- TRAMPA
+Diagnostico           
+Duracion_Minutos      
+Estado_Intervencion   
+Fecha                 
+Firma_Supervisor      
+Firma_Tecnico         
+Imagen_Final          
+Imagen_Inicio         
+Localizacion          
+Repuestos_Utilizados  
+Requiere_Repuesto     
+Tipo                  
+Trabajo_Realizado     
+```
+
+**`ActivoID` es TRAMPA**: AppSheet la convierte a `Ref` hacia `ACT_Activos` por coincidencia de
+nombre. Hay que **deshacerlo**: tipo `Text` y `Show?` desmarcado.
+
+### `OT_OrdenesTrabajo` — 3 columnas
+
+```
+FormularioID             <-- TRAMPA
+Informe_Final         
+Motivo_Cierre         
+```
+
+**`FormularioID` es TRAMPA**: AppSheet la convierte a `Ref` hacia `FRM_Formularios` por coincidencia de
+nombre. Hay que **deshacerlo**: tipo `Text` y `Show?` desmarcado.
+
+**Por que importa, mas alla del orden.** Quedan pares que registran lo mismo en dos sitios:
+`Requiere_Repuesto` junto a `MotivoPendienteID`, `Firma_Tecnico` junto a la tabla `FIR_Firmas`,
+`Imagen_Inicio` e `Imagen_Final` junto a `FOT_Fotografias`, `Diagnostico` y `Trabajo_Realizado`
+junto al checklist. El tecnico veria dos formas de registrar lo mismo.
 
 ## 6. Las pruebas, y esta vez en el sitio correcto
 
