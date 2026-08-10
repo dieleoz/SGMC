@@ -820,6 +820,33 @@ PROPUESTAS = {
                             "MODELO_EVOLUCION_FASE_2 §10 - Fase 2"),
 }
 
+# ------------------------------- columnas de la hoja SIN DECIDIR
+#
+# Existen en la hoja y el modelo NO las declara: ni vivas, ni retiradas, ni
+# renombradas. Al dar de alta una tabla, AppSheet las lee y aparecen en la
+# aplicacion como si fueran buenas.
+#
+# No estan aqui para silenciar el verificador: estan para que la decision no se
+# pierda. Cada una necesita que alguien diga si entra al modelo o se retira.
+#
+# Descubiertas el 2026-08-09 comparando encabezados de la hoja contra MODELO.
+COLUMNAS_SIN_DECIDIR = {
+    ("USR_Usuarios", "UltimaSincronizacion"):
+        "Probablemente de una version anterior. El modelo no la usa",
+    ("FOT_Fotografias", "Fecha"):
+        "El modelo guarda FechaHora. Sobra, o una de las dos esta mal nombrada. "
+        "Merece mirada: la fecha de la fotografia es parte de la evidencia",
+    ("FRM_Formularios", "Orden"):
+        "Orden de presentacion de los formularios. Nadie la lee",
+    ("FRM_Preguntas", "RequiereGPS"):
+        "La cita el show_if de CHD_ChecklistDetalle.RespuestaGPS. Si se retira, "
+        "esa regla deja de funcionar",
+    ("FRM_Preguntas", "RequiereFirma"):
+        "Simetrica de RequiereGPS y RequiereFoto. Coherente con el diseno",
+    ("FRM_Preguntas", "ValorDefecto"):
+        "Valor por defecto de una pregunta. No hay regla que lo lea",
+}
+
 # ---------------------------- columnas PROPUESTAS sobre tablas que YA existen
 #
 # Mismo criterio que PROPUESTAS, para columnas. Una especificacion puede proponer

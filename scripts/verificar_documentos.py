@@ -34,7 +34,8 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from modelo_objetivo import (MODELO, RETIRADAS, PROPUESTAS, DECISIONES,
-                             CAMPOS_RETIRADOS, COLUMNAS_PROPUESTAS)
+                             CAMPOS_RETIRADOS, COLUMNAS_PROPUESTAS,
+                             COLUMNAS_SIN_DECIDIR)
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -167,12 +168,20 @@ for ruta in documentos():
             continue          # citar lo retirado es legitimo: se habla de ello
         if (t, c) in COLUMNAS_PROPUESTAS:
             continue          # declarada como propuesta, con su motivo
+        if (t, c) in COLUMNAS_SIN_DECIDIR:
+            continue          # existe en la hoja, pendiente de decidir. Avisa D-06
         if RE_CLAVE_FILA.match(c):
             continue          # PAR_Parametros.UMBRAL_GPS es una fila, no una columna
         if (t, c) in vistas:
             continue
         vistas.add((t, c))
         falla("D-03", "%s cita %s.%s y esa columna no existe en el modelo" % (rel, t, c))
+
+# ------------------------------------------------------------------ D-06
+# Columnas que estan en la hoja y el modelo no declara. No fallan -la decision
+# esta declarada como pendiente- pero no se pueden olvidar.
+for (t, c), motivo in sorted(COLUMNAS_SIN_DECIDIR.items()):
+    aviso("D-06", "%s.%s existe en la hoja y el modelo no la declara. %s" % (t, c, motivo))
 
 # ------------------------------------------------------------------ D-05
 for t in MODELO:
