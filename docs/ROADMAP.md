@@ -102,7 +102,7 @@ que llega solo con tiempo, y no llega — llega con la decisión de licenciamien
 |---|---|---|
 | Sprint 0. Definición funcional | **Cerrado por supuestos.** No se espera respuesta | Los catorce adoptados por escrito en `ALCANCE_Y_SUPUESTOS_SGMC.md`, con su estado de cierre |
 | Fase 0.5. Reconciliación de modelos | **CERRADA** el 2026-08-07 | `modelo_objetivo.py` es la fuente única; los documentos se generan de él. Ver 4.5 |
-| **Fase A. La hoja** | **CERRADA.** Actas `ACTA-001` a `ACTA-004` | `verificar_faseA.py` en 0 fallos. Hoy: **61 conformes** sobre `Modelo_Datos_09082026_VISIBLE.xlsx` y **60** sobre `Modelo_Datos_PLANTILLA.xlsx` |
+| **Fase A. La hoja** | **CERRADA.** Actas `ACTA-001` a `ACTA-004` | `verificar_faseA.py` en 0 fallos. Hoy: **61 conformes** sobre `Modelo_Datos_09082026.xlsx` y **60** sobre `Modelo_Datos_PLANTILLA.xlsx` |
 | Reconstrucción de la aplicación | **HECHA** el 2026-08-09 | `SISGA`, con las 28 tablas dadas de alta sobre la hoja |
 | **Fase B. Cableado y reglas** | **En ejecución** | Las **38** referencias puestas —ya lo están—, las sobrantes ocultas o migradas, y `PRUEBA-003` pasada |
 | Fase 1. Datos maestros | Bloqueada por D-01 y D-09 | Coordenadas reales cargadas, sedes realineadas, bancos de preguntas construidos |
@@ -133,8 +133,10 @@ Verificado el 2026-08-09 contra `scripts/modelo_objetivo.py` y `BD/Modelo_Datos_
 - **Inventario de prueba:** 34 activos de fixture y 355 sintéticos con los códigos del Plan Maestro
   repartidos por los 137 km del corredor. Cada fila declara en `ACT_Activos.Observaciones` que no es
   inventario real.
-- **`TIP_TiposActivo.RadioGeofencingKm` poblado en los 18 tipos**, por familia: 0,05 km en 12,
-  0,1 km en 5 y 1,5 km en la fibra.
+- **`TIP_TiposActivo.RadioGeofencingKm` poblado en los 18 tipos** en
+  `BD/Modelo_Datos_PLANTILLA.xlsx`, por familia: 0,05 km en 12, 0,1 km en 5 y 1,5 km en la fibra.
+  **En la hoja que la aplicacion lee sigue vacio en los 18**, comprobado en Drive el 2026-08-09, asi
+  que hoy rige el literal de 1,0 km. Es el mismo hecho que `PRUEBA-003` C-1.
 - Catálogos poblados: 18 tipos de activo, 10 sedes, 4 unidades funcionales, 4 roles, 11 usuarios,
   4 asignaciones de zona, 5 motivos de pendiente, 7 estados de orden, 3 parámetros y los catálogos
   viales de calzada, sentido, estado y frecuencia.

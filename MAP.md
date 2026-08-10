@@ -43,7 +43,7 @@ D:\@Proyect\Sisga\
 ├── BD/                           Hojas de datos
 │   ├── Modelo_Datos_PLANTILLA.xlsx     Generada del modelo. Es el entregable de datos
 │   ├── Modelo_Datos_09082026.xlsx      Descarga del Sheets de producción, 32 pestañas
-│   ├── Modelo_Datos_09082026_VISIBLE.xlsx  La misma sin pestañas ocultas. De aquí sale bd.md
+│                                       0 ocultas, como Drive. De aquí sale bd.md
 │   ├── Modelo_Datos_LIMPIO.xlsx        Paso intermedio de la migración
 │   ├── ACT_Activos_355_SINTETICO.xlsx  Los 355 activos sintéticos del corredor
 │   └── Modelo de Datos (N).xlsx        Descargas anteriores. Histórico, no se editan

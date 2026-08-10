@@ -22,7 +22,7 @@ reconstruyó desde cero sobre la hoja `Modelo_Datos_09082026`. Si alguien le pas
 > |---|---|
 > | Órdenes, checklist, fotografías, firmas, histórico | Construido. Las 28 tablas dadas de alta en la aplicación reconstruida |
 > | Referencias entre tablas | **Puestas.** Las 38 del modelo, con `IsPartOf` en las cuatro que lo llevan |
-> | Radio de cierre por tipo de activo | **Poblado.** 0,05 km en poste SOS, cámara, sensores y equipos de TI; 0,1 km en paneles de mensaje variable, báscula, generador y subestación; 1,5 km en el tramo de fibra |
+> | Radio de cierre por tipo de activo | **Vacío en la hoja que la aplicación lee.** Los 18 tipos lo tienen en blanco, así que rige el literal de 1,0 km para todos. Los valores por familia —0,05 / 0,1 / 1,5 km— están en `Modelo_Datos_PLANTILLA.xlsx`, que **no está desplegada** |
 > | Que la coordenada de cierre no se pueda mover a mano | **Impuesto.** `Editable_If = FALSE` en las cuatro columnas de captura |
 > | Que no se pueda borrar una orden ni una ejecución | **Impuesto.** Se retiró el botón de borrado en las dos tablas: un error se corrige con `Activo = FALSE`, que deja traza |
 > | Que el técnico no pueda cerrar su propia orden | **Pendiente.** Está definido en el catálogo de estados, no impuesto como regla |
@@ -128,10 +128,13 @@ Conviene saber qué prueba y qué no: **confirma que usted estaba cerca, no que 
 trabajando**. Lo que sí aporta valor son las fotografías, porque cada una lleva su propia
 coordenada y su hora.
 
-> **Estado:** el radio ya está definido para los 18 tipos de la plantilla de datos —0,05 km, 0,1 km
-> o 1,5 km según el equipo—, así que la comprobación **ya discrimina**. Lo que todavía no sirve es
-> la coordenada del activo: ninguna es la real. Hasta cargarlas, la comprobación no significa nada
-> en campo.
+> **Estado: hoy el radio no depende del tipo.** En la hoja que la aplicación lee, la columna está
+> **vacía en los 18 tipos** —comprobado en Drive el 2026-08-09—, así que rige un literal de 1,0 km
+> para todo, del poste al tramo de fibra. Los valores por familia —0,05 km, 0,1 km o 1,5 km— existen
+> en `BD/Modelo_Datos_PLANTILLA.xlsx`, que **no está desplegada**.
+>
+> Y aunque lo estuviera, **la coordenada del activo tampoco es la real**: ninguna de las 389 lo es.
+> Hasta cargarlas, la comprobación de distancia no significa nada en campo.
 
 ## 4. Guía del supervisor
 

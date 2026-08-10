@@ -79,8 +79,8 @@ número escondido dentro de una expresión no se puede calibrar.
 
 | Parámetro | Valor en la hoja | Unidad | Declarado en el modelo | Quién lo lee |
 |---|---|---|---|---|
-| `UMBRAL_GPS` | 40.0 | m | 40 | RG-19 |
-| `RADIO_GEOFENCING_KM` | 1.0 | km | 1.0 | RG-01 |
+| `UMBRAL_GPS` | 40 | m | 40 | RG-19 |
+| `RADIO_GEOFENCING_KM` | 1 | km | 1.0 | RG-01 |
 | `DISTANCIA_ESCANEO_CIERRE_KM` | 0.5 | km | 0.5 | RG-13 |
 
 ## 4. Detalle por hoja
@@ -122,7 +122,7 @@ Inventario de los activos del corredor. Es el eje del sistema.
 
 Calzadas del corredor.
 
-3 columnas · 2 filas · clave: `1.0`, `2.0`
+3 columnas · 2 filas · clave: `1`, `2`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -134,7 +134,7 @@ Calzadas del corredor.
 
 Estados del activo: Operativo, En mantenimiento, Fuera de servicio, Retirado.
 
-4 columnas · 4 filas · clave: `1.0`, `2.0`
+4 columnas · 4 filas · clave: `1`, `2`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -147,7 +147,7 @@ Estados del activo: Operativo, En mantenimiento, Fuera de servicio, Retirado.
 
 Periodicidad del mantenimiento preventivo.
 
-4 columnas · 8 filas · clave: `1.0`, `2.0`
+4 columnas · 8 filas · clave: `1`, `2`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -160,7 +160,7 @@ Periodicidad del mantenimiento preventivo.
 
 Sedes fisicas donde trabaja el personal: CCO, peajes y basculas.
 
-4 columnas · 10 filas · clave: `1.0`, `2.0`
+4 columnas · 10 filas · clave: `1`, `2`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -185,7 +185,7 @@ Sentidos de circulacion.
 
 Taxonomia de activos. Determina que checklist abre la aplicacion.
 
-8 columnas · 18 filas · clave: `1.0`, `2.0`
+8 columnas · 18 filas · clave: `1`, `2`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -222,7 +222,7 @@ Personas del sistema. El correo resuelve la sesion contra USEREMAIL().
 
 Perfiles de acceso: Administrador, Supervisor, Tecnico y Consulta.
 
-4 columnas · 4 filas · clave: `2.0`, `3.0`
+4 columnas · 4 filas · clave: `2`, `3`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -346,7 +346,7 @@ Banco unico de preguntas. Es el motor: se retiran las hojas planas FRM_SOS, FRM_
 
 Tipo de dato esperado en cada respuesta.
 
-3 columnas · 10 filas · clave: `1.0`, `2.0`
+3 columnas · 10 filas · clave: `1`, `2`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -418,7 +418,7 @@ Tipo de dato esperado en cada respuesta.
 
 Agrupacion de preguntas dentro del formulario.
 
-4 columnas · 14 filas · clave: `1.0`, `2.0`
+4 columnas · 14 filas · clave: `1`, `2`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -431,7 +431,7 @@ Agrupacion de preguntas dentro del formulario.
 
 Opciones de las preguntas de tipo lista.
 
-5 columnas · 4 filas · clave: `1.0`, `2.0`
+5 columnas · 4 filas · clave: `1`, `2`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -555,7 +555,7 @@ Respuesta a cada pregunta. Referencia la pregunta por su clave, no por su texto:
 
 Tramos del corredor donde estan los activos. Se separa de SED_Sedes porque son dos conceptos distintos que el modelo anterior mezclaba en una sola columna, dejando usuarios y activos en conjuntos disjuntos.
 
-5 columnas · 4 filas · clave: `7.0`, `8.0`
+5 columnas · 4 filas · clave: `7`, `8`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|

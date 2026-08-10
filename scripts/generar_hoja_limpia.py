@@ -16,7 +16,7 @@ Para cada tabla de MODELO crea una pestana con EXACTAMENTE sus columnas, en su
 orden, y migra los datos del libro origen emparejando por nombre de columna. Lo
 que el modelo no declara, no viaja.
 
-Uso:  python scripts/generar_hoja_limpia.py "BD/Modelo_Datos_09082026_VISIBLE.xlsx"
+Uso:  python scripts/generar_hoja_limpia.py "BD/Modelo_Datos_09082026.xlsx"
 """
 import os
 import sys
@@ -30,7 +30,7 @@ try:
 except ImportError:
     print("Falta openpyxl."); sys.exit(2)
 
-origen = sys.argv[1] if len(sys.argv) > 1 else "BD/Modelo_Datos_09082026_VISIBLE.xlsx"
+origen = sys.argv[1] if len(sys.argv) > 1 else "BD/Modelo_Datos_09082026.xlsx"
 if not os.path.isabs(origen):
     origen = os.path.join(RAIZ, origen)
 salida = os.path.join(RAIZ, "BD", "Modelo_Datos_LIMPIO.xlsx")

@@ -9,7 +9,7 @@ Si usted acaba de llegar, busque su rol y empiece por ahí.
 | | |
 |---|---|
 | Actualizado | 2026-08-09 |
-| Verificado contra | `BD/Modelo_Datos_09082026_VISIBLE.xlsx`, `BD/Modelo_Datos_PLANTILLA.xlsx` y `scripts/modelo_objetivo.py` |
+| Verificado contra | `BD/Modelo_Datos_09082026.xlsx`, `BD/Modelo_Datos_PLANTILLA.xlsx` y `scripts/modelo_objetivo.py` |
 | Lo que este documento **no** puede verificar | El estado del editor de AppSheet. No tiene API en el plan actual |
 
 ---
@@ -64,7 +64,7 @@ Cada una con el comando que la produce. Si alguna no cuadra dentro de un mes, ma
 |---|---|---|
 | Tablas, columnas, referencias, reglas del modelo | 28 · 202 · 38 · 20 | `python scripts/validar_modelo.py` |
 | El modelo consigo mismo | 0 errores, 3 avisos, `APTO PARA DESPLEGAR` | `python scripts/validar_modelo.py` |
-| La hoja de producción | `FASE A CERRADA`, **61 conformes**, 0 fallos | `python scripts/verificar_faseA.py "BD/Modelo_Datos_09082026_VISIBLE.xlsx"` |
+| La hoja de producción | `FASE A CERRADA`, **61 conformes**, 0 fallos | `python scripts/verificar_faseA.py "BD/Modelo_Datos_09082026.xlsx"` |
 | La plantilla | `FASE A CERRADA`, **60 conformes**, 0 fallos | `python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"` |
 | La prosa contra el modelo | `DOCUMENTOS CONSISTENTES CON EL MODELO`, 0 fallos. **El número de documentos y de avisos se mueve** según se retira material a `historico/` y se declaran columnas sin decidir | `python scripts/verificar_documentos.py` |
 | Formularios declarados | 18 | `FRM_Formularios`, hoja de producción |
@@ -99,7 +99,7 @@ python - <<'EOF'
 import sys, openpyxl
 sys.path.insert(0,'scripts')
 import modelo_objetivo as M
-wb = openpyxl.load_workbook('BD/Modelo_Datos_09082026_VISIBLE.xlsx', read_only=True, data_only=True)
+wb = openpyxl.load_workbook('BD/Modelo_Datos_09082026.xlsx', read_only=True, data_only=True)
 total = 0
 for t, d in M.MODELO.items():
     hdr = [c.value for c in next(wb[t].iter_rows(min_row=1, max_row=1)) if c.value]
@@ -426,7 +426,7 @@ documentación no vuelva a divergir del archivo**, que es la avería que costó 
 | Script | Mide | Estado hoy |
 |---|---|---|
 | `python scripts/validar_modelo.py` | El modelo consigo mismo | `APTO PARA DESPLEGAR`, 0 errores |
-| `python scripts/verificar_faseA.py "BD/<archivo>.xlsx"` | El modelo contra la hoja descargada | `FASE A CERRADA` sobre `Modelo_Datos_09082026_VISIBLE.xlsx` y sobre `Modelo_Datos_PLANTILLA.xlsx` |
+| `python scripts/verificar_faseA.py "BD/<archivo>.xlsx"` | El modelo contra la hoja descargada | `FASE A CERRADA` sobre `Modelo_Datos_09082026.xlsx` y sobre `Modelo_Datos_PLANTILLA.xlsx` |
 | `python scripts/verificar_documentos.py` | La prosa contra el modelo | `DOCUMENTOS CONSISTENTES CON EL MODELO`, 0 fallos |
 
 **`validar_modelo.py` en 0 errores es el único gate objetivo.** Lo que ninguno mide es si algo es
@@ -478,7 +478,7 @@ coincide con la clave del destino**, y AppSheet no anuncia las huérfanas. Por e
 
 **2. Hay dos descargas con la misma fecha y solo una pasa. ABIERTO.**
 `BD/Modelo_Datos_09082026.xlsx` falla la regla `F-18` con ocho pestañas ocultas;
-`BD/Modelo_Datos_09082026_VISIBLE.xlsx` cierra la Fase A. Son la misma hoja antes y después de
+`BD/Modelo_Datos_09082026.xlsx` cierra la Fase A. Son la misma hoja antes y después de
 mostrar las pestañas. **AppSheet ignora las pestañas ocultas y no avisa**, así que verificar contra
 la primera y desplegar contra la segunda es exactamente el error que costó una semana. Conviene
 dejar una sola.

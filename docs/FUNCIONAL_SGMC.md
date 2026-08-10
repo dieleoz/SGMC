@@ -7,7 +7,7 @@ funcional.** Todo lo demás —especificaciones, actas, base de conocimiento— 
 |---|---|
 | Sistema | Gestión de Mantenimiento en Campo · Concesión Transversal del Sisga S.A.S. |
 | Plataforma | Google AppSheet `SISGA` sobre Google Sheets |
-| Verificado contra | `scripts/modelo_objetivo.py`, `BD/Modelo_Datos_PLANTILLA.xlsx` y `BD/Modelo_Datos_09082026_VISIBLE.xlsx` |
+| Verificado contra | `scripts/modelo_objetivo.py`, `BD/Modelo_Datos_PLANTILLA.xlsx` y `BD/Modelo_Datos_09082026.xlsx` |
 | Fecha | 2026-08-09 |
 
 > **La aplicación es nueva.** `SGMC-886843353` se abandonó el 2026-08-09: su esquema había divergido
