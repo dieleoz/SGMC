@@ -1284,7 +1284,8 @@ OR(
 ```
 
 > **Esto NO cambia lo que hace la Fase B.** `ESPEC-002` §7 manda pegar el literal `1.0` porque
-> `RadioGeofencingKm` está vacío en los 18, y esa instrucción sigue igual. La divergencia entre el
+> `RadioGeofencingKm` está vacío en los 18 tipos de la hoja de producción, y esa instrucción sigue
+> igual mientras se despliegue contra ella. La divergencia entre el
 > modelo y lo que la Fase B pega **ya existía** y está declarada allí como deuda. Lo que esta
 > especificación hace es añadir la exención a la versión que entrará cuando se pueblen los radios.
 >

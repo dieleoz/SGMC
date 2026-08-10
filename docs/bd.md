@@ -17,7 +17,7 @@ forma de que mienta es que mienta el archivo**.
 | Archivo leído | `Modelo_Datos_09082026.xlsx` |
 | Hojas | **32** |
 | Filas con datos | **259** |
-| Generado el | 2026-08-09 |
+| Generado el | 2026-08-10 |
 
 ---
 
@@ -302,7 +302,7 @@ Ejecucion real en campo. Cuelga de la orden y es padre de la evidencia.
 
 ### `FRM_Formularios`
 
-Registro maestro de los 18 checklists, uno por tipo de activo.
+Registro maestro de los checklists, uno por tipo de activo: 27 en BD/Modelo_Datos_PLANTILLA.xlsx, 18 en la hoja de produccion.
 
 6 columnas · 18 filas · clave: `FRM_SOS`, `FRM_CCTV`
 

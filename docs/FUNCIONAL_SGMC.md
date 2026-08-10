@@ -198,9 +198,9 @@ también calcula el script, la cuota se agota **en 4,1 años, antes de la retenc
 
 | | Estado |
 |---|---|
-| Modelo de datos, 28 tablas | **Existe.** 202 columnas y 20 reglas. `FASE A CERRADA` con 61 conformes sobre la hoja de producción y 60 sobre la plantilla |
-| Plantillas de checklist | **Existe** — `FRM_Formularios`, `FRM_Secciones`, `FRM_Preguntas`. 18 formularios, 14 secciones |
-| Banco de preguntas | **1 de 18.** Las 15 filas de `FRM_Preguntas` son todas del formulario de postes SOS |
+| Modelo de datos, 28 tablas | **Existe.** 202 columnas y 20 reglas. `FASE A CERRADA` con 61 conformes sobre la hoja de producción y 61 sobre la plantilla |
+| Plantillas de checklist | **Existe** — `FRM_Formularios`, `FRM_Secciones`, `FRM_Preguntas`. **27 formularios en la plantilla**, uno por tipo de activo, y 14 secciones. En la hoja de producción siguen siendo 18: no lleva todavía los nueve tipos añadidos el 2026-08-09 |
+| Banco de preguntas | **1 de 27.** Las 15 filas de `FRM_Preguntas` son todas del formulario de postes SOS |
 | Catálogo de roles | **Existe** — `ROL_Roles`, con 4 filas. Faltan los doce oficios del Plan Maestro |
 | Referencias entre tablas | **Puestas.** Las **38** del modelo, sobre la aplicación reconstruida, con `IsPartOf` en las cuatro que lo llevan |
 | Geofencing y filtros de seguridad | **Puestos.** No probados en campo: falta la coordenada real |
@@ -208,7 +208,7 @@ también calcula el script, la cuota se agota **en 4,1 años, antes de la retenc
 | Jerarquía de ubicación | **En especificación**, dentro de `ESPEC-003` |
 | Correctivo con criticidad y SLA | **En especificación**, dentro de `ESPEC-003` |
 | Imponer `QuienCambia` y el rechazo | **Pendiente** |
-| Inventario de 355 activos | **En la plantilla como sintético.** 34 de fixture y 355 de prueba, cada uno marcado como tal en `ACT_Activos.Observaciones`. **No es el registro real** |
+| Inventario de 355 activos | **En la plantilla como sintético.** 389 filas: 34 de fixture y 355 de prueba, cada una marcada como tal en `ACT_Activos.Observaciones`. **No es el registro real** |
 | Coordenadas de los activos | **No existen.** Los 34 comparten una de Bogotá y las 355 sintéticas están interpoladas sobre el corredor. Se levantan en campo |
 | Vistas, acciones y slices | **No están en el modelo.** Mientras no se declaren, la interfaz no se puede generar ni auditar |
 | Certificaciones múltiples, vigencias | Fase 2 |

@@ -8,7 +8,7 @@ Si usted acaba de llegar, busque su rol y empiece por ahí.
 
 | | |
 |---|---|
-| Actualizado | 2026-08-09 |
+| Actualizado | 2026-08-10 |
 | Verificado contra | `BD/Modelo_Datos_09082026.xlsx`, `BD/Modelo_Datos_PLANTILLA.xlsx` y `scripts/modelo_objetivo.py` |
 | Lo que este documento **no** puede verificar | El estado del editor de AppSheet. No tiene API en el plan actual |
 
@@ -28,10 +28,12 @@ las 355  ACTIVO SINTETICO DE PRUEBA - NO ES INVENTARIO REAL
 
 Sirven para probar el sistema. No sirven para cerrar una orden con un técnico delante.
 
-**Diecisiete de los dieciocho formularios no tienen ni una pregunta.** `FRM_Formularios` tiene 18
-filas. `FRM_Preguntas` tiene 15, y las 15 son del formulario `FRM_SOS`. Un técnico que abra el
-checklist de una cámara CCTV verá un formulario vacío. **Eso solo lo puede escribir Operación**: no
-es configuración, es el contenido del mantenimiento.
+**Veintiséis de los veintisiete formularios no tienen ni una pregunta.** `FRM_Formularios` tiene 27
+filas en la plantilla —eran 18 hasta el 2026-08-09, y siguen siendo 18 en la hoja de producción, que
+todavía no lleva los nueve tipos nuevos—. `FRM_Preguntas` tiene 15 filas en las dos, y las 15 son
+del formulario `FRM_SOS`. Un técnico que abra el checklist de una cámara CCTV verá un formulario
+vacío. **Eso solo lo puede escribir Operación**: no es configuración, es el contenido del
+mantenimiento.
 
 **Sin plan de pago no hay órdenes automáticas ni avisos.** En el plan gratuito los procesos
 programados no se ejecutan, y está verificado contra la documentación oficial en
@@ -45,7 +47,7 @@ avisa al supervisor de que tiene trabajo por recibir: tiene que entrar a mirar.
 | Rol | Lo que solo él puede hacer | Qué se para si no lo hace | Esfuerzo |
 |---|---|---|---|
 | **Funcional** | Terminar la configuración en el editor y correr `PRUEBA-003` | La aplicación no se puede probar ni publicar | 1 a 2 jornadas |
-| **Operación / Mantenimiento** | Coordenadas reales, los 17 bancos de preguntas, y cuatro definiciones de dominio | El campo entero. Es la ruta crítica | Semanas, repartidas |
+| **Operación / Mantenimiento** | Coordenadas reales, los 26 bancos de preguntas, y cuatro definiciones de dominio | El campo entero. Es la ruta crítica | Semanas, repartidas |
 | **Dirección** | D-A propiedad del backend, D-B plan de licenciamiento | La generación automática y la salida a producción | Dos decisiones, sin trabajo técnico |
 | **Propietario de la Aplicación anterior** | Confirmar sobre qué hoja opera producción y despublicar la aplicación vieja | Riesgo de dos aplicaciones escribiendo sobre el mismo backend | Un correo y un clic |
 | **Quien mantenga el repositorio** | Que la documentación no vuelva a divergir del archivo | Se repite la avería que costó meses a este proyecto | Continuo, minutos por cambio |
@@ -65,13 +67,15 @@ Cada una con el comando que la produce. Si alguna no cuadra dentro de un mes, ma
 | Tablas, columnas, referencias, reglas del modelo | 28 · 202 · 38 · 20 | `python scripts/validar_modelo.py` |
 | El modelo consigo mismo | 0 errores, 3 avisos, `APTO PARA DESPLEGAR` | `python scripts/validar_modelo.py` |
 | La hoja de producción | `FASE A CERRADA`, **61 conformes**, 0 fallos | `python scripts/verificar_faseA.py "BD/Modelo_Datos_09082026.xlsx"` |
-| La plantilla | `FASE A CERRADA`, **60 conformes**, 0 fallos | `python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"` |
+| La plantilla | `FASE A CERRADA`, **61 conformes**, 0 fallos | `python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"` |
 | La prosa contra el modelo | `DOCUMENTOS CONSISTENTES CON EL MODELO`, 0 fallos. **El número de documentos y de avisos se mueve** según se retira material a `historico/` y se declaran columnas sin decidir | `python scripts/verificar_documentos.py` |
-| Formularios declarados | 18 | `FRM_Formularios`, hoja de producción |
-| Preguntas escritas | **15, todas de `FRM_SOS`** | `FRM_Preguntas`, columna `FormularioID` |
+| Tipos de activo y formularios en producción | **18 y 18** | `TIP_TiposActivo` y `FRM_Formularios`, hoja de producción |
+| Tipos de activo y formularios en la plantilla | **27 y 27**, uno por tipo | `TIP_TiposActivo` y `FRM_Formularios` en `BD/Modelo_Datos_PLANTILLA.xlsx` |
+| Preguntas escritas | **15, todas de `FRM_SOS`**, en las dos hojas | `FRM_Preguntas`, columna `FormularioID` |
 | Activos en producción | 34, **una sola coordenada** | `ACT_Activos`, columna `Ubicacion` |
 | Activos en la plantilla | 389: los 34 de fixture y **355 sintéticos** con coordenada propia | `BD/Modelo_Datos_PLANTILLA.xlsx` |
-| Radio de geofencing por tipo | **Poblado en los 18**: 0,05 km en 12, 0,1 km en 5, 1,5 km en la fibra | `TIP_TiposActivo.RadioGeofencingKm` en la plantilla |
+| Radio de geofencing por tipo, en la plantilla | **Poblado en los 27**: 0,05 km en 18 tipos, 0,1 km en 8, 1,5 km en la fibra | `TIP_TiposActivo.RadioGeofencingKm` en la plantilla |
+| Radio de geofencing por tipo, en producción | **Vacío en los 18.** No ha cambiado: rige el literal provisional de 1,0 km | `TIP_TiposActivo.RadioGeofencingKm` en la hoja de producción |
 | Usuarios | 11, de los cuales **2 inactivos** | `USR_Usuarios`, columna `Activo` |
 | Asignaciones de zona | **4**, para cuatro técnicos | `ASG_AsignacionZona` |
 | Roles poblados | **4** de los 12 oficios del Plan Maestro | `ROL_Roles` |
@@ -241,15 +245,28 @@ viaje.
 *ni* `FIXTURE DE LA FASE A`*, y las coordenadas de* `Ubicacion` *son todas distintas y están sobre
 el corredor.*
 
-**2. Escribir los 17 bancos de preguntas que faltan.**
-Hay 18 formularios y preguntas escritas para uno solo. El de postes SOS tiene 15 preguntas
-repartidas en secciones —estado inicial, limpieza, inspección física, pruebas funcionales, evidencia—
-y sirve de molde. **Hay que hacer lo mismo para los otros 17 tipos**: CCTV, PMV fijos y móviles,
-gálibos mecánicos y electrónicos, sensores ambientales, generadores, básculas, fibra, video wall,
-switch, router, firewall, UPS, servidor, NAS y subestaciones.
+**2. Escribir los 26 bancos de preguntas que faltan.**
+La plantilla trae 27 formularios y preguntas escritas para uno solo. El de postes SOS tiene 15
+preguntas repartidas en secciones —estado inicial, limpieza, inspección física, pruebas funcionales,
+evidencia— y sirve de molde. **Hay que hacer lo mismo para los otros 26 tipos**, y esta es la lista
+completa, sin nada que deducir:
+
+```
+CCTV                  PMV fijo              PMV movil             Galibo mecanico
+Galibo electronico    Sensor ambiental      Generador             Bascula
+Fibra optica          Video wall            Switch                Router
+Firewall              UPS                   Servidor              NAS
+Subestacion           Bascula dinamica      Peaje carril          Peaje electronica
+Estacion toma datos   Paso seguro           Switch capa 3         Computador portatil
+Impresora             Camara OCR pesaje
+```
+
+**Los nueve últimos son nuevos**: hasta el 2026-08-09 esas familias colgaban del tipo de otra cosa
+—la impresora veía el checklist del NAS, el portátil el del servidor, el carril de peaje el de la
+báscula— y por eso no aparecían en esta lista.
 Las 14 secciones de `FRM_Secciones` ya están creadas y se comparten entre formularios: no hay que
 inventarlas.
-*Verificable:* `FRM_Preguntas` *con filas para los 18 valores de* `FormularioID`.
+*Verificable:* `FRM_Preguntas` *con filas para los 27 valores de* `FormularioID`.
 
 **3. Responder si las unidades funcionales se subdividen.**
 Hoy hay cuatro: UF1 a UF4. En otro corredor se subdividen (2,1 · 4,2). **Si aquí también, cambia el
@@ -290,7 +307,7 @@ aplicación y no ve nada. Hoy hay al menos un técnico activo en esa situación.
 | Decisión | Qué se para sin ella |
 |---|---|
 | **D-01, coordenadas reales** | **Todo el campo.** Un técnico no puede cerrar una orden contra una coordenada inventada |
-| **Los 17 bancos de preguntas** | El checklist de 17 de los 18 tipos. El técnico abre un formulario vacío |
+| **Los 26 bancos de preguntas** | El checklist de 26 de los 27 tipos. El técnico abre un formulario vacío |
 | **¿Se subdividen las UF?** | El filtro de seguridad y el reparto del inventario |
 | **¿Hay iluminación?** | Un tipo de activo entero, con su formulario y su cantidad |
 | **¿Quién avisa una correctiva?** | El flujo de correctivo, que hoy no existe en el modelo |
@@ -312,7 +329,7 @@ corredor, o dar los que son.**
 | | |
 |---|---|
 | **D-01, coordenadas** | Un recorrido del corredor. **El repositorio no tiene una estimación verificada**: la fecha la fija usted, y el `ROADMAP` dice explícitamente que sin ella no hay cronograma |
-| **Los 17 bancos** | Una a dos horas por tipo con quien hace ese mantenimiento, más transcribirlo. Entre tres y cinco jornadas repartidas. El de SOS son 15 preguntas y sirve de molde |
+| **Los 26 bancos** | Una a dos horas por tipo con quien hace ese mantenimiento, más transcribirlo. Entre cinco y siete jornadas repartidas. El de SOS son 15 preguntas y sirve de molde |
 | **Los puntos 3 a 6** | Una reunión. Son respuestas que usted ya tiene en la cabeza |
 | **Punto 7, asignaciones** | Minutos. Son filas en una hoja |
 
@@ -465,7 +482,7 @@ Revisado el 2026-08-09. **Dos de los tres puntos que había aquí ya están cerr
 anotados con qué los cerró para que nadie los vuelva a abrir.
 
 **1. La plantilla ya pasa la Fase A. CERRADO.** Traía cinco fallos —`F-15` sobre la fila 34 y cuatro
-`F-16` de tipo mezclado en las claves— y hoy devuelve `FASE A CERRADA` con **60 conformes y 0
+`F-16` de tipo mezclado en las claves— y hoy devuelve `FASE A CERRADA` con **61 conformes y 0
 fallos**:
 
 ```bash
@@ -521,7 +538,7 @@ Esta semana    Operación responde: ¿se subdividen las UF? ¿hay iluminación?
                ¿quién avisa una correctiva? ¿hay SLA propios? ¿40 o 50 metros?
                Quien mantiene el repositorio arregla la plantilla
 
-Semanas        Operación escribe los 17 bancos de preguntas
+Semanas        Operación escribe los 26 bancos de preguntas
                Operación levanta las coordenadas reales (D-01)
 
 Y entonces     Carga del inventario real, piloto de campo

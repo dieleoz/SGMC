@@ -2,7 +2,7 @@
 
 **Lea esto primero.** Es el mapa de todo lo demás.
 
-Actualizado el 2026-08-09.
+Actualizado el 2026-08-10.
 
 ## Los dos enlaces
 
@@ -80,9 +80,11 @@ La 1 y la 3 siguen pendientes, en
 **`BD/Modelo_Datos_PLANTILLA.xlsx`** — generada del modelo. **Es el entregable de datos.**
 
 ```
-28 pestañas · 202 columnas · ninguna de sobra
-ACT_Activos: 34 activos reales (ID 1-34) + 355 sintéticos (ID 1001-1355)
-0 referencias rotas de las 38 · FASE A CERRADA
+28 pestañas de datos más _LEEME · 202 columnas · ninguna de sobra
+ACT_Activos:     389 filas = 34 reales (ID 1-34) + 355 sintéticos (ID 1001-1355)
+TIP_TiposActivo:  27 tipos, con RadioGeofencingKm poblado en los 27
+FRM_Formularios:  27 filas, uno por tipo
+0 referencias rotas de las 38 · FASE A CERRADA, 61 conformes
 ```
 
 **Los 34 reales se conservan intactos** y las seis órdenes existentes siguen apuntando a su equipo:

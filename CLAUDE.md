@@ -78,8 +78,9 @@ como supuesto, en la tabla del final de ese documento.
   campo tenga datos, y que la tabla exista no significa que el flujo se haya ejercitado.
   Vale también al revés: `MAN_Mantenimientos`, `FOT_Fotografias` y `FIR_Firmas` **ya no están
   vacías** —traen 2, 3 y 1 fila de fixture—, y eso **no** significa que el ciclo se haya recorrido
-  de extremo a extremo. Sigue sin ejercitarse. Y de los 18 formularios, **solo `FRM_SOS` tiene
-  banco de preguntas**. Cuenta las filas del archivo antes de afirmar cualquiera de las dos cosas.
+  de extremo a extremo. Sigue sin ejercitarse. Y de los formularios —**18 en la hoja de producción,
+  27 en `BD/Modelo_Datos_PLANTILLA.xlsx`**— solo `FRM_SOS` tiene banco de preguntas, en las dos.
+  Cuenta las filas del archivo antes de afirmar cualquiera de las dos cosas.
 - Al cerrar un hallazgo, deja constancia de con qué comando y qué salida lo cerraste.
 - **Al leer un `.xlsx` con openpyxl, `data_only=True` o estarás leyendo fórmulas.** Sin él,
   `TIP_TiposActivo.FormularioID` devolvía `=CONCAT("FRM_",MID(B2,1,4))` en vez de `FRM_SOS`: 18
@@ -245,12 +246,16 @@ Mensaje de error, en texto plano:
 Ubicación fuera de rango: debe estar junto al activo para cerrar.
 ```
 
-**Ese radio ya está poblado.** `TIP_TiposActivo.RadioGeofencingKm` trae valor en los 18 tipos de
-`BD/Modelo_Datos_PLANTILLA.xlsx`: `0.05` en poste SOS, cámara, sensores y equipos de TI; `0.1` en
-paneles de mensaje variable, báscula, generador y subestación; `1.5` en el tramo de fibra, que es
-lineal. **El literal `1.0` ya no se usa**, y `PAR_Parametros.RADIO_GEOFENCING_KM` queda como valor
-provisional histórico: la regla no lo lee. Cualquier documento que siga mandando el literal `1.0`
-describe un estado superado.
+**Ese radio ya está poblado en la plantilla, y solo ahí.** `TIP_TiposActivo.RadioGeofencingKm` trae
+valor en los **27 tipos** de `BD/Modelo_Datos_PLANTILLA.xlsx`: `0.05` en 18 —poste SOS, cámaras,
+sensores, paso seguro y equipos de TI—, `0.1` en 8 —paneles de mensaje variable, básculas, peajes,
+generador y subestación— y `1.5` en el tramo de fibra, que es lineal. **En el Sheets de producción
+`Modelo_Datos_09082026` esa columna sigue vacía en sus 18 tipos, y eso no ha cambiado**: mientras la
+aplicación lea esa hoja, la variante por tipo compara contra blanco.
+
+Sobre la plantilla, **el literal `1.0` ya no se usa**, y `PAR_Parametros.RADIO_GEOFENCING_KM` queda
+como valor provisional histórico: la regla no lo lee. Un documento que mande el literal `1.0` sin
+decir que habla de la hoja de producción describe un estado superado.
 
 Y la regla no basta por sí sola: las cuatro columnas de captura de `MAN_Mantenimientos`
 —`Coordenadas_Cierre`, `Precision_GPS`, `UbicacionEscaneo` y `FechaHoraEscaneo`— van con
@@ -310,7 +315,7 @@ falta una definición, adóptala como supuesto, decláralo y sigue.
 
 La razón es doble. Un cuestionario en abstracto a quien todavía no tiene el modelo mental produce
 silencio o un "de acuerdo" a todo, que simula una decisión inexistente. Y el sistema todavía no
-permite formarse criterio: un formulario con preguntas de dieciocho, y ningún ciclo recorrido de
+permite formarse criterio: un solo formulario con preguntas en toda la hoja, y ningún ciclo recorrido de
 extremo a extremo. Una suposición escrita y probada se corrige en una tarde; una pregunta sin
 responder bloquea semanas.
 
@@ -556,6 +561,13 @@ habia. Es el mismo patron que el inventario sintetico que reescribio los 34 acti
 lo mismo desde sitios distintos —el catalogo de la aplicacion y el inventario de operacion—, la
 correspondencia entre ellos **se escribe y se comprueba**, no se supone. Vive en
 `scripts/catalogo_tipos.py`, con `comprobar()`, que falla si dos familias comparten tipo.
+
+**Como quedo, y contra que archivo.** El catalogo pasa a **27 tipos** —los 18 de siempre mas los 9
+que faltaban—, con **27 formularios**, uno por tipo, y el radio poblado en los 27. Eso esta en
+`BD/Modelo_Datos_PLANTILLA.xlsx` desde el 2026-08-10, generado por `scripts/generar_plantilla.py`.
+**El Sheets de produccion `Modelo_Datos_09082026` sigue con 18 tipos y 18 formularios**, y esa cifra
+no es un error que corregir en la prosa: es el estado de esa hoja. Un «18» solo se corrige si la
+frase habla de la plantilla.
 
 **Lo que hay que preguntarse ante una referencia que resuelve:** no «apunta a algo», sino **«apunta
 a lo correcto»**. Lo primero lo dice un verificador; lo segundo hay que derivarlo del dominio.

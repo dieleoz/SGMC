@@ -60,10 +60,13 @@ que la tabla exista no significa que el flujo se haya ejercitado.
   y sin ellas RF-011 y RF-012 no pueden ni configurarse.
 - `ACT_Activos.Ubicacion`: ¿cuántas coordenadas **distintas** hay? Si es una sola, el geofencing es
   inoperante por mucho que la fórmula esté bien.
-- `TIP_TiposActivo.FormularioID`: ¿está poblado en los 18 tipos? Sin él no hay checklist dinámico.
+- `TIP_TiposActivo.FormularioID`: ¿está poblado en **todas** las filas? Sin él no hay checklist
+  dinámico. **Cuenta las filas del archivo que estés auditando, no des por hecho cuántas son:** la
+  hoja de producción trae 18 tipos y `BD/Modelo_Datos_PLANTILLA.xlsx` trae 27.
 - `SedeID`: ¿se intersecan los valores de `USR_Usuarios` y los de `ACT_Activos`? Si no, el Security
   Filter deja a cada técnico con cero activos.
-- `FRM_Preguntas`: ¿cuántos de los 18 formularios tienen banco de preguntas? Las hojas planas
+- `FRM_Preguntas`: ¿cuántas filas de `FRM_Formularios` tienen banco de preguntas, sobre el total de
+  esa misma hoja —18 en producción, 27 en la plantilla—? Las hojas planas
   `FRM_SOS`, `FRM_CCTV` y `FRM_PMVF` son una arquitectura paralela y **no** alimentan el motor.
 - Integridad referencial: `CHK.OTID` y `MAN.OTID` contra las claves reales de `OT_OrdenesTrabajo`,
   que son `Numero_OT` con valores tipo `OT-0001`, no `OTID`.

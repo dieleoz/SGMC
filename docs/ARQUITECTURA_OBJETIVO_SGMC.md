@@ -146,7 +146,7 @@ Los nombres actuales se verificaron el 2026-08-07 leyendo `BD/Modelo de Datos (2
 | Tabla | Columna | Tipo actual | Tipo objetivo | Apunta a | Nota |
 |---|---|---|---|---|---|
 | `MAN_Mantenimientos` | `OTID` | Text | **Ref** | `OT_OrdenesTrabajo` | Verificado: AppSheet rechaza la desreferencia porque es Text. La tabla tiene 0 filas, asi que hoy la conversion no arrastra ningun dato. Es el momento mas barato en que se podra hacer. |
-| `ACT_Activos` | `TipoActivoID` | Number | **Ref** | `TIP_TiposActivo` | Guarda enteros 1 a 18. Por confirmar en produccion. |
+| `ACT_Activos` | `TipoActivoID` | Number | **Ref** | `TIP_TiposActivo` | Guarda enteros 1 a 18 en la hoja de produccion y 1 a 27 en la plantilla, que trae los nueve tipos anadidos. Por confirmar en produccion. |
 | `ACT_Activos` | `CalzadaID` | Number | **Ref** | `CAL_Calzadas` | Por confirmar en produccion. |
 | `ACT_Activos` | `SentidoID` | Number | **Ref** | `SEN_Sentidos` | Por confirmar en produccion. |
 | `ACT_Activos` | `FrecuenciaID` | Number | **Ref** | `FRE_Frecuencias` | Por confirmar en produccion. |
@@ -155,7 +155,7 @@ Los nombres actuales se verificaron el 2026-08-07 leyendo `BD/Modelo de Datos (2
 | `CHD_ChecklistDetalle` | `PreguntaID` | Text | **Ref** | `FRM_Preguntas` | Produccion ya la llama PreguntaID, pero LST_ValoresLista guarda ahi el TEXTO 'Estado encontrado' en vez de la clave. Confirmar antes de convertir. |
 | `USR_Usuarios` | `RolID` | Number | **Ref** | `ROL_Roles` | Guarda enteros 2 a 5. Por confirmar el tipo. |
 | `USR_Usuarios` | `SedeID` | Number | **Ref** | `SED_Sedes` | Guarda 1 en los 11 usuarios. |
-| `TIP_TiposActivo` | `FormularioID` | Text | **Ref** | `FRM_Formularios` | Poblado en los 18 tipos con valores FRM_SOS a FRM_SUBE, que si existen en FRM_Formularios. La conversion no produce huerfanos. |
+| `TIP_TiposActivo` | `FormularioID` | Text | **Ref** | `FRM_Formularios` | Poblado en los 18 tipos de la hoja de produccion con valores FRM_SOS a FRM_SUBE, y en los 27 de la plantilla. Todos existen en FRM_Formularios: la conversion no produce huerfanos en ninguna de las dos. |
 | `LST_ValoresLista` | `PreguntaID` | Text | **Ref** | `FRM_Preguntas` | PELIGRO: sus 4 filas guardan el TEXTO 'Estado encontrado', no una clave. Convertir a Ref las deja huerfanas a las cuatro. Corregir los valores antes, o dejarla como Text y anotarlo como deuda. |
 | `FRM_Preguntas` | `FormularioID` | Text | **Ref** | `FRM_Formularios` | Por confirmar el tipo. |
 | `FRM_Preguntas` | `SeccionID` | Number | **Ref** | `FRM_Secciones` | Por confirmar el tipo. |
@@ -320,10 +320,10 @@ Taxonomia de activos. Determina que checklist abre la aplicacion.
 | `TipoActivoID` | Text | PK |  |  |  |
 | `Nombre` | Text |  |  | Sí |  |
 | `Categoria` | Enum |  |  |  | ITS, Electrico, Comunicaciones, TI |
-| `FormularioID` | Ref |  | `FRM_Formularios` | Sí | Sin este mapeo no hay checklist dinamico. Estaba vacio en los 18 tipos |
+| `FormularioID` | Ref |  | `FRM_Formularios` | Sí | Sin este mapeo no hay checklist dinamico. Estuvo vacio en la hoja heredada |
 | `TieneQR` | Yes/No |  |  |  | Valor inicial: `TRUE` |
 | `RequiereGPS` | Yes/No |  |  |  | Valor inicial: `TRUE` |
-| `RadioGeofencingKm` | Decimal |  |  |  | Supuesto D-02: radio por tipo, no unico para los 18. Valor inicial: `0.2` |
+| `RadioGeofencingKm` | Decimal |  |  |  | Supuesto D-02: radio por tipo, no un numero unico. El catalogo (scripts/catalogo_tipos.py) lo fija por tipo y la plantilla lo trae poblado en los 27; el valor inicial solo aplica a un tipo nuevo. Valor inicial: `0.2` |
 | `Activo` | Yes/No |  |  |  | Valor inicial: `TRUE` |
 
 #### `EST_Activo`
@@ -590,7 +590,7 @@ Respuesta a cada pregunta. Referencia la pregunta por su clave, no por su texto:
 
 #### `FRM_Formularios`
 
-Registro maestro de los 18 checklists, uno por tipo de activo.
+Registro maestro de los checklists, uno por tipo de activo: 27 en BD/Modelo_Datos_PLANTILLA.xlsx, 18 en la hoja de produccion.
 
 | Columna | Tipo | Clave | Referencia | Obligatoria | Nota |
 |---|---|---|---|---|---|

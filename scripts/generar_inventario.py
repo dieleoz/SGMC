@@ -91,25 +91,36 @@ COLS = ["ActivoID", "CodigoActivo", "Nombre", "TipoActivoID", "UnidadFuncionalID
         "Activo", "FrecuenciaID", "Observaciones", "Criticidad", "FechaBaja", "MotivoBaja"]
 
 
-def generar_filas():
-    """Los 355 activos sinteticos. Lo llama tambien generar_plantilla.py.
+def generar_filas(existentes=None):
+    """Completa cada familia hasta la cantidad del Plan Maestro.
+
+    `existentes` dice cuantos activos REALES hay ya de cada familia. Esos no se
+    regeneran: se completa lo que falta y se numera a continuacion, para que la
+    familia sume exactamente lo que dice el Plan Maestro y no haya dos codigos
+    iguales. Sin argumento genera las familias enteras.
+
+    El codigo va con el formato de operacion -SOS-001, con ceros- y no con el
+    SOS_1 que se uso al principio, que era invencion nuestra. El de operacion
+    ademas ordena bien en una hoja de calculo.
 
     Reproducible: misma semilla, mismo reparto, mismas coordenadas. El desfase
     por familia se deriva de las letras del prefijo porque hash() de una cadena
-    va salado por proceso y reasignaba PR, unidad funcional y coordenada de los
-    355 en cada ejecucion.
+    va salado por proceso y reasignaba PR, unidad funcional y coordenada en cada
+    ejecucion.
     """
+    existentes = existentes or {}
     random.seed(20260809)
     filas = []
     n = 0
     for prefijo, nombre, cantidad, clave_tipo, frec in FAMILIAS:
-        for i in range(1, cantidad + 1):
+        ya = existentes.get(prefijo, 0)
+        for i in range(ya + 1, cantidad + 1):
             n += 1
             desfase = sum(ord(x) for x in prefijo) % 7 / 100.0
             frac = ((i - 0.5) / cantidad + desfase) % 1.0
             filas.append({
                 "ActivoID": BASE_ID + n,
-                "CodigoActivo": "%s_%d" % (prefijo, i),
+                "CodigoActivo": "%s-%03d" % (prefijo, i),
                 "Nombre": "%s %03d" % (nombre, i),
                 "TipoActivoID": tipo_de_familia(clave_tipo),
                 "UnidadFuncionalID": unidad_funcional(frac),

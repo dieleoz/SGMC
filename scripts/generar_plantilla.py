@@ -32,6 +32,7 @@ Que hace
 Uso:  python scripts/generar_plantilla.py ["BD/<origen>.xlsx"]
 """
 import os
+import re
 import sys
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -39,7 +40,9 @@ sys.path.insert(0, os.path.join(RAIZ, "scripts"))
 
 from modelo_objetivo import MODELO
 from catalogo_tipos import TIPOS_ACTIVO, FAMILIAS, comprobar
-from generar_inventario import generar_filas
+from generar_inventario import generar_filas, LARGO_KM
+from banco_preguntas import (preguntas_de, comprobar as comprobar_banco,
+                             MARCA, VALORES_ESTADO)
 
 try:
     import openpyxl
@@ -171,86 +174,275 @@ for tid, _clave, nombre, _cat, _qr, _gps, formulario, _radio in TIPOS_ACTIVO:
     anadidos.append(formulario)
 escribir("FRM_Formularios", formularios)
 
-# ------------------------------------------------- 4. los 355 detras del fixture
+# --------------------------------------------------- 4. un solo inventario
 #
-# Los sinteticos arrancan en ActivoID 1000 para no pisar los 34 del fixture, a
-# los que apuntan las seis ordenes existentes.
+# Antes habia dos listas conviviendo: los 34 activos que venian de la hoja, con
+# codigo SOS-001, y 355 generados con codigo SOS_1. Dos convenciones para lo
+# mismo, y las dos con un SOS numero 1.
+#
+# Ahora es una sola. Se completa cada familia hasta la cantidad del Plan Maestro
+# contando lo que ya hay, con el formato de operacion. Los codigos del fixture se
+# normalizan al prefijo de su familia -SVR pasa a SERV- y se renumeran 001, 002,
+# 003 dentro de ella.
+#
+# **13 de los 34 no pertenecen a ninguna familia del Plan Maestro** y hay que
+# conservarlos: la fibra, el generador, el video wall, el router, el firewall, la
+# UPS, el NAS, la subestacion y la bascula estatica. El Plan Maestro los cuenta en
+# km, en global o en meses, no en unidades. Si se borraran, nueve de los 27 tipos
+# se quedarian sin un solo activo y su checklist no se podria probar con nada.
+ALIAS_FAMILIA = {"SVR": "SERV"}     # el fixture llamaba SVR al servidor
+
 activos = leer("ACT_Activos")
+prefijos_familia = {f[0] for f in FAMILIAS}
+cuenta = {}
+solo_fixture = 0
+for a in activos:
+    cod = texto(a["CodigoActivo"])
+    pref = re.split(r"[-_]", cod)[0]
+    pref = ALIAS_FAMILIA.get(pref, pref)
+    if pref in prefijos_familia:
+        cuenta[pref] = cuenta.get(pref, 0) + 1
+        a["CodigoActivo"] = "%s-%03d" % (pref, cuenta[pref])
+    else:
+        solo_fixture += 1
+
 fixture = len(activos)
-for f in generar_filas():
+for f in generar_filas(cuenta):
     activos.append({c: f.get(c, "") for c in columnas("ACT_Activos")})
 escribir("ACT_Activos", activos)
 
-# ------------------------------------------------------------------ 5. _LEEME
+# ------------------------------------------- 5. los bancos de preguntas
+#
+# Tres bancos ya existian con 15 preguntas cada uno, pero DOS de ellos vivian en
+# pestanas retiradas -FRM_CCTV y FRM_PMVF- que no viajan a la plantilla. Estaban
+# escritos y acordados, y se estaban perdiendo: FRM_Preguntas solo traia el de
+# SOS. Esos dos se RECUPERAN tal cual, sin marca de borrador.
+#
+# Los demas se generan como borrador desde banco_preguntas, y cada pregunta lo
+# dice de si misma en su ayuda. El funcional corrige; no parte de una hoja en
+# blanco ni tiene que adivinar el formato.
+fallos_banco = comprobar_banco()
+if fallos_banco:
+    print("El borrador de checklist no es coherente. No se genera nada:")
+    for f in fallos_banco:
+        print("   x", f)
+    sys.exit(1)
+
+COLS_PREG = columnas("FRM_Preguntas")
+preguntas = leer("FRM_Preguntas")
+con_banco = {texto(p["FormularioID"]) for p in preguntas}
+valores = leer("LST_ValoresLista")
+recuperados, generados = [], []
+
+
+def fila_pregunta(pid, formulario, orden, sec, texto_p, tipo, obligatoria,
+                  mini, maxi, unidad, ayuda):
+    return {
+        "PreguntaID": pid, "FormularioID": formulario, "SeccionID": sec,
+        "Orden": orden, "Pregunta": texto_p, "TipoRespuestaID": tipo,
+        "Obligatoria": "TRUE" if obligatoria else "FALSE",
+        "ValorMinimo": mini, "ValorMaximo": maxi, "Unidad": unidad,
+        "Ayuda": ayuda, "VisibleSi": "", "RequiereFoto": "FALSE",
+        "Version": 1, "RequiereGPS": "FALSE", "RequiereFirma": "FALSE",
+        "Activo": "TRUE",
+    }
+
+
+def anadir_valores(pid):
+    """Los cuatro valores del desplegable de estado.
+
+    Una pregunta de tipo Lista sin valores le muestra al tecnico un desplegable
+    vacio, y eso no da error en ninguna parte.
+    """
+    for i, v in enumerate(VALORES_ESTADO, 1):
+        valores.append({"ValorListaID": "%s-%d" % (pid, i), "PreguntaID": pid,
+                        "Valor": v, "Orden": i, "Activo": "TRUE"})
+
+
+# --- los dos bancos reales que estaban en pestanas retiradas
+for pestana, formulario in (("FRM_CCTV", "FRM_CCTV"), ("FRM_PMVF", "FRM_PMVF")):
+    if pestana not in src.sheetnames or formulario in con_banco:
+        continue
+    o = src[pestana]
+    cab = [texto(c.value) for c in next(o.iter_rows(min_row=1, max_row=1))]
+    # el encabezado de estas dos trae 'Seccion' con la tilde rota por codificacion
+    idx = {n: i for i, n in enumerate(cab) if n}
+    col_sec = next((n for n in cab if n.startswith("Secci")), None)
+    clave = next(t[1] for t in TIPOS_ACTIVO if t[6] == formulario)
+    orden = 0
+    for r in o.iter_rows(min_row=2, values_only=True):
+        if not r or r[0] in (None, ""):
+            continue
+        orden += 1
+        pid = "%s%03d" % (clave, orden)
+        tipo = r[idx["TipoRespuestaID"]]
+        preguntas.append(fila_pregunta(
+            pid, formulario, orden, r[idx[col_sec]], r[idx["Pregunta"]], tipo,
+            texto(r[idx["Obligatoria"]]).upper() == "TRUE",
+            r[idx["ValorMinimo"]] or "", r[idx["ValorMaximo"]] or "",
+            r[idx["Unidad"]] or "", r[idx["Ayuda"]] or ""))
+        if str(tipo) == "2":
+            anadir_valores(pid)
+    con_banco.add(formulario)
+    recuperados.append("%s (%d)" % (formulario, orden))
+
+# --- borrador para los que siguen sin banco
+for tid, clave, nombre, categoria, _qr, _gps, formulario, _radio in TIPOS_ACTIVO:
+    if formulario in con_banco:
+        continue
+    for orden, (sec, texto_p, tipo, obl, mini, maxi, unidad, ayuda) in \
+            enumerate(preguntas_de(categoria), 1):
+        pid = "%s%03d" % (clave, orden)
+        preguntas.append(fila_pregunta(
+            pid, formulario, orden, sec, texto_p, tipo, obl, mini, maxi, unidad,
+            "%s %s" % (ayuda, MARCA)))
+        if tipo == 2:
+            anadir_valores(pid)
+    generados.append(formulario)
+
+escribir("FRM_Preguntas", preguntas)
+escribir("LST_ValoresLista", valores)
+
+# ------------------------------------- 6. los tramos de las unidades funcionales
+#
+# Estaban las cuatro vacias, y sin tramo el filtro por zona no tiene de que
+# colgar. Se reparten los 137,03 km oficiales entre las cuatro, que es lo que
+# hace el generador de inventario para decidir a que UF cae cada activo. Es un
+# reparto uniforme y por tanto provisional: operacion tiene los PR reales.
+unidades = leer("UNF_UnidadesFuncionales")
+if unidades:
+    tramo = LARGO_KM / len(unidades)
+    for i, u in enumerate(unidades):
+        ini, fin = i * tramo, (i + 1) * tramo
+        u["PRInicial"] = "%02d+%03d" % (int(ini), int(round((ini - int(ini)) * 1000)))
+        u["PRFinal"] = "%02d+%03d" % (int(fin), int(round((fin - int(fin)) * 1000)))
+    escribir("UNF_UnidadesFuncionales", unidades)
+
+# ------------------------------------------- 7. fuera los registros de prueba
+#
+# La plantilla es lo que recibe el funcional, y las filas de prueba de otro no
+# son dato suyo: son ruido que tiene que distinguir y borrar. Se van las ocho
+# tablas de movimiento y quedan los catalogos, los usuarios, las asignaciones y
+# el inventario, que es lo que hay que completar.
+#
+# Se llevan por delante los fixtures de P-08 y P-09. No es perdida: una fila de
+# mantenimiento escrita a mano en la hoja no prueba que la aplicacion sepa
+# crearla. Esos dos registros hay que rehacerlos DESDE la aplicacion, que es lo
+# que la prueba mide en realidad.
+DE_PRUEBA = ["OT_OrdenesTrabajo", "MAN_Mantenimientos", "CHK_Checklists",
+             "CHD_ChecklistDetalle", "FOT_Fotografias", "FIR_Firmas",
+             "NOV_Novedades", "PLA_PlanMantenimiento"]
+retiradas_prueba = {}
+for tabla in DE_PRUEBA:
+    n = len(leer(tabla))
+    if n:
+        retiradas_prueba[tabla] = n
+    escribir(tabla, [])
+
+# ------------------------------------------------------------------ 8. _LEEME
 #
 # Va delante porque es lo unico que el funcional lee sin que se lo expliquen.
 sin_preguntas = sorted({texto(f["FormularioID"]) for f in formularios}
                        - {texto(p["FormularioID"]) for p in leer("FRM_Preguntas")})
 
+borrador = sum(1 for x in preguntas if MARCA in texto(x["Ayuda"]))
+acordadas = len(preguntas) - borrador
+form_cubiertos = {texto(x["FormularioID"]) for x in preguntas}
+
+# Los formatos se derivan de los tipos que declara el modelo, con un ejemplo
+# sacado del propio archivo. Es la pregunta que hace todo el que abre la hoja
+# -en que formato va la fecha, como se escribe una coordenada- y hasta ahora
+# habia que adivinarla.
+EJEMPLO = {
+    "LatLong":         ("4.812345, -73.201234", "latitud, longitud. Punto decimal, seis decimales"),
+    "Date":            ("2026-08-07", "ano-mes-dia. Escribalo como fecha, no como texto"),
+    "DateTime":        ("2026-08-07 14:30", "ano-mes-dia hora:minuto, 24 horas"),
+    "ChangeTimestamp": ("(no se escribe)", "la pone el servidor al guardar. Dejela vacia"),
+    "Yes/No":          ("TRUE / FALSE", "en mayusculas, sin comillas"),
+    "Decimal":         ("0,05", "coma decimal"),
+    "Number":          ("12", "entero, sin separador de miles"),
+    "Enum":            ("", "uno de los valores permitidos, escrito igual"),
+    "Ref":             ("", "el identificador de la fila destino, tal cual"),
+    }
+
+formatos = []
+for tabla in MODELO:
+    for c in MODELO[tabla]["columnas"]:
+        if c["tipo"] in EJEMPLO and c["tipo"] not in [f[0] for f in formatos]:
+            formatos.append((c["tipo"], EJEMPLO[c["tipo"]][0], EJEMPLO[c["tipo"]][1]))
+
 LEEME = [
     ("PLANTILLA DE DATOS - SGMC", True),
     ("", False),
-    ("%d pestanas con la estructura exacta que espera la aplicacion." % len(MODELO), False),
+    ("%d pestanas de datos mas esta, con la estructura exacta que espera la aplicacion." % len(MODELO), False),
     ("NO anada ni quite columnas: la aplicacion las lee por nombre.", False),
     ("", False),
+    ("Viene AUTOCOMPLETADA a proposito.", True),
+    ("Cada columna trae ya un valor con el formato correcto, para que usted", False),
+    ("corrija en vez de adivinar. Lo que no sea cierto, cambielo.", False),
+    ("", False),
     ("NINGUNA COORDENADA DE ESTE ARCHIVO ES REAL", True),
-    ("Las %d primeras filas de ACT_Activos son el fixture de pruebas: todas comparten" % fixture, False),
-    ("una coordenada que esta en Bogota, no en el corredor.", False),
-    ("Las %d siguientes son generadas: estan sobre el corredor pero son inventadas." % (len(activos) - fixture), False),
-    ("Las %d lo dicen en su columna Observaciones." % len(activos), False),
+    ("Las %d filas de ACT_Activos tienen coordenada, pero esta calculada sobre el" % len(activos), False),
+    ("trazado del corredor, no levantada en campo. Cada fila lo dice en Observaciones.", False),
+    ("", False),
+    ("EN QUE FORMATO SE ESCRIBE CADA COSA", True),
+    ("", False),
+    ("TIPO | EJEMPLO | REGLA", False),
+    ] + [("%s | %s | %s" % (t, e or "-", r), False) for t, e, r in formatos] + [
     ("", False),
     ("LO QUE HAY QUE COMPLETAR", True),
     ("", False),
     ("PESTANA | COLUMNA | QUE PONER", False),
-    ("ACT_Activos | Ubicacion | COORDENADA REAL, formato  4.812345, -73.201234", False),
+    ("ACT_Activos | Ubicacion | LA COORDENADA REAL del equipo", False),
     ("    SIN ESTO NINGUN TECNICO PUEDE CERRAR UNA ORDEN EN VIA", False),
-    ("ACT_Activos | PR | Punto de referencia INVIAS real, formato  12+400", False),
-    ("ACT_Activos | CodigoActivo | El codigo con el que operacion conoce el equipo", False),
+    ("ACT_Activos | PR | El punto de referencia INVIAS real", False),
+    ("ACT_Activos | CodigoActivo | El codigo con el que operacion conoce el equipo,", False),
+    ("    si no coincide con el que trae", False),
     ("ACT_Activos | Criticidad | Alta / Media / Baja. Vacia en las %d" % len(activos), False),
-    ("FRM_Preguntas | todas | Las preguntas de cada checklist.", False),
-    ("    HOY SOLO EXISTEN LAS 15 DE FRM_SOS: %d formularios vacios." % len(sin_preguntas), False),
+    ("FRM_Preguntas | Pregunta y Ayuda | LAS %d QUE LLEVAN [BORRADOR] SON PROPUESTA NUESTRA." % borrador, False),
+    ("    Corrijalas y quite la marca. Buscar BORRADOR en la hoja dice que falta.", False),
+    ("    Las otras %d ya estaban acordadas: SOS, CCTV y PMVF." % acordadas, False),
     ("USR_Usuarios | Correo | EXACTAMENTE la cuenta con la que inicia sesion", False),
     ("ASG_AsignacionZona | todas | Que unidad funcional atiende cada tecnico.", False),
     ("    Sin fila, ese tecnico no ve ningun activo.", False),
-    ("UNF_UnidadesFuncionales | PRInicial/Final | Vacias. El filtro por zona no tiene tramo del que colgar", False),
+    ("UNF_UnidadesFuncionales | PRInicial/Final | Traen un reparto uniforme de los", False),
+    ("    %s km del corredor. Ponga los tramos reales." % ("%.2f" % LARGO_KM).replace(".", ","), False),
     ("", False),
     ("LO QUE NO HAY QUE TOCAR", True),
     ("", False),
     ("Nombres de pestanas y de columnas.", False),
     ("Las columnas de identificador: relacionan las tablas entre si.", False),
-    ("Las pestanas de catalogo: ya estan completas.", False),
     ("TIP_TiposActivo.RadioGeofencingKm: es la distancia para poder cerrar, por tipo.", False),
     ("    Dejarla en blanco hace que se rechace TAMBIEN el cierre legitimo.", False),
+    ("Las columnas de tipo ChangeTimestamp: las escribe el servidor.", False),
     ("", False),
     ("COMO ESTAN LOS DATOS HOY", True),
     ("", False),
-    ("ACT_Activos | %d filas | %d del fixture + %d generados del Plan Maestro"
-     % (len(activos), fixture, len(activos) - fixture), False),
-    ("    Codigos SOS_1..SOS_54, CCTV_1..CCTV_26, SWIT_1..SWIT_142", False),
-    ("    Frecuencia de mantenimiento: la del Plan Maestro, por tipo", False),
-    ("TIP_TiposActivo | %d filas | Un tipo por checklist, con su radio de cierre"
-     % len(TIPOS_ACTIVO), False),
-    ("    Eran %d, y %d de las %d familias del Plan Maestro colgaban del tipo de otra cosa:"
-     % (len(TIPOS_ACTIVO) - len(anadidos), len(anadidos), len(FAMILIAS)), False),
-    ("    la impresora veia el checklist del NAS y el portatil el del servidor.", False),
-    ("FRM_Formularios | %d filas | Uno por tipo. %d se anadieron con el catalogo"
-     % (len(formularios), len(anadidos)), False),
-    ("USR_Usuarios | %d filas" % len(leer("USR_Usuarios")), False),
-    ("OT_OrdenesTrabajo | %d filas | De prueba" % len(leer("OT_OrdenesTrabajo")), False),
+    ("ACT_Activos | %d filas | Un solo inventario, codigo SOS-001, CCTV-001, SWIT-001" % len(activos), False),
+    ("    Cada familia suma lo que dice el Plan Maestro: 54 SOS, 142 switches, 26 camaras", False),
+    ("    %d equipos que el Plan Maestro no cuenta por unidades -fibra, generador," % solo_fixture, False),
+    ("    video wall, router, firewall, UPS, NAS, subestacion y bascula estatica-", False),
+    ("TIP_TiposActivo | %d filas | Un tipo por checklist, con su radio de cierre" % len(TIPOS_ACTIVO), False),
+    ("FRM_Formularios | %d filas | Uno por tipo" % len(formularios), False),
+    ("FRM_Preguntas | %d preguntas | Los %d formularios tienen checklist" % (len(preguntas), len(form_cubiertos)), False),
+    ("USR_Usuarios | %d filas | Personas reales" % len(leer("USR_Usuarios")), False),
+    ("", False),
+    ("SIN REGISTROS DE PRUEBA.", True),
+    ("Se retiraron las ordenes, mantenimientos, checklists, fotografias y firmas", False),
+    ("de ensayo que traia la hoja: no son dato suyo y habria que distinguirlos.", False),
     ("", False),
     ("Documentacion: repositorio del proyecto, empezando por ESTADO.md", False),
 ]
 
-# --------------------------------------- 6. claves y referencias, todas a texto
+# --------------------------------------- claves y referencias, todas a texto
 #
 # El modelo declara las claves como Text y las referencias apuntan a ellas. La
-# hoja heredada guardaba el fixture como texto -'1'- y los generados salian como
-# numero -1001-, asi que ACT_Activos.ActivoID mezclaba los dos tipos.
+# hoja heredada guardaba unas filas como texto -'1'- y las generadas salian como
+# numero, asi que ACT_Activos.ActivoID mezclaba los dos tipos.
 #
 # AppSheet compara el valor de la referencia con el de la clave. Con la clave
 # mezclada la comparacion depende de como llegue cada fila, y el sintoma es una
-# referencia que a veces resuelve y a veces no, sin error. Aqui se decide una
-# vez, derivado del modelo: si es clave o es Ref, viaja como texto.
+# referencia que a veces resuelve y a veces no, sin error.
 def a_texto(v):
     if v is None or v == "":
         return v
@@ -263,13 +455,11 @@ def a_texto(v):
 
 normalizadas = 0
 for tabla in MODELO:
-    cols = columnas(tabla)
     objetivo = [i for i, c in enumerate(MODELO[tabla]["columnas"])
                 if c.get("pk") or c.get("tipo") == "Ref"]
     if not objetivo:
         continue
-    ws = dst[tabla]
-    for fila in ws.iter_rows(min_row=2):
+    for fila in dst[tabla].iter_rows(min_row=2):
         for i in objetivo:
             nuevo = a_texto(fila[i].value)
             if nuevo is not fila[i].value:

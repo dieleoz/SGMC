@@ -112,11 +112,13 @@ MODELO = {
             col("Nombre", "Text", obligatoria=True),
             col("Categoria", "Enum", nota="ITS, Electrico, Comunicaciones, TI"),
             col("FormularioID", "Ref", ref="FRM_Formularios", obligatoria=True,
-                nota="Sin este mapeo no hay checklist dinamico. Estaba vacio en los 18 tipos"),
+                nota="Sin este mapeo no hay checklist dinamico. Estuvo vacio en la hoja heredada"),
             col("TieneQR", "Yes/No", valor_inicial="TRUE"),
             col("RequiereGPS", "Yes/No", valor_inicial="TRUE"),
             col("RadioGeofencingKm", "Decimal", valor_inicial="0.2",
-                nota="Supuesto D-02: radio por tipo, no unico para los 18"),
+                nota="Supuesto D-02: radio por tipo, no un numero unico. El catalogo "
+                     "(scripts/catalogo_tipos.py) lo fija por tipo y la plantilla lo trae "
+                     "poblado en los 27; el valor inicial solo aplica a un tipo nuevo"),
             col("Activo", "Yes/No", valor_inicial="TRUE"),
         ]),
 
@@ -426,7 +428,8 @@ MODELO = {
     # ============================================================= FORMULARIOS
     "FRM_Formularios": dict(
         grupo="Formularios",
-        proposito="Registro maestro de los 18 checklists, uno por tipo de activo.",
+        proposito="Registro maestro de los checklists, uno por tipo de activo: 27 en "
+                  "BD/Modelo_Datos_PLANTILLA.xlsx, 18 en la hoja de produccion.",
         columnas=[
             col("FormularioID", "Text", pk=True),
             col("Nombre", "Text", obligatoria=True),
@@ -650,7 +653,9 @@ RETIPADOS = {
                  "mas barato en que se podra hacer."),
     },
     "ACT_Activos": {
-        "TipoActivoID": ("Number", "Ref", "TIP_TiposActivo", "Guarda enteros 1 a 18. Por confirmar en produccion."),
+        "TipoActivoID": ("Number", "Ref", "TIP_TiposActivo",
+                         "Guarda enteros 1 a 18 en la hoja de produccion y 1 a 27 en la plantilla, "
+                         "que trae los nueve tipos anadidos. Por confirmar en produccion."),
         "CalzadaID": ("Number", "Ref", "CAL_Calzadas", "Por confirmar en produccion."),
         "SentidoID": ("Number", "Ref", "SEN_Sentidos", "Por confirmar en produccion."),
         "FrecuenciaID": ("Number", "Ref", "FRE_Frecuencias", "Por confirmar en produccion."),
@@ -671,8 +676,9 @@ RETIPADOS = {
     },
     "TIP_TiposActivo": {
         "FormularioID": ("Text", "Ref", "FRM_Formularios",
-                         "Poblado en los 18 tipos con valores FRM_SOS a FRM_SUBE, que si existen "
-                         "en FRM_Formularios. La conversion no produce huerfanos."),
+                         "Poblado en los 18 tipos de la hoja de produccion con valores FRM_SOS a "
+                         "FRM_SUBE, y en los 27 de la plantilla. Todos existen en FRM_Formularios: "
+                         "la conversion no produce huerfanos en ninguna de las dos."),
     },
     "LST_ValoresLista": {
         "PreguntaID": ("Text", "Ref", "FRM_Preguntas",
@@ -700,7 +706,9 @@ PARAMETROS = {
                    "D-04 decia 50; se baja a 40 al comprobar que 45 m ya es nueve veces la norma."),
     "RADIO_GEOFENCING_KM": (1.0, "km",
                             "Radio provisional de RG-01 mientras TIP_TiposActivo.RadioGeofencingKm "
-                            "este vacio en los 18 tipos. La version definitiva es por tipo."),
+                            "siga vacio en los 18 tipos de la hoja de produccion. En la plantilla "
+                            "ya esta poblado en los 27, y alli la version definitiva por tipo es "
+                            "la que manda."),
     "DISTANCIA_ESCANEO_CIERRE_KM": (0.5, "km",
                                     "Diferencia maxima entre donde se escaneo y donde se cerro "
                                     "antes de senalarlo en el reporte (RG-13). No bloquea."),

@@ -49,8 +49,12 @@ dejaría de discriminar.
 
 | Hoja | `TIP_TiposActivo.RadioGeofencingKm` |
 |---|---|
-| `BD/Modelo_Datos_09082026.xlsx` — sobre la que corre la app hoy | **vacía en los 18 tipos** |
-| `BD/Modelo_Datos_PLANTILLA.xlsx` — generada del modelo | **poblada en los 18**, de `0,05` a `1,5` km |
+| `BD/Modelo_Datos_09082026.xlsx` — sobre la que corre la app hoy | **vacía en sus 18 tipos** |
+| `BD/Modelo_Datos_PLANTILLA.xlsx` — generada del modelo | **poblada en sus 27 tipos**, de `0,05` a `1,5` km |
+
+Las dos hojas tampoco tienen el mismo número de tipos: la de producción trae 18 y la plantilla 27,
+desde que el catálogo le dio tipo y formulario propios a las nueve familias que colgaban del de otra
+cosa. Es un motivo más para que el ejecutor sepa contra cuál trabaja.
 
 **Sobre la hoja actual el literal `1.0` sigue siendo lo vigente**, y así está en el manual. **Sobre
 la plantilla la variante por tipo es la correcta y el literal es el error**, porque `1,0` km mete

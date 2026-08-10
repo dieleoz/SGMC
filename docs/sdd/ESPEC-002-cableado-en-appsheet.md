@@ -88,7 +88,7 @@ rompe datos correctos:
 
 | Hecho verificado | Consecuencia |
 |---|---|
-| `TIP_TiposActivo.RadioGeofencingKm` está **vacío en los 18 tipos** | RG-01 usa el **literal `1.0`**, no un parámetro. Ver bloque 4 |
+| `TIP_TiposActivo.RadioGeofencingKm` está **vacío en los 18 tipos de la hoja de producción** | RG-01 usa el **literal `1.0`**, no un parámetro. Ver bloque 4 |
 | `MAN_Mantenimientos` tiene **2 filas**, no 0 | Son de prueba y desechables, pero la premisa «no arrastra nada» ya no es literal |
 | `USR_Usuarios.UsuarioID` es texto en las 11 filas | Al tipar la clave, **forzar `Text`**: si AppSheet infiere `Number`, la fila `3aa202ee` queda sin clave válida |
 
@@ -406,8 +406,9 @@ Debe resolver sin error. Es la prueba de que la cadena existe.
 
 ## 7. BLOQUE 4 — Las reglas
 
-**RG-01, geofencing**, sobre `MAN_Mantenimientos.Coordenadas_Cierre`. `RadioGeofencingKm` está
-**vacío en los 18 tipos**, así que la expresión que se pega es esta, con el literal:
+**RG-01, geofencing**, sobre `MAN_Mantenimientos.Coordenadas_Cierre`. En la hoja de producción
+`Modelo_Datos_09082026`, `RadioGeofencingKm` está **vacío en sus 18 tipos**, así que la expresión
+que se pega es esta, con el literal:
 
 ```
 Initial value:  HERE()
@@ -419,7 +420,15 @@ Si se pega la variante con `[TipoActivoID].[RadioGeofencingKm]` sobre la columna
 compara contra blanco y **rechaza también el cierre legítimo**: P-08 y P-09 fallarían las dos y la
 tanda dejaría de discriminar.
 
-La versión con radio por tipo entra cuando se pueblen los 18. Queda anotado como deuda.
+La versión con radio por tipo entra cuando esa columna esté poblada en la hoja contra la que corra
+la aplicación. Queda anotado como deuda.
+
+> **Actualización del 2026-08-10, y solo cambia el punto de partida.** `BD/Modelo_Datos_PLANTILLA.xlsx`
+> **ya trae el radio poblado**, y en **27 tipos**, no en 18: el catálogo pasó de 18 a 27 el
+> 2026-08-09 al darle tipo y formulario propios a las nueve familias del Plan Maestro que colgaban
+> del tipo de otra cosa. **Sobre la plantilla, la variante por tipo es la correcta y el literal
+> `1.0` es el error.** Lo de arriba sigue valiendo tal cual **mientras se despliegue contra la hoja
+> de producción**, que no ha cambiado. Está desarrollado en `PRUEBA-003` C-1.
 
 > **`RADIO_GEOFENCING_KM` de `PAR_Parametros` no lo lee ninguna regla de esta fase**, y conviene
 > saberlo: quien lo cambie creerá haber recalibrado el geofencing sin haber cambiado nada. Es la

@@ -22,11 +22,11 @@ reconstruyó desde cero sobre la hoja `Modelo_Datos_09082026`. Si alguien le pas
 > |---|---|
 > | Órdenes, checklist, fotografías, firmas, histórico | Construido. Las 28 tablas dadas de alta en la aplicación reconstruida |
 > | Referencias entre tablas | **Puestas.** Las 38 del modelo, con `IsPartOf` en las cuatro que lo llevan |
-> | Radio de cierre por tipo de activo | **Vacío en la hoja que la aplicación lee.** Los 18 tipos lo tienen en blanco, así que rige el literal de 1,0 km para todos. Los valores por familia —0,05 / 0,1 / 1,5 km— están en `Modelo_Datos_PLANTILLA.xlsx`, que **no está desplegada** |
+> | Radio de cierre por tipo de activo | **Vacío en la hoja que la aplicación lee.** Sus 18 tipos lo tienen en blanco, así que rige el literal de 1,0 km para todos. Los valores por familia —0,05 / 0,1 / 1,5 km— están en `Modelo_Datos_PLANTILLA.xlsx`, poblados en sus 27 tipos, y esa hoja **no está desplegada** |
 > | Que la coordenada de cierre no se pueda mover a mano | **Impuesto.** `Editable_If = FALSE` en las cuatro columnas de captura |
 > | Que no se pueda borrar una orden ni una ejecución | **Impuesto.** Se retiró el botón de borrado en las dos tablas: un error se corrige con `Activo = FALSE`, que deja traza |
 > | Que el técnico no pueda cerrar su propia orden | **Pendiente.** Está definido en el catálogo de estados, no impuesto como regla |
-> | Coordenadas de los activos | **No son las reales.** 34 activos comparten una coordenada en Bogotá y 355 son sintéticas repartidas sobre el corredor. **Ninguna sirve para operar** |
+> | Coordenadas de los activos | **No son las reales.** De los 389 de la plantilla, 34 comparten una coordenada en Bogotá y 355 son sintéticas repartidas sobre el corredor. **Ninguna sirve para operar** |
 > | Creación automática de las órdenes del mes | **No cabe en el plan actual** |
 >
 > **Lo que falta para que el geofencing funcione de verdad son las coordenadas**, no el cableado.
@@ -129,9 +129,10 @@ trabajando**. Lo que sí aporta valor son las fotografías, porque cada una llev
 coordenada y su hora.
 
 > **Estado: hoy el radio no depende del tipo.** En la hoja que la aplicación lee, la columna está
-> **vacía en los 18 tipos** —comprobado en Drive el 2026-08-09—, así que rige un literal de 1,0 km
+> **vacía en sus 18 tipos** —comprobado en Drive el 2026-08-09—, así que rige un literal de 1,0 km
 > para todo, del poste al tramo de fibra. Los valores por familia —0,05 km, 0,1 km o 1,5 km— existen
-> en `BD/Modelo_Datos_PLANTILLA.xlsx`, que **no está desplegada**.
+> en `BD/Modelo_Datos_PLANTILLA.xlsx`, poblados en los 27 tipos que esa hoja trae, y **no está
+> desplegada**.
 >
 > Y aunque lo estuviera, **la coordenada del activo tampoco es la real**: ninguna de las 389 lo es.
 > Hasta cargarlas, la comprobación de distancia no significa nada en campo.

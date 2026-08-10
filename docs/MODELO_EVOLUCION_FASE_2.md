@@ -10,8 +10,10 @@ o una conversación con operación.
 >
 > El backlog sigue en pie entero. Dos cosas que este documento daba por pendientes ya no lo están:
 >
-> - **`TIP_TiposActivo.RadioGeofencingKm` ya no está vacío.** Se pobló por familia de activo, y con
->   los valores que la sección 6 pedía. Deja de ser deuda; pasa a ser una decisión tomada.
+> - **`TIP_TiposActivo.RadioGeofencingKm` ya no está vacío en `BD/Modelo_Datos_PLANTILLA.xlsx`.** Se
+>   pobló por familia de activo, y con los valores que la sección 6 pedía, en los **27 tipos** que
+>   trae hoy la plantilla. Deja de ser deuda; pasa a ser una decisión tomada. **En la hoja de
+>   producción sigue vacío en sus 18 tipos**, y eso no ha cambiado.
 > - **Los 355 activos ya están en `BD/Modelo_Datos_PLANTILLA.xlsx`**, como inventario **sintético**
 >   de prueba. Son códigos reales del Plan Maestro con coordenadas interpoladas, y cada fila lo dice
 >   de sí misma. No es el registro real, así que el hueco de la sección 13.1 sigue abierto.
@@ -52,18 +54,27 @@ Lo que sigue en este documento son los huecos de modelo; lo que aporta cada fuen
 | | Modelo | Realidad |
 |---|---|---|
 | Activos | 34 | **355** contables |
-| Tipos | 18 | **24** |
+| Tipos | 18 —hoy 27 en el catálogo, ver el recuadro | **24** |
 | Postes SOS | 3 | **54** |
 | Switches capa 2 | 0 | **142** |
 | Fibra troncal | 1 fila | **137 km**, ~600 cajas |
 
-Los 34 son **3 de cada tipo**: una muestra sintética. El piloto corre sobre el 10% del parque.
+Los 34 se reparten entre uno y tres por tipo sobre los 18 que había: una muestra sintética. El
+piloto corre sobre el 10% del parque.
 
 > **Desde el 2026-08-09 la plantilla lleva los 355**, con los códigos del Plan Maestro —`SOS_1` a
 > `SOS_54`, `SWIT_1` a `SWIT_142`— y coordenadas interpoladas sobre los 137 km del corredor. **Son
 > de prueba**: sirven para ejercitar el filtro por zona, la navegación y el volumen de
-> sincronización, y cada fila lo declara en `ACT_Activos.Observaciones`. **Los tipos siguen siendo
-> 18, no 24**, y el hueco de la sección 3 no lo cierra ninguna carga de datos.
+> sincronización, y cada fila lo declara en `ACT_Activos.Observaciones`. Con los 34 de fixture
+> delante, la plantilla tiene **389 filas**.
+>
+> **Y los tipos del catálogo pasaron de 18 a 27**, no a 24. Se sumaron los nueve que le faltaban a
+> las familias del Plan Maestro —báscula dinámica, carril de peaje, electrónica de peaje, estación
+> de toma de datos, paso seguro, switch de capa 3, computador portátil, impresora y cámara OCR de
+> pesaje—, con lo que **las 18 familias tienen hoy tipo y formulario propios**. Los otros nueve
+> tipos —generador, báscula, fibra, video wall, router, firewall, UPS, NAS y subestación— no
+> corresponden a ninguna familia contable y vienen del fixture. **Sigue siendo otra lista que la de
+> los 24 tipos del Plan Maestro**, y el hueco de la sección 3 no lo cierra ninguna carga de datos.
 
 **Órdenes preventivas al año, calculadas del plan real: 1.916.** Ocho por día hábil, dos por
 técnico. Manejable a mano, aunque sean 2.000 filas anuales tecleadas.
@@ -204,14 +215,18 @@ una coordenada representativa.
 
 ### El radio de geofencing dejó de ser deuda
 
-`TIP_TiposActivo.RadioGeofencingKm` se creó por tipo de activo y estuvo vacío en los 18. **Se pobló
-el 2026-08-09**, y con los valores que este apartado pedía:
+`TIP_TiposActivo.RadioGeofencingKm` se creó por tipo de activo y estuvo vacío en los 18 tipos que
+había entonces. **Se pobló el 2026-08-09** en `BD/Modelo_Datos_PLANTILLA.xlsx`, y con los valores
+que este apartado pedía. Al pasar el catálogo a 27 tipos, los 27 lo llevan:
 
 | Familia | Radio | Tipos |
 |---|---|---|
-| Puntual: postes SOS, cámaras, gálibos, video wall, equipos de TI | **0,05 km** — 50 m | 12 |
-| Voluminoso o con recinto: PMV fijos y móviles, generador, báscula, subestación | **0,1 km** — 100 m | 5 |
+| Puntual: postes SOS, cámaras CCTV y OCR, gálibos, sensores, paso seguro, estación de toma de datos, video wall, UPS y equipos de TI | **0,05 km** — 50 m | 18 |
+| Voluminoso o con recinto: PMV fijos y móviles, generador, básculas, peajes y subestación | **0,1 km** — 100 m | 8 |
 | **Tramo de fibra** | **1,5 km** | 1 |
+
+**En la hoja de producción esa columna sigue vacía en sus 18 tipos.** Lo poblado es la plantilla,
+que todavía no se ha desplegado.
 
 Sin él, o el poste admite 1 km —y no prueba nada— o el tramo rechaza cierres legítimos. Y con los 355
 sintéticos repartidos por el corredor deja de ser una preferencia. Medido sobre las coordenadas de la

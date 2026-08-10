@@ -42,8 +42,8 @@ físicamente frente al equipo, y que la evidencia que lo respalda es difícil de
 La plantilla de datos, [`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTILLA.xlsx), tiene
 **389 activos** repartidos así:
 
-- **34 activos de fixture** sobre 18 tipos, tres de cada tipo. Son los que traían las seis órdenes
-  de trabajo existentes y se conservan intactos.
+- **34 activos de fixture**, repartidos sobre los 18 tipos que ya existían —entre uno y tres por
+  tipo—. Son los que traían las seis órdenes de trabajo existentes y se conservan intactos.
 - **355 activos sintéticos** con los códigos del Plan Maestro repartidos sobre los 137 km del
   corredor. Cada fila lo dice en `Observaciones`: son de prueba, no son inventario real.
 
@@ -53,13 +53,17 @@ La plantilla de datos, [`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTI
 **Tenemos el censo, no el registro**: sabemos cuántos postes SOS hay, no cuál es cada uno ni dónde
 está.
 
-Los 18 tipos del archivo, en cuatro categorías:
+Los **27 tipos** de la plantilla, en cuatro categorías. Eran 18 hasta el 2026-08-09, cuando se
+añadieron los nueve que faltaban: nueve familias del Plan Maestro colgaban del tipo de otra cosa y
+veían el checklist equivocado. La lista sale de `scripts/catalogo_tipos.py`, que es su fuente única:
 
-- **ITS** — Postes SOS, CCTV, paneles de mensaje variable fijo y móvil (PMVF/PMVM), sensores
-  meteorológicos y ambientales (SGM/SGE/SSA), básculas de pesaje
-- **Eléctrico** — Generadores, UPS, subestaciones
-- **Comunicaciones** — Fibra óptica
-- **TI** — Servidores, NAS, switches, routers, firewalls, videowall
+- **ITS**, 14 — Postes SOS, CCTV, paneles de mensaje variable fijo y móvil (PMVF/PMVM), sensores
+  meteorológicos y ambientales (SGM/SGE/SSA), báscula, báscula dinámica, carril de peaje,
+  electrónica de peaje, estación de toma de datos, paso seguro, cámara OCR de pesaje
+- **Eléctrico**, 3 — Generadores, UPS, subestaciones
+- **Comunicaciones**, 1 — Fibra óptica
+- **TI**, 9 — Servidores, NAS, switches, switches de capa 3, routers, firewalls, videowall,
+  computadores portátiles, impresoras
 
 > **Ninguna coordenada es la real.** Los 34 de fixture comparten un punto en Bogotá y las 355
 > sintéticas se generaron sobre el trazado. Cargar las reales es el bloqueante D-01 para salir a
@@ -188,10 +192,15 @@ admiten la misma tolerancia:
 DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]
 ```
 
-**Está cableada y puesta.** `TIP_TiposActivo.RadioGeofencingKm` ya no está vacía: 0,05 km en poste
-SOS, cámara, sensores y equipos de TI; 0,1 km en paneles de mensaje variable, báscula, generador y
-subestación; 1,5 km en el tramo de fibra, que es lineal. Y las cuatro columnas de captura llevan
-`Editable_If = FALSE`, sin lo cual el técnico podría arrastrar el pin del mapa encima del activo.
+**Está cableada y puesta.** En [`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTILLA.xlsx),
+`TIP_TiposActivo.RadioGeofencingKm` trae valor en los **27 tipos**: 0,05 km en 18 —poste SOS,
+cámara, sensores, paso seguro y equipos de TI—, 0,1 km en 8 —paneles de mensaje variable, básculas,
+peajes, generador y subestación— y 1,5 km en el tramo de fibra, que es lineal. Y las cuatro columnas
+de captura llevan `Editable_If = FALSE`, sin lo cual el técnico podría arrastrar el pin del mapa
+encima del activo.
+
+**En la hoja de producción `Modelo_Datos_09082026` esa columna sigue vacía en sus 18 tipos**, así
+que hasta que se despliegue la plantilla rige el literal provisional de 1,0 km.
 
 **Lo que falta es la coordenada del activo**, no la regla.
 
@@ -274,7 +283,7 @@ archivo/       Material de origen, no versionado
 
 | Archivo | Estado |
 |---|---|
-| [`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTILLA.xlsx) | **El entregable de datos.** Generado del modelo: 28 pestañas, 202 columnas, ninguna de sobra |
+| [`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTILLA.xlsx) | **El entregable de datos.** Generado del modelo: 28 pestañas de datos más `_LEEME`, 202 columnas, ninguna de sobra. 27 tipos de activo, 27 formularios y 389 activos |
 | `entregables/Propuesta_Arquitectura_SGMC.docx` | Enviado a Dirección y al funcional. Describe el alcance anterior al QR retirado |
 | `entregables/Definicion_Funcional_SGMC_Mesa_de_Trabajo.docx` | Enviado. 14 decisiones con propuesta marcada, hoy adoptadas como supuestos |
 | `entregables/CORREO_ENVIO_MESA_DE_TRABAJO.md` | Texto del correo de envío |

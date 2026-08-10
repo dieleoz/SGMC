@@ -2,7 +2,7 @@
 
 **Proyecto:** Sistema de Gestión de Mantenimiento en Campo
 **Cliente:** Concesión Transversal del Sisga S.A.S.
-**Actualizado:** 9 de agosto de 2026 | **Versión:** 4.1
+**Actualizado:** 10 de agosto de 2026 | **Versión:** 4.1
 
 > ## Para qué sirve este documento, y para qué no
 >
@@ -123,7 +123,7 @@ que llega solo con tiempo, y no llega — llega con la decisión de licenciamien
 | Fase 2. Configuración de interfaz | Bloqueada por Fase 1 y por declarar vistas | Reportes y pantallas construidos. **Antes hay que declarar la interfaz en el modelo**: hoy no tiene vistas, ni acciones, ni slices |
 | Fase 3. Prueba controlada | Bloqueada por Fase 2 | Registros reales en `MAN_Mantenimientos` y en las tablas de evidencia, verificados leyendo el archivo |
 | Fase 4. Piloto de campo | Bloqueada por Fase 3 | 10 técnicos operando una semana, con registros sincronizados desde el corredor |
-| Fase 5. Producción y evolución | Bloqueada por Fase 4 | Los 18 tipos con banco de preguntas, integraciones y respaldo automático |
+| Fase 5. Producción y evolución | Bloqueada por Fase 4 | Los 27 tipos con banco de preguntas, integraciones y respaldo automático |
 
 **No hay fechas.** El cronograma depende de dos tareas que son trabajo del cliente y cuya duración
 solo el equipo de la Concesión puede estimar: el levantamiento de las coordenadas reales (decisión
@@ -134,7 +134,7 @@ la mesa de trabajo, no antes.
 
 ## 3.1 Lo que sí está construido
 
-Verificado el 2026-08-09 contra `scripts/modelo_objetivo.py` y `BD/Modelo_Datos_PLANTILLA.xlsx`.
+Verificado el 2026-08-10 contra `scripts/modelo_objetivo.py` y `BD/Modelo_Datos_PLANTILLA.xlsx`.
 **Cada cifra se rederiva con los verificadores; ninguna está escrita de memoria.**
 
 - **Modelo de 28 tablas, 202 columnas, 38 referencias y 20 reglas.** `validar_modelo.py` sale
@@ -144,14 +144,16 @@ Verificado el 2026-08-09 contra `scripts/modelo_objetivo.py` y `BD/Modelo_Datos_
 - **Aplicación `SISGA` reconstruida**, con las 28 tablas dadas de alta, las 38 referencias puestas,
   `IsPartOf` en las cuatro que lo llevan, los dos filtros de seguridad y las cuatro marcas de tiempo
   como `ChangeTimestamp` del servidor.
-- **Inventario de prueba:** 34 activos de fixture y 355 sintéticos con los códigos del Plan Maestro
-  repartidos por los 137 km del corredor. Cada fila declara en `ACT_Activos.Observaciones` que no es
-  inventario real.
-- **`TIP_TiposActivo.RadioGeofencingKm` poblado en los 18 tipos** en
-  `BD/Modelo_Datos_PLANTILLA.xlsx`, por familia: 0,05 km en 12, 0,1 km en 5 y 1,5 km en la fibra.
-  **En la hoja que la aplicacion lee sigue vacio en los 18**, comprobado en Drive el 2026-08-09, asi
-  que hoy rige el literal de 1,0 km. Es el mismo hecho que `PRUEBA-003` C-1.
-- Catálogos poblados: 18 tipos de activo, 10 sedes, 4 unidades funcionales, 4 roles, 11 usuarios,
+- **Inventario de prueba: 389 activos**, 34 de fixture y 355 sintéticos con los códigos del Plan
+  Maestro repartidos por los 137 km del corredor. Cada fila declara en `ACT_Activos.Observaciones`
+  que no es inventario real.
+- **`TIP_TiposActivo.RadioGeofencingKm` poblado en los 27 tipos** de
+  `BD/Modelo_Datos_PLANTILLA.xlsx`, por familia: 0,05 km en 18, 0,1 km en 8 y 1,5 km en la fibra.
+  **En la hoja que la aplicacion lee sigue vacio en sus 18 tipos**, comprobado en Drive el
+  2026-08-09, asi que hoy rige el literal de 1,0 km. Es el mismo hecho que `PRUEBA-003` C-1.
+- Catálogos poblados en la plantilla: 27 tipos de activo con sus 27 formularios —eran 18 y 18 hasta
+  el 2026-08-09, y siguen siéndolo en producción—, 10 sedes, 4 unidades funcionales, 4 roles,
+  11 usuarios,
   4 asignaciones de zona, 5 motivos de pendiente, 7 estados de orden, 3 parámetros y los catálogos
   viales de calzada, sentido, estado y frecuencia.
 - 6 órdenes de trabajo, 2 mantenimientos de prueba y 1 checklist con su detalle.
@@ -236,8 +238,9 @@ y por eso no hay forma de adelantarlo desde el repositorio.
 - [ ] **D-01.** Levantamiento en campo de las coordenadas reales y carga en `ACT_Activos.Ubicacion`.
       Los 34 de fixture comparten una coordenada de Bogotá; las 355 sintéticas están interpoladas
       sobre el corredor. **Ninguna sirve para cerrar una orden con un técnico delante**
-- [ ] **D-09.** Construcción de los 17 bancos de preguntas que faltan en `FRM_Preguntas`. Hoy hay
-      15 preguntas y las 15 son del formulario de postes SOS
+- [ ] **D-09.** Construcción de los 26 bancos de preguntas que faltan en `FRM_Preguntas`, uno por
+      cada formulario de la plantilla salvo `FRM_SOS`. Hoy hay 15 preguntas y las 15 son del
+      formulario de postes SOS
 - [ ] Poblar `ROL_Roles` con los doce oficios del Plan Maestro. **Es lo más barato que hay
       pendiente:** doce filas en una tabla que ya existe, sin tocar ninguna regla
 - [ ] Asignar zona en `ASG_AsignacionZona` a los técnicos que no la tienen. Hay 4 asignaciones y 11
@@ -254,12 +257,13 @@ y por eso no hay forma de adelantarlo desde el repositorio.
       cómo se verifica que cada etiqueta quedó en su equipo
 - [x] **Diccionario de datos regenerado.** `docs/bd.md` ya no se escribe: sale de
       `generar_diccionario_bd.py` leyendo la hoja
-- [x] **`TIP_TiposActivo.FormularioID` mapeado en los 18 tipos.** Y el modelo lo declara descartado:
+- [x] **`TIP_TiposActivo.FormularioID` mapeado en todos los tipos**: los 27 de la plantilla y los 18
+      de producción, sin una fila sin formulario. Y el modelo lo declara descartado:
       el formulario es de la tarea, no del tipo. Se retira en el paso 1 del orden de implementación
 - [x] **Checklist huérfano remediado.** `CHK_Checklists` cuelga hoy de `MantenimientoID`, no de la
       orden
 
-**Cierra cuando:** las coordenadas son todas distintas y están sobre el corredor; los 18 formularios
+**Cierra cuando:** las coordenadas son todas distintas y están sobre el corredor; los 27 formularios
 tienen preguntas; y un usuario de prueba ve activos al aplicar el filtro.
 
 ---

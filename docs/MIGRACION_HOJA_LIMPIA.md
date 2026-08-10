@@ -5,7 +5,7 @@
 | | |
 |---|---|
 | Estado | Preparado, sin ejecutar |
-| **El entregable** | `BD/Modelo_Datos_PLANTILLA.xlsx` — 28 pestañas de datos más `_LEEME`, con los 34 activos de fixture y 355 sintéticos |
+| **El entregable** | `BD/Modelo_Datos_PLANTILLA.xlsx` — 28 pestañas de datos más `_LEEME`, con 27 tipos de activo, 27 formularios y 389 activos: los 34 de fixture y 355 sintéticos |
 | Intermedio | `BD/Modelo_Datos_LIMPIO.xlsx` — la estructura sin inventario. **No se entrega** |
 | Lo genera | `python scripts/generar_plantilla.py` — la plantilla entera, en un comando |
 
@@ -192,8 +192,9 @@ a levantar. Es la decisión **D-01** y sigue siendo el bloqueo del piloto.
 de 1 km mete **8 activos dentro de cada geofence**. El sistema probaría «estás en el corredor», no
 «estás frente al equipo».
 
-`TIP_TiposActivo.RadioGeofencingKm` **ya no está vacía**: la plantilla la trae poblada por familia
-—0,05 km en 12 tipos, 0,1 km en 5 y 1,5 km en la fibra—. **Lo que falta es la expresión**: mientras
+`TIP_TiposActivo.RadioGeofencingKm` **ya no está vacía en la plantilla**: la trae poblada por
+familia en sus 27 tipos —0,05 km en 18, 0,1 km en 8 y 1,5 km en la fibra—, mientras que en la hoja
+de producción sigue vacía en los 18 suyos. **Y falta además la expresión**: mientras
 la regla del editor use el literal `1.0` en vez de desreferenciar esa columna, la plantilla no
 cambia nada. La expresión buena está en `RECONSTRUCCION_EXPRESIONES.md`.
 

@@ -363,8 +363,13 @@ Editable_If:    FALSE
 ```
 
 **El `1.0` es literal a proposito.** El modelo preve un radio por tipo de activo, pero esa columna
-esta vacia en los 18 tipos: la version por tipo comparia contra una celda en blanco y **rechazaria
-tambien los cierres legitimos**.
+esta vacia en los 18 tipos de la hoja de produccion `Modelo_Datos_09082026`: la version por tipo
+comparia contra una celda en blanco y **rechazaria tambien los cierres legitimos**.
+
+**Si despliega contra `BD/Modelo_Datos_PLANTILLA.xlsx`, es al reves.** Alli la columna esta
+poblada en sus 27 tipos, y entonces lo correcto es la variante por tipo:
+`... <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]`. Compruebe contra que hoja esta
+trabajando antes de pegar la expresion.
 
 **No editables** — en `MAN_Mantenimientos`, `Editable_If = FALSE` en las cuatro columnas de
 captura:
@@ -725,7 +730,7 @@ Periodicidad del mantenimiento preventivo.
 
 ## `FRM_Formularios`
 
-Registro maestro de los 18 checklists, uno por tipo de activo.
+Registro maestro de los checklists, uno por tipo de activo: 27 en BD/Modelo_Datos_PLANTILLA.xlsx, 18 en la hoja de produccion.
 
 | Columna | Tipo | Que hacer |
 |---|---|---|
@@ -734,6 +739,12 @@ Registro maestro de los 18 checklists, uno por tipo de activo.
 | `Descripcion` | `Text` |  |
 | `Version` | `Number` | `Initial value` = `1` |
 | `Activo` | `Yes/No` | `Initial value` = `TRUE` |
+
+**Y estas, que estan en la hoja y NO se usan:**
+
+| Columna | Que hacer | Por que |
+|---|---|---|
+| `Orden` | **OCULTAR** · SIN DECIDIR | El modelo no la declara |
 
 ## `FRM_Preguntas`
 
@@ -758,6 +769,12 @@ Banco unico de preguntas. Es el motor: se retiran las hojas planas FRM_SOS, FRM_
 | `RequiereGPS` | `Yes/No` | `Initial value` = `FALSE` |
 | `RequiereFirma` | `Yes/No` | `Initial value` = `FALSE` |
 | `Activo` | `Yes/No` | `Initial value` = `TRUE` |
+
+**Y estas, que estan en la hoja y NO se usan:**
+
+| Columna | Que hacer | Por que |
+|---|---|---|
+| `ValorDefecto` | **OCULTAR** · SIN DECIDIR | El modelo no la declara |
 
 ## `FRM_Secciones`
 
