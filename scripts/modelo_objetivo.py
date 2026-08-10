@@ -625,88 +625,6 @@ CAMPOS_RETIRADOS = {
     },
 }
 
-# ------------------------------------- renombrados: nombre actual -> objetivo
-#
-# Cableado de referencias. Una referencia de AppSheet guarda el valor de la CLAVE
-# de la tabla destino, de modo que renombrar y retipar no son dos tareas: son la
-# misma. Se declaran aqui para que la migracion sea verificable y no dependa de
-# que alguien recuerde el mapeo.
-#
-# FUENTE: Google Sheets de PRODUCCION, leido el 2026-08-07 con el conector de
-# Drive, el que declara scripts/sistema.py. NO el Excel local.
-#
-# Una version anterior de este mapeo se construyo sobre el Excel y era incorrecta
-# para MAN_Mantenimientos: el Excel la llama MantenimientoID y TecnicoID, y
-# produccion las llama MttoID y Tecnico_Asignado. Produccion es lo que corre la
-# app, de modo que manda produccion. Ese error es exactamente lo que el pipeline
-# SDD viene a impedir.
-CAMPOS_RETIRADOS = {
-    "USR_Usuarios": {
-        "SedeID": "Retirada el 2026-08-10 para que el modelo diga lo que dice la "
-                  "especificacion. FUNCIONAL_SGMC 6.3 la declara descartada frente a "
-                  "ASG_AsignacionZona: la sede es un edificio y la asignacion es un tramo, "
-                  "y un tecnico puede atender varias unidades funcionales, asi que la "
-                  "relacion es de muchos a muchos y no cabe como columna. RG-04, el filtro "
-                  "de seguridad que decide que activos ve cada tecnico, lee la asignacion y "
-                  "no menciona la sede. El modelo la declaraba Ref obligatoria mientras la "
-                  "spec la daba por descartada: se contradecian, y cablearla habria dejado "
-                  "dos formas de decir donde trabaja alguien.",
-    },
-    "MAN_Mantenimientos": {
-        "Imagen_Inicio": "Sustituido por FOT_Fotografias con Tipo=Antes.",
-        "Imagen_Final": "Sustituido por FOT_Fotografias con Tipo=Despues.",
-        "Firma_Tecnico": "Sustituido por FIR_Firmas.",
-        "Firma_Supervisor": "El supervisor aprueba en el portal, no firma. Supuesto D-10.",
-        "Localizacion": "Ambiguo y redundante con Coordenadas_Cierre.",
-        "Diagnostico": "Se responde en el checklist, no en campo libre.",
-        "Trabajo_Realizado": "Se responde en el checklist.",
-        "Repuestos_Utilizados": "Gestion de repuestos esta fuera de alcance.",
-        "Requiere_Repuesto": "Se cubre con MotivoPendienteID = Falta de repuesto.",
-        "Duracion_Minutos": "Se calcula de FechaHoraInicio y FechaHoraFin.",
-        "Tipo": "El tipo es de la orden, no de la ejecucion.",
-        "Fecha": "Redundante con FechaHoraInicio.",
-        "Estado_Intervencion": "Redundante con el estado de la orden.",
-    },
-    "OT_OrdenesTrabajo": {
-        "FormularioID": "El formulario lo determina el tipo del activo, no la orden.",
-        "Motivo_Cierre": "Se tipifica en MOT_MotivosPendiente desde la ejecucion.",
-        "Informe_Final": "Se genera del mantenimiento y su checklist, no se transcribe.",
-    },
-    "ACT_Activos": {
-    },
-    "CHK_Checklists": {
-        "ActivoID": "Se alcanza por [MantenimientoID].[OTID].[ActivoID].",
-        "TecnicoID": ("Se alcanza por [MantenimientoID].[TecnicoID]. Es el campo donde el dato "
-                      "de prueba dejo 'Santiago Moreno' en lugar de un identificador."),
-        "Observaciones": "La observacion es de la ejecucion o de la respuesta, no del encabezado.",
-        "FechaCreacion": "Redundante con FechaInicio.",
-        "Estado": "Sustituido por Finalizado, que produccion ya tiene.",
-        "GPSInicio": "La coordenada es del mantenimiento y de cada fotografia, no del checklist.",
-        "GPSFin": "Idem.",
-        "FirmaTecnico": "Sustituido por FIR_Firmas.",
-        "FirmaSupervisor": "El supervisor aprueba en el portal, no firma. Supuesto D-10.",
-        "PDF": "El informe se genera al enviarlo, no se almacena en la fila.",
-        "FechaEnvioCorreo": "Es traza del bot, no del checklist.",
-        "Activo": "El checklist es parte de su mantenimiento: no se desactiva por separado.",
-        "PreguntaActual": "Estado de la interfaz, no dato. Se deriva de las respuestas.",
-        "TotalPreguntas": "Se cuenta de FRM_Preguntas.",
-        "Porcentaje": "Se calcula. Guardarlo permite que contradiga al detalle.",
-    },
-    "CHD_ChecklistDetalle": {
-        "Orden": "Se alcanza por [PreguntaID].[Orden].",
-        "TipoRespuestaID": "Se alcanza por [PreguntaID].[TipoRespuestaID].",
-        "PreguntaActual": "Estado de la interfaz, no dato.",
-        "EstadoPregunta": "Redundante con Contestada.",
-        "TotalPreguntas": "No es del detalle sino del encabezado, y ademas se cuenta.",
-        "RespuestaFecha": "Fuera de alcance: ninguna pregunta usa tipo fecha.",
-        "RespuestaHora": "Fuera de alcance: ninguna pregunta usa tipo hora.",
-        "RespuestaFoto": "Sustituido por FOT_Fotografias.",
-        "RespuestaFirma": "Sustituido por FIR_Firmas.",
-        "RespuestaGPS": "La coordenada es del mantenimiento y de cada fotografia.",
-        "FechaRespuesta": "Se deriva del ChangeTimestamp del mantenimiento.",
-        "Activo": "El detalle es parte de su checklist: no se desactiva por separado.",
-    },
-}
 
 # ------------------------------------- renombrados: nombre actual -> objetivo
 #
@@ -1044,9 +962,13 @@ COLUMNAS_PROPUESTAS = {
 COLUMNAS_SIN_DECIDIR = {}
 
 # Y aqui queda registrado que se retiraron, que es lo que convierte "ya no
-# estan" en una decision y no en un descuido. Se anaden despues de la
-# declaracion para que no dependa de cual de los dos bloques de
-# CAMPOS_RETIRADOS gane -hoy hay dos, identicos, y eso es un defecto aparte-.
+# estan" en una decision y no en un descuido.
+#
+# Se anadian aqui, y no dentro del bloque, para esquivar que hubiera DOS
+# CAMPOS_RETIRADOS identicos y no depender de cual ganara. Eso era endurecer
+# al consumidor en vez de arreglar la causa: el duplicado ya no existe. Se
+# quedan fuera porque su motivo es distinto -no se retiraron por decision de
+# modelo, las retiro la regeneracion- y agruparlas lo dice sin explicarlo.
 for _t, _c, _motivo in [
     ("USR_Usuarios", "UltimaSincronizacion",
      "Venia de una version anterior y el modelo nunca la uso. La regeneracion "
