@@ -1,80 +1,210 @@
 # Reconstruccion de la capa de expresiones — lista de reposicion
 
-**Generado de `scripts/modelo_objetivo.py`.** Es lo que tiene que existir cuando termine el
-borrado y la regeneracion. No se inventa nada: son las 20 reglas que ya pasaron el arquitecto.
+**Generado de `scripts/modelo_objetivo.py`.** Es lo que tiene que existir en la aplicacion.
+**Ninguna expresion esta truncada**: se copian y se pegan enteras.
 
-## Por que existe esta lista
+## 1. Los nombres viejos, y por que la lista NO se aplica en bloque
 
-La Fase A renombro columnas en la hoja mientras AppSheet guardaba definiciones con los nombres
-viejos. Toda expresion que citaba `Activo`, `Estado`, `Fecha Programada`, `Numero_OT`,
-`SupervidorID`, `Tecnico`, `Fecha_Cierre` o `Cerrada_Por` quedo rota, y como una tabla invalida
-invalida a las que la referencian, los errores salen encadenados.
+La Fase A renombro columnas en la hoja. Toda expresion que cite un nombre viejo quedo rota.
 
-La salida es borrar la capa de expresiones y rehacerla. **Pero borrar sin lista deja una app que
-despliega y nadie sabe que perdio.** Esto es la lista.
+> **Cuidado: cinco de estos nombres siguen VIVOS en otras tablas.** El mapeo solo vale **tabla por
+> tabla**. Un buscar-y-reemplazar global rompe `SED_Sedes` y `MAN_Mantenimientos`.
 
-## 1. Los ocho nombres que rompen todo
+| Tabla | Nombre viejo | Nombre correcto | Aviso |
+|---|---|---|---|
+| `ACT_Activos` | `EstadoID` | `EstadoActivoID` |  |
+| `ACT_Activos` | `SedeID` | `UnidadFuncionalID` | **Sigue vivo en `SED_Sedes`, `USR_Usuarios`** |
+| `CHD_ChecklistDetalle` | `Observaciones` | `Observacion` | **Sigue vivo en `ACT_Activos`, `OT_OrdenesTrabajo`, `MAN_Mantenimientos`** |
+| `CHK_Checklists` | `OTID` | `MantenimientoID` | **Sigue vivo en `OT_OrdenesTrabajo`, `MAN_Mantenimientos`** |
+| `FRM_Formularios` | `Descripción` | `Descripcion` |  |
+| `FRM_Formularios` | `Versión` | `Version` |  |
+| `LST_ValoresLista` | `ListaID` | `ValorListaID` |  |
+| `MAN_Mantenimientos` | `Aprobado_Supervisor` | `AprobadoSupervisor` |  |
+| `MAN_Mantenimientos` | `Fecha_Hora_Fin` | `FechaHoraFin` |  |
+| `MAN_Mantenimientos` | `Fecha_Hora_Inicio` | `FechaHoraInicio` |  |
+| `MAN_Mantenimientos` | `Fecha_Hora_Registro` | `FechaHoraRegistro` |  |
+| `MAN_Mantenimientos` | `Motivo_Pendiente` | `MotivoPendienteID` |  |
+| `MAN_Mantenimientos` | `MttoID` | `MantenimientoID` |  |
+| `MAN_Mantenimientos` | `Requiere_Segunda_Visita` | `RequiereSegundaVisita` |  |
+| `MAN_Mantenimientos` | `Tecnico_Asignado` | `TecnicoID` |  |
+| `MAN_Mantenimientos` | `Usuario_Registro` | `UsuarioRegistro` |  |
+| `OT_OrdenesTrabajo` | `Activo` | `ActivoID` | **Sigue vivo en `SED_Sedes`, `UNF_UnidadesFuncionales`, `ROL_Roles`** |
+| `OT_OrdenesTrabajo` | `Cerrada_Por` | `CerradaPor` |  |
+| `OT_OrdenesTrabajo` | `Estado` | `EstadoOrdenID` | **Sigue vivo en `NOV_Novedades`** |
+| `OT_OrdenesTrabajo` | `Fecha Programada` | `FechaProgramada` |  |
+| `OT_OrdenesTrabajo` | `Fecha_Cierre` | `FechaCierre` |  |
+| `OT_OrdenesTrabajo` | `Numero_OT` | `OTID` |  |
+| `OT_OrdenesTrabajo` | `SupervidorID` | `SupervisorID` |  |
+| `OT_OrdenesTrabajo` | `Tecnico` | `TecnicoID` |  |
+| `ROL_Roles` | `Descripción` | `Descripcion` |  |
+| `USR_Usuarios` | `Estado` | `Activo` | **Sigue vivo en `NOV_Novedades`** |
+| `USR_Usuarios` | `usuarioID` | `UsuarioID` |  |
 
-Busque estos en cualquier formula, `Show_If`, `Valid_If` o `REF_ROWS`. Si aparecen, estan mal:
+**El caso que mas engana:** en `OT_OrdenesTrabajo` conviven `ActivoID` —la referencia al activo—
+y `Activo` —la bandera Si/No—. Una formula que diga `Activo` **no da error**: apunta a la bandera
+y devuelve lista vacia.
 
-| Nombre viejo | Nombre correcto |
-|---|---|
-| `Numero_OT` | `OTID` |
-| `Activo` | `ActivoID` |
-| `Tecnico` | `TecnicoID` |
-| `SupervidorID` | `SupervisorID` |
-| `Fecha Programada` | `FechaProgramada` |
-| `Estado` | `EstadoOrdenID` |
-| `Fecha_Cierre` | `FechaCierre` |
-| `Cerrada_Por` | `CerradaPor` |
-| `EstadoID` | `EstadoActivoID` |
-| `SedeID` | `UnidadFuncionalID` |
-| `usuarioID` | `UsuarioID` |
-| `Estado` | `Activo` |
-| `MttoID` | `MantenimientoID` |
-| `Tecnico_Asignado` | `TecnicoID` |
-| `Fecha_Hora_Inicio` | `FechaHoraInicio` |
-| `Fecha_Hora_Fin` | `FechaHoraFin` |
-| `Requiere_Segunda_Visita` | `RequiereSegundaVisita` |
-| `Motivo_Pendiente` | `MotivoPendienteID` |
-| `Aprobado_Supervisor` | `AprobadoSupervisor` |
-| `Usuario_Registro` | `UsuarioRegistro` |
-| `Fecha_Hora_Registro` | `FechaHoraRegistro` |
-| `OTID` | `MantenimientoID` |
-| `Observaciones` | `Observacion` |
-| `ListaID` | `ValorListaID` |
-| `Descripción` | `Descripcion` |
-| `Descripción` | `Descripcion` |
-| `Versión` | `Version` |
+## 2. Las 20 reglas, con su expresion completa
 
-**Cuidado con `Activo`:** en `OT_OrdenesTrabajo` existen HOY las dos. `ActivoID` es la referencia
-al activo; `Activo` es la bandera Si/No. Una formula que diga `Activo` **no dara error** y
-apuntara a la bandera. Es el fallo silencioso que aviso V-14.
+### RG-01 — `MAN_Mantenimientos` · `Coordenadas_Cierre`
 
-## 2. Las 20 reglas que hay que reponer
+**Tipo:** Valid_If · cubre RF-012
 
-| # | Tabla | Columna | Tipo | Expresion |
-|---|---|---|---|---|
-| RG-01 | `MAN_Mantenimientos` | `Coordenadas_Cierre` | Valid_If | `DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoID].[Tipo...` |
-| RG-02 | `MAN_Mantenimientos` | `Precision_GPS` | Initial value | `USERLOCATIONACCURACY()` |
-| RG-03 | `MAN_Mantenimientos` | `MotivoExcepcion` | Required_If | `[CierreConExcepcion] = TRUE` |
-| RG-04 | `ACT_Activos` | `(tabla)` | Security Filter | `IN([UnidadFuncionalID], SELECT(ASG_AsignacionZona[UnidadFuncionalID], AND([UsuarioID].[C...` |
-| RG-05 | `OT_OrdenesTrabajo` | `(tabla)` | Security Filter | `OR([TecnicoID].[Correo] = USEREMAIL(), [SupervisorID].[Correo] = USEREMAIL())` |
-| RG-06 | `MAN_Mantenimientos` | `(tabla)` | Bot | `[EstadoActivoID].[GeneraAlerta] = TRUE` |
-| RG-07 | `OT_OrdenesTrabajo` | `(tabla)` | Bot | `Adds` |
-| RG-08 | `OT_OrdenesTrabajo` | `EstadoOrdenID` | Bot programado | `AND([EstadoOrdenID].[EsFinal] = FALSE, [FechaProgramada] < TODAY())` |
-| RG-09 | `CHK_Checklists` | `VersionFormulario` | Initial value | `[FormularioID].[Version]` |
-| RG-11 | `PLA_PlanMantenimiento` | `ProximaFecha` | App formula | `[UltimaEjecucion] + [FrecuenciaID].[Dias]` |
-| RG-12 | `PLA_PlanMantenimiento` | `(tabla)` | Bot programado | `[ProximaFecha] <= TODAY() + 7` |
-| RG-13 | `MAN_Mantenimientos` | `(tabla)` | Verificacion de evidencia | `DISTANCE([UbicacionEscaneo], [Coordenadas_Cierre]) <= 0.5` |
-| RG-20 | `MAN_Mantenimientos` | `(varias)` | Editable_If | `FALSE` |
-| RG-19 | `MAN_Mantenimientos` | `CierreConExcepcion` | App formula | `OR(ISBLANK(LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor")), [Precision_G...` |
-| RG-16 | `ACT_Activos` | `Activo` | App formula | `[EstadoActivoID].[Nombre] <> "Retirado"` |
-| RG-17 | `ACT_Activos` | `FechaBaja` | Required_If | `[EstadoActivoID].[Nombre] = "Retirado"` |
-| RG-18 | `ACT_Activos` | `(tabla)` | Doctrina de reportes | `Ver descripcion: es una prohibicion, no una expresion a configurar` |
-| RG-14 | `OT_OrdenesTrabajo` | `(tabla)` | Are updates allowed | `Updates, Adds` |
-| RG-15 | `MAN_Mantenimientos` | `(tabla)` | Are updates allowed | `Updates, Adds` |
-| RG-10 | `MAN_Mantenimientos` | `(tabla)` | Bot | `[RequiereSegundaVisita] = TRUE` |
+```
+DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]
+```
+
+### RG-02 — `MAN_Mantenimientos` · `Precision_GPS`
+
+**Tipo:** Initial value · cubre RF-011
+
+```
+USERLOCATIONACCURACY()
+```
+
+### RG-03 — `MAN_Mantenimientos` · `MotivoExcepcion`
+
+**Tipo:** Required_If · cubre D-04
+
+```
+[CierreConExcepcion] = TRUE
+```
+
+### RG-04 — `ACT_Activos` · `(tabla)`
+
+**Tipo:** Security Filter · cubre RF-004
+
+```
+IN([UnidadFuncionalID], SELECT(ASG_AsignacionZona[UnidadFuncionalID], AND([UsuarioID].[Correo] = USEREMAIL(), [Activo] = TRUE)))
+```
+
+### RG-05 — `OT_OrdenesTrabajo` · `(tabla)`
+
+**Tipo:** Security Filter · cubre RF-004
+
+```
+OR([TecnicoID].[Correo] = USEREMAIL(), [SupervisorID].[Correo] = USEREMAIL())
+```
+
+### RG-06 — `MAN_Mantenimientos` · `(tabla)`
+
+**Tipo:** Bot · cubre RF-016
+
+```
+[EstadoActivoID].[GeneraAlerta] = TRUE
+```
+
+### RG-07 — `OT_OrdenesTrabajo` · `(tabla)`
+
+**Tipo:** Bot · cubre RF-003
+
+```
+Adds
+```
+
+### RG-08 — `OT_OrdenesTrabajo` · `EstadoOrdenID`
+
+**Tipo:** Bot programado · cubre D-06
+
+```
+AND([EstadoOrdenID].[EsFinal] = FALSE, [FechaProgramada] < TODAY())
+```
+
+### RG-09 — `CHK_Checklists` · `VersionFormulario`
+
+**Tipo:** Initial value · cubre D-11
+
+```
+[FormularioID].[Version]
+```
+
+### RG-11 — `PLA_PlanMantenimiento` · `ProximaFecha`
+
+**Tipo:** App formula · cubre Plan de mantenimiento
+
+```
+[UltimaEjecucion] + [FrecuenciaID].[Dias]
+```
+
+### RG-12 — `PLA_PlanMantenimiento` · `(tabla)`
+
+**Tipo:** Bot programado · cubre Plan de mantenimiento
+
+```
+[ProximaFecha] <= TODAY() + 7
+```
+
+### RG-13 — `MAN_Mantenimientos` · `(tabla)`
+
+**Tipo:** Verificacion de evidencia · cubre Prueba de presencia
+
+```
+DISTANCE([UbicacionEscaneo], [Coordenadas_Cierre]) <= 0.5
+```
+
+### RG-20 — `MAN_Mantenimientos` · `(varias)`
+
+**Tipo:** Editable_If · cubre Prueba de presencia
+
+```
+FALSE
+```
+
+### RG-19 — `MAN_Mantenimientos` · `CierreConExcepcion`
+
+**Tipo:** App formula · cubre D-04
+
+```
+OR(ISBLANK(LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor")), [Precision_GPS] > LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor"))
+```
+
+### RG-16 — `ACT_Activos` · `Activo`
+
+**Tipo:** App formula · cubre Baja de activos
+
+```
+[EstadoActivoID].[Nombre] <> "Retirado"
+```
+
+### RG-17 — `ACT_Activos` · `FechaBaja`
+
+**Tipo:** Required_If · cubre Baja de activos
+
+```
+[EstadoActivoID].[Nombre] = "Retirado"
+```
+
+### RG-18 — `ACT_Activos` · `(tabla)`
+
+**Tipo:** Doctrina de reportes · cubre Baja de activos
+
+```
+Ver descripcion: es una prohibicion, no una expresion a configurar
+```
+
+### RG-14 — `OT_OrdenesTrabajo` · `(tabla)`
+
+**Tipo:** Are updates allowed · cubre Evidencia defendible
+
+```
+Updates, Adds
+```
+
+### RG-15 — `MAN_Mantenimientos` · `(tabla)`
+
+**Tipo:** Are updates allowed · cubre Evidencia defendible
+
+```
+Updates, Adds
+```
+
+### RG-10 — `MAN_Mantenimientos` · `(tabla)`
+
+**Tipo:** Bot · cubre D-07
+
+```
+[RequiereSegundaVisita] = TRUE
+```
 
 ## 3. Las claves, todas `Text`
 
@@ -109,78 +239,113 @@ apuntara a la bandera. Es el fallo silencioso que aviso V-14.
 | `UNF_UnidadesFuncionales` | `UnidadFuncionalID` |
 | `USR_Usuarios` | `UsuarioID` |
 
-## 4. Las 15 columnas que pasan a `Ref`
+## 4. Las 38 referencias
 
-| Tabla | Columna | Hoy | `Ref` a |
+**Son las del modelo, no las 15 de `ESPEC-002`.** Aquellas eran las que faltaban en la aplicacion
+anterior; en una construida de cero no sobrevive ninguna.
+
+| Tabla | Columna | `Ref` a | `IsPartOf` |
 |---|---|---|---|
-| `MAN_Mantenimientos` | `OTID` | Text | `OT_OrdenesTrabajo` |
-| `ACT_Activos` | `TipoActivoID` | Number | `TIP_TiposActivo` |
-| `ACT_Activos` | `CalzadaID` | Number | `CAL_Calzadas` |
-| `ACT_Activos` | `SentidoID` | Number | `SEN_Sentidos` |
-| `ACT_Activos` | `FrecuenciaID` | Number | `FRE_Frecuencias` |
-| `CHK_Checklists` | `FormularioID` | Text | `FRM_Formularios` |
-| `CHD_ChecklistDetalle` | `ChecklistID` | Text | `CHK_Checklists` |
-| `CHD_ChecklistDetalle` | `PreguntaID` | Text | `FRM_Preguntas` |
-| `USR_Usuarios` | `RolID` | Number | `ROL_Roles` |
-| `USR_Usuarios` | `SedeID` | Number | `SED_Sedes` |
-| `TIP_TiposActivo` | `FormularioID` | Text | `FRM_Formularios` |
-| `LST_ValoresLista` | `PreguntaID` | Text | `FRM_Preguntas` |
-| `FRM_Preguntas` | `FormularioID` | Text | `FRM_Formularios` |
-| `FRM_Preguntas` | `SeccionID` | Number | `FRM_Secciones` |
-| `FRM_Preguntas` | `TipoRespuestaID` | Number | `TPR_TiposRespuesta` |
+| `ACT_Activos` | `TipoActivoID` | `TIP_TiposActivo` | no |
+| `ACT_Activos` | `UnidadFuncionalID` | `UNF_UnidadesFuncionales` | no |
+| `ACT_Activos` | `CalzadaID` | `CAL_Calzadas` | no |
+| `ACT_Activos` | `SentidoID` | `SEN_Sentidos` | no |
+| `ACT_Activos` | `EstadoActivoID` | `EST_Activo` | no |
+| `ACT_Activos` | `FrecuenciaID` | `FRE_Frecuencias` | no |
+| `ASG_AsignacionZona` | `UsuarioID` | `USR_Usuarios` | no |
+| `ASG_AsignacionZona` | `UnidadFuncionalID` | `UNF_UnidadesFuncionales` | no |
+| `CHD_ChecklistDetalle` | `ChecklistID` | `CHK_Checklists` | **SI** |
+| `CHD_ChecklistDetalle` | `PreguntaID` | `FRM_Preguntas` | no |
+| `CHK_Checklists` | `MantenimientoID` | `MAN_Mantenimientos` | **SI** |
+| `CHK_Checklists` | `FormularioID` | `FRM_Formularios` | no |
+| `FAL_ModosFalla` | `TipoActivoID` | `TIP_TiposActivo` | no |
+| `FIR_Firmas` | `MantenimientoID` | `MAN_Mantenimientos` | **SI** |
+| `FOT_Fotografias` | `MantenimientoID` | `MAN_Mantenimientos` | **SI** |
+| `FRM_Preguntas` | `FormularioID` | `FRM_Formularios` | no |
+| `FRM_Preguntas` | `SeccionID` | `FRM_Secciones` | no |
+| `FRM_Preguntas` | `TipoRespuestaID` | `TPR_TiposRespuesta` | no |
+| `LST_ValoresLista` | `PreguntaID` | `FRM_Preguntas` | no |
+| `MAN_Mantenimientos` | `OTID` | `OT_OrdenesTrabajo` | no |
+| `MAN_Mantenimientos` | `TecnicoID` | `USR_Usuarios` | no |
+| `MAN_Mantenimientos` | `EstadoActivoID` | `EST_Activo` | no |
+| `MAN_Mantenimientos` | `MotivoPendienteID` | `MOT_MotivosPendiente` | no |
+| `MAN_Mantenimientos` | `ModoFallaID` | `FAL_ModosFalla` | no |
+| `NOV_Novedades` | `UsuarioID` | `USR_Usuarios` | no |
+| `NOV_Novedades` | `ActivoID` | `ACT_Activos` | no |
+| `OT_OrdenesTrabajo` | `ActivoID` | `ACT_Activos` | no |
+| `OT_OrdenesTrabajo` | `TecnicoID` | `USR_Usuarios` | no |
+| `OT_OrdenesTrabajo` | `SupervisorID` | `USR_Usuarios` | no |
+| `OT_OrdenesTrabajo` | `EstadoOrdenID` | `EOT_EstadosOrden` | no |
+| `OT_OrdenesTrabajo` | `OTOrigenID` | `OT_OrdenesTrabajo` | no |
+| `OT_OrdenesTrabajo` | `CerradaPor` | `USR_Usuarios` | no |
+| `PLA_PlanMantenimiento` | `ActivoID` | `ACT_Activos` | no |
+| `PLA_PlanMantenimiento` | `FrecuenciaID` | `FRE_Frecuencias` | no |
+| `PLA_PlanMantenimiento` | `ResponsableID` | `USR_Usuarios` | no |
+| `TIP_TiposActivo` | `FormularioID` | `FRM_Formularios` | no |
+| `USR_Usuarios` | `RolID` | `ROL_Roles` | no |
+| `USR_Usuarios` | `SedeID` | `SED_Sedes` | no |
 
-## 5. Lo que NO se repone
+## 5. Lo que NO se repone: columnas retiradas
 
-Columnas retiradas del modelo. Siguen en la hoja a proposito, pero **su expresion se vacia** y
-no se vuelve a escribir:
+**51 columnas.** Siguen en la hoja a proposito. En la aplicacion: tipo `Text`, `Show?`
+desmarcado, sin formula. **No se borran.**
 
-| Tabla | Columna | Por que |
-|---|---|---|
-| `ACT_Activos` | `SedeID` | Se sustituye por UnidadFuncionalID. Mezclar donde trabaja la persona con donde esta el activo es lo que dejo a los usuarios en la sede 1 y a los activos en las sedes 7 a 10, es decir en conjuntos disjuntos. |
-| `CHD_ChecklistDetalle` | `Orden` | Se alcanza por [PreguntaID].[Orden]. |
-| `CHD_ChecklistDetalle` | `TipoRespuestaID` | Se alcanza por [PreguntaID].[TipoRespuestaID]. |
-| `CHD_ChecklistDetalle` | `PreguntaActual` | Estado de la interfaz, no dato. |
-| `CHD_ChecklistDetalle` | `EstadoPregunta` | Redundante con Contestada. |
-| `CHD_ChecklistDetalle` | `TotalPreguntas` | No es del detalle sino del encabezado, y ademas se cuenta. |
-| `CHD_ChecklistDetalle` | `RespuestaFecha` | Fuera de alcance: ninguna pregunta usa tipo fecha. |
-| `CHD_ChecklistDetalle` | `RespuestaHora` | Fuera de alcance: ninguna pregunta usa tipo hora. |
-| `CHD_ChecklistDetalle` | `RespuestaFoto` | Sustituido por FOT_Fotografias. |
-| `CHD_ChecklistDetalle` | `RespuestaFirma` | Sustituido por FIR_Firmas. |
-| `CHD_ChecklistDetalle` | `RespuestaGPS` | La coordenada es del mantenimiento y de cada fotografia. |
-| `CHD_ChecklistDetalle` | `FechaRespuesta` | Se deriva del ChangeTimestamp del mantenimiento. |
-| `CHD_ChecklistDetalle` | `Activo` | El detalle es parte de su checklist: no se desactiva por separado. |
-| `CHK_Checklists` | `ActivoID` | Se alcanza por [MantenimientoID].[OTID].[ActivoID]. |
-| `CHK_Checklists` | `TecnicoID` | Se alcanza por [MantenimientoID].[TecnicoID]. Es el campo donde el dato de prueba dejo 'Santiago Moreno' en lugar de un identificador. |
-| `CHK_Checklists` | `Observaciones` | La observacion es de la ejecucion o de la respuesta, no del encabezado. |
-| `CHK_Checklists` | `FechaCreacion` | Redundante con FechaInicio. |
-| `CHK_Checklists` | `Estado` | Sustituido por Finalizado, que produccion ya tiene. |
-| `CHK_Checklists` | `GPSInicio` | La coordenada es del mantenimiento y de cada fotografia, no del checklist. |
-| `CHK_Checklists` | `GPSFin` | Idem. |
-| `CHK_Checklists` | `FirmaTecnico` | Sustituido por FIR_Firmas. |
-| `CHK_Checklists` | `FirmaSupervisor` | El supervisor aprueba en el portal, no firma. Supuesto D-10. |
-| `CHK_Checklists` | `PDF` | El informe se genera al enviarlo, no se almacena en la fila. |
-| `CHK_Checklists` | `FechaEnvioCorreo` | Es traza del bot, no del checklist. |
-| `CHK_Checklists` | `Activo` | El checklist es parte de su mantenimiento: no se desactiva por separado. |
-| `CHK_Checklists` | `PreguntaActual` | Estado de la interfaz, no dato. Se deriva de las respuestas. |
-| `CHK_Checklists` | `TotalPreguntas` | Se cuenta de FRM_Preguntas. |
-| `CHK_Checklists` | `Porcentaje` | Se calcula. Guardarlo permite que contradiga al detalle. |
-| `MAN_Mantenimientos` | `ActivoID` | El activo se alcanza por [OTID].[ActivoID]. Guardarlo tambien aqui permite que la ejecucion diga un activo y su orden diga otro, y no hay forma de saber cual miente. Existe en el Excel local; AppSheet confirmo que en produccion no esta. |
-| `MAN_Mantenimientos` | `Imagen_Inicio` | Sustituido por FOT_Fotografias con Tipo=Antes. |
-| `MAN_Mantenimientos` | `Imagen_Final` | Sustituido por FOT_Fotografias con Tipo=Despues. |
-| `MAN_Mantenimientos` | `Firma_Tecnico` | Sustituido por FIR_Firmas. |
-| `MAN_Mantenimientos` | `Firma_Supervisor` | El supervisor aprueba en el portal, no firma. Supuesto D-10. |
-| `MAN_Mantenimientos` | `Localizacion` | Ambiguo y redundante con Coordenadas_Cierre. |
-| `MAN_Mantenimientos` | `Diagnostico` | Se responde en el checklist, no en campo libre. |
-| `MAN_Mantenimientos` | `Trabajo_Realizado` | Se responde en el checklist. |
-| `MAN_Mantenimientos` | `Repuestos_Utilizados` | Gestion de repuestos esta fuera de alcance. |
-| `MAN_Mantenimientos` | `Requiere_Repuesto` | Se cubre con MotivoPendienteID = Falta de repuesto. |
-| `MAN_Mantenimientos` | `Duracion_Minutos` | Se calcula de FechaHoraInicio y FechaHoraFin. |
-| `MAN_Mantenimientos` | `Tipo` | El tipo es de la orden, no de la ejecucion. |
-| `MAN_Mantenimientos` | `Fecha` | Redundante con FechaHoraInicio. |
-| `MAN_Mantenimientos` | `Estado_Intervencion` | Redundante con el estado de la orden. |
-| `OT_OrdenesTrabajo` | `FormularioID` | El formulario lo determina el tipo del activo, no la orden. |
-| `OT_OrdenesTrabajo` | `Motivo_Cierre` | Se tipifica en MOT_MotivosPendiente desde la ejecucion. |
-| `OT_OrdenesTrabajo` | `Informe_Final` | Se genera del mantenimiento y su checklist, no se transcribe. |
+| Tabla | Columna | Por que | |
+|---|---|---|---|
+| `ACT_Activos` | `SedeID` | Se sustituye por UnidadFuncionalID. Mezclar donde trabaja la persona con donde esta el activo es lo que dejo a los usuarios en la sede 1 y a los activos en las sedes 7 a 10, es decir en conjuntos disjuntos. | **TRAMPA -> `SED_Sedes`** |
+| `CHD_ChecklistDetalle` | `Activo` | El detalle es parte de su checklist: no se desactiva por separado. |  |
+| `CHD_ChecklistDetalle` | `EstadoPregunta` | Redundante con Contestada. |  |
+| `CHD_ChecklistDetalle` | `FechaRespuesta` | Se deriva del ChangeTimestamp del mantenimiento. |  |
+| `CHD_ChecklistDetalle` | `Orden` | Se alcanza por [PreguntaID].[Orden]. |  |
+| `CHD_ChecklistDetalle` | `PreguntaActual` | Estado de la interfaz, no dato. |  |
+| `CHD_ChecklistDetalle` | `RespuestaFecha` | Fuera de alcance: ninguna pregunta usa tipo fecha. |  |
+| `CHD_ChecklistDetalle` | `RespuestaFirma` | Sustituido por FIR_Firmas. |  |
+| `CHD_ChecklistDetalle` | `RespuestaFoto` | Sustituido por FOT_Fotografias. |  |
+| `CHD_ChecklistDetalle` | `RespuestaGPS` | La coordenada es del mantenimiento y de cada fotografia. |  |
+| `CHD_ChecklistDetalle` | `RespuestaHora` | Fuera de alcance: ninguna pregunta usa tipo hora. |  |
+| `CHD_ChecklistDetalle` | `TipoRespuestaID` | Se alcanza por [PreguntaID].[TipoRespuestaID]. | **TRAMPA -> `TPR_TiposRespuesta`** |
+| `CHD_ChecklistDetalle` | `TotalPreguntas` | No es del detalle sino del encabezado, y ademas se cuenta. |  |
+| `CHK_Checklists` | `Activo` | El checklist es parte de su mantenimiento: no se desactiva por separado. |  |
+| `CHK_Checklists` | `ActivoID` | Se alcanza por [MantenimientoID].[OTID].[ActivoID]. | **TRAMPA -> `ACT_Activos`** |
+| `CHK_Checklists` | `Estado` | Sustituido por Finalizado, que produccion ya tiene. |  |
+| `CHK_Checklists` | `FechaCreacion` | Redundante con FechaInicio. |  |
+| `CHK_Checklists` | `FechaEnvioCorreo` | Es traza del bot, no del checklist. |  |
+| `CHK_Checklists` | `FirmaSupervisor` | El supervisor aprueba en el portal, no firma. Supuesto D-10. |  |
+| `CHK_Checklists` | `FirmaTecnico` | Sustituido por FIR_Firmas. |  |
+| `CHK_Checklists` | `GPSFin` | Idem. |  |
+| `CHK_Checklists` | `GPSInicio` | La coordenada es del mantenimiento y de cada fotografia, no del checklist. |  |
+| `CHK_Checklists` | `Observaciones` | La observacion es de la ejecucion o de la respuesta, no del encabezado. |  |
+| `CHK_Checklists` | `PDF` | El informe se genera al enviarlo, no se almacena en la fila. |  |
+| `CHK_Checklists` | `Porcentaje` | Se calcula. Guardarlo permite que contradiga al detalle. |  |
+| `CHK_Checklists` | `PreguntaActual` | Estado de la interfaz, no dato. Se deriva de las respuestas. |  |
+| `CHK_Checklists` | `TecnicoID` | Se alcanza por [MantenimientoID].[TecnicoID]. Es el campo donde el dato de prueba dejo 'Santiago Moreno' en lugar de un identificador. |  |
+| `CHK_Checklists` | `TotalPreguntas` | Se cuenta de FRM_Preguntas. |  |
+| `MAN_Mantenimientos` | `ActivoID` | El activo se alcanza por [OTID].[ActivoID]. Guardarlo tambien aqui permite que la ejecucion diga un activo y su orden diga otro, y no hay forma de saber cual miente. Existe en el Excel local; AppSheet confirmo que en produccion no esta. | **TRAMPA -> `ACT_Activos`** |
+| `MAN_Mantenimientos` | `Diagnostico` | Se responde en el checklist, no en campo libre. |  |
+| `MAN_Mantenimientos` | `Duracion_Minutos` | Se calcula de FechaHoraInicio y FechaHoraFin. |  |
+| `MAN_Mantenimientos` | `Estado_Intervencion` | Redundante con el estado de la orden. |  |
+| `MAN_Mantenimientos` | `Fecha` | Redundante con FechaHoraInicio. |  |
+| `MAN_Mantenimientos` | `Firma_Supervisor` | El supervisor aprueba en el portal, no firma. Supuesto D-10. |  |
+| `MAN_Mantenimientos` | `Firma_Tecnico` | Sustituido por FIR_Firmas. |  |
+| `MAN_Mantenimientos` | `Imagen_Final` | Sustituido por FOT_Fotografias con Tipo=Despues. |  |
+| `MAN_Mantenimientos` | `Imagen_Inicio` | Sustituido por FOT_Fotografias con Tipo=Antes. |  |
+| `MAN_Mantenimientos` | `Localizacion` | Ambiguo y redundante con Coordenadas_Cierre. |  |
+| `MAN_Mantenimientos` | `Repuestos_Utilizados` | Gestion de repuestos esta fuera de alcance. |  |
+| `MAN_Mantenimientos` | `Requiere_Repuesto` | Se cubre con MotivoPendienteID = Falta de repuesto. |  |
+| `MAN_Mantenimientos` | `Tipo` | El tipo es de la orden, no de la ejecucion. |  |
+| `MAN_Mantenimientos` | `Trabajo_Realizado` | Se responde en el checklist. |  |
+| `OT_OrdenesTrabajo` | `FormularioID` | El formulario lo determina el tipo del activo, no la orden. | **TRAMPA -> `FRM_Formularios`** |
+| `OT_OrdenesTrabajo` | `Informe_Final` | Se genera del mantenimiento y su checklist, no se transcribe. |  |
+| `OT_OrdenesTrabajo` | `Motivo_Cierre` | Se tipifica en MOT_MotivosPendiente desde la ejecucion. |  |
+| `FOT_Fotografias` | `Fecha` | El modelo guarda FechaHora. Sobra, o una de las dos esta mal nombrada. Merece mirada: la fecha de la fotografia es parte de la evidencia | **SIN DECIDIR** |
+| `FRM_Formularios` | `Orden` | Orden de presentacion de los formularios. Nadie la lee | **SIN DECIDIR** |
+| `FRM_Preguntas` | `RequiereFirma` | Simetrica de RequiereGPS y RequiereFoto. Coherente con el diseno | **SIN DECIDIR** |
+| `FRM_Preguntas` | `RequiereGPS` | La cita el show_if de CHD_ChecklistDetalle.RespuestaGPS. Si se retira, esa regla deja de funcionar | **SIN DECIDIR** |
+| `FRM_Preguntas` | `ValorDefecto` | Valor por defecto de una pregunta. No hay regla que lo lea | **SIN DECIDIR** |
+| `USR_Usuarios` | `UltimaSincronizacion` | Probablemente de una version anterior. El modelo no la usa | **SIN DECIDIR** |
+
+**Las 5 marcadas TRAMPA** se llaman igual que la clave de otra tabla, asi que **AppSheet las
+convierte a `Ref` sola**. Hay que deshacerlo.
 
 ---
-*Generado. Para actualizarlo, cambie `modelo_objetivo.py` y vuelva a ejecutar el generador.*
+*Generado. Para actualizarlo, cambie `modelo_objetivo.py` y vuelva a generar.*
