@@ -235,6 +235,30 @@ escribir("ACT_Activos", activos)
 # panel en el separador tiene que elegir un costado que no es el suyo, o dejarlo
 # en blanco: las dos opciones ensucian el dato y ninguna da error.
 CATALOGO_MINIMO = {
+    # Las seis edificaciones reales. Las cuatro filas UF1 a UF4 que tenia esta
+    # tabla NO vuelven: eran unidades funcionales metidas en el catalogo de
+    # sedes, con la misma clave y el mismo nombre que UNF_UnidadesFuncionales.
+    #
+    # Solo el peaje de Macheta trae ubicacion, y sale del contrato -Apendice
+    # Tecnico 1, Tabla 2, pagina 5: PR27+240 de la Ruta 5607, cobro
+    # bidireccional, UF1-. De las otras cinco el contrato no da abscisa en las
+    # paginas leidas, asi que se dejan en blanco para que las ponga operacion.
+    # Inventarlas seria peor que dejarlas vacias: el equipo bajo techo hereda de
+    # aqui donde esta.
+    "SED_Sedes": [
+        {"SedeID": "1", "Nombre": "CCO", "Ciudad": "Sutatenza",
+         "UnidadFuncionalID": "", "PR": "", "Ubicacion": "", "Activo": "TRUE"},
+        {"SedeID": "2", "Nombre": "Bogota", "Ciudad": "Bogota",
+         "UnidadFuncionalID": "", "PR": "", "Ubicacion": "", "Activo": "TRUE"},
+        {"SedeID": "3", "Nombre": "Peaje Macheta", "Ciudad": "Macheta",
+         "UnidadFuncionalID": "7", "PR": "27+240", "Ubicacion": "", "Activo": "TRUE"},
+        {"SedeID": "4", "Nombre": "Peaje SLG", "Ciudad": "San Luis de Gaceno",
+         "UnidadFuncionalID": "", "PR": "", "Ubicacion": "", "Activo": "TRUE"},
+        {"SedeID": "5", "Nombre": "Bascula Macheta", "Ciudad": "Macheta",
+         "UnidadFuncionalID": "", "PR": "", "Ubicacion": "", "Activo": "TRUE"},
+        {"SedeID": "6", "Nombre": "Bascula SLG", "Ciudad": "San Luis de Gaceno",
+         "UnidadFuncionalID": "", "PR": "", "Ubicacion": "", "Activo": "TRUE"},
+        ],
     "CAL_Calzadas": [
         {"CalzadaID": "3", "Nombre": "Separador",
          "Activo": "TRUE"},
