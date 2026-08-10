@@ -45,28 +45,35 @@ TRAZADO = [
     (4.795, -73.020, "El Secreto"),
     (4.780, -72.900, "Aguaclara"),
 ]
-LARGO_KM = 137.03
+LARGO_KM = 137.03   # longitud oficial del corredor
+
+# El trazado de arriba es una aproximacion de 7 puntos: su poligonal mide menos
+# que el corredor real, que serpentea. El PR se escala a los 137,03 oficiales
+# para que las cifras sean las que usa operacion.
 
 # Los 18 tipos que se cuentan por unidades, del Plan Maestro. Suman 355.
+# La frecuencia sale de la columna PERIODICIDAD del Plan Maestro, mapeada contra
+# FRE_Frecuencias: 4=Mensual 5=Bimensual 6=Trimestral 7=Semestral 8=Anual.
+# PORT va sin frecuencia: su periodicidad es "A demanda", que no es una.
 TIPOS = [
-    ("SOS",  "S.O.S (Postes de Auxilio)",        54, 1),
-    ("CCTV", "Camara CCTV",                      26, 2),
-    ("PMVF", "PMV Fijo (Portico)",               11, 3),
-    ("PMVM", "PMV Movil (Remolque)",             19, 4),
-    ("SGE",  "Galibo Electronico",                4, 6),
-    ("SGM",  "Galibo Mecanico",                   4, 5),
-    ("SSA",  "Sensor Ambiental",                  4, 7),
-    ("ETD",  "Estacion Toma Datos",               4, 7),
-    ("PSEG", "Paso Seguro",                      16, 7),
-    ("SWL3", "Switch Capa 3",                     4, 12),
-    ("SWIT", "Switch Capa 2",                   142, 12),
-    ("PJC",  "Peaje Carril",                     12, 9),
-    ("PJE",  "Peaje Electronica",                12, 9),
-    ("SERV", "Servidor",                          7, 16),
-    ("BASC", "Bascula Dinamica",                  2, 9),
-    ("OCR",  "Camara OCR Pesaje",                 2, 2),
-    ("PORT", "Computador Portatil",              29, 16),
-    ("IMPR", "Impresora",                         3, 17),
+    ("SOS",  "S.O.S (Postes de Auxilio)",        54, 1,  4),
+    ("CCTV", "Camara CCTV",                      26, 2,  6),
+    ("PMVF", "PMV Fijo (Portico)",               11, 3,  5),
+    ("PMVM", "PMV Movil (Remolque)",             19, 4,  4),
+    ("SGE",  "Galibo Electronico",                4, 6,  6),
+    ("SGM",  "Galibo Mecanico",                   4, 5,  7),
+    ("SSA",  "Sensor Ambiental",                  4, 7,  7),
+    ("ETD",  "Estacion Toma Datos",               4, 7,  7),
+    ("PSEG", "Paso Seguro",                      16, 7,  6),
+    ("SWL3", "Switch Capa 3",                     4, 12, 6),
+    ("SWIT", "Switch Capa 2",                   142, 12, 7),
+    ("PJC",  "Peaje Carril",                     12, 9,  4),
+    ("PJE",  "Peaje Electronica",                12, 9,  4),
+    ("SERV", "Servidor",                          7, 16, 4),
+    ("BASC", "Bascula Dinamica",                  2, 9,  7),
+    ("OCR",  "Camara OCR Pesaje",                 2, 2,  4),
+    ("PORT", "Computador Portatil",              29, 16, ""),
+    ("IMPR", "Impresora",                         3, 17, 4),
 ]
 
 
@@ -97,11 +104,13 @@ def unidad_funcional(frac):
 
 filas = []
 n = 0
-for prefijo, nombre, cantidad, tipo_id in TIPOS:
+for prefijo, nombre, cantidad, tipo_id, frec in TIPOS:
     for i in range(1, cantidad + 1):
         n += 1
         # repartidos uniformemente, cada tipo con su propio desfase
-        frac = ((i - 0.5) / cantidad + hash(prefijo) % 7 / 100.0) % 1.0
+        # desfase determinista por familia. hash() NO sirve: va salado por proceso
+        desfase = sum(ord(x) for x in prefijo) % 7 / 100.0
+        frac = ((i - 0.5) / cantidad + desfase) % 1.0
         filas.append({
             "ActivoID": BASE_ID + n,
             "CodigoActivo": "%s_%d" % (prefijo, i),
@@ -115,7 +124,7 @@ for prefijo, nombre, cantidad, tipo_id in TIPOS:
             "CodigoQR": "",
             "SentidoID": "SA" if n % 2 else "AS",
             "Activo": "TRUE",
-            "FrecuenciaID": "",
+            "FrecuenciaID": frec,
             "Observaciones": "ACTIVO SINTETICO DE PRUEBA - NO ES INVENTARIO REAL",
             "Criticidad": "",
             "FechaBaja": "",
@@ -139,8 +148,8 @@ wb.save(salida)
 print("Generado:", salida)
 print()
 print("%-6s %-32s %6s" % ("COD", "TIPO", "CANT"))
-for prefijo, nombre, cantidad, _ in TIPOS:
-    print("%-6s %-32s %6d" % (prefijo, nombre, cantidad))
+for prefijo, nombre, cantidad, _, frec in TIPOS:
+    print("%-6s %-32s %6d  frec=%s" % (prefijo, nombre, cantidad, frec or "a demanda"))
 print()
 print("TOTAL: %d activos" % len(filas))
 print()

@@ -1,0 +1,502 @@
+# Guia de implementacion — el Funcional, paso a paso
+
+**Como se procede en cada etapa y como se comprueba antes de pasar a la siguiente.**
+
+> **Escrita por rol.** El **Funcional** es quien configura AppSheet sin programar. Esta guia se
+> replica en otro contrato cambiando solo los nombres de tablas.
+
+| | |
+|---|---|
+| Que dice esta guia | **Como** se hace cada etapa y **como se verifica** |
+| Que dice `MANUAL_DESPLIEGUE.md` | **Que** hay que poner: la ficha de las 28 tablas, columna por columna |
+| Fuente | `scripts/modelo_objetivo.py`. Esta guia se genera de ahi |
+
+## Como usar esta guia
+
+**Cada etapa termina con una comprobacion.** Si no pasa, no siga: el error se multiplica en la
+siguiente y despues cuesta el triple encontrarlo.
+
+**Anote lo que va comprobando.** Al final hay un acta que rellenar. Este proyecto tiene tres
+cierres reportados que no resistieron la comprobacion contra el archivo, y las tres veces lo paro
+un script, no una persona.
+
+**Si algo no sale como dice esta guia, pare y reportelo.** Eso es informacion, no un fallo suyo:
+cada cosa rara que ha aparecido en este proyecto acabo siendo un comportamiento de AppSheet que
+nadie habia documentado.
+
+---
+
+# Etapa 0 — Antes de abrir AppSheet
+
+**Duracion:** 15 minutos. **Sin esto, todo lo demas hereda el error.**
+
+### 0.1 Copia de seguridad de la hoja
+
+En Google Sheets: *Archivo -> Hacer una copia*. Nombrela con la fecha.
+
+**Es lo unico que no se recupera.** Todo lo demas vive en el repositorio y se regenera.
+
+### 0.2 Comprobar que ninguna pestana este oculta
+
+En Google Sheets, abajo a la izquierda: el icono de las cuatro lineas, *Todas las hojas*. Las
+ocultas salen en gris.
+
+**AppSheet ignora las pestanas ocultas y no avisa.** Ocho catalogos estaban ocultos y la
+aplicacion cargaba 24 tablas de 32 sin un solo mensaje. Se perdieron dos dias en eso.
+
+### 0.3 Verificar el archivo
+
+Descargue el libro —*Archivo -> Descargar -> Microsoft Excel*—, guardelo en `BD/` y ejecute:
+
+```bash
+python scripts/verificar_faseA.py "BD/<su archivo>.xlsx"
+```
+
+### COMPROBACION de la etapa 0
+
+| Que | Como se ve que esta bien |
+|---|---|
+| Copia hecha | Existe en el Drive, con la fecha en el nombre |
+| Pestanas visibles | El menu *Todas las hojas* no muestra ninguna en gris |
+| Archivo verificado | El script imprime **`FASE A CERRADA`** |
+
+> **Si dice `FASE A INCOMPLETA`, pare.** El mensaje dice exactamente que falta. `F-18` avisa de
+> pestanas ocultas y `F-19` de columnas declaradas que ya no existen.
+
+# Etapa 1 — Crear la aplicacion
+
+**Duracion:** 5 minutos.
+
+### 1.1
+
+En AppSheet: **Create -> App -> Start with existing data**. Elija el documento de **Google
+Sheets**.
+
+> **No suba un `.xlsx`.** Si la aplicacion lee un archivo subido, queda mirando una foto fija y
+> nada se sincroniza. Tiene que apuntar al documento vivo.
+
+### 1.2 Quien la crea, la posee
+
+**Un coautor no puede dar de alta tablas**, y toda esta guia consiste en eso. Cree la aplicacion
+con la cuenta que va a operarla.
+
+### COMPROBACION de la etapa 1
+
+| Que | Como se ve |
+|---|---|
+| La fuente es el Sheets vivo | *Data -> [tabla] -> Source Type* dice `Sheets` |
+| Usted es propietario | *Data -> `+` -> Add data* **no** dice «As a co-author...» |
+
+# Etapa 2 — Dar de alta las 28 tablas
+
+**Duracion:** 45 minutos. Es lo mas repetitivo de todo.
+
+### 2.1 Una por una, y en orden
+
+*Data -> `+` -> Add data -> el Sheets -> la pestana*.
+
+**El orden importa y no es alfabetico.** Determina que referencias infiere AppSheet solo al dar
+de alta cada tabla. La lista esta en `MANUAL_DESPLIEGUE.md` paso 2.
+
+### 2.2 Las que NO se dan de alta
+
+`GPS`, `FRM_SOS`, `FRM_CCTV`, `FRM_PMVF`. Estan en la hoja y el modelo las retira.
+
+> **No borre esas pestanas.** Tres guardan 15 preguntas cada una que todavia no se han migrado a
+> `FRM_Preguntas`.
+
+### COMPROBACION de la etapa 2
+
+| Que | Como se ve |
+|---|---|
+| Son exactamente 28 | Cuentelas en *Data -> Tables* |
+| Ninguna duplicada | Ningun nombre acaba en `_1`, `(2)` ni empieza por `Copy of` |
+| Cada una a su pestana | Abra la ficha de cada una y lea el *Qualifier* |
+| Las cuatro retiradas no estan | `GPS`, `FRM_SOS`, `FRM_CCTV`, `FRM_PMVF` no aparecen |
+
+> **La duplicada es el fallo tipico de esta etapa.** Si el borrado no se confirma y el alta si,
+> AppSheet crea una segunda tabla sobre la misma pestana. **Las referencias se reparten entre las
+> dos y la mitad de las filas parece desaparecer, sin error.**
+
+# Etapa 3 — Las claves
+
+**Duracion:** 30 minutos. **Es lo unico que no se recupera despues.**
+
+### 3.1 Por que importa tanto
+
+Al dar de alta una tabla, AppSheet elige clave por su cuenta: examina las columnas de izquierda a
+derecha buscando valores unicos y, **si ninguna le sirve, combina dos en una clave compuesta**.
+
+**Contra una clave compuesta no resuelve ninguna referencia.** Y el sintoma no es un mensaje: es
+que la etapa 5 entera falla sin decir por que.
+
+### 3.2 Que hacer en cada tabla
+
+*Data -> Columns*. Una sola casilla `KEY` marcada, sobre la columna correcta, **tipo `Text`**.
+
+La lista de las 28 claves esta en `MANUAL_DESPLIEGUE.md` paso 3.
+
+### 3.3 Por que todas `Text` y no `Number`
+
+`USR_Usuarios.UsuarioID` tiene un valor alfanumerico entre otros numericos. **Si AppSheet infiere
+`Number`, esa fila se queda sin clave valida y ese usuario deja de existir para el sistema.**
+
+### 3.4 Clave automatica para filas nuevas
+
+Estas 6 tablas crean filas desde la aplicacion. Sin `Initial value = UNIQUEID()` no sabe que
+identificador poner:
+
+```
+CHD_ChecklistDetalle     DetalleID
+CHK_Checklists           ChecklistID
+FIR_Firmas               FirmaID
+FOT_Fotografias          FotoID
+MAN_Mantenimientos       MantenimientoID
+NOV_Novedades            NovedadID
+```
+
+### COMPROBACION de la etapa 3
+
+| Que | Como se ve |
+|---|---|
+| Una sola `KEY` por tabla | Recorra las 28. Si hay dos marcadas, quite la sobrante |
+| Ninguna compuesta | Si el editor muestra la clave como combinacion de columnas, corrijala |
+| Todas `Text` | Ninguna en `Number` |
+| Las 6 con `UNIQUEID()` | Compruebe el `Initial value` de cada una |
+
+# Etapa 4 — Los tipos que AppSheet no adivina
+
+**Duracion:** 20 minutos.
+
+Todo llega de una hoja de calculo, asi que entra como texto o numero. La lista completa esta en
+`MANUAL_DESPLIEGUE.md` paso 4.
+
+### La que no se puede fallar
+
+```
+MAN_Mantenimientos.Coordenadas_Cierre  ->  LatLong
+```
+
+**Sobre ella se monta el geofencing, y `DISTANCE()` no funciona sobre texto.** Si esta columna
+queda como `Text`, la regla de la etapa 7 no se puede ni escribir.
+
+### Las cuatro marcas de tiempo
+
+```
+MAN_Mantenimientos.FechaHoraRegistro   ->  ChangeTimestamp
+FOT_Fotografias.FechaHora              ->  ChangeTimestamp
+FIR_Firmas.FechaHora                   ->  ChangeTimestamp
+NOV_Novedades.FechaHora                ->  ChangeTimestamp
+```
+
+**`ChangeTimestamp` la pone el servidor.** Un `Initial value = NOW()` lo pone el telefono, y el
+usuario puede cambiar la hora del telefono. **Sin esto, la hora de cada fotografia y de cada firma
+no prueba nada** — que es justo lo que el sistema existe para sostener.
+
+### COMPROBACION de la etapa 4
+
+| Que | Como se ve |
+|---|---|
+| `Coordenadas_Cierre` | Tipo `LatLong` |
+| Las cuatro marcas | Tipo `ChangeTimestamp` |
+| Las imagenes y la firma | `Image` y `Signature`, no `Text` |
+| Los `Enum` | Con sus valores declarados, no vacios |
+
+# Etapa 5 — Las 38 referencias
+
+**Duracion:** 1 hora. Es el corazon del sistema.
+
+### 5.1 La regla de la que sale todo
+
+> **Una referencia guarda el valor de la clave de la tabla destino.**
+
+De ahi que el orden importe: **primero la clave del destino, despues quien la apunta**. La lista
+en orden esta en `MANUAL_DESPLIEGUE.md` paso 5.
+
+### 5.2 Cuidado con las listas de otros documentos
+
+`ESPEC-002` lista **15** referencias, y es correcto para lo que norma: convertir una aplicacion
+existente donde otras 23 ya estaban puestas. **Construyendo desde cero son 38.**
+
+### 5.3 `IsPartOf` va en 4, y en ninguna mas
+
+```
+FOT_Fotografias.MantenimientoID    -> MAN_Mantenimientos
+FIR_Firmas.MantenimientoID         -> MAN_Mantenimientos
+CHK_Checklists.MantenimientoID     -> MAN_Mantenimientos
+CHD_ChecklistDetalle.ChecklistID   -> CHK_Checklists
+```
+
+**`MAN_Mantenimientos.OTID` va DESMARCADO, y es deliberado.** Con `IsPartOf`, borrar una orden
+borraria su ejecucion, sus fotografias y su firma **en cascada**.
+
+### 5.4 Despues de cada conversion, mire la tabla
+
+**Convertir a `Ref` conserva solo las filas cuyo valor coincide con la clave del destino. Las
+demas quedan huerfanas sin mensaje de error**: la celda se queda en blanco.
+
+### COMPROBACION de la etapa 5
+
+| Que | Como se ve |
+|---|---|
+| Son 38 | Cuente las columnas de tipo `Ref` en todas las tablas |
+| Ninguna rota | El indicador `!` de referencia rota. **Hay que ir a mirarlo: no se anuncia** |
+| Sin blancos nuevos | Ninguna celda vacia donde antes habia un valor |
+| `IsPartOf` en 4 | Y desmarcado en `MAN_Mantenimientos.OTID` |
+
+**Y la prueba de la cadena**, en el Asistente de Expresiones sobre `MAN_Mantenimientos`:
+
+```
+[OTID].[ActivoID].[Ubicacion]
+[OTID].[TecnicoID].[Correo]
+```
+
+Las dos en verde. **Se cierra sin dar a `Done`.**
+
+> **Nunca pruebe una expresion escribiendola dentro de una columna.** Ya ocurrio: quedo una
+> `App formula` escribiendo la coordenada del activo dentro de una columna retirada, y una
+> `App formula` **escribe en la hoja** cada vez que se modifica la fila.
+
+# Etapa 6 — Ocultar lo que el modelo no usa
+
+**Duracion:** 1 hora. Tediosa y sin misterio.
+
+La hoja arrastra columnas que el modelo no declara. Al dar de alta las tablas entraron con
+`Show?` marcado y **aparecen en el formulario del tecnico junto a las buenas**.
+
+**Para cada una: tipo `Text`, `Show?` desmarcado, sin formula. No se borran.**
+
+La lista completa, tabla por tabla, esta en `docs/prompts/PROMPT_CONTINUAR_DESPLIEGUE.md` §5 y en
+el anexo de `MANUAL_DESPLIEGUE.md`. **Las dos se derivan del archivo.**
+
+### Las que AppSheet convierte solo
+
+Tres se llaman igual que la clave de otra tabla, asi que **AppSheet las convierte en `Ref` sin que
+nadie se lo pida**. Si las ve como `Ref`, deshagalo:
+
+```
+CHK_Checklists.ActivoID
+CHD_ChecklistDetalle.TipoRespuestaID
+OT_OrdenesTrabajo.FormularioID
+```
+
+### COMPROBACION de la etapa 6
+
+| Que | Como se ve |
+|---|---|
+| Ninguna visible | Recorra el formulario de cada tabla en la vista previa |
+| Las tres trampa en `Text` | Ninguna como `Ref` |
+| Ninguna borrada | El numero de columnas de la hoja no cambio |
+
+> **El aviso *was set to be unsearchable because it is Hidden* es normal y sale una vez por
+> columna.** Confirma que funciono. No es un error.
+
+# Etapa 7 — Las reglas
+
+**Duracion:** 45 minutos. **Aqui esta el valor del sistema.**
+
+Son 20. Las expresiones completas, sin truncar, en
+`docs/sdd/RECONSTRUCCION_EXPRESIONES.md` §2.
+
+### 7.1 El geofencing, y por que sin `Editable_If` no vale nada
+
+En `MAN_Mantenimientos.Coordenadas_Cierre`:
+
+```
+Initial value:  HERE()
+Valid_If:       DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= 1.0
+Invalid text:   Ubicacion fuera de rango: debe estar junto al activo para cerrar.
+Editable_If:    FALSE
+```
+
+**El `Editable_If = FALSE` no es un detalle.** Sin el, el tecnico arrastra el pin del mapa y
+cierra desde su casa. La regla existiria, se veria, y no probaria nada.
+
+Lo mismo en `Precision_GPS`, `UbicacionEscaneo` y `FechaHoraEscaneo`.
+
+> **Y un supuesto que sigue sin verificar, el peor del sistema.** No hay pagina oficial que
+> confirme si AppSheet evalua un `Valid_If` sobre una columna con `Editable_If = FALSE`. **Si no lo
+> evalua, la regla parece funcionar por no ejercitarse nunca.** Se detecta en la etapa 9.
+
+### 7.2 El umbral de GPS, entero
+
+En `MAN_Mantenimientos.CierreConExcepcion`, `App formula`:
+
+```
+OR(ISBLANK(LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor")),
+   [Precision_GPS] > LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor"))
+```
+
+**El `ISBLANK` no sobra.** Sin el, si alguien borra la fila del parametro **todos los cierres
+salen limpios y nadie se entera**. Con el, falla hacia el lado seguro.
+
+### 7.3 Retirar el borrado
+
+*Data -> Tables -> [tabla] -> Are updates allowed*:
+
+```
+OT_OrdenesTrabajo    Updates si · Adds si · Deletes NO
+MAN_Mantenimientos   Updates si · Adds si · Deletes NO
+```
+
+**Es la otra mitad del `IsPartOf` de la etapa 5.** La cascada solo es segura porque el
+mantenimiento no se puede borrar. Configurar una sin la otra deja la puerta abierta.
+
+### 7.4 Los filtros de seguridad
+
+*Data -> Tables -> [tabla] -> Security Filter*. Las dos expresiones estan en la lista de reglas.
+
+**No son solo control de acceso: son rendimiento.** Sin ellos cada tecnico se descarga el
+inventario entero al telefono.
+
+### COMPROBACION de la etapa 7
+
+| Que | Como se ve |
+|---|---|
+| Ninguna en rojo | El panel de errores del editor, vacio |
+| `Deletes` quitado | En las dos tablas |
+| Las cuatro no editables | `Editable_If = FALSE` en las cuatro de captura |
+| El umbral con `ISBLANK` | Leala entera, no de por hecho que se pego bien |
+
+# Etapa 8 — Las vistas
+
+**Duracion:** 30 minutos.
+
+**La mayor parte se construye sola** al poner las referencias: AppSheet crea las columnas
+virtuales `Related ...` y con ellas la navegacion padre-hijo. Al abrir un mantenimiento se ven sus
+fotografias y su firma; al abrir un activo, sus ordenes.
+
+### El caso que engana
+
+**`USR_Usuarios` recibe tres referencias desde `OT_OrdenesTrabajo`** —tecnico, supervisor y quien
+cerro— y AppSheet crea tres columnas virtuales con nombres casi iguales. Hay que abrirlas y leer el
+segundo argumento del `REF_ROWS` para saber cual es cual.
+
+**Si solo aparece una, faltan dos y el supervisor no vera sus ordenes.**
+
+### Las tres pantallas principales
+
+| Vista | Tipo | Sobre | Nota |
+|---|---|---|---|
+| Mapa de activos | `Map` | `ACT_Activos` | Columna de mapa: `Ubicacion` |
+| Mis ordenes | `Deck` | `OT_OrdenesTrabajo` | Es la pantalla de trabajo del tecnico |
+| Mantenimientos | `Table` | `MAN_Mantenimientos` | |
+
+> **Esta etapa es la menos especificada de todas.** El modelo describe datos, no pantallas: no hay
+> declaracion de vistas, acciones ni slices. Lo que haga aqui, **anotelo**, porque es la unica
+> constancia que va a quedar.
+
+# Etapa 9 — Probar
+
+**Duracion:** 1 hora. **No se salte esta etapa: es la que dice si algo de lo anterior sirve.**
+
+La tanda completa esta en `docs/sdd/PRUEBA-003-despliegue.md`. Aqui las cinco que no se negocian.
+
+### 9.1 La cadena navega
+
+En el Asistente, las dos expresiones de la etapa 5. **En verde las dos.**
+
+### 9.2 El cierre legitimo se acepta, y el lejano se rechaza
+
+Abra un mantenimiento cuyo cierre este junto a su activo: **debe guardar**. Abra otro que este
+lejos: **debe rechazarlo** con el mensaje.
+
+> **Si los dos salen aceptados, no celebre: sospeche.** La causa mas probable es que el `Valid_If`
+> no se evalua sobre una columna con `Editable_If = FALSE`, y entonces el geofencing es decorativo.
+> Reportelo antes de seguir.
+
+> **Y con el inventario completo hay un limite nuevo:** con 355 activos repartidos por el corredor,
+> un radio de 1 km mete **8 activos de media dentro de cada geofence**. La prueba pasa estando
+> frente al equipo equivocado. **`TIP_TiposActivo.RadioGeofencingKm` deja de ser opcional.**
+
+### 9.3 El dato llega a la hoja
+
+Cree un registro desde la aplicacion y **abra la hoja**. Si no esta ahi, no existe.
+
+### 9.4 El historico no se puede borrar
+
+Intente borrar un mantenimiento desde la aplicacion. **El boton no debe aparecer.**
+
+### 9.5 El barrido de fallos silenciosos
+
+En el Asistente, escriba esto:
+
+```
+REF_ROWS("OT_OrdenesTrabajo", "Activo")
+```
+
+`Activo` en esa tabla **ya no es la referencia al activo**: es la bandera Si/No. La expresion
+apunta a la columna equivocada y devuelve lista vacia.
+
+**Si el Asistente la ACEPTA, anotelo con su texto literal.** Es la prueba de que un despliegue
+verde no distingue esa expresion de la correcta. **Sin verla aceptada, no sabemos si el resto paso
+por diligencia o por casualidad.**
+
+# Etapa 10 — Publicar
+
+*Manage -> Deploy -> Run deployment check*, y despues **Move app to Deployed state**.
+
+> ## No publique todavia
+>
+> **Las coordenadas de los activos no son reales.** Los 34 de produccion comparten una, en Bogota;
+> los 355 de la plantilla estan repartidos por el corredor pero **son inventados**.
+>
+> Con el radio de 1 km, **el primer tecnico en via no podra cerrar ni una orden**. Y se descubre
+> con el tecnico delante.
+>
+> Es la decision **D-01** y es trabajo de campo. Hasta que llegue, la aplicacion se prueba pero no
+> se despliega.
+
+**Y si existe una aplicacion anterior sobre la misma hoja, despubliquela antes.** Dos aplicaciones
+sobre un backend sin integridad referencial corrompen en silencio: la vieja conserva permisos que
+el modelo nuevo ya no concede.
+
+> **El paso 10 es el punto de no retorno.** Todo lo anterior se abandona sin coste. Compruebe la
+> etapa 9 entera **antes** de despublicar nada.
+
+---
+
+# Acta — para rellenar al terminar
+
+**No lo de por cerrado usted.** Este proyecto tiene tres cierres reportados que no resistieron la
+comprobacion contra el archivo.
+
+```
+Etapa 0   copia hecha ............................ [  ]   nombre del archivo:
+          pestanas ocultas ....................... [  ]   cuantas: 
+          verificar_faseA.py ..................... [  ]   salida:
+
+Etapa 2   tablas dadas de alta ................... [  ]   cuantas de 28:
+          duplicadas ............................. [  ]   cuales:
+
+Etapa 3   claves simples y Text .................. [  ]   cuantas de 28:
+          alguna compuesta ....................... [  ]   cual:
+
+Etapa 5   referencias puestas .................... [  ]   cuantas de 38:
+          IsPartOf ............................... [  ]   cuantas de 4:
+          MAN.OTID desmarcado .................... [  ]
+          [OTID].[ActivoID].[Ubicacion] .......... [  ]   salida:
+          [OTID].[TecnicoID].[Correo] ............ [  ]   salida:
+
+Etapa 6   columnas ocultas ....................... [  ]   cuantas por tabla:
+          las tres trampa en Text ................ [  ]
+
+Etapa 7   reglas puestas ......................... [  ]   cuantas de 20:
+          Deletes quitado en OT y MAN ............ [  ]
+          umbral con ISBLANK ..................... [  ]
+
+Etapa 9   cierre cercano aceptado ................ [  ]
+          cierre lejano rechazado ................ [  ]
+          dato leido en la hoja .................. [  ]
+          borrado no disponible .................. [  ]
+          REF_ROWS(...,"Activo") ................. [  ]   que dijo:
+
+Errores en rojo que aparecieron, con su texto literal:
+
+
+Cosas que no salieron como dice esta guia:
+
+```
+
+---
+*Generado de `scripts/modelo_objetivo.py` por `scripts/generar_guia_funcional.py`.*
