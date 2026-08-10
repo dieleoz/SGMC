@@ -463,6 +463,49 @@ elif fantasma:
 else:
     oks.append("Toda columna declarada como retirada sigue presente en la hoja")
 
+# ------------- F-20 la clave no mezcla numeros y texto
+#
+# AppSheet TIPA LA COLUMNA CLAVE SEGUN LA MAYORIA de sus valores. Si diez son
+# numeros y uno es texto, la tipa Number y DESCARTA esa fila: sin error, sin
+# aviso y sin que aparezca en ninguna parte. Paso el 2026-08-10 con
+# USR_Usuarios, donde una clave alfanumerica -3aa202ee, generada por el propio
+# AppSheet con UNIQUEID- dejaba a un tecnico fuera del sistema. Se descubrio
+# porque la API devolvia 10 usuarios y la hoja tenia 11; ningun verificador lo
+# miraba.
+#
+# El modelo declara TODAS las claves como Text, asi que una clave enteramente
+# numerica tampoco es inocente: AppSheet la tipara Number, y el dia que alguien
+# cree una fila desde la aplicacion con UNIQUEID, esa fila se pierde igual.
+import re as _re
+
+
+def _es_numero(v):
+    return bool(_re.fullmatch(r"-?\d+(\.\d+)?", str(v).strip()))
+
+
+for tabla in MODELO:
+    if tabla not in wb.sheetnames:
+        continue
+    ws = wb[tabla]
+    valores = [r[0] for r in ws.iter_rows(min_row=2, values_only=True)
+               if r and r[0] not in (None, "")]
+    if not valores:
+        continue
+    numeros = sum(1 for v in valores if _es_numero(v))
+    textos = len(valores) - numeros
+    if numeros and textos:
+        minoria = ([str(v) for v in valores if not _es_numero(v)] if numeros > textos
+                   else [str(v) for v in valores if _es_numero(v)])
+        falla("F-20", "%s: la clave mezcla %d numericas y %d de texto. AppSheet la tipa por la "
+                      "mayoria y DESCARTA la minoria sin decir nada. Se pierden: %s"
+              % (tabla, numeros, textos, ", ".join(sorted(minoria)[:8])))
+    elif numeros:
+        aviso("F-20", "%s: la clave es enteramente numerica y el modelo la declara Text. "
+                      "AppSheet la tipara Number, y una fila creada desde la aplicacion con "
+                      "UNIQUEID se perderia. Forzar Text en el editor" % tabla)
+    else:
+        oks.append("%s: la clave es de texto en sus %d filas" % (tabla, len(valores)))
+
 # ------------- F-18 ninguna pestana del modelo esta OCULTA
 #
 # AppSheet IGNORA las pestanas ocultas al escanear un libro. No avisa: la tabla

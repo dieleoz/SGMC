@@ -632,6 +632,8 @@ Inventario de los activos del corredor. Es el eje del sistema.
 | `CalzadaID` | `Ref` | `Ref` -> `CAL_Calzadas` · IsPartOf desmarcado |
 | `SentidoID` | `Ref` | `Ref` -> `SEN_Sentidos` · IsPartOf desmarcado |
 | `Ubicacion` | `LatLong` |  |
+| `PK` | `Text` |  |
+| `TramoINVIAS` | `Text` |  |
 | `SedeID` | `Ref` | `Ref` -> `SED_Sedes` · IsPartOf desmarcado |
 | `EstadoActivoID` | `Ref` | `Ref` -> `EST_Activo` · IsPartOf desmarcado |
 | `CodigoQR` | `Text` |  |
@@ -1033,6 +1035,8 @@ Edificaciones del corredor: CCO, peajes y basculas. Cada una esta al lado de la 
 | `Ciudad` | `Text` |  |
 | `UnidadFuncionalID` | `Ref` | `Ref` -> `UNF_UnidadesFuncionales` · IsPartOf desmarcado |
 | `PR` | `Text` |  |
+| `TramoINVIAS` | `Text` |  |
+| `PK` | `Text` |  |
 | `Ubicacion` | `LatLong` |  |
 | `Activo` | `Yes/No` | `Initial value` = `TRUE` |
 
@@ -1079,6 +1083,8 @@ Tramos del corredor donde estan los activos. Se separa de SED_Sedes porque son d
 |---|---|---|
 | `UnidadFuncionalID` | `Text` | **CLAVE** |
 | `Nombre` | `Text` |  |
+| `PKInicial` | `Text` |  |
+| `PKFinal` | `Text` |  |
 | `PRInicial` | `Text` |  |
 | `PRFinal` | `Text` |  |
 | `Activo` | `Yes/No` | `Initial value` = `TRUE` |

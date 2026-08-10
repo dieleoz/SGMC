@@ -94,8 +94,14 @@ def punto(frac):
     return "%.6f, %.6f" % (lat, lon)
 
 
-def pr(frac):
-    """Punto de referencia INVIAS, formato PR km+metros."""
+def pk(frac):
+    """Punto kilometrico DEL PROYECTO: lineal, formato km+metros.
+
+    Se llamaba pr() y escribia su resultado en la columna PR. Estaba mal: esto
+    es un kilometro lineal contado desde el arranque de la concesion, que es la
+    definicion del PK. El PR es la referencia de INVIAS sobre la ruta, reinicia
+    en cada tramo, y NO LO SABEMOS: lo pone operacion.
+    """
     km = frac * LARGO_KM
     return "%02d+%03d" % (int(km), int(round((km - int(km)) * 1000)))
 
@@ -113,11 +119,20 @@ def pr(frac):
 # Estas son las del CONTRATO, Apendice Tecnico 1, Tabla 3, paginas 5 y 6.
 # Sustituyen a las de la pagina de la ANI, que venian redondeadas -49, 22, 18 y
 # 47- y con los nombres cortos. El contrato manda.
+# (id, nombre, km_desde, km_hasta, pr_inicial, pr_final)
+#
+# El PK es nuestro, lineal y continuo. El PR es el del contrato, y VIAJA CON SU
+# RUTA dentro del valor: la UF1 empieza en la 55CN03 y termina en la 5608, asi
+# que la ruta no cabe en una columna aparte para toda la unidad.
 UNIDADES = [
-    (7,  "Sisga - Macheta - Manta - Guateque",                     0.00,  50.01),
-    (8,  "Guateque - Garagoa - Macanal",                          50.01,  72.01),
-    (9,  "Macanal - Santa Maria",                                 72.01,  89.81),
-    (10, "Santa Maria - Cachipay - San Luis de Gaceno - Aguaclara", 89.81, 137.17),
+    (7,  "Sisga - Macheta - Manta - Guateque",                      0.00,  50.01,
+     "55CN03 PR0+0+000", "5608 PR4+885"),
+    (8,  "Guateque - Garagoa - Macanal",                           50.01,  72.01,
+     "5608 PR4+885",     "5608 PR26+879"),
+    (9,  "Macanal - Santa Maria",                                  72.01,  89.81,
+     "5608 PR26+879",    "5608 PR44+680"),
+    (10, "Santa Maria - Cachipay - San Luis de Gaceno - Aguaclara", 89.81, 137.17,
+     "5608 PR44+680",    "5608 PR92+048"),
 ]
 
 # LOS LIMITES DE VERDAD SON PR, NO KILOMETROS, y el contrato lo dice: "las
@@ -137,14 +152,14 @@ UNIDADES = [
 def unidad_funcional(frac):
     """La UF en la que cae un punto, por su kilometro real del corredor."""
     km = frac * LARGO_KM
-    for uid, _nombre, desde, hasta in UNIDADES:
+    for uid, _nombre, desde, hasta, _pri, _prf in UNIDADES:
         if desde <= km < hasta:
             return uid
     return UNIDADES[-1][0]
 
 
 COLS = ["ActivoID", "CodigoActivo", "Nombre", "TipoActivoID", "UnidadFuncionalID",
-        "PR", "CalzadaID", "Ubicacion", "EstadoActivoID", "CodigoQR", "SentidoID",
+        "PR", "PK", "TramoINVIAS", "CalzadaID", "Ubicacion", "EstadoActivoID", "CodigoQR", "SentidoID",
         "Activo", "FrecuenciaID", "Observaciones", "Criticidad", "FechaBaja", "MotivoBaja"]
 
 
@@ -181,7 +196,9 @@ def generar_filas(existentes=None):
                 "Nombre": "%s %03d" % (nombre, i),
                 "TipoActivoID": tipo_de_familia(clave_tipo),
                 "UnidadFuncionalID": unidad_funcional(frac),
-                "PR": pr(frac),
+                "PK": pk(frac),
+                "PR": "",   # el de INVIAS. No lo sabemos: lo pone operacion
+                "TramoINVIAS": "",
                 "CalzadaID": 1 + (n % 2),
                 "Ubicacion": punto(frac),
                 "EstadoActivoID": 1,
@@ -221,8 +238,8 @@ if __name__ == "__main__":
     print()
     print("Muestra:")
     for f in [filas[0], filas[53], filas[54], filas[200], filas[-1]]:
-        print("   %-10s %-26s UF%-3s PR %-8s %s"
-              % (f["CodigoActivo"], f["Nombre"][:26], f["UnidadFuncionalID"], f["PR"], f["Ubicacion"]))
+        print("   %-10s %-26s UF%-3s PK %-8s %s"
+              % (f["CodigoActivo"], f["Nombre"][:26], f["UnidadFuncionalID"], f["PK"], f["Ubicacion"]))
     print()
     print("Coordenadas: interpoladas sobre el trazado real del corredor,")
     print("con +-150 m de dispersion. SINTETICAS, no de campo.")

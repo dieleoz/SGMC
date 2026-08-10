@@ -16,7 +16,7 @@ paso de vistas de los manuales generados **declara que no está especificado y p
 se haga**, en vez de decir «se construye sola» — que es la clase de instrucción que este proyecto
 tiene prohibida.
 
-**28 tablas · 205 columnas · 39 referencias · 21 reglas**
+**28 tablas · 211 columnas · 39 referencias · 21 reglas**
 
 ---
 
@@ -267,7 +267,9 @@ Edificaciones del corredor: CCO, peajes y basculas. Cada una esta al lado de la 
 | `Nombre` | Text |  |  | Sí |  |
 | `Ciudad` | Text |  |  |  |  |
 | `UnidadFuncionalID` | Ref |  | `UNF_UnidadesFuncionales` | Sí | La UF en la que cae el PR del edificio. Sin esto la sede no sabe donde esta, que es justo por lo que el requisito de que el equipo de un peaje heredara su unidad funcional estuvo registrado como no cubierto |
-| `PR` | Text |  |  |  | Punto de referencia del edificio, formato 23+600 |
+| `PR` | Text |  |  |  | Punto de referencia de INVIAS del edificio |
+| `TramoINVIAS` | Text |  |  |  | La ruta a la que pertenece ese PR. El peaje de Macheta esta en la 5607 |
+| `PK` | Text |  |  |  | Punto kilometrico del proyecto, lineal. El que no es ambiguo |
 | `Ubicacion` | LatLong |  |  |  | Coordenada de la edificacion |
 | `Activo` | Yes/No |  |  |  | Valor inicial: `TRUE` |
 
@@ -279,8 +281,10 @@ Tramos del corredor donde estan los activos. Se separa de SED_Sedes porque son d
 |---|---|---|---|---|---|
 | `UnidadFuncionalID` | Text | PK |  |  |  |
 | `Nombre` | Text |  |  | Sí |  |
-| `PRInicial` | Text |  |  |  |  |
-| `PRFinal` | Text |  |  |  |  |
+| `PKInicial` | Text |  |  |  | Kilometro lineal del proyecto donde empieza la unidad funcional |
+| `PKFinal` | Text |  |  |  | Kilometro lineal del proyecto donde termina |
+| `PRInicial` | Text |  |  |  | PR de INVIAS del contrato, CON SU RUTA porque cada ruta reinicia la numeracion. Apendice Tecnico 1, Tabla 3 |
+| `PRFinal` | Text |  |  |  | Idem. La UF1 empieza en una ruta y termina en otra, de ahi que la ruta viaje dentro del valor y no en una columna aparte |
 | `Activo` | Yes/No |  |  |  | Valor inicial: `TRUE` |
 
 #### `ROL_Roles`
@@ -445,6 +449,8 @@ Inventario de los activos del corredor. Es el eje del sistema.
 | `CalzadaID` | Ref |  | `CAL_Calzadas` |  |  |
 | `SentidoID` | Ref |  | `SEN_Sentidos` |  |  |
 | `Ubicacion` | LatLong |  |  | Sí | Coordenada real. Hoy los 34 activos comparten un punto en Bogota |
+| `PK` | Text |  |  |  | Punto kilometrico DEL PROYECTO: lineal y continuo desde 0+000 hasta el final. Es el unico que identifica un punto sin ambiguedad en todo el corredor |
+| `TramoINVIAS` | Text |  |  |  | La ruta de INVIAS a la que pertenece el PR: 55CN03, 5607 o 5608. SIN ELLA EL PR NO IDENTIFICA UN PUNTO, y no es teoria: el corredor tiene dos sitios distintos llamados PR 0+000 -el arranque en El Sisga sobre la 55CN03 y Guateque sobre la 5608-, separados por unos 50 km |
 | `SedeID` | Ref |  | `SED_Sedes` |  | Solo para el equipo bajo techo -servidores, NAS, impresoras, video wall-, que vive DENTRO de una edificacion y no en un punto de la via. Vacia en el equipo de corredor, que tiene su propio PR y su propia coordenada. Cuando esta puesta, RG-21 obliga a que la unidad funcional del activo sea la de su edificacion: la UF se guarda en un solo sitio y no en dos |
 | `EstadoActivoID` | Ref |  | `EST_Activo` | Sí |  |
 | `CodigoQR` | Text |  |  |  | Configurada como Searchable y Scan |

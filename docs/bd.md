@@ -16,7 +16,7 @@ forma de que mienta es que mienta el archivo**.
 | Aplicación | AppSheet `SISGA_-323965761-26-08-10` |
 | Archivo leído | `Modelo_Datos_PLANTILLA.xlsx` |
 | Hojas | **29** |
-| Filas con datos | **1001** |
+| Filas con datos | **1007** |
 | Generado el | 2026-08-10 |
 
 ---
@@ -40,8 +40,8 @@ forma de que mienta es que mienta el archivo**.
 | Hoja | Columnas | Filas | En el modelo objetivo |
 |---|---|---|---|
 | `_LEEME` | 1 | 54 | No figura |
-| `SED_Sedes` | 7 | 0 | Sí |
-| `UNF_UnidadesFuncionales` | 5 | 4 | Sí · **nueva** |
+| `SED_Sedes` | 9 | 6 | Sí |
+| `UNF_UnidadesFuncionales` | 7 | 4 | Sí · **nueva** |
 | `ROL_Roles` | 4 | 4 | Sí |
 | `USR_Usuarios` | 9 | 11 | Sí |
 | `ASG_AsignacionZona` | 4 | 4 | Sí · **nueva** |
@@ -53,7 +53,7 @@ forma de que mienta es que mienta el archivo**.
 | `FRE_Frecuencias` | 4 | 8 | Sí |
 | `CAL_Calzadas` | 3 | 3 | Sí |
 | `SEN_Sentidos` | 3 | 2 | Sí |
-| `ACT_Activos` | 18 | 368 | Sí |
+| `ACT_Activos` | 20 | 368 | Sí |
 | `OT_OrdenesTrabajo` | 12 | 0 | Sí |
 | `MAN_Mantenimientos` | 23 | 0 | Sí |
 | `NOV_Novedades` | 9 | 0 | Sí · **nueva** |
@@ -103,7 +103,7 @@ Leyenda del estado de cada columna:
 
 Edificaciones del corredor: CCO, peajes y basculas. Cada una esta al lado de la via, en un PR concreto, y por tanto dentro de una unidad funcional. Es el PADRE DE UBICACION del equipo bajo techo: un servidor, un NAS o una impresora no estan en un punto de la via, estan DENTRO de un edificio, y de el heredan donde estan.
 
-7 columnas · 0 filas · clave: vacía
+9 columnas · 6 filas · clave: `1`, `2`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -112,22 +112,26 @@ Edificaciones del corredor: CCO, peajes y basculas. Cada una esta al lado de la 
 | 3 | `Ciudad` | Text |  |
 | 4 | `UnidadFuncionalID` | Ref → `UNF_UnidadesFuncionales` |  |
 | 5 | `PR` | Text |  |
-| 6 | `Ubicacion` | LatLong |  |
-| 7 | `Activo` | Yes/No |  |
+| 6 | `TramoINVIAS` | Text |  |
+| 7 | `PK` | Text |  |
+| 8 | `Ubicacion` | LatLong |  |
+| 9 | `Activo` | Yes/No |  |
 
 ### `UNF_UnidadesFuncionales`
 
 Tramos del corredor donde estan los activos. Se separa de SED_Sedes porque son dos conceptos distintos que el modelo anterior mezclaba en una sola columna, dejando usuarios y activos en conjuntos disjuntos.
 
-5 columnas · 4 filas · clave: `7`, `8`
+7 columnas · 4 filas · clave: `7`, `8`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
 | 1 | `UnidadFuncionalID` | Text · **PK** |  |
 | 2 | `Nombre` | Text |  |
-| 3 | `PRInicial` | Text |  |
-| 4 | `PRFinal` | Text |  |
-| 5 | `Activo` | Yes/No |  |
+| 3 | `PKInicial` | Text |  |
+| 4 | `PKFinal` | Text |  |
+| 5 | `PRInicial` | Text |  |
+| 6 | `PRFinal` | Text |  |
+| 7 | `Activo` | Yes/No |  |
 
 ### `ROL_Roles`
 
@@ -287,7 +291,7 @@ Sentidos de circulacion.
 
 Inventario de los activos del corredor. Es el eje del sistema.
 
-18 columnas · 368 filas · clave: `1`, `2`
+20 columnas · 368 filas · clave: `1`, `2`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -300,15 +304,17 @@ Inventario de los activos del corredor. Es el eje del sistema.
 | 7 | `CalzadaID` | Ref → `CAL_Calzadas` | **Pendiente `Ref`** hacia `CAL_Calzadas` (hoy `Number`) |
 | 8 | `SentidoID` | Ref → `SEN_Sentidos` | **Pendiente `Ref`** hacia `SEN_Sentidos` (hoy `Number`) |
 | 9 | `Ubicacion` | LatLong |  |
-| 10 | `SedeID` | Ref → `SED_Sedes` |  |
-| 11 | `EstadoActivoID` | Ref → `EST_Activo` | Antes `EstadoID`. La referencia se llama como la clave destino. |
-| 12 | `CodigoQR` | Text |  |
-| 13 | `FrecuenciaID` | Ref → `FRE_Frecuencias` | **Pendiente `Ref`** hacia `FRE_Frecuencias` (hoy `Number`) |
-| 14 | `Criticidad` | Enum |  |
-| 15 | `FechaBaja` | Date |  |
-| 16 | `MotivoBaja` | Enum |  |
-| 17 | `Activo` | Yes/No |  |
-| 18 | `Observaciones` | LongText |  |
+| 10 | `PK` | Text |  |
+| 11 | `TramoINVIAS` | Text |  |
+| 12 | `SedeID` | Ref → `SED_Sedes` |  |
+| 13 | `EstadoActivoID` | Ref → `EST_Activo` | Antes `EstadoID`. La referencia se llama como la clave destino. |
+| 14 | `CodigoQR` | Text |  |
+| 15 | `FrecuenciaID` | Ref → `FRE_Frecuencias` | **Pendiente `Ref`** hacia `FRE_Frecuencias` (hoy `Number`) |
+| 16 | `Criticidad` | Enum |  |
+| 17 | `FechaBaja` | Date |  |
+| 18 | `MotivoBaja` | Enum |  |
+| 19 | `Activo` | Yes/No |  |
+| 20 | `Observaciones` | LongText |  |
 
 ### `OT_OrdenesTrabajo`
 
@@ -546,7 +552,7 @@ Tipo de dato esperado en cada respuesta.
 
 Opciones de las preguntas de tipo lista.
 
-5 columnas · 108 filas · clave: `1`, `2`
+5 columnas · 108 filas · clave: `SOS001-1`, `SOS001-2`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|

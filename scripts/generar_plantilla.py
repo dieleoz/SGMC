@@ -216,7 +216,7 @@ for f in generar_filas(cuenta):
 # tecnico: RG-04 filtra por ella.
 recolocados = 0
 for a in activos:
-    m = re.match(r"(\d+)\+(\d+)", texto(a.get("PR")))
+    m = re.match(r"(\d+)\+(\d+)", texto(a.get("PK")) or texto(a.get("PR")))
     if not m:
         continue
     km = int(m.group(1)) + int(m.group(2)) / 1000.0
@@ -224,8 +224,54 @@ for a in activos:
     if texto(a.get("UnidadFuncionalID")) != correcta:
         a["UnidadFuncionalID"] = correcta
         recolocados += 1
+    # El valor que traiamos en PR era en realidad el kilometro lineal: un PK con
+    # la etiqueta equivocada. Se muda a su columna y PR queda vacio, que es la
+    # verdad -el PR de INVIAS no lo sabemos y no se inventa-.
+    if not texto(a.get("PK")) and texto(a.get("PR")):
+        a["PK"] = texto(a.get("PR"))
+        a["PR"] = ""
+    elif texto(a.get("PR")) and texto(a.get("PR")) == texto(a.get("PK")):
+        # Mismo valor en las dos: es la copia con la etiqueta equivocada de una
+        # pasada anterior. El PK se queda; el PR se vacia, porque el de INVIAS
+        # no lo sabemos.
+        a["PR"] = ""
 
 escribir("ACT_Activos", activos)
+
+# ------------------------------- 4a. claves que AppSheet descartaria en silencio
+#
+# AppSheet TIPA LA COLUMNA CLAVE SEGUN LA MAYORIA de sus valores. En
+# USR_Usuarios habia diez claves numericas y una alfanumerica -3aa202ee, que
+# AppSheet mismo genero con UNIQUEID al crear la fila desde la aplicacion-, asi
+# que tipaba la columna como Number y DESCARTABA esa fila. Sin error y sin
+# aviso: Diego Escobar, tecnico, simplemente no existia para la aplicacion. Lo
+# vimos porque la API devolvia 10 usuarios y la hoja tenia 11.
+#
+# Se renumera al siguiente libre. Va explicito y no derivado a proposito: una
+# clave se cambia a mano y con constancia, nunca por una regla automatica que
+# adivine, porque si algo la referenciara la reescritura silenciosa seria peor
+# que el problema. Se comprobo antes que nadie la referencia.
+CLAVES_RENUMERADAS = {
+    # Un tecnico que la aplicacion no veia.
+    "USR_Usuarios": {"3aa202ee": "12"},
+    # Y al reves: aqui la mayoria es texto -las 104 generadas- y las cuatro
+    # numericas son las del banco de SOS, el unico acordado. AppSheet tiparia
+    # Text y las descartaria, dejando el desplegable de la primera pregunta del
+    # checklist de SOS vacio. Pasan a la convencion de las demas.
+    "LST_ValoresLista": {"1": "SOS001-1", "2": "SOS001-2",
+                         "3": "SOS001-3", "4": "SOS001-4"},
+    }
+
+renumeradas = []
+for tabla, mapa in CLAVES_RENUMERADAS.items():
+    filas = leer(tabla)
+    clave = columnas(tabla)[0]
+    for f in filas:
+        if texto(f[clave]) in mapa:
+            nueva = mapa[texto(f[clave])]
+            renumeradas.append("%s: %s -> %s" % (tabla, texto(f[clave]), nueva))
+            f[clave] = nueva
+    escribir(tabla, filas)
 
 # ------------------------------------- 4b. valores de catalogo que el dominio exige
 #
@@ -251,7 +297,8 @@ CATALOGO_MINIMO = {
         {"SedeID": "2", "Nombre": "Bogota", "Ciudad": "Bogota",
          "UnidadFuncionalID": "", "PR": "", "Ubicacion": "", "Activo": "TRUE"},
         {"SedeID": "3", "Nombre": "Peaje Macheta", "Ciudad": "Macheta",
-         "UnidadFuncionalID": "7", "PR": "27+240", "Ubicacion": "", "Activo": "TRUE"},
+         "UnidadFuncionalID": "7", "PR": "27+240", "TramoINVIAS": "5607",
+         "PK": "", "Ubicacion": "", "Activo": "TRUE"},
         {"SedeID": "4", "Nombre": "Peaje SLG", "Ciudad": "San Luis de Gaceno",
          "UnidadFuncionalID": "", "PR": "", "Ubicacion": "", "Activo": "TRUE"},
         {"SedeID": "5", "Nombre": "Bascula Macheta", "Ciudad": "Macheta",
@@ -265,15 +312,27 @@ CATALOGO_MINIMO = {
         ],
     }
 
-anadidos_catalogo = []
+anadidos_catalogo, completados_catalogo = [], []
 for tabla, filas_min in CATALOGO_MINIMO.items():
     actuales = leer(tabla)
     clave = columnas(tabla)[0]
     tiene = {texto(f[clave]) for f in actuales}
+    por_clave = {texto(f[clave]): f for f in actuales}
     for fila in filas_min:
-        if texto(fila[clave]) not in tiene:
+        k = texto(fila[clave])
+        if k not in tiene:
             actuales.append(fila)
-            anadidos_catalogo.append("%s.%s" % (tabla, fila.get("Nombre", fila[clave])))
+            anadidos_catalogo.append("%s.%s" % (tabla, fila.get("Nombre", k)))
+            continue
+        # La fila ya esta: se COMPLETA lo que este vacio y NUNCA se pisa lo que
+        # alguien haya escrito. Antes solo se garantizaba la existencia, y el
+        # tramo del peaje de Macheta -que sale del contrato- no llego nunca a la
+        # fila porque la fila ya existia sin el.
+        actual = por_clave[k]
+        for col, valor in fila.items():
+            if valor not in (None, "") and not texto(actual.get(col)):
+                actual[col] = valor
+                completados_catalogo.append("%s.%s.%s" % (tabla, k, col))
     escribir(tabla, actuales)
 
 # ------------------------------------------- 5. los bancos de preguntas
@@ -386,8 +445,9 @@ def pk(km):
 
 escribir("UNF_UnidadesFuncionales", [
     {"UnidadFuncionalID": str(uid), "Nombre": nombre,
-     "PRInicial": pk(desde), "PRFinal": pk(hasta), "Activo": "TRUE"}
-    for uid, nombre, desde, hasta in UNIDADES])
+     "PKInicial": pk(desde), "PKFinal": pk(hasta),
+     "PRInicial": pri, "PRFinal": prf, "Activo": "TRUE"}
+    for uid, nombre, desde, hasta, pri, prf in UNIDADES])
 
 # ------------------------------------------- 7. fuera los registros de prueba
 #
@@ -563,6 +623,10 @@ print("Activos recolocados en su unidad funcional real: %d" % recolocados)
 print("Claves y referencias normalizadas a texto: %d" % normalizadas)
 if anadidos_catalogo:
     print("Valores de catalogo anadidos: %s" % " · ".join(anadidos_catalogo))
+if renumeradas:
+    print("Claves renumeradas: %s" % " · ".join(renumeradas))
+if completados_catalogo:
+    print("Campos de catalogo completados: %s" % " · ".join(completados_catalogo))
 print()
 print("Tipos de activo: %d   ·   Formularios anadidos: %d   ·   Activos: %d (%d fixture + %d generados)"
       % (len(TIPOS_ACTIVO), len(anadidos), len(activos), fixture, len(activos) - fixture))

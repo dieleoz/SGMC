@@ -62,7 +62,11 @@ MODELO = {
                 nueva=True, nota="La UF en la que cae el PR del edificio. Sin esto la sede no sabe donde "
                      "esta, que es justo por lo que el requisito de que el equipo de un peaje "
                      "heredara su unidad funcional estuvo registrado como no cubierto"),
-            col("PR", "Text", nueva=True, nota="Punto de referencia del edificio, formato 23+600"),
+            col("PR", "Text", nueva=True, nota="Punto de referencia de INVIAS del edificio"),
+            col("TramoINVIAS", "Text", nueva=True,
+                nota="La ruta a la que pertenece ese PR. El peaje de Macheta esta en la 5607"),
+            col("PK", "Text", nueva=True,
+                nota="Punto kilometrico del proyecto, lineal. El que no es ambiguo"),
             col("Ubicacion", "LatLong", nueva=True, nota="Coordenada de la edificacion"),
             col("Activo", "Yes/No", valor_inicial="TRUE"),
         ]),
@@ -76,8 +80,16 @@ MODELO = {
         columnas=[
             col("UnidadFuncionalID", "Text", pk=True),
             col("Nombre", "Text", obligatoria=True),
-            col("PRInicial", "Text"),
-            col("PRFinal", "Text"),
+            col("PKInicial", "Text", nueva=True,
+                nota="Kilometro lineal del proyecto donde empieza la unidad funcional"),
+            col("PKFinal", "Text", nueva=True,
+                nota="Kilometro lineal del proyecto donde termina"),
+            col("PRInicial", "Text",
+                nota="PR de INVIAS del contrato, CON SU RUTA porque cada ruta reinicia la "
+                     "numeracion. Apendice Tecnico 1, Tabla 3"),
+            col("PRFinal", "Text",
+                nota="Idem. La UF1 empieza en una ruta y termina en otra, de ahi que la ruta "
+                     "viaje dentro del valor y no en una columna aparte"),
             col("Activo", "Yes/No", valor_inicial="TRUE"),
         ]),
 
@@ -242,6 +254,15 @@ MODELO = {
             col("SentidoID", "Ref", ref="SEN_Sentidos"),
             col("Ubicacion", "LatLong", obligatoria=True,
                 nota="Coordenada real. Hoy los 34 activos comparten un punto en Bogota"),
+            col("PK", "Text", nueva=True,
+                nota="Punto kilometrico DEL PROYECTO: lineal y continuo desde 0+000 hasta el "
+                     "final. Es el unico que identifica un punto sin ambiguedad en todo el "
+                     "corredor"),
+            col("TramoINVIAS", "Text", nueva=True,
+                nota="La ruta de INVIAS a la que pertenece el PR: 55CN03, 5607 o 5608. SIN ELLA "
+                     "EL PR NO IDENTIFICA UN PUNTO, y no es teoria: el corredor tiene dos sitios "
+                     "distintos llamados PR 0+000 -el arranque en El Sisga sobre la 55CN03 y "
+                     "Guateque sobre la 5608-, separados por unos 50 km"),
             col("SedeID", "Ref", ref="SED_Sedes", nueva=True,
                 nota="Solo para el equipo bajo techo -servidores, NAS, impresoras, video wall-, "
                      "que vive DENTRO de una edificacion y no en un punto de la via. Vacia en "
@@ -871,6 +892,11 @@ CLAVE_LEGIBLE = {
     "FRM_Preguntas",           # SOS001
     "PLA_PlanMantenimiento",   # PLA-001
     "PAR_Parametros",          # UMBRAL_GPS
+    "LST_ValoresLista",        # SOS001-1, derivada de la pregunta que la usa.
+                               # Cuatro de sus claves eran 1, 2, 3 y 4, y como el
+                               # resto es texto AppSheet las habria descartado:
+                               # el desplegable de la primera pregunta del
+                               # checklist de SOS se habria quedado vacio.
 }
 
 # ------------------------------------------- catalogos de clave GENERADA
@@ -972,21 +998,6 @@ PROPUESTAS = {
 # una columna nueva sobre una tabla existente; verificar_documentos.py D-03 no
 # sabe distinguir "propuesta" de "inventada", asi que se declara aqui.
 COLUMNAS_PROPUESTAS = {
-    ("ACT_Activos", "PK"):
-        "Punto kilometrico DEL PROYECTO: lineal y continuo desde el PK 0+000 hasta el final de "
-        "la concesion, 137,03 km. Es el unico de los dos que identifica un punto sin "
-        "ambiguedad en todo el corredor.",
-    ("ACT_Activos", "TramoINVIAS"):
-        "El tramo al que pertenece el PR, con la nomenclatura de INVIAS: 55CN03 es Ruta "
-        "Nacional 55, codigo departamental CN de Cundinamarca, tramo 03. La concesion arranca "
-        "en el PR 0+000 de ese tramo, en El Sisga. "
-        "POR QUE HACE FALTA, y no es una hipotesis: EL CORREDOR TIENE DOS PUNTOS DISTINTOS "
-        "LLAMADOS 'PR 0+000'. Uno es el arranque de la concesion en El Sisga, sobre la 55CN03; "
-        "el otro es Guateque, sobre la 5608. Estan a unos 50 km. Cada ruta reinicia su "
-        "numeracion, asi que el mismo PR designa sitios distintos segun la ruta, y hoy "
-        "ACT_Activos.PR guarda el numero sin ella. El dato es ambiguo y nada lo detecta: un "
-        "tecnico enviado al 'PR 0+000' no sabe a cual de los dos. Lo resuelve declarar la ruta, "
-        "o el PK, que es lineal y continuo en todo el corredor.",
     ("ACT_Activos", "ActivoPadreID"):
         "Ref a ACT_Activos. El equipo compuesto: un panel de mensaje variable tiene portico, "
         "fuentes y camaras, y hoy cada pieza seria un activo suelto sin nada que diga de quien "
