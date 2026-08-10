@@ -289,3 +289,28 @@ Se declara, no se afirma. Es lo que puede morder después.
 | Que `UNIQUEID()` no colisiona entre dispositivos **sin conexión** | `ESPEC-002` §4.3 y la retirada de `Adds` en `OT` | Es el argumento por el que las órdenes se crean en el Sheets. Si `UNIQUEID()` fuera seguro offline, esa decisión se podría revisar |
 | Cuántas filas quedan huérfanas tras una conversión `Text` a `Ref`, y si se informa | **R-4** | El punto 7 confirma que se marcan, no que se cuenten |
 | **Que AppSheet evalúe un `Valid_If` sobre una columna con `Editable_If = FALSE`** | **RG-01 sobre `Coordenadas_Cierre`**, y con ella **P-09**, que es innegociable | RG-20 hace la columna no editable y RG-01 pone su validación encima. Si no se evalúa, **la regla parece funcionar por no ejercitarse nunca**: P-09 pasaría sin probar nada. Es el peor modo de fallo posible y no hay página oficial que lo aclare |
+
+---
+
+## 13. AppSheet infiere el tipo de cada columna de los datos, no de la hoja
+
+**Comprobado en el editor el 2026-08-10**, sobre `SED_Sedes` recién regenerada:
+
+| Columna | Lo que AppSheet infirió | Lo que declara el modelo |
+|---|---|---|
+| `SedeID` | `Number` | `Text`, y es la clave |
+| `UnidadFuncionalID` | `Number` | `Ref` a `UNF_UnidadesFuncionales` |
+| `TramoINVIAS` | `Number` | `Text` |
+| `Ubicacion` | `Text` | `LatLong` |
+
+**Lo que esto significa en la práctica: subir el Excel arregla la hoja, no la aplicación.** Son dos
+sitios. El Excel fija qué columnas hay y qué datos tienen; **el tipo de cada una, cuál es la clave y
+qué es una referencia viven en el esquema de AppSheet**, que se infiere leyendo los datos. Reimportar
+no lo corrige, porque la inferencia vuelve a ser la misma sobre los mismos datos.
+
+**El caso que mejor lo ilustra es `TramoINVIAS`.** Los tramos de INVÍAS del corredor son `55CN03`,
+`5607` y `5608`: dos parecen números y uno no. Como el único valor cargado hoy es `5607`, AppSheet
+la tipa `Number` — y el día que operación escriba `55CN03`, no cabe.
+
+Es el mismo mecanismo que `F-20` caza en las claves, aplicado a cualquier columna. **La diferencia
+es que en la clave se pierde la fila entera y en silencio; aquí se pierde un valor.**

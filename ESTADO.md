@@ -65,7 +65,17 @@ reposición de expresiones. Nada de eso se escribe a mano.
 
 ### La aplicación
 
-**Las 28 tablas dadas de alta sobre la hoja limpia.** Eso es todo lo que tiene.
+**Las 28 tablas dadas de alta sobre la hoja limpia**, y el 2026-08-10 se empezó a poner al día su
+esquema tras cambiar la hoja. `SED_Sedes` ya tiene sus 10 columnas regeneradas.
+
+> **Subir el Excel arregla la hoja, no la aplicación.** Son dos sitios distintos. El Excel fija
+> columnas y datos; **el tipo de cada columna, la clave y las referencias viven en el esquema de
+> AppSheet**, que se infiere de los datos y hay que corregir a mano.
+>
+> Lo que se ve al abrir el editor, en una sola tabla: `SedeID` tipada `Number` cuando el modelo dice
+> `Text`, `Ubicacion` como `Text` cuando es una coordenada, `UnidadFuncionalID` como `Number` cuando
+> es una referencia, y **`TramoINVIAS` como `Number` porque el único valor cargado es `5607`** — el
+> día que alguien escriba `55CN03` no cabrá.
 
 ---
 

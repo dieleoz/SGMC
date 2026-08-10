@@ -596,6 +596,32 @@ que si importa. Si algo merece un aviso permanente, no merece un aviso: merece e
 tener fecha. **Preferir siempre endurecer a silenciar** — es la misma regla de 3 sobre no retirar
 una comprobacion, aplicada a su version blanda.
 
+## 7.12 AppSheet adivina el tipo de CADA columna, no solo el de la clave (2026-08-10)
+
+`F-20` nacio de descubrir que AppSheet tipa la **clave** segun la mayoria de sus valores. Al abrir
+el editor se vio que hace lo mismo con **todas** las columnas, y que la hoja no manda nada:
+
+```
+TramoINVIAS        Number   el unico valor es 5607, asi que parece numero
+SedeID             Number   el modelo la declara Text
+Ubicacion          Text     es una coordenada
+UnidadFuncionalID  Number   tiene que ser Ref
+```
+
+**El peor es `TramoINVIAS`.** Los tramos de INVIAS de este corredor son `55CN03`, `5607` y `5608`.
+Dos de los tres son numeros y uno no. Como el unico dato cargado hoy es `5607`, AppSheet la tipa
+`Number` — y el dia que operacion escriba `55CN03` no cabe, sin que nada explique por que.
+
+**La regla: subir el Excel arregla la hoja, no la aplicacion.** Son dos sitios. El Excel fija las
+columnas y los datos; el tipo de cada columna, cual es la clave y que es una referencia viven en el
+esquema de AppSheet, que se **infiere de los datos** y hay que corregir a mano. Por muchas veces que
+se reimporte, la inferencia sera la misma porque los datos son los mismos.
+
+**Corolario para el modelo:** una columna cuyo dominio mezcla valores numericos y alfanumericos es
+una trampa aunque hoy solo tenga cargados los numericos. Al declararla, dejar dicho el tipo y por
+que —lo hace `MANUAL_DESPLIEGUE.md`, ficha por tabla— y comprobarlo en el editor, columna a columna,
+porque **el defecto no se ve en la hoja: se ve en la aplicacion**.
+
 ## 8. Deriva documental: ahora es mecanica
 
 Este archivo llevaba una lista escrita a mano de contradicciones conocidas entre documentos. Esa
