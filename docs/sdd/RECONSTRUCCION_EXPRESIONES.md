@@ -287,7 +287,7 @@ anterior; en una construida de cero no sobrevive ninguna.
 
 ## 5. Lo que NO se repone: columnas retiradas
 
-**49 columnas.** Siguen en la hoja a proposito. En la aplicacion: tipo `Text`, `Show?`
+**45 columnas.** Siguen en la hoja a proposito. En la aplicacion: tipo `Text`, `Show?`
 desmarcado, sin formula. **No se borran.**
 
 | Tabla | Columna | Por que | |
@@ -336,10 +336,6 @@ desmarcado, sin formula. **No se borran.**
 | `OT_OrdenesTrabajo` | `Informe_Final` | Se genera del mantenimiento y su checklist, no se transcribe. |  |
 | `OT_OrdenesTrabajo` | `Motivo_Cierre` | Se tipifica en MOT_MotivosPendiente desde la ejecucion. |  |
 | `FOT_Fotografias` | `Fecha` | El modelo guarda FechaHora. Sobra, o una de las dos esta mal nombrada. Merece mirada: la fecha de la fotografia es parte de la evidencia | **SIN DECIDIR** |
-| `FRM_Formularios` | `Orden` | Orden de presentacion de los formularios. Nadie la lee | **SIN DECIDIR** |
-| `FRM_Preguntas` | `RequiereFirma` | Simetrica de RequiereGPS y RequiereFoto. Coherente con el diseno | **SIN DECIDIR** |
-| `FRM_Preguntas` | `RequiereGPS` | La cita el show_if de CHD_ChecklistDetalle.RespuestaGPS. Si se retira, esa regla deja de funcionar | **SIN DECIDIR** |
-| `FRM_Preguntas` | `ValorDefecto` | Valor por defecto de una pregunta. No hay regla que lo lea | **SIN DECIDIR** |
 | `USR_Usuarios` | `UltimaSincronizacion` | Probablemente de una version anterior. El modelo no la usa | **SIN DECIDIR** |
 
 **Las 3 marcadas TRAMPA** se llaman igual que la clave de otra tabla, asi que **AppSheet las

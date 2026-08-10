@@ -45,21 +45,37 @@ listo para pasar a quien esté en el editor.
 | 3 | **Ocultar 51 columnas retiradas** | Aparecen en el formulario del técnico. Siete de ellas AppSheet las convierte en referencia sola |
 | 4 | **Las tres expresiones de prueba** | Es lo que dice si el cableado funciona de verdad |
 
-## 3. Y una cosa que NO se arregla en el editor
+## 3. La plantilla que desbloquea las pruebas
 
-**Los 34 activos comparten una sola coordenada, y está en Bogotá.**
+**`BD/Modelo_Datos_PLANTILLA.xlsx`** — generada del modelo, con inventario dentro.
 
 ```
-4.728512, -74.114531   ← en los 34
+28 pestañas · 535 filas · ninguna columna de sobra
+ACT_Activos con 355 activos: SOS_1 … SOS_54, CCTV_1 … SWIT_142
+Coordenadas repartidas por los 137 km reales del corredor
+PR de 00+000 a 137+030, y las cuatro unidades funcionales
+0 referencias rotas, 0 obligatorias vacías
 ```
 
-Con el radio de un kilómetro, **la aplicación rechaza todo cierre hecho en el corredor**. El primer
-técnico en vía no podrá cerrar ni una orden.
+**Las coordenadas son sintéticas y cada fila lo dice** en su columna de observaciones. Están
+interpoladas sobre el trazado real —El Sisga, Machetá, Guateque, Santa María, San Luis de Gaceno,
+El Secreto, Aguaclara— con dispersión de 150 metros.
 
-**No es un defecto de configuración: faltan las coordenadas reales.** Es la decisión **D-01**, y es
-trabajo de campo. Hasta que se resuelva, el piloto no puede salir.
+**Y eso cambia el planteamiento:** las coordenadas reales dejan de bloquear las pruebas. Se prueba
+con estas y se sustituyen cuando el levantamiento las traiga. La columna es la misma.
 
----
+> **Sigue haciendo falta el levantamiento —D-01— para salir a campo.** Un técnico no puede cerrar
+> una orden contra una coordenada inventada. Pero ya no bloquea probar el sistema.
+
+**El principio, que es de operación:** nosotros entregamos la estructura; el dato real lo pone quien
+lo conoce. Los bloqueantes se resuelven descargando el Excel y completándolo.
+
+Se regenera con:
+
+```bash
+python scripts/generar_hoja_limpia.py "BD/<origen>.xlsx"
+python scripts/generar_inventario.py
+```
 
 ## 4. Qué leer, según lo que necesite
 

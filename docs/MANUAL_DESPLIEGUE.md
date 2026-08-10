@@ -735,12 +735,6 @@ Registro maestro de los 18 checklists, uno por tipo de activo.
 | `Version` | `Number` | `Initial value` = `1` |
 | `Activo` | `Yes/No` | `Initial value` = `TRUE` |
 
-**Y estas, que estan en la hoja y NO se usan:**
-
-| Columna | Que hacer | Por que |
-|---|---|---|
-| `Orden` | **OCULTAR** · SIN DECIDIR | El modelo no la declara |
-
 ## `FRM_Preguntas`
 
 Banco unico de preguntas. Es el motor: se retiran las hojas planas FRM_SOS, FRM_CCTV y FRM_PMVF, que eran una arquitectura paralela con otro esquema.
@@ -761,15 +755,9 @@ Banco unico de preguntas. Es el motor: se retiran las hojas planas FRM_SOS, FRM_
 | `VisibleSi` | `Text` |  |
 | `RequiereFoto` | `Yes/No` | `Initial value` = `FALSE` |
 | `Version` | `Number` | `Initial value` = `1` |
+| `RequiereGPS` | `Yes/No` | `Initial value` = `FALSE` |
+| `RequiereFirma` | `Yes/No` | `Initial value` = `FALSE` |
 | `Activo` | `Yes/No` | `Initial value` = `TRUE` |
-
-**Y estas, que estan en la hoja y NO se usan:**
-
-| Columna | Que hacer | Por que |
-|---|---|---|
-| `RequiereFirma` | **OCULTAR** · SIN DECIDIR | El modelo no la declara |
-| `RequiereGPS` | **OCULTAR** · SIN DECIDIR | El modelo no la declara |
-| `ValorDefecto` | **OCULTAR** · SIN DECIDIR | El modelo no la declara |
 
 ## `FRM_Secciones`
 
