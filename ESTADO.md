@@ -28,8 +28,8 @@ Datos        Modelo_Datos_10082026   ·   Hoja de cálculo de Google
 
 ## En una frase
 
-**La hoja de datos está terminada y verificada. La aplicación tiene las 28 tablas dadas de alta y
-nada más: falta cablearla entera.**
+**La hoja de datos está terminada y verificada. La aplicación tiene sus 28 tablas y las 39
+referencias puestas. Falta la Fase C: las 21 reglas de negocio.**
 
 ---
 
@@ -78,10 +78,8 @@ exactamente las columnas que el modelo declara más el `_RowNumber` que añade A
 > columnas y datos; **el tipo de cada columna, la clave y las referencias viven en el esquema de
 > AppSheet**, que se infiere de los datos y hay que corregir a mano.
 >
-> Lo que se ve al abrir el editor, en una sola tabla: `SedeID` tipada `Number` cuando el modelo dice
-> `Text`, `Ubicacion` como `Text` cuando es una coordenada, `UnidadFuncionalID` como `Number` cuando
-> es una referencia, y **`TramoINVIAS` como `Number` porque el único valor cargado es `5607`** — el
-> día que alguien escriba `55CN03` no cabrá.
+> Eso ya se corrigió tabla por tabla, pero el mecanismo sigue vivo: **`TramoINVIAS` se tipa `Number`
+> mientras el único valor cargado sea `5607`**, y el día que operación escriba `55CN03` no cabrá.
 
 ---
 
@@ -101,7 +99,7 @@ sirve: se repone entero.** No es una lista de retoques, es el procedimiento comp
 | # | Qué | Dónde está escrito |
 |---|---|---|
 | 1 | **Las 39 referencias**, con `IsPartOf` en las cuatro que lo llevan | [`docs/PROMPT_CABLEADO.md`](docs/PROMPT_CABLEADO.md) — el encargo. Cuántas faltan **hoy**: `python scripts/auditar_cableado.py` |
-| 2 | **Las 21 reglas**: geofencing, umbral de GPS, `Editable_If`, los bots | [`docs/sdd/RECONSTRUCCION_EXPRESIONES.md`](docs/sdd/RECONSTRUCCION_EXPRESIONES.md), expresión completa |
+| 2 | **Las 21 reglas**: geofencing, umbral de GPS, `Editable_If`, los bots | [`docs/PROMPT_EXPRESIONES.md`](docs/PROMPT_EXPRESIONES.md) — el encargo de la Fase C, con la cadena de referencias que atraviesa cada una |
 | 3 | **Los dos filtros de seguridad**: activos por unidad funcional, órdenes por técnico | Ídem |
 | 4 | **Las cuatro marcas de tiempo** como `ChangeTimestamp` del servidor | Ídem |
 | 5 | **Retirar `Deletes`** en `OT_OrdenesTrabajo` y `MAN_Mantenimientos` | Ídem |

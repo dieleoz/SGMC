@@ -6,7 +6,11 @@ mano: vuelve a correr el script y se rehace con lo que quede pendiente.
 ---
 
 En la aplicacion **`_SISGA_-323965761`**, 0 columnas de `ACT_Activos` estan mal. El resto del
-cableado esta bien: **33 de las 39 referencias son correctas**.
+cableado no contradice al modelo, pero conviene leer la cifra con cuidado: de las 39
+referencias, **4 estan verificadas** —la aplicacion nombra la columna— y **29 solo son
+compatibles**: la aplicacion nombra la tabla destino, y que la referencia este en la columna que
+el modelo declara **lo dice el modelo, no la aplicacion**. Sumarlas es la cifra inflada que ya
+costo cara una vez.
 
 ## Antes de tocar nada, por que importa
 

@@ -282,7 +282,13 @@ w("---")
 w("")
 w("En la aplicacion **`%s`**, %d columnas de `ACT_Activos` estan mal. El resto del"
   % (APP_NOMBRE, n))
-w("cableado esta bien: **%d de las %d referencias son correctas**." % (len(bien), len(declarado)))
+w("cableado no contradice al modelo, pero conviene leer la cifra con cuidado: de las %d"
+  % len(declarado))
+w("referencias, **%d estan verificadas** —la aplicacion nombra la columna— y **%d solo son"
+  % (len(probadas), len(compatibles)))
+w("compatibles**: la aplicacion nombra la tabla destino, y que la referencia este en la columna que")
+w("el modelo declara **lo dice el modelo, no la aplicacion**. Sumarlas es la cifra inflada que ya")
+w("costo cara una vez.")
 w("")
 w("## Antes de tocar nada, por que importa")
 w("")
