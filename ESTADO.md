@@ -215,16 +215,26 @@ radio.
 
 ---
 
-## 5. Los cuatro verificadores
+## 5. Los cinco verificadores
 
 Ninguno sustituye a otro, y **lo único que ha funcionado en este proyecto es lo mecánico**.
 
 ```bash
-python scripts/validar_modelo.py        # el modelo consigo mismo. Gate del pipeline
-python scripts/verificar_faseA.py       # el modelo contra la hoja descargada
-python scripts/verificar_documentos.py  # la prosa contra el modelo
-python scripts/verificar_enlaces.py     # que todo enlace entre documentos resuelve
+python scripts/validar_modelo.py         # el modelo consigo mismo. Gate del pipeline
+python scripts/verificar_faseA.py        # el modelo contra la hoja descargada
+python scripts/verificar_documentos.py   # la prosa contra el modelo
+python scripts/verificar_enlaces.py      # que todo enlace entre documentos resuelve
+python scripts/verificar_reproducible.py # que generar dos veces dé lo mismo
 ```
+
+**El quinto se añadió el 2026-08-10 y nació de lo que los otros cuatro no pueden ver.** Al
+resembrar las claves, el generador dejó de ser idempotente: la garantía de catálogo buscaba las
+filas por clave, la resiembra cambiaba esa clave, y en la pasada siguiente las volvía a añadir.
+`SED_Sedes` acabó con las seis edificaciones **duplicadas**, y cada ejecución habría añadido seis
+más.
+
+Pasó los cuatro verificadores: el modelo era coherente, la Fase A cerraba, la prosa cuadraba y los
+enlaces resolvían. **Todos miran un archivo, y este defecto solo existe entre dos ejecuciones.**
 
 ---
 

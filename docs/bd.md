@@ -16,7 +16,7 @@ forma de que mienta es que mienta el archivo**.
 | Aplicación | AppSheet `SISGA_-323965761-26-08-10` |
 | Archivo leído | `Modelo_Datos_PLANTILLA.xlsx` |
 | Hojas | **29** |
-| Filas con datos | **1014** |
+| Filas con datos | **1007** |
 | Generado el | 2026-08-10 |
 
 ---
@@ -40,7 +40,7 @@ forma de que mienta es que mienta el archivo**.
 | Hoja | Columnas | Filas | En el modelo objetivo |
 |---|---|---|---|
 | `_LEEME` | 1 | 54 | No figura |
-| `SED_Sedes` | 9 | 12 | Sí |
+| `SED_Sedes` | 9 | 6 | Sí |
 | `UNF_UnidadesFuncionales` | 7 | 4 | Sí · **nueva** |
 | `ROL_Roles` | 4 | 4 | Sí |
 | `USR_Usuarios` | 9 | 11 | Sí |
@@ -51,7 +51,7 @@ forma de que mienta es que mienta el archivo**.
 | `MOT_MotivosPendiente` | 4 | 5 | Sí · **nueva** |
 | `PAR_Parametros` | 6 | 3 | Sí · **nueva** |
 | `FRE_Frecuencias` | 4 | 8 | Sí |
-| `CAL_Calzadas` | 3 | 4 | Sí |
+| `CAL_Calzadas` | 3 | 3 | Sí |
 | `SEN_Sentidos` | 3 | 2 | Sí |
 | `ACT_Activos` | 20 | 368 | Sí |
 | `OT_OrdenesTrabajo` | 12 | 0 | Sí |
@@ -103,7 +103,7 @@ Leyenda del estado de cada columna:
 
 Edificaciones del corredor: CCO, peajes y basculas. Cada una esta al lado de la via, en un PR concreto, y por tanto dentro de una unidad funcional. Es el PADRE DE UBICACION del equipo bajo techo: un servidor, un NAS o una impresora no estan en un punto de la via, estan DENTRO de un edificio, y de el heredan donde estan.
 
-9 columnas · 12 filas · clave: `SED-001`, `SED-002`
+9 columnas · 6 filas · clave: `SED-001`, `SED-002`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -267,7 +267,7 @@ Periodicidad del mantenimiento preventivo.
 
 Calzadas del corredor.
 
-3 columnas · 4 filas · clave: `CAL-01`, `CAL-02`
+3 columnas · 3 filas · clave: `CAL-01`, `CAL-02`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|

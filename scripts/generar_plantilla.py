@@ -312,17 +312,37 @@ CATALOGO_MINIMO = {
         ],
     }
 
-anadidos_catalogo, completados_catalogo = [], []
+# SE EMPAREJA POR NOMBRE, NO POR CLAVE. La clave es un identificador generado y
+# la resiembra la cambia -SED-001 hoy, otra cosa manana-, asi que buscar por ella
+# no encuentra nada en la siguiente pasada y el catalogo vuelve a anadir las
+# mismas filas. Paso: SED_Sedes acabo con las seis edificaciones DUPLICADAS y
+# CAL_Calzadas con dos Separador, y cada ejecucion habria anadido seis mas.
+#
+# El nombre es la clave natural: es lo que identifica la fila para una persona y
+# lo unico que no cambia cuando se resiembran los identificadores.
+anadidos_catalogo, completados_catalogo, duplicadas_catalogo = [], [], []
 for tabla, filas_min in CATALOGO_MINIMO.items():
     actuales = leer(tabla)
     clave = columnas(tabla)[0]
-    tiene = {texto(f[clave]) for f in actuales}
-    por_clave = {texto(f[clave]): f for f in actuales}
+    natural = "Nombre" if "Nombre" in columnas(tabla) else clave
+
+    # Primero se limpia lo que la version anterior duplico.
+    vistas, limpias = set(), []
+    for f in actuales:
+        k = texto(f.get(natural))
+        if k and k in vistas:
+            duplicadas_catalogo.append("%s.%s" % (tabla, k))
+            continue
+        vistas.add(k)
+        limpias.append(f)
+    actuales = limpias
+    tiene = {texto(f.get(natural)) for f in actuales}
+    por_clave = {texto(f.get(natural)): f for f in actuales}
     for fila in filas_min:
-        k = texto(fila[clave])
+        k = texto(fila.get(natural))
         if k not in tiene:
             actuales.append(fila)
-            anadidos_catalogo.append("%s.%s" % (tabla, fila.get("Nombre", k)))
+            anadidos_catalogo.append("%s.%s" % (tabla, k))
             continue
         # La fila ya esta: se COMPLETA lo que este vacio y NUNCA se pisa lo que
         # alguien haya escrito. Antes solo se garantizaba la existencia, y el
@@ -330,6 +350,8 @@ for tabla, filas_min in CATALOGO_MINIMO.items():
         # fila porque la fila ya existia sin el.
         actual = por_clave[k]
         for col, valor in fila.items():
+            if col == clave:
+                continue          # la clave la pone la resiembra, no el catalogo
             if valor not in (None, "") and not texto(actual.get(col)):
                 actual[col] = valor
                 completados_catalogo.append("%s.%s.%s" % (tabla, k, col))
@@ -687,6 +709,8 @@ if anadidos_catalogo:
     print("Valores de catalogo anadidos: %s" % " · ".join(anadidos_catalogo))
 if renumeradas:
     print("Claves renumeradas: %s" % " · ".join(renumeradas))
+if duplicadas_catalogo:
+    print("Filas duplicadas retiradas: %s" % " · ".join(duplicadas_catalogo))
 if completados_catalogo:
     print("Campos de catalogo completados: %s" % " · ".join(completados_catalogo))
 print()
