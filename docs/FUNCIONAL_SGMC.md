@@ -146,7 +146,7 @@ Esto hay que decirlo entero, porque es lo que se defiende ante un tercero.
 
 ## 5.1 Cómo se encadenan las tablas
 
-**Derivado de `scripts/modelo_objetivo.py`**, que declara 28 tablas y 38 referencias. Se pone aquí
+**Derivado de `scripts/modelo_objetivo.py`**, que declara 28 tablas y 39 referencias. Se pone aquí
 porque tres decisiones de la sección 6 solo se entienden mirando la cadena, y porque varios
 documentos la habían dibujado a mano y de más de una forma.
 
@@ -281,7 +281,7 @@ tres es lo que hizo que este documento dijera durante un día que las referencia
 
 | | En el modelo | En la hoja | En la aplicación |
 |---|---|---|---|
-| Modelo de datos, 28 tablas | **Sí.** 202 columnas, 38 referencias, 20 reglas | **Sí.** 28 pestañas más `_LEEME`, ninguna columna de sobra. `FASE A CERRADA` con 52 conformes | **Las 28 tablas dadas de alta, y nada más** |
+| Modelo de datos, 28 tablas | **Sí.** 205 columnas, 39 referencias, 21 reglas | **Sí.** 28 pestañas más `_LEEME`, ninguna columna de sobra. `FASE A CERRADA` con 52 conformes | **Las 28 tablas dadas de alta, y nada más** |
 | Referencias entre tablas | **Sí.** Las 38, con `IsPartOf` en cuatro: `FOT`, `FIR` y `CHK` contra el mantenimiento, y `CHD` contra su checklist | No aplica: la hoja no tiene integridad referencial | **No. Sin poner** |
 | Geofencing y filtros de seguridad | **Sí.** `RG-01`, `RG-04` y `RG-05` con su expresión completa | El radio por tipo está poblado en los 27 | **No. Sin poner** |
 | Plantillas de checklist | **Sí** — `FRM_Formularios`, `FRM_Secciones`, `FRM_Preguntas`, `TPR_TiposRespuesta` | **27 formularios**, uno por tipo de activo, y 14 secciones | Tablas de alta, sin vistas |
@@ -293,7 +293,7 @@ tres es lo que hizo que este documento dijera durante un día que las referencia
 | Capa de tareas `TAR_Tareas` | **No.** Declarada en `PROPUESTAS` | — | — |
 | Jerarquía de ubicación | **No.** Declarada en `PROPUESTAS` como `ETR_Estructuras` | — | — |
 | Correctivo con criticidad y SLA | **No.** `CRI_Criticidad`, `EVT_EventosOrden` y `PAU_Pausas` en `PROPUESTAS` | — | — |
-| Imponer `QuienCambia` y el rechazo | **No.** Ninguna de las 20 reglas lee `QuienCambia` | Falta la fila `Devuelta` en `EOT_EstadosOrden` | — |
+| Imponer `QuienCambia` y el rechazo | **No.** Ninguna de las 21 reglas lee `QuienCambia` | Falta la fila `Devuelta` en `EOT_EstadosOrden` | — |
 | Vistas, acciones y slices | **No están en el modelo.** Mientras no se declaren, la interfaz no se puede generar ni auditar | — | — |
 | Certificaciones múltiples, vigencias | `CER_Certificaciones` y `USR_Certificaciones` en `PROPUESTAS` — Fase 2 | — | — |
 | Almacén, SAT, flotas | Fuera de alcance | — | — |
@@ -310,6 +310,8 @@ columna. Todas están declaradas en `PROPUESTAS` o en `COLUMNAS_PROPUESTAS` de
 | §6.1 — periodicidad por tarea | **`TAR_Tareas`**, con `FrecuenciaID`. Hoy la periodicidad cuelga de `ACT_Activos.FrecuenciaID`, una sola por activo, y un poste SOS tiene inspección y ejecución con ciclos distintos |
 | §6.2 — el checklist lo decide la tarea | **`TAR_Tareas.FormularioID`**. Hoy lo decide `TIP_TiposActivo.FormularioID`, uno por tipo |
 | §2 — los cinco tipos que no se visitan | **Cinco filas en `TIP_TiposActivo`** y la columna **`TIP_TiposActivo.SeVisita`**. Sin ella `ACT_Activos.Ubicacion` es obligatoria para todos y `RG-01` compara contra una coordenada en blanco, que **rechaza el cierre legítimo** |
+| §5 — **el punto kilométrico** | La columna **`ACT_Activos.PK`**. Hoy solo existe `PR`, y operación usa los dos: un panel está «en el PR 34+500 y el PK 25+00». Son dos sistemas de referencia distintos y el modelo solo guarda uno, así que el otro se pierde o se mete a mano en `Observaciones` |
+| §5 — **el equipo compuesto** | Una referencia de `ACT_Activos` a sí misma, **`ACT_Activos.ActivoPadreID`**. Un panel de mensaje variable tiene pórtico, fuentes y cámaras, y hoy cada pieza sería un activo suelto sin nada que diga de quién cuelga. Sin eso no se puede responder «qué se le hizo al panel», solo «qué se le hizo a esta fuente» |
 | El Plan Maestro clasifica en cuatro clases de mantenimiento | `OT_OrdenesTrabajo.Tipo` solo admite `Preventivo` y `Correctivo`. `Admin` y `Servicio` no se pueden registrar |
 | §7 — medir tiempos de respuesta y resolución de un correctivo | `OT_OrdenesTrabajo` no tiene **ninguna fecha de creación**. Faltarían `HoraAviso`, `CriticidadID` y **`CRI_Criticidad`**, más **`EVT_EventosOrden`** y **`PAU_Pausas`** para el reloj parado, que no puede ser una columna acumulada |
 | §3 — el oficio decide a quién se asigna | `ROL_Roles` existe y sirve; falta **`USR_Usuarios.OficioID`** y un discriminador de clase en `ROL_Roles` que separe los cuatro perfiles de acceso de los doce oficios, o los doce no tienen dónde leerse |

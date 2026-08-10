@@ -46,13 +46,24 @@ def col(nombre, tipo, **kw):
 MODELO = {
 
     # ============================================================== CATALOGOS
+
     "SED_Sedes": dict(
         grupo="Catalogos",
-        proposito="Sedes fisicas donde trabaja el personal: CCO, peajes y basculas.",
+        proposito=("Edificaciones del corredor: CCO, peajes y basculas. Cada una esta al lado "
+                   "de la via, en un PR concreto, y por tanto dentro de una unidad funcional. "
+                   "Es el PADRE DE UBICACION del equipo bajo techo: un servidor, un NAS o una "
+                   "impresora no estan en un punto de la via, estan DENTRO de un edificio, y "
+                   "de el heredan donde estan."),
         columnas=[
             col("SedeID", "Text", pk=True),
             col("Nombre", "Text", obligatoria=True),
             col("Ciudad", "Text"),
+            col("UnidadFuncionalID", "Ref", ref="UNF_UnidadesFuncionales", obligatoria=True,
+                nueva=True, nota="La UF en la que cae el PR del edificio. Sin esto la sede no sabe donde "
+                     "esta, que es justo por lo que el requisito de que el equipo de un peaje "
+                     "heredara su unidad funcional estuvo registrado como no cubierto"),
+            col("PR", "Text", nueva=True, nota="Punto de referencia del edificio, formato 23+600"),
+            col("Ubicacion", "LatLong", nueva=True, nota="Coordenada de la edificacion"),
             col("Activo", "Yes/No", valor_inicial="TRUE"),
         ]),
 
@@ -90,7 +101,6 @@ MODELO = {
             col("Cargo", "Text"),
             col("Iniciales", "Text"),
             col("RolID", "Ref", ref="ROL_Roles", obligatoria=True),
-            col("SedeID", "Ref", ref="SED_Sedes", obligatoria=True),
             col("Telefono", "Phone"),
             col("FechaIngreso", "Date"),
             col("Activo", "Yes/No", valor_inicial="TRUE"),
@@ -232,6 +242,12 @@ MODELO = {
             col("SentidoID", "Ref", ref="SEN_Sentidos"),
             col("Ubicacion", "LatLong", obligatoria=True,
                 nota="Coordenada real. Hoy los 34 activos comparten un punto en Bogota"),
+            col("SedeID", "Ref", ref="SED_Sedes", nueva=True,
+                nota="Solo para el equipo bajo techo -servidores, NAS, impresoras, video wall-, "
+                     "que vive DENTRO de una edificacion y no en un punto de la via. Vacia en "
+                     "el equipo de corredor, que tiene su propio PR y su propia coordenada. "
+                     "Cuando esta puesta, RG-21 obliga a que la unidad funcional del activo sea "
+                     "la de su edificacion: la UF se guarda en un solo sitio y no en dos"),
             col("EstadoActivoID", "Ref", ref="EST_Activo", obligatoria=True),
             col("CodigoQR", "Text", nota="Configurada como Searchable y Scan"),
             col("FrecuenciaID", "Ref", ref="FRE_Frecuencias"),
@@ -521,6 +537,100 @@ RETIRADAS = {
 
 # ------------------------------------------- campos que se retiran
 CAMPOS_RETIRADOS = {
+    "USR_Usuarios": {
+        "SedeID": "Retirada el 2026-08-10 para que el modelo diga lo que dice la "
+                  "especificacion. FUNCIONAL_SGMC 6.3 la declara descartada frente a "
+                  "ASG_AsignacionZona: la sede es un edificio y la asignacion es un tramo, "
+                  "y un tecnico puede atender varias unidades funcionales, asi que la "
+                  "relacion es de muchos a muchos y no cabe como columna. RG-04, el filtro "
+                  "de seguridad que decide que activos ve cada tecnico, lee la asignacion y "
+                  "no menciona la sede. El modelo la declaraba Ref obligatoria mientras la "
+                  "spec la daba por descartada: se contradecian, y cablearla habria dejado "
+                  "dos formas de decir donde trabaja alguien.",
+    },
+    "MAN_Mantenimientos": {
+        "Imagen_Inicio": "Sustituido por FOT_Fotografias con Tipo=Antes.",
+        "Imagen_Final": "Sustituido por FOT_Fotografias con Tipo=Despues.",
+        "Firma_Tecnico": "Sustituido por FIR_Firmas.",
+        "Firma_Supervisor": "El supervisor aprueba en el portal, no firma. Supuesto D-10.",
+        "Localizacion": "Ambiguo y redundante con Coordenadas_Cierre.",
+        "Diagnostico": "Se responde en el checklist, no en campo libre.",
+        "Trabajo_Realizado": "Se responde en el checklist.",
+        "Repuestos_Utilizados": "Gestion de repuestos esta fuera de alcance.",
+        "Requiere_Repuesto": "Se cubre con MotivoPendienteID = Falta de repuesto.",
+        "Duracion_Minutos": "Se calcula de FechaHoraInicio y FechaHoraFin.",
+        "Tipo": "El tipo es de la orden, no de la ejecucion.",
+        "Fecha": "Redundante con FechaHoraInicio.",
+        "Estado_Intervencion": "Redundante con el estado de la orden.",
+    },
+    "OT_OrdenesTrabajo": {
+        "FormularioID": "El formulario lo determina el tipo del activo, no la orden.",
+        "Motivo_Cierre": "Se tipifica en MOT_MotivosPendiente desde la ejecucion.",
+        "Informe_Final": "Se genera del mantenimiento y su checklist, no se transcribe.",
+    },
+    "ACT_Activos": {
+    },
+    "CHK_Checklists": {
+        "ActivoID": "Se alcanza por [MantenimientoID].[OTID].[ActivoID].",
+        "TecnicoID": ("Se alcanza por [MantenimientoID].[TecnicoID]. Es el campo donde el dato "
+                      "de prueba dejo 'Santiago Moreno' en lugar de un identificador."),
+        "Observaciones": "La observacion es de la ejecucion o de la respuesta, no del encabezado.",
+        "FechaCreacion": "Redundante con FechaInicio.",
+        "Estado": "Sustituido por Finalizado, que produccion ya tiene.",
+        "GPSInicio": "La coordenada es del mantenimiento y de cada fotografia, no del checklist.",
+        "GPSFin": "Idem.",
+        "FirmaTecnico": "Sustituido por FIR_Firmas.",
+        "FirmaSupervisor": "El supervisor aprueba en el portal, no firma. Supuesto D-10.",
+        "PDF": "El informe se genera al enviarlo, no se almacena en la fila.",
+        "FechaEnvioCorreo": "Es traza del bot, no del checklist.",
+        "Activo": "El checklist es parte de su mantenimiento: no se desactiva por separado.",
+        "PreguntaActual": "Estado de la interfaz, no dato. Se deriva de las respuestas.",
+        "TotalPreguntas": "Se cuenta de FRM_Preguntas.",
+        "Porcentaje": "Se calcula. Guardarlo permite que contradiga al detalle.",
+    },
+    "CHD_ChecklistDetalle": {
+        "Orden": "Se alcanza por [PreguntaID].[Orden].",
+        "TipoRespuestaID": "Se alcanza por [PreguntaID].[TipoRespuestaID].",
+        "PreguntaActual": "Estado de la interfaz, no dato.",
+        "EstadoPregunta": "Redundante con Contestada.",
+        "TotalPreguntas": "No es del detalle sino del encabezado, y ademas se cuenta.",
+        "RespuestaFecha": "Fuera de alcance: ninguna pregunta usa tipo fecha.",
+        "RespuestaHora": "Fuera de alcance: ninguna pregunta usa tipo hora.",
+        "RespuestaFoto": "Sustituido por FOT_Fotografias.",
+        "RespuestaFirma": "Sustituido por FIR_Firmas.",
+        "RespuestaGPS": "La coordenada es del mantenimiento y de cada fotografia.",
+        "FechaRespuesta": "Se deriva del ChangeTimestamp del mantenimiento.",
+        "Activo": "El detalle es parte de su checklist: no se desactiva por separado.",
+    },
+}
+
+# ------------------------------------- renombrados: nombre actual -> objetivo
+#
+# Cableado de referencias. Una referencia de AppSheet guarda el valor de la CLAVE
+# de la tabla destino, de modo que renombrar y retipar no son dos tareas: son la
+# misma. Se declaran aqui para que la migracion sea verificable y no dependa de
+# que alguien recuerde el mapeo.
+#
+# FUENTE: Google Sheets de PRODUCCION, leido el 2026-08-07 con el conector de
+# Drive, el que declara scripts/sistema.py. NO el Excel local.
+#
+# Una version anterior de este mapeo se construyo sobre el Excel y era incorrecta
+# para MAN_Mantenimientos: el Excel la llama MantenimientoID y TecnicoID, y
+# produccion las llama MttoID y Tecnico_Asignado. Produccion es lo que corre la
+# app, de modo que manda produccion. Ese error es exactamente lo que el pipeline
+# SDD viene a impedir.
+CAMPOS_RETIRADOS = {
+    "USR_Usuarios": {
+        "SedeID": "Retirada el 2026-08-10 para que el modelo diga lo que dice la "
+                  "especificacion. FUNCIONAL_SGMC 6.3 la declara descartada frente a "
+                  "ASG_AsignacionZona: la sede es un edificio y la asignacion es un tramo, "
+                  "y un tecnico puede atender varias unidades funcionales, asi que la "
+                  "relacion es de muchos a muchos y no cabe como columna. RG-04, el filtro "
+                  "de seguridad que decide que activos ve cada tecnico, lee la asignacion y "
+                  "no menciona la sede. El modelo la declaraba Ref obligatoria mientras la "
+                  "spec la daba por descartada: se contradecian, y cablearla habria dejado "
+                  "dos formas de decir donde trabaja alguien.",
+    },
     "MAN_Mantenimientos": {
         "Imagen_Inicio": "Sustituido por FOT_Fotografias con Tipo=Antes.",
         "Imagen_Final": "Sustituido por FOT_Fotografias con Tipo=Despues.",
@@ -607,9 +717,6 @@ RENOMBRADOS = {
     },
     "ACT_Activos": {
         "EstadoID": ("EstadoActivoID", "La referencia se llama como la clave destino."),
-        "SedeID": ("UnidadFuncionalID", "Guarda 7 a 10, que en SED_Sedes son UF1 a UF4, es decir "
-                                        "unidades funcionales y no sedes. La tabla ya mezclaba "
-                                        "los dos conceptos; esto solo lo hace explicito."),
     },
     "USR_Usuarios": {
         "usuarioID": ("UsuarioID", "Produccion la escribe en minuscula inicial. AppSheet resuelve "
@@ -685,7 +792,6 @@ RETIPADOS = {
     },
     "USR_Usuarios": {
         "RolID": ("Number", "Ref", "ROL_Roles", "Guarda enteros 2 a 5. Por confirmar el tipo."),
-        "SedeID": ("Number", "Ref", "SED_Sedes", "Guarda 1 en los 11 usuarios."),
     },
     "TIP_TiposActivo": {
         "FormularioID": ("Text", "Ref", "FRM_Formularios",
@@ -855,6 +961,17 @@ PROPUESTAS = {
 # una columna nueva sobre una tabla existente; verificar_documentos.py D-03 no
 # sabe distinguir "propuesta" de "inventada", asi que se declara aqui.
 COLUMNAS_PROPUESTAS = {
+    ("ACT_Activos", "PK"):
+        "Punto kilometrico DEL PROYECTO: lineal desde el PK 0+000 hasta el final de la "
+        "concesion. NO es lo mismo que el PR, que es la referencia de INVIAS sobre la ruta "
+        "nacional -el proyecto puede arrancar, por ejemplo, en el PR 37+650 de la Ruta 42-. "
+        "Son dos sistemas distintos y operacion usa los dos, asi que todo activo tiene ambos. "
+        "Hoy el modelo solo guarda PR y el PK se pierde o acaba a mano en Observaciones.",
+    ("ACT_Activos", "ActivoPadreID"):
+        "Ref a ACT_Activos. El equipo compuesto: un panel de mensaje variable tiene portico, "
+        "fuentes y camaras, y hoy cada pieza seria un activo suelto sin nada que diga de quien "
+        "cuelga. Sin esto no se puede responder que se le hizo AL PANEL, solo que se le hizo a "
+        "una de sus piezas.",
     ("TIP_TiposActivo", "SeVisita"): (
         "Discrimina los cinco tipos que no son cosas que se visitan -licencias, "
         "SSL, antivirus, ISP, radios-. NO reutilizar RequiereGPS: esa ya vale "
@@ -899,13 +1016,15 @@ COLUMNAS_SIN_DECIDIR = {
 DECISIONES = [
     ("Periodicidad de un trabajo",
      "TAR_Tareas.FrecuenciaID", "ACT_Activos.FrecuenciaID",
-     "Un poste SOS tiene tarea semanal, mensual y trimestral", "paso 1"),
+     "Un poste SOS tiene tarea semanal, mensual y trimestral",
+     "se retira con ESPEC-003, revisar antes del 2026-08-31"),
     ("Que checklist se abre",
      "TAR_Tareas.FormularioID", "TIP_TiposActivo.FormularioID",
-     "El formulario es de la tarea. La columna vieja llevaba 18 formulas de hoja", "paso 1"),
+     "El formulario es de la tarea. La columna vieja llevaba 18 formulas de hoja",
+     "se retira con ESPEC-003, revisar antes del 2026-08-31"),
     ("Donde trabaja un usuario",
      "ASG_AsignacionZona.UnidadFuncionalID", "USR_Usuarios.SedeID",
-     "La sede es un edificio; la asignacion es un tramo", "paso 1"),
+     "La sede es un edificio; la asignacion es un tramo. RETIRADA el 2026-08-10", ""),
     ("Cierre sin GPS valido",
      "MAN_Mantenimientos.CierreConExcepcion", "Nota libre en Observaciones",
      "Una excepcion tiene que ser contable y auditable, no un texto"),
@@ -953,6 +1072,13 @@ REGLAS = [
          expresion="DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]",
          descripcion=("Impide cerrar lejos del activo, con radio por tipo. La ruta atraviesa dos "
                       "referencias, de ahi que cablearlas sea el primer paso de todo.")),
+    dict(id="RG-21", tabla="ACT_Activos", columna="UnidadFuncionalID",
+         tipo="Valid_If", cubre="RF-002",
+         expresion='OR(ISBLANK([SedeID]), [UnidadFuncionalID] = [SedeID].[UnidadFuncionalID])',
+         descripcion=("El equipo bajo techo hereda donde esta de su edificacion. Sin esta regla "
+                      "la unidad funcional se guardaria en dos sitios -en el activo y en su "
+                      "sede- y podrian decir cosas distintas sin que nada protestara. Con ella "
+                      "hay un solo sitio donde mirar: si el activo tiene sede, manda la sede.")),
     dict(id="RG-02", tabla="MAN_Mantenimientos", columna="Precision_GPS",
          tipo="Initial value", cubre="RF-011",
          expresion="USERLOCATIONACCURACY()",

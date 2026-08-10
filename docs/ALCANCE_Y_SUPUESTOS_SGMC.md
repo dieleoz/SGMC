@@ -57,8 +57,8 @@ expresión existe escrita y verificada, no que esté configurada.
 
 | Dimensión | Alcance | Hoy |
 |---|---|---|
-| Modelo de datos | Referencias cableadas de extremo a extremo, sin tablas huérfanas ni duplicadas | **Declarado.** 28 tablas, 202 columnas, 38 referencias, 20 reglas, `validar_modelo.py` en 0 errores. **Sin cablear en la aplicación** |
-| Formularios | Los 27 tipos de activo con banco de preguntas redactado | **Redactado: 27 de 27.** `FRM_Preguntas` tiene **333 filas**; 288 llevan `[BORRADOR: validar con operacion]` y 45 —SOS, CCTV y PMV fijo— ya estaban acordadas |
+| Modelo de datos | Referencias cableadas de extremo a extremo, sin tablas huérfanas ni duplicadas | **Declarado.** 28 tablas, 205 columnas, 39 referencias, 21 reglas, `validar_modelo.py` en 0 errores. **Sin cablear en la aplicación** |
+| Formularios | Los 27 tipos de activo con banco de preguntas redactado | **Redactado: 28 de 28.** `FRM_Preguntas` tiene **333 filas**; 288 llevan `[BORRADOR: validar con operacion]` y 45 —SOS, CCTV y PMV fijo— ya estaban acordadas |
 | Flujos | Preventivo programado, correctivo desde campo, segunda visita, devolución y aprobación | Preventivo sí. Correctivo no: no hay criticidad, ni hora de aviso, ni escalado. La devolución no tiene estado al que mover la orden |
 | Evidencia | Fotografías y firma con una sola vía de captura | **Declarado.** `FOT_Fotografias` y `FIR_Firmas` como tablas hijas con `IsPartOf`, y los campos embebidos retirados |
 | Control | Geofencing operativo con excepción supervisada | **Declarado**, con el radio por tipo poblado en los 27. **Sin poner en la aplicación y sin probar**: falta la coordenada real (D-01) |
@@ -112,7 +112,7 @@ lleva dónde vive la decisión, para que nadie la vuelva a abrir por escrito.
 | D-11 | `CHD_ChecklistDetalle.PreguntaID` es referencia a `FRM_Preguntas`, y `CHK_Checklists.VersionFormulario` congela la versión con `RG-09` | `python scripts/validar_modelo.py` |
 
 **Un aviso que estas decisiones dejan abierto y no es un supuesto, es trabajo:** `QuienCambia` está
-escrita y poblada en las siete filas, y **ninguna de las 20 reglas del modelo la lee**. Hasta que
+escrita y poblada en las siete filas, y **ninguna de las 21 reglas del modelo la lee**. Hasta que
 alguna lo haga, la separación entre quien ejecuta y quien certifica está descrita y no aplicada. Está
 en `FUNCIONAL_SGMC.md` §4.
 
@@ -132,7 +132,7 @@ en `FUNCIONAL_SGMC.md` §4.
 ### 3.4 Cuáles de estos supuestos no caben en el modelo de hoy
 
 **Distinguir «falta decidirlo» de «no hay dónde ponerlo» evita construir dos veces.** Contrastado
-contra las 28 tablas y 202 columnas de `scripts/modelo_objetivo.py`:
+contra las 28 tablas y 205 columnas de `scripts/modelo_objetivo.py`:
 
 | # | Qué le falta al modelo | Cabe hoy |
 |---|---|---|

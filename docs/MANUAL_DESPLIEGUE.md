@@ -11,8 +11,8 @@
 | Plataforma | Google AppSheet sobre Google Sheets |
 | Fuente del modelo | `scripts/modelo_objetivo.py`. Este manual se genera de ahi |
 | Tablas | **28** |
-| Referencias | **38** |
-| Reglas | **20** |
+| Referencias | **39** |
+| Reglas | **21** |
 
 ## Por que este manual existe
 
@@ -220,31 +220,36 @@ Todo llega de una hoja, asi que entra como texto o numero.
 | `FIR_Firmas` | `FechaHora` | `ChangeTimestamp` | Idem para la firma |
 | `NOV_Novedades` | `FechaHora` | `ChangeTimestamp` |  |
 
-## Paso 5 — Las 38 referencias
+## Paso 5 — Las 39 referencias
 
 > **Cuidado con las listas de otros documentos.** Circulo una lista de **15** referencias por
 > convertir, y era correcta para lo que normaba: una aplicacion existente donde otras 23 ya estaban
-> puestas. Ese documento esta retirado. **Construyendo desde cero no sobrevive ninguna: son 38.**
+> puestas. Ese documento esta retirado. **Construyendo desde cero no sobrevive ninguna: son 39.**
 > Si al terminar cuenta 15, siguio la lista equivocada.
 
 Una referencia de AppSheet **guarda el valor de la clave de la tabla destino**. De ahi que el orden
 importe: primero la clave del destino, despues quien la apunta.
 
+**1. Catalogos**
+
+```
+ 1  SED_Sedes.UnidadFuncionalID        -> UNF_UnidadesFuncionales
+```
+
 **2. Formularios**
 
 ```
- 1  FRM_Preguntas.FormularioID         -> FRM_Formularios
- 2  FRM_Preguntas.SeccionID            -> FRM_Secciones
- 3  FRM_Preguntas.TipoRespuestaID      -> TPR_TiposRespuesta
- 4  LST_ValoresLista.PreguntaID        -> FRM_Preguntas
+ 2  FRM_Preguntas.FormularioID         -> FRM_Formularios
+ 3  FRM_Preguntas.SeccionID            -> FRM_Secciones
+ 4  FRM_Preguntas.TipoRespuestaID      -> TPR_TiposRespuesta
+ 5  LST_ValoresLista.PreguntaID        -> FRM_Preguntas
 ```
 
 **3. Maestras**
 
 ```
- 5  TIP_TiposActivo.FormularioID       -> FRM_Formularios
- 6  USR_Usuarios.RolID                 -> ROL_Roles
- 7  USR_Usuarios.SedeID                -> SED_Sedes
+ 6  TIP_TiposActivo.FormularioID       -> FRM_Formularios
+ 7  USR_Usuarios.RolID                 -> ROL_Roles
  8  ASG_AsignacionZona.UsuarioID       -> USR_Usuarios
  9  ASG_AsignacionZona.UnidadFuncionalID -> UNF_UnidadesFuncionales
 10  FAL_ModosFalla.TipoActivoID        -> TIP_TiposActivo
@@ -257,40 +262,41 @@ importe: primero la clave del destino, despues quien la apunta.
 12  ACT_Activos.UnidadFuncionalID      -> UNF_UnidadesFuncionales
 13  ACT_Activos.CalzadaID              -> CAL_Calzadas
 14  ACT_Activos.SentidoID              -> SEN_Sentidos
-15  ACT_Activos.EstadoActivoID         -> EST_Activo
-16  ACT_Activos.FrecuenciaID           -> FRE_Frecuencias
+15  ACT_Activos.SedeID                 -> SED_Sedes
+16  ACT_Activos.EstadoActivoID         -> EST_Activo
+17  ACT_Activos.FrecuenciaID           -> FRE_Frecuencias
 ```
 
 **5. Ordenes**
 
 ```
-17  OT_OrdenesTrabajo.ActivoID         -> ACT_Activos
-18  OT_OrdenesTrabajo.TecnicoID        -> USR_Usuarios
-19  OT_OrdenesTrabajo.SupervisorID     -> USR_Usuarios
-20  OT_OrdenesTrabajo.EstadoOrdenID    -> EOT_EstadosOrden
-21  OT_OrdenesTrabajo.OTOrigenID       -> OT_OrdenesTrabajo
-22  OT_OrdenesTrabajo.CerradaPor       -> USR_Usuarios
-23  PLA_PlanMantenimiento.ActivoID     -> ACT_Activos
-24  PLA_PlanMantenimiento.FrecuenciaID -> FRE_Frecuencias
-25  PLA_PlanMantenimiento.ResponsableID -> USR_Usuarios
-26  NOV_Novedades.UsuarioID            -> USR_Usuarios
-27  NOV_Novedades.ActivoID             -> ACT_Activos
+18  OT_OrdenesTrabajo.ActivoID         -> ACT_Activos
+19  OT_OrdenesTrabajo.TecnicoID        -> USR_Usuarios
+20  OT_OrdenesTrabajo.SupervisorID     -> USR_Usuarios
+21  OT_OrdenesTrabajo.EstadoOrdenID    -> EOT_EstadosOrden
+22  OT_OrdenesTrabajo.OTOrigenID       -> OT_OrdenesTrabajo
+23  OT_OrdenesTrabajo.CerradaPor       -> USR_Usuarios
+24  PLA_PlanMantenimiento.ActivoID     -> ACT_Activos
+25  PLA_PlanMantenimiento.FrecuenciaID -> FRE_Frecuencias
+26  PLA_PlanMantenimiento.ResponsableID -> USR_Usuarios
+27  NOV_Novedades.UsuarioID            -> USR_Usuarios
+28  NOV_Novedades.ActivoID             -> ACT_Activos
 ```
 
 **6. Ejecucion**
 
 ```
-28  MAN_Mantenimientos.OTID            -> OT_OrdenesTrabajo
-29  MAN_Mantenimientos.TecnicoID       -> USR_Usuarios
-30  MAN_Mantenimientos.EstadoActivoID  -> EST_Activo
-31  MAN_Mantenimientos.MotivoPendienteID -> MOT_MotivosPendiente
-32  MAN_Mantenimientos.ModoFallaID     -> FAL_ModosFalla
-33  CHK_Checklists.MantenimientoID     -> MAN_Mantenimientos   IsPartOf = TRUE
-34  CHK_Checklists.FormularioID        -> FRM_Formularios
-35  CHD_ChecklistDetalle.ChecklistID   -> CHK_Checklists   IsPartOf = TRUE
-36  CHD_ChecklistDetalle.PreguntaID    -> FRM_Preguntas
-37  FOT_Fotografias.MantenimientoID    -> MAN_Mantenimientos   IsPartOf = TRUE
-38  FIR_Firmas.MantenimientoID         -> MAN_Mantenimientos   IsPartOf = TRUE
+29  MAN_Mantenimientos.OTID            -> OT_OrdenesTrabajo
+30  MAN_Mantenimientos.TecnicoID       -> USR_Usuarios
+31  MAN_Mantenimientos.EstadoActivoID  -> EST_Activo
+32  MAN_Mantenimientos.MotivoPendienteID -> MOT_MotivosPendiente
+33  MAN_Mantenimientos.ModoFallaID     -> FAL_ModosFalla
+34  CHK_Checklists.MantenimientoID     -> MAN_Mantenimientos   IsPartOf = TRUE
+35  CHK_Checklists.FormularioID        -> FRM_Formularios
+36  CHD_ChecklistDetalle.ChecklistID   -> CHK_Checklists   IsPartOf = TRUE
+37  CHD_ChecklistDetalle.PreguntaID    -> FRM_Preguntas
+38  FOT_Fotografias.MantenimientoID    -> MAN_Mantenimientos   IsPartOf = TRUE
+39  FIR_Firmas.MantenimientoID         -> MAN_Mantenimientos   IsPartOf = TRUE
 ```
 
 **Nota sobre `OT_OrdenesTrabajo.OTOrigenID`**, que sale en el nivel 5: apunta a su propia tabla,
@@ -329,7 +335,7 @@ error**.
 > ```
 >
 > ```
-> ok Hoja limpia: ninguna de las 43 columnas retiradas existe ya. No hay nada que ocultar
+> ok Hoja limpia: ninguna de las 44 columnas retiradas existe ya. No hay nada que ocultar
 > ```
 >
 > **Lo mismo vale para las marcas `OCULTAR` y `TRAMPA` del anexo:** describen una hoja que ya no se
@@ -344,8 +350,9 @@ sin que nadie se lo pida.
 | `CHD_ChecklistDetalle` | `TipoRespuestaID` | `TPR_TiposRespuesta` | Se alcanza por [PreguntaID].[TipoRespuestaID]. |
 | `CHK_Checklists` | `ActivoID` | `ACT_Activos` | Se alcanza por [MantenimientoID].[OTID].[ActivoID]. |
 | `OT_OrdenesTrabajo` | `FormularioID` | `FRM_Formularios` | El formulario lo determina el tipo del activo, no la orden. |
+| `USR_Usuarios` | `SedeID` | `SED_Sedes` | Retirada el 2026-08-10 para que el modelo diga lo que dice la especificacion. FUNCIONAL_SGMC 6.3 la declara descartada frente a ASG_AsignacionZona: la sede es un edificio y la asignacion es un tramo, y un tecnico puede atender varias unidades funcionales, asi que la relacion es de muchos a muchos y no cabe como columna. RG-04, el filtro de seguridad que decide que activos ve cada tecnico, lee la asignacion y no menciona la sede. El modelo la declaraba Ref obligatoria mientras la spec la daba por descartada: se contradecian, y cablearla habria dejado dos formas de decir donde trabaja alguien. |
 
-**Son 3, derivadas del archivo y no escritas a mano.** Estan tambien en la ficha de cada tabla,
+**Son 4, derivadas del archivo y no escritas a mano.** Estan tambien en la ficha de cada tabla,
 marcadas como TRAMPA, **y esas marcas tampoco aplican a la hoja vigente**.
 
 Si alguna vez aparecen —trabajando sobre una copia antigua del libro—, lo que habria que hacer es
@@ -354,12 +361,13 @@ prohibe y aparecen en la aplicacion como si fueran buenas.
 
 ## Paso 7 — Las reglas
 
-Las 20 del modelo. Las expresiones completas estan en
+Las 21 del modelo. Las expresiones completas estan en
 [`sdd/RECONSTRUCCION_EXPRESIONES.md`](sdd/RECONSTRUCCION_EXPRESIONES.md) §2.
 
 | # | Tabla | Columna | Tipo |
 |---|---|---|---|
 | RG-01 | `MAN_Mantenimientos` | `Coordenadas_Cierre` | Valid_If |
+| RG-21 | `ACT_Activos` | `UnidadFuncionalID` | Valid_If |
 | RG-02 | `MAN_Mantenimientos` | `Precision_GPS` | Initial value |
 | RG-03 | `MAN_Mantenimientos` | `MotivoExcepcion` | Required_If |
 | RG-04 | `ACT_Activos` | `(tabla)` | Security Filter |
@@ -506,7 +514,7 @@ comprobacion contra el archivo, y las tres veces lo paro un script.
 Las dos en verde. Si la primera falla, casi siempre es `OT_OrdenesTrabajo.ActivoID`, que la lista
 antigua de 15 no incluia.
 
-**Cuente las referencias.** Las columnas de tipo `Ref` deben sumar **38**.
+**Cuente las referencias.** Las columnas de tipo `Ref` deben sumar **39**.
 
 **Y los cuatro verificadores del repositorio:**
 
@@ -592,7 +600,7 @@ contra la que se valida. Si una columna no aparece aqui, no deberia estar visibl
 > ```
 >
 > ```
-> ok Hoja limpia: ninguna de las 43 columnas retiradas existe ya. No hay nada que ocultar
+> ok Hoja limpia: ninguna de las 44 columnas retiradas existe ya. No hay nada que ocultar
 > ```
 >
 > La plantilla se rehace entera con `python scripts/generar_plantilla.py` y sale con las columnas
@@ -624,6 +632,7 @@ Inventario de los activos del corredor. Es el eje del sistema.
 | `CalzadaID` | `Ref` | `Ref` -> `CAL_Calzadas` · IsPartOf desmarcado |
 | `SentidoID` | `Ref` | `Ref` -> `SEN_Sentidos` · IsPartOf desmarcado |
 | `Ubicacion` | `LatLong` |  |
+| `SedeID` | `Ref` | `Ref` -> `SED_Sedes` · IsPartOf desmarcado |
 | `EstadoActivoID` | `Ref` | `Ref` -> `EST_Activo` · IsPartOf desmarcado |
 | `CodigoQR` | `Text` |  |
 | `FrecuenciaID` | `Ref` | `Ref` -> `FRE_Frecuencias` · IsPartOf desmarcado |
@@ -1015,13 +1024,16 @@ Perfiles de acceso: Administrador, Supervisor, Tecnico y Consulta.
 
 ## `SED_Sedes`
 
-Sedes fisicas donde trabaja el personal: CCO, peajes y basculas.
+Edificaciones del corredor: CCO, peajes y basculas. Cada una esta al lado de la via, en un PR concreto, y por tanto dentro de una unidad funcional. Es el PADRE DE UBICACION del equipo bajo techo: un servidor, un NAS o una impresora no estan en un punto de la via, estan DENTRO de un edificio, y de el heredan donde estan.
 
 | Columna | Tipo | Que hacer |
 |---|---|---|
 | `SedeID` | `Text` | **CLAVE** |
 | `Nombre` | `Text` |  |
 | `Ciudad` | `Text` |  |
+| `UnidadFuncionalID` | `Ref` | `Ref` -> `UNF_UnidadesFuncionales` · IsPartOf desmarcado |
+| `PR` | `Text` |  |
+| `Ubicacion` | `LatLong` |  |
 | `Activo` | `Yes/No` | `Initial value` = `TRUE` |
 
 ## `SEN_Sentidos`
@@ -1083,7 +1095,6 @@ Personas del sistema. El correo resuelve la sesion contra USEREMAIL().
 | `Cargo` | `Text` |  |
 | `Iniciales` | `Text` |  |
 | `RolID` | `Ref` | `Ref` -> `ROL_Roles` · IsPartOf desmarcado |
-| `SedeID` | `Ref` | `Ref` -> `SED_Sedes` · IsPartOf desmarcado |
 | `Telefono` | `Phone` |  |
 | `FechaIngreso` | `Date` |  |
 | `Activo` | `Yes/No` | `Initial value` = `TRUE` |
@@ -1092,5 +1103,6 @@ Personas del sistema. El correo resuelve la sesion contra USEREMAIL().
 
 | Columna | Que hacer | Por que |
 |---|---|---|
+| `SedeID` | **OCULTAR** · **TRAMPA: AppSheet la pone `Ref` sola hacia `SED_Sedes`** | Retirada el 2026-08-10 para que el modelo diga lo que dice la especificacion. FUNCIONAL_SGMC 6.3 la declara descartada frente a ASG_AsignacionZona: la sede es un edificio y la asignacion es un tramo, y un tecnico puede atender varias unidades funcionales, asi que la relacion es de muchos a muchos y no cabe como columna. RG-04, el filtro de seguridad que decide que activos ve cada tecnico, lee la asignacion y no menciona la sede. El modelo la declaraba Ref obligatoria mientras la spec la daba por descartada: se contradecian, y cablearla habria dejado dos formas de decir donde trabaja alguien. |
 | `UltimaSincronizacion` | **OCULTAR** · SIN DECIDIR | El modelo no la declara |
 

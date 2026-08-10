@@ -131,7 +131,7 @@ devolvió.
 >
 > | Lo que dice esta sección | Lo que hay hoy |
 > |---|---|
-> | «Columnas: 200 · Campos retirados de MAN: 14» (§2.1) | **202 columnas · 13 campos retirados de `MAN_Mantenimientos`.** Tablas, referencias y reglas no cambiaron: 28, 38 y 20 |
+> | «Columnas: 200 · Campos retirados de MAN: 14» (§2.1) | **205 columnas · 13 campos retirados de `MAN_Mantenimientos`.** Tablas, referencias y reglas no cambiaron: 28, 38 y 20 |
 > | «`TIP_TiposActivo` tiene 18 filas» (§2.2, §2.2.1, §5.3.1) | **27.** Se añadieron nueve tipos el 2026-08-09 para que cada familia del Plan Maestro tenga checklist propio. `RequiereGPS = FALSE` sigue valiendo solo en `SERVIDOR` y `NAS`, que es lo que sostiene 5.3 |
 > | «`TIP_TiposActivo.RadioGeofencingKm` sigue vacío» | **Poblado en los 27**: 0,05 km en 18 tipos, 0,1 en 8 y 1,5 en la fibra |
 > | «Los 34 activos comparten una coordenada» | **368 filas.** Las 34 del juego de arranque siguen compartiendo el punto de Bogotá; las otras 334 llevan coordenadas interpoladas sobre el corredor, y **ninguna de las dos clases es real** (D-01) |
@@ -184,7 +184,7 @@ empiezan en `RG-21`.**
 | Lo mismo en la hoja | Encabezado de `OT_OrdenesTrabajo` en el `.xlsx` | 15 columnas: las 12 más `FormularioID`, `Motivo_Cierre` e `Informe_Final`, las tres ya marcadas como retiradas. **Tampoco hay fecha de creación** |
 | `TAR_Tareas` no existe | `'TAR_Tareas' in wb.sheetnames` | `False`. Tampoco existen `ETR_Estructuras`, `CRI_Criticidad`, `EVT_EventosOrden` ni `PAU_Pausas` |
 | `EOT_EstadosOrden.QuienCambia` **existe y está poblada** | Volcado completo de la hoja | 6 columnas, 7 filas. Ver 2.3 |
-| Ninguna regla usa `QuienCambia` | Búsqueda de `QuienCambia` en las 20 reglas de `REGLAS` | 0 apariciones. **La columna existe, está poblada y no la lee nadie** |
+| Ninguna regla usa `QuienCambia` | Búsqueda de `QuienCambia` en las 21 reglas de `REGLAS` | 0 apariciones. **La columna existe, está poblada y no la lee nadie** |
 | `FIR_Firmas.TipoFirma` no declara valores | Volcado de la columna en `MODELO` | `{'nombre': 'TipoFirma', 'tipo': 'Enum', 'obligatoria': True, 'nota': 'Tecnico'}`. La nota dice `Tecnico`; **no hay lista declarada**. La hoja tiene 1 fila con valor `Tecnico` |
 | `ROL_Roles` tiene 4 filas, no 12 | Volcado de la hoja | `2 Administrador`, `3 Supervisor`, `4 Técnico`, `5 Consulta`. Claves **numéricas** |
 | `ACT_Activos` tiene `PR` y **no** `PK` | Encabezado | 17 columnas, `PR` presente, ninguna `PK` |
@@ -1226,7 +1226,7 @@ trabajo pero no lo programa, y el ahorro que justifica el proyecto no llega.
 - **SAT y flotas de vehículos.** Fuera en GIMAN también.
 - **Código QR.** Fuera por decisión del 2026-08-07.
 - **El cableado de la aplicación.** No se toca ni una línea de lo que hay que reponer: ni el orden de
-  los bloques, ni las 38 referencias, ni las 20 reglas, ni el plan de `PRUEBA-003`. **Con una
+  los bloques, ni las 39 referencias, ni las 21 reglas, ni el plan de `PRUEBA-003`. **Con una
   salvedad que cambió el 2026-08-10:** el literal `1.0` de `RG-01` ya no se pega. La hoja que la
   aplicación lee trae `TIP_TiposActivo.RadioGeofencingKm` poblado en los 27 tipos, así que se cablea
   la expresión que desreferencia el radio por tipo.
@@ -1402,7 +1402,7 @@ comprobó contra ellos, y el resultado hay que dejarlo escrito porque cambia lo 
 que tocar.
 
 **Los conteos de la sección 2.1 no cambian:** el modelo sigue en 28 tablas, 200 columnas, 38
-referencias y 20 reglas. Los registros nuevos no declaran tablas: declaran intenciones.
+referencias y 21 reglas. Los registros nuevos no declaran tablas: declaran intenciones.
 
 **`DECISIONES` corrobora cinco decisiones de esta especificación**, tomadas por separado y desde el
 archivo. Conviene decirlo porque es la única confirmación independiente que tiene este documento:

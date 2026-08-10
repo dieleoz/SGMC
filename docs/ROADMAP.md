@@ -16,7 +16,7 @@
 >   sobre la hoja `Modelo_Datos_10082026`.** Entre el 6 y el 10 de agosto hubo cinco aplicaciones y
 >   tres hojas; las superadas están nombradas, con su motivo, en `scripts/sistema.py`.
 > - **El cableado de la aplicación anterior no sobrevivió, y por eso se repone entero.** La versión
->   4.1 daba las 38 referencias por puestas: hoy la aplicación tiene **las 28 tablas dadas de alta y
+>   4.1 daba las 39 referencias por puestas: hoy la aplicación tiene **las 28 tablas dadas de alta y
 >   nada más**. Referencias, reglas y filtros están sin poner.
 > - **La migración a la hoja limpia ya se ejecutó**, así que dejó de ser una decisión y pasó a ser un
 >   hecho. `BD/Modelo_Datos_PLANTILLA.xlsx` sale generada del modelo y es el archivo publicado.
@@ -77,7 +77,7 @@ De ahí salen tres clases, y el orden entre ellas no es negociable:
 
 | # | Paso | Contenido | Depende de |
 |---|---|---|---|
-| **0** | **Cablear la aplicación entera** | **Las 38 referencias**, con `IsPartOf` en las cuatro que lo llevan; **las 20 reglas**; los dos filtros de seguridad; las cuatro marcas de tiempo como `ChangeTimestamp`; retirar `Deletes` en `OT_OrdenesTrabajo` y `MAN_Mantenimientos`; y correr `PRUEBA-003` | Sin empezar. Ficha por tabla en [`MANUAL_DESPLIEGUE.md`](MANUAL_DESPLIEGUE.md); expresión completa en [`sdd/RECONSTRUCCION_EXPRESIONES.md`](sdd/RECONSTRUCCION_EXPRESIONES.md) |
+| **0** | **Cablear la aplicación entera** | **Las 39 referencias**, con `IsPartOf` en las cuatro que lo llevan; **las 21 reglas**; los dos filtros de seguridad; las cuatro marcas de tiempo como `ChangeTimestamp`; retirar `Deletes` en `OT_OrdenesTrabajo` y `MAN_Mantenimientos`; y correr `PRUEBA-003` | Sin empezar. Ficha por tabla en [`MANUAL_DESPLIEGUE.md`](MANUAL_DESPLIEGUE.md); expresión completa en [`sdd/RECONSTRUCCION_EXPRESIONES.md`](sdd/RECONSTRUCCION_EXPRESIONES.md) |
 | **0b** | ~~Decidir la migración~~ | **Ejecutada el 2026-08-10.** Las 47 columnas ya no existen en el archivo, así que ocultarlas dejó de estar en el plan y con ellas se fueron las tres trampas | Cerrado |
 | **1** | **Esquema completo** | `TAR_Tareas` · poblar `ROL_Roles` con los 12 · jerarquía de ubicación · columnas de tiempo en la orden · retirar `ACT.FrecuenciaID` y `TIP.FormularioID` | `ESPEC-003` y su veredicto |
 | **2** | **Carga del inventario real** | Los 355 con identidad, serie y ubicación. **Los que hay hoy son sintéticos** y lo dicen de sí mismos | Paso 1, y que operación confirme que 355 son los de este corredor |
@@ -122,7 +122,7 @@ que llega solo con tiempo, y no llega — llega con la decisión de licenciamien
 | Fase 0.5. Reconciliación de modelos | **CERRADA** el 2026-08-07 | `modelo_objetivo.py` es la fuente única; los documentos se generan de él. Ver 4.5 |
 | **Fase A. La hoja** | **CERRADA** | `verificar_faseA.py` en 0 fallos sobre `BD/Modelo_Datos_PLANTILLA.xlsx`. Hoy: **52 conformes y 4 avisos esperados** |
 | Reconstrucción de la aplicación | **HECHA** el 2026-08-10 | `SISGA_-323965761-26-08-10`, con las 28 tablas dadas de alta sobre `Modelo_Datos_10082026` |
-| **Fase B. Cableado y reglas** | **Sin empezar.** Se repone entero: el cableado de la aplicación anterior no sobrevivió a la reconstrucción | Las 38 referencias con su `IsPartOf`, las 20 reglas, los dos filtros, las cuatro marcas de tiempo, `Deletes` retirado, y `PRUEBA-003` pasada |
+| **Fase B. Cableado y reglas** | **Sin empezar.** Se repone entero: el cableado de la aplicación anterior no sobrevivió a la reconstrucción | Las 39 referencias con su `IsPartOf`, las 21 reglas, los dos filtros, las cuatro marcas de tiempo, `Deletes` retirado, y `PRUEBA-003` pasada |
 | Fase 1. Datos maestros | Bloqueada por D-01 y D-09 | Coordenadas reales cargadas, sedes realineadas, bancos de preguntas construidos |
 | Fase 2. Configuración de interfaz | Bloqueada por Fase 1 y por declarar vistas | Reportes y pantallas construidos. **Antes hay que declarar la interfaz en el modelo**: hoy no tiene vistas, ni acciones, ni slices |
 | Fase 3. Prueba controlada | Bloqueada por Fase 2 | Registros reales en `MAN_Mantenimientos` y en las tablas de evidencia, verificados leyendo el archivo |
@@ -141,7 +141,7 @@ la mesa de trabajo, no antes.
 Verificado el 2026-08-10 contra `scripts/modelo_objetivo.py` y `BD/Modelo_Datos_PLANTILLA.xlsx`.
 **Cada cifra se rederiva con los verificadores; ninguna está escrita de memoria.**
 
-- **Modelo de 28 tablas, 202 columnas, 38 referencias y 20 reglas.** `validar_modelo.py` sale
+- **Modelo de 28 tablas, 205 columnas, 39 referencias y 21 reglas.** `validar_modelo.py` sale
   `APTO PARA DESPLEGAR` con 0 errores y 3 avisos.
 - **La hoja se genera del modelo, y es la que la aplicación lee.** 28 pestañas de datos más `_LEEME`,
   ninguna oculta, sin una sola columna de sobra: las 43 retiradas ya no existen en el archivo.
@@ -307,7 +307,7 @@ Declarado en el modelo, con su expresión completa en
 
 Pendiente, y además no declarado todavía en el modelo:
 
-- [ ] Imponer `QuienCambia`: la columna está poblada en las siete filas y **ninguna de las 20 reglas
+- [ ] Imponer `QuienCambia`: la columna está poblada en las siete filas y **ninguna de las 21 reglas
       la lee**, así que hoy nada impide que un técnico ponga «Cerrada» él mismo
 - [ ] Estado de rechazo. `MAN_Mantenimientos.ObservacionRechazo` existe y la orden no tiene a dónde
       volver: falta una fila `Devuelta` en `EOT_EstadosOrden`, que es dato y no esquema

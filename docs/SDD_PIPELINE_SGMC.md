@@ -203,7 +203,7 @@ corre por el pipeline y cuál no.
 |---|---|
 | Fase A, la hoja | **CERRADA.** Hoy la hoja se genera del modelo y la fase se reduce a verificarla: `FASE A CERRADA` con **52 conformes** sobre `BD/Modelo_Datos_PLANTILLA.xlsx`. Son menos que los 61 de las descargas antiguas porque esta hoja va sin registros de prueba y las comprobaciones que necesitan filas se saltan |
 | Reconstrucción de la aplicación | **Hecha el 2026-08-10.** La aplicación es `SISGA_-323965761-26-08-10`, **con las 28 tablas dadas de alta y nada más** |
-| Fase B, el editor | **Frente activo, y se repone entero:** las 38 referencias, las 20 reglas, los dos filtros de seguridad, las cuatro marcas de tiempo y retirar `Deletes`. Qué poner: `MANUAL_DESPLIEGUE.md`. Cómo y cómo se comprueba: `GUIA_IMPLEMENTACION_FUNCIONAL.md`. Las expresiones enteras: `sdd/RECONSTRUCCION_EXPRESIONES.md` |
+| Fase B, el editor | **Frente activo, y se repone entero:** las 39 referencias, las 21 reglas, los dos filtros de seguridad, las cuatro marcas de tiempo y retirar `Deletes`. Qué poner: `MANUAL_DESPLIEGUE.md`. Cómo y cómo se comprueba: `GUIA_IMPLEMENTACION_FUNCIONAL.md`. Las expresiones enteras: `sdd/RECONSTRUCCION_EXPRESIONES.md` |
 | Migración a la hoja limpia | **CERRADA. Ya no es trabajo de nadie.** La hoja vigente se genera del modelo, así que las columnas sobrantes y las tres trampas no existen. Lo comprueba la regla `F-19` en cada verificación |
 | `ESPEC-003`, modelo de dominio | **BLOQUEADA** por el arquitecto, con 14 condiciones sin resolver. No es un paso disponible: es un documento por terminar |
 | Coordenadas reales (D-01) | Bloqueado por levantamiento en campo |

@@ -40,7 +40,7 @@ nada más: falta cablearla entera.**
 `Modelo_Datos_10082026` sale generada del modelo, no heredada de nada.
 
 ```
-28 pestañas de datos más _LEEME · 202 columnas · ninguna de sobra
+28 pestañas de datos más _LEEME · 205 columnas · ninguna de sobra
 ACT_Activos        368 activos, un solo inventario, códigos SOS-001 / SWIT-001
 TIP_TiposActivo     27 tipos, con radio de cierre poblado en los 27
 FRM_Formularios     27 formularios, uno por tipo
@@ -59,7 +59,7 @@ python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"
 
 ### El modelo
 
-`scripts/modelo_objetivo.py` es la fuente única: **28 tablas, 202 columnas, 38 referencias, 20
+`scripts/modelo_objetivo.py` es la fuente única: **28 tablas, 205 columnas, 39 referencias, 20
 reglas.** De ahí se generan el diccionario, el manual de despliegue, la guía funcional y la lista de
 reposición de expresiones. Nada de eso se escribe a mano.
 
@@ -76,8 +76,8 @@ sirve: se repone entero.** No es una lista de retoques, es el procedimiento comp
 
 | # | Qué | Dónde está escrito |
 |---|---|---|
-| 1 | **Las 38 referencias**, con `IsPartOf` en las cuatro que lo llevan | [`docs/MANUAL_DESPLIEGUE.md`](docs/MANUAL_DESPLIEGUE.md), ficha por tabla |
-| 2 | **Las 20 reglas**: geofencing, umbral de GPS, `Editable_If`, los bots | [`docs/sdd/RECONSTRUCCION_EXPRESIONES.md`](docs/sdd/RECONSTRUCCION_EXPRESIONES.md), expresión completa |
+| 1 | **Las 39 referencias**, con `IsPartOf` en las cuatro que lo llevan | [`docs/MANUAL_DESPLIEGUE.md`](docs/MANUAL_DESPLIEGUE.md), ficha por tabla |
+| 2 | **Las 21 reglas**: geofencing, umbral de GPS, `Editable_If`, los bots | [`docs/sdd/RECONSTRUCCION_EXPRESIONES.md`](docs/sdd/RECONSTRUCCION_EXPRESIONES.md), expresión completa |
 | 3 | **Los dos filtros de seguridad**: activos por unidad funcional, órdenes por técnico | Ídem |
 | 4 | **Las cuatro marcas de tiempo** como `ChangeTimestamp` del servidor | Ídem |
 | 5 | **Retirar `Deletes`** en `OT_OrdenesTrabajo` y `MAN_Mantenimientos` | Ídem |
@@ -143,7 +143,7 @@ radio.
 |---|---|
 | **Saber qué le toca a usted** | [`docs/INDICACIONES_POR_ROL.md`](docs/INDICACIONES_POR_ROL.md) |
 | **Construir la aplicación** | [`docs/MANUAL_DESPLIEGUE.md`](docs/MANUAL_DESPLIEGUE.md) — diez pasos y una ficha por tabla, columna por columna |
-| **La expresión exacta de una regla** | [`docs/sdd/RECONSTRUCCION_EXPRESIONES.md`](docs/sdd/RECONSTRUCCION_EXPRESIONES.md) — las 20 sin cortar |
+| **La expresión exacta de una regla** | [`docs/sdd/RECONSTRUCCION_EXPRESIONES.md`](docs/sdd/RECONSTRUCCION_EXPRESIONES.md) — las 21 sin cortar |
 | **Probar que funciona** | [`docs/sdd/PRUEBA-003-despliegue.md`](docs/sdd/PRUEBA-003-despliegue.md) |
 | **Qué hace el sistema y para quién** | [`docs/FUNCIONAL_SGMC.md`](docs/FUNCIONAL_SGMC.md) |
 | **La estructura de datos real** | [`docs/bd.md`](docs/bd.md), generado del archivo |

@@ -212,7 +212,7 @@ no prueba nada** — que es justo lo que el sistema existe para sostener.
 | Las imagenes y la firma | `Image` y `Signature`, no `Text` |
 | Los `Enum` | Con sus valores declarados, no vacios |
 
-# Etapa 5 — Las 38 referencias
+# Etapa 5 — Las 39 referencias
 
 **Duracion:** 1 hora. Es el corazon del sistema.
 
@@ -227,7 +227,7 @@ en orden esta en `MANUAL_DESPLIEGUE.md` paso 5.
 
 Circulo una lista de **15** referencias por convertir, y era correcta para lo que normaba: una
 aplicacion existente donde otras 23 ya estaban puestas. Ese documento esta retirado.
-**Construyendo desde cero son 38.** Si al terminar cuenta 15, siguio la lista equivocada.
+**Construyendo desde cero son 39.** Si al terminar cuenta 15, siguio la lista equivocada.
 
 ### 5.3 `IsPartOf` va en 4, y en ninguna mas
 
@@ -250,7 +250,7 @@ demas quedan huerfanas sin mensaje de error**: la celda se queda en blanco.
 
 | Que | Como se ve |
 |---|---|
-| Son 38 | Cuente las columnas de tipo `Ref` en todas las tablas |
+| Son 39 | Cuente las columnas de tipo `Ref` en todas las tablas |
 | Ninguna rota | El indicador `!` de referencia rota. **Hay que ir a mirarlo: no se anuncia** |
 | Sin blancos nuevos | Ninguna celda vacia donde antes habia un valor |
 | `IsPartOf` en 4 | Y desmarcado en `MAN_Mantenimientos.OTID` |
@@ -273,7 +273,7 @@ Las dos en verde. **Se cierra sin dar a `Done`.**
 **Duracion: 0.** Se conserva numerada para que quien tenga una copia antigua de esta guia sepa que
 este trabajo salio del plan, y no crea que se le olvido.
 
-Esta etapa mandaba ocultar, una por una, las 43 columnas que el modelo no declara, mas las tres que
+Esta etapa mandaba ocultar, una por una, las 44 columnas que el modelo no declara, mas las tres que
 AppSheet convertia en `Ref` sola por coincidencia de nombre. **Todas ellas venian de un libro
 heredado. La hoja vigente se genera del modelo y no trae ninguna**, asi que no hay nada que
 esconder ni ninguna referencia que deshacer.
@@ -287,7 +287,7 @@ python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"
 Entre los conformes tiene que salir esta linea, que es la regla `F-19`:
 
 ```
-ok Hoja limpia: ninguna de las 43 columnas retiradas existe ya. No hay nada que ocultar
+ok Hoja limpia: ninguna de las 44 columnas retiradas existe ya. No hay nada que ocultar
 ```
 
 > **Si no sale, no oculte nada todavia: pare y reportelo.** Significa que la hoja contra la que
@@ -298,7 +298,7 @@ ok Hoja limpia: ninguna de las 43 columnas retiradas existe ya. No hay nada que 
 
 **Duracion:** 45 minutos. **Aqui esta el valor del sistema.**
 
-Son 20. Las expresiones completas, sin truncar, en
+Son 21. Las expresiones completas, sin truncar, en
 `docs/sdd/RECONSTRUCCION_EXPRESIONES.md` §2.
 
 ### 7.1 El geofencing, y por que sin `Editable_If` no vale nada
@@ -502,7 +502,7 @@ Etapa 2   tablas dadas de alta ................... [  ]   cuantas de 28:
 Etapa 3   claves simples y Text .................. [  ]   cuantas de 28:
           alguna compuesta ....................... [  ]   cual:
 
-Etapa 5   referencias puestas .................... [  ]   cuantas de 38:
+Etapa 5   referencias puestas .................... [  ]   cuantas de 39:
           IsPartOf ............................... [  ]   cuantas de 4:
           MAN.OTID desmarcado .................... [  ]
           [OTID].[ActivoID].[Ubicacion] .......... [  ]   salida:
@@ -511,7 +511,7 @@ Etapa 5   referencias puestas .................... [  ]   cuantas de 38:
 Etapa 6   RETIRADA. No se ejecuta: la hoja vigente no trae columnas que ocultar
           F-19 en verde .......................... [  ]   salida:
 
-Etapa 7   reglas puestas ......................... [  ]   cuantas de 20:
+Etapa 7   reglas puestas ......................... [  ]   cuantas de 21:
           Deletes quitado en OT y MAN ............ [  ]
           umbral con ISBLANK ..................... [  ]
 

@@ -13,7 +13,7 @@ aplicación existente; esto mide construir una aplicación de cero.
 
 | Prueba | Veredicto | Motivo |
 |---|---|---|
-| `P-03` claves correctas | **Vale, y gana peso** | Antes medía claves ya fijadas; ahora las 28 se eligen de cero |
+| `P-03` claves correctas | **Vale, y gana peso** | Antes medía claves ya fijadas; ahora las 27 se eligen de cero |
 | `P-04` formato de coordenada | **Vale** | Independiente del procedimiento |
 | `P-05` la cadena de referencias | **Vale, e insuficiente** | Probaba 1 cadena sobre 15 conversiones. Ahora son 38. Necesita a `P-25` al lado |
 | `P-06` estados de las órdenes | **Vale** | Quitar la frase «no debería ocurrir»: ahora sí puede, la referencia es nueva |
@@ -112,7 +112,7 @@ es lo único que se rescata de `P-13`.
 **Qué demuestra.** Que la navegación padre-hijo existe. Las crea AppSheet al poner una referencia, y
 son lo que hace funcionar `P-07`.
 
-**Cuántas, derivado del modelo:** las 38 referencias producen hasta 38 virtuales en 21 tablas
+**Cuántas, derivado del modelo:** las 39 referencias producen hasta 38 virtuales en 21 tablas
 destino. Las que más importan:
 
 | Tabla destino | Esperadas |
@@ -128,7 +128,7 @@ distintas —`TecnicoID`, `SupervisorID`, `CerradaPor`— y AppSheet las nombra 
 abrir las tres y leer el segundo argumento del `REF_ROWS`. **Si solo hay una, faltan dos y el
 supervisor no ve sus órdenes.**
 
-### P-25 — Las 38 referencias existen y resuelven
+### P-25 — Las 39 referencias existen y resuelven
 
 **Innegociable acompañante de `P-05`**, porque una muestra de 1 sobre 38 ya no autoriza a suponer el
 resto.
@@ -273,7 +273,7 @@ y dejaría de funcionar en producción.
 **El resultado esperado es que la ACEPTE.** Ese es el punto: queda documentado que un despliegue
 verde no distingue la expresión correcta de la trampa. Se anota con su salida literal.
 
-**Paso 2 — demostrar que nadie cayó.** Recorrer las 20 reglas, las slices y las virtuales, y
+**Paso 2 — demostrar que nadie cayó.** Recorrer las 21 reglas, las slices y las virtuales, y
 comprobar que ninguna cita los once nombres **sobre la tabla del caso**.
 
 **Paso 3 — dejar la columna inerte.** Tipo `Text` —hay que **deshacer la inferencia automática en

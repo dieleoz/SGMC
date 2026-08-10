@@ -120,7 +120,7 @@ La fuente única es **[`scripts/modelo_objetivo.py`](scripts/modelo_objetivo.py)
 la validación, el diccionario, el manual de despliegue y la plantilla de datos. **Nada se documenta
 a mano.**
 
-**28 tablas · 202 columnas · 38 referencias · 20 reglas.**
+**28 tablas · 205 columnas · 39 referencias · 21 reglas.**
 
 | Documento | Qué describe |
 |---|---|
@@ -188,7 +188,7 @@ DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoI
 
 **No está cableada en la aplicación.** La app tiene hoy las 28 tablas dadas de alta y nada más
 —ver [`ESTADO.md`](ESTADO.md)—; esta regla, el `Editable_If = FALSE` de las cuatro columnas de
-captura y el resto de las 20 reglas están escritas y listas para reponer en
+captura y el resto de las 21 reglas están escritas y listas para reponer en
 [`docs/sdd/RECONSTRUCCION_EXPRESIONES.md`](docs/sdd/RECONSTRUCCION_EXPRESIONES.md).
 
 **Lo que sí está resuelto es el dato.** En
@@ -275,7 +275,7 @@ archivo/       Material de origen, no versionado
 
 | Archivo | Estado |
 |---|---|
-| [`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTILLA.xlsx) | **El entregable de datos.** Generado del modelo: 28 pestañas de datos más `_LEEME`, 202 columnas, ninguna de sobra. 27 tipos de activo, 27 formularios y 368 activos |
+| [`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTILLA.xlsx) | **El entregable de datos.** Generado del modelo: 28 pestañas de datos más `_LEEME`, 205 columnas, ninguna de sobra. 27 tipos de activo, 27 formularios y 368 activos |
 | `entregables/Propuesta_Arquitectura_SGMC.docx` | Enviado a Dirección y al funcional. Describe el alcance anterior al QR retirado |
 | `entregables/Definicion_Funcional_SGMC_Mesa_de_Trabajo.docx` | Enviado. 14 decisiones con propuesta marcada, hoy adoptadas como supuestos |
 | `entregables/CORREO_ENVIO_MESA_DE_TRABAJO.md` | Texto del correo de envío |

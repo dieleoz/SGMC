@@ -569,6 +569,33 @@ si un documento vigente dice 18, esta desactualizado.
 **Lo que hay que preguntarse ante una referencia que resuelve:** no «apunta a algo», sino **«apunta
 a lo correcto»**. Lo primero lo dice un verificador; lo segundo hay que derivarlo del dominio.
 
+## 7.11 Un aviso que no vence es ruido (regla nueva, 2026-08-10)
+
+`USR_Usuarios.SedeID` estuvo cuatro dias declarada `Ref` obligatoria en el modelo mientras
+`FUNCIONAL_SGMC` 6.3 la daba por descartada. La fuente se contradecia consigo misma y **nadie lo
+vio**.
+
+**Lo incomodo es que si se vio.** `D-04` lo detectaba en cada ejecucion y lo imprimia:
+
+```
+- [D-04] USR_Usuarios.SedeID se descarto y sigue viva. Programada para retirarse en paso 1
+```
+
+La regla funcionaba. Lo que fallaba era **la valvula de escape**: bastaba escribir `'paso 1'` para
+que el fallo bajara a aviso, y esa marca no tenia fecha ni dueno. Sin fecha, un aplazamiento no
+vence: se queda entre los avisos que uno aprende a saltarse. Lo encontro una persona leyendo, que es
+justo lo que este proyecto lleva dias intentando dejar de necesitar.
+
+**La regla: todo aplazamiento lleva fecha, y el dia que pasa vuelve a ser fallo.** `D-04` ya no
+acepta una marca sin `AAAA-MM-DD`. Al endurecerla salieron **otras dos** con el mismo vicio,
+`ACT_Activos.FrecuenciaID` y `TIP_TiposActivo.FormularioID`, que llevaban ahi lo mismo.
+
+**Y el corolario, que vale para las cinco reglas de `verificar_documentos` y las diecinueve de
+`verificar_faseA`:** un aviso que nadie va a atender no es informacion, es ruido, y el ruido tapa lo
+que si importa. Si algo merece un aviso permanente, no merece un aviso: merece estar resuelto o
+tener fecha. **Preferir siempre endurecer a silenciar** — es la misma regla de 3 sobre no retirar
+una comprobacion, aplicada a su version blanda.
+
 ## 8. Deriva documental: ahora es mecanica
 
 Este archivo llevaba una lista escrita a mano de contradicciones conocidas entre documentos. Esa

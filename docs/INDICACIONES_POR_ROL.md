@@ -23,7 +23,7 @@ Si usted acaba de llegar, busque su rol y empiece por ahí.
 
 ## Lo primero, y sin adornos
 
-**La aplicación tiene las 28 tablas dadas de alta y nada más.** Las 38 referencias, las 20 reglas,
+**La aplicación tiene las 28 tablas dadas de alta y nada más.** Las 39 referencias, las 21 reglas,
 los dos filtros de seguridad y las cuatro marcas de tiempo del servidor **están sin poner**. No es
 una lista de retoques: el cableado se repone entero, y es el trabajo del Funcional.
 
@@ -177,7 +177,7 @@ tablas, y carísimas después:
 *Verificable: 28 tablas en* Data → Tables*, ningún nombre repetido, una sola casilla* `KEY` *por
 tabla.*
 
-**1. Las 38 referencias, con `IsPartOf` en las cuatro que lo llevan.**
+**1. Las 39 referencias, con `IsPartOf` en las cuatro que lo llevan.**
 La lista completa y en orden está en el paso 5 del manual. El orden no es alfabético: primero la
 clave del destino, después quien la apunta. **`MAN_Mantenimientos.OTID` va desmarcado**, y es
 deliberado.
@@ -189,7 +189,7 @@ va con el punto 1:** las cuatro referencias con `IsPartOf` crean borrado en casc
 seguro porque el mantenimiento nunca se borra.
 *Verificable: la casilla desmarcada en las dos tablas.*
 
-**3. Las 20 reglas.** Las cuatro que no pueden faltar:
+**3. Las 21 reglas.** Las cuatro que no pueden faltar:
 
 - **El geofencing de cierre**, en `MAN_Mantenimientos.Coordenadas_Cierre`, comparando contra
   `[OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]`. **El radio va por tipo y está poblado en
@@ -251,7 +251,7 @@ tiene tres cierres reportados que no resistieron la comprobación contra el arch
 
 | | |
 |---|---|
-| Punto 0 y punto 1, las claves y las 38 referencias | Una jornada. Es lo más repetitivo y lo que más cuesta rehacer si sale mal |
+| Punto 0 y punto 1, las claves y las 39 referencias | Una jornada. Es lo más repetitivo y lo que más cuesta rehacer si sale mal |
 | Puntos 2 a 5 | Media jornada. Son clics contados y expresiones que se pegan |
 | Punto 6, `PRUEBA-003` | Una jornada. `P-27` sola lleva la mitad |
 

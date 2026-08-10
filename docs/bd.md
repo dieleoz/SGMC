@@ -16,7 +16,7 @@ forma de que mienta es que mienta el archivo**.
 | Aplicación | AppSheet `SISGA_-323965761-26-08-10` |
 | Archivo leído | `Modelo_Datos_PLANTILLA.xlsx` |
 | Hojas | **29** |
-| Filas con datos | **1010** |
+| Filas con datos | **1001** |
 | Generado el | 2026-08-10 |
 
 ---
@@ -25,10 +25,10 @@ forma de que mienta es que mienta el archivo**.
 
 | Concepto | Cuántos | Dónde se resuelve |
 |---|---|---|
-| Columnas que siguen siendo `Text` y deben ser `Ref` | **15** | Fase B, `ESPEC-002` |
-| Columnas marcadas como retiradas que siguen en la hoja | **43** | Pasada posterior, con datos ya migrados |
+| Columnas que siguen siendo `Text` y deben ser `Ref` | **14** | Fase B, `ESPEC-002` |
+| Columnas marcadas como retiradas que siguen en la hoja | **44** | Pasada posterior, con datos ya migrados |
 | Columnas presentes sin decidir todavía | **4** | Decisión de operación |
-| **Total a ocultar al dar de alta las tablas** | **47** | `MANUAL_DESPLIEGUE.md`, anexo |
+| **Total a ocultar al dar de alta las tablas** | **48** | `MANUAL_DESPLIEGUE.md`, anexo |
 | Tablas marcadas como retiradas que siguen en la hoja | 0 | Idem |
 | Tablas del modelo objetivo que ya existen | 28 de 28 | — |
 
@@ -40,10 +40,10 @@ forma de que mienta es que mienta el archivo**.
 | Hoja | Columnas | Filas | En el modelo objetivo |
 |---|---|---|---|
 | `_LEEME` | 1 | 54 | No figura |
-| `SED_Sedes` | 4 | 10 | Sí |
+| `SED_Sedes` | 7 | 0 | Sí |
 | `UNF_UnidadesFuncionales` | 5 | 4 | Sí · **nueva** |
 | `ROL_Roles` | 4 | 4 | Sí |
-| `USR_Usuarios` | 10 | 11 | Sí |
+| `USR_Usuarios` | 9 | 11 | Sí |
 | `ASG_AsignacionZona` | 4 | 4 | Sí · **nueva** |
 | `TIP_TiposActivo` | 8 | 27 | Sí |
 | `EST_Activo` | 4 | 4 | Sí |
@@ -51,9 +51,9 @@ forma de que mienta es que mienta el archivo**.
 | `MOT_MotivosPendiente` | 4 | 5 | Sí · **nueva** |
 | `PAR_Parametros` | 6 | 3 | Sí · **nueva** |
 | `FRE_Frecuencias` | 4 | 8 | Sí |
-| `CAL_Calzadas` | 3 | 2 | Sí |
+| `CAL_Calzadas` | 3 | 3 | Sí |
 | `SEN_Sentidos` | 3 | 2 | Sí |
-| `ACT_Activos` | 17 | 368 | Sí |
+| `ACT_Activos` | 18 | 368 | Sí |
 | `OT_OrdenesTrabajo` | 12 | 0 | Sí |
 | `MAN_Mantenimientos` | 23 | 0 | Sí |
 | `NOV_Novedades` | 9 | 0 | Sí · **nueva** |
@@ -101,16 +101,19 @@ Leyenda del estado de cada columna:
 
 ### `SED_Sedes`
 
-Sedes fisicas donde trabaja el personal: CCO, peajes y basculas.
+Edificaciones del corredor: CCO, peajes y basculas. Cada una esta al lado de la via, en un PR concreto, y por tanto dentro de una unidad funcional. Es el PADRE DE UBICACION del equipo bajo techo: un servidor, un NAS o una impresora no estan en un punto de la via, estan DENTRO de un edificio, y de el heredan donde estan.
 
-4 columnas · 10 filas · clave: `1`, `2`
+7 columnas · 0 filas · clave: vacía
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
 | 1 | `SedeID` | Text · **PK** |  |
 | 2 | `Nombre` | Text |  |
 | 3 | `Ciudad` | Text |  |
-| 4 | `Activo` | Yes/No |  |
+| 4 | `UnidadFuncionalID` | Ref → `UNF_UnidadesFuncionales` |  |
+| 5 | `PR` | Text |  |
+| 6 | `Ubicacion` | LatLong |  |
+| 7 | `Activo` | Yes/No |  |
 
 ### `UNF_UnidadesFuncionales`
 
@@ -143,7 +146,7 @@ Perfiles de acceso: Administrador, Supervisor, Tecnico y Consulta.
 
 Personas del sistema. El correo resuelve la sesion contra USEREMAIL().
 
-10 columnas · 11 filas · clave: `2`, `3`
+9 columnas · 11 filas · clave: `2`, `3`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -153,10 +156,9 @@ Personas del sistema. El correo resuelve la sesion contra USEREMAIL().
 | 4 | `Cargo` | Text |  |
 | 5 | `Iniciales` | Text |  |
 | 6 | `RolID` | Ref → `ROL_Roles` | **Pendiente `Ref`** hacia `ROL_Roles` (hoy `Number`) |
-| 7 | `SedeID` | Ref → `SED_Sedes` | **Pendiente `Ref`** hacia `SED_Sedes` (hoy `Number`) |
-| 8 | `Telefono` | Phone |  |
-| 9 | `FechaIngreso` | Date |  |
-| 10 | `Activo` | Yes/No | Antes `Estado`. Convencion: todas las tablas usan Activo como bandera. |
+| 7 | `Telefono` | Phone |  |
+| 8 | `FechaIngreso` | Date |  |
+| 9 | `Activo` | Yes/No | Antes `Estado`. Convencion: todas las tablas usan Activo como bandera. |
 
 ### `ASG_AsignacionZona`
 
@@ -261,7 +263,7 @@ Periodicidad del mantenimiento preventivo.
 
 Calzadas del corredor.
 
-3 columnas · 2 filas · clave: `1`, `2`
+3 columnas · 3 filas · clave: `1`, `2`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -285,7 +287,7 @@ Sentidos de circulacion.
 
 Inventario de los activos del corredor. Es el eje del sistema.
 
-17 columnas · 368 filas · clave: `1`, `2`
+18 columnas · 368 filas · clave: `1`, `2`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -293,19 +295,20 @@ Inventario de los activos del corredor. Es el eje del sistema.
 | 2 | `CodigoActivo` | Text |  |
 | 3 | `Nombre` | Text |  |
 | 4 | `TipoActivoID` | Ref → `TIP_TiposActivo` | **Pendiente `Ref`** hacia `TIP_TiposActivo` (hoy `Number`) |
-| 5 | `UnidadFuncionalID` | Ref → `UNF_UnidadesFuncionales` | Antes `SedeID`. Guarda 7 a 10, que en SED_Sedes son UF1 a UF4, es decir unidades funcionales y no sedes. La tabla ya mezclaba los dos conceptos; esto solo lo hace explicito. |
+| 5 | `UnidadFuncionalID` | Ref → `UNF_UnidadesFuncionales` |  |
 | 6 | `PR` | Text |  |
 | 7 | `CalzadaID` | Ref → `CAL_Calzadas` | **Pendiente `Ref`** hacia `CAL_Calzadas` (hoy `Number`) |
 | 8 | `SentidoID` | Ref → `SEN_Sentidos` | **Pendiente `Ref`** hacia `SEN_Sentidos` (hoy `Number`) |
 | 9 | `Ubicacion` | LatLong |  |
-| 10 | `EstadoActivoID` | Ref → `EST_Activo` | Antes `EstadoID`. La referencia se llama como la clave destino. |
-| 11 | `CodigoQR` | Text |  |
-| 12 | `FrecuenciaID` | Ref → `FRE_Frecuencias` | **Pendiente `Ref`** hacia `FRE_Frecuencias` (hoy `Number`) |
-| 13 | `Criticidad` | Enum |  |
-| 14 | `FechaBaja` | Date |  |
-| 15 | `MotivoBaja` | Enum |  |
-| 16 | `Activo` | Yes/No |  |
-| 17 | `Observaciones` | LongText |  |
+| 10 | `SedeID` | Ref → `SED_Sedes` |  |
+| 11 | `EstadoActivoID` | Ref → `EST_Activo` | Antes `EstadoID`. La referencia se llama como la clave destino. |
+| 12 | `CodigoQR` | Text |  |
+| 13 | `FrecuenciaID` | Ref → `FRE_Frecuencias` | **Pendiente `Ref`** hacia `FRE_Frecuencias` (hoy `Number`) |
+| 14 | `Criticidad` | Enum |  |
+| 15 | `FechaBaja` | Date |  |
+| 16 | `MotivoBaja` | Enum |  |
+| 17 | `Activo` | Yes/No |  |
+| 18 | `Observaciones` | LongText |  |
 
 ### `OT_OrdenesTrabajo`
 

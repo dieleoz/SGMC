@@ -152,7 +152,7 @@ el indicador hay que ir a mirarlo.
 [Troubleshoot AppSheet databases](https://support.google.com/appsheet/answer/14255794?hl=en)
 
 Sostiene R-3: **primero la clave del destino, después quien la apunta.** Las claves de las 28 tablas
-se fijan antes de crear una sola de las 38 referencias, precisamente por esto. Las dos cifras salen
+se fijan antes de crear una sola de las 39 referencias, precisamente por esto. Las dos cifras salen
 de `scripts/modelo_objetivo.py`, no de una especificación: cuando discrepan, manda el modelo.
 
 ## 9. `DISTANCE()` devuelve kilómetros

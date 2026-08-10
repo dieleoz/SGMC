@@ -16,7 +16,7 @@ paso de vistas de los manuales generados **declara que no está especificado y p
 se haga**, en vez de decir «se construye sola» — que es la clase de instrucción que este proyecto
 tiene prohibida.
 
-**28 tablas · 202 columnas · 38 referencias · 20 reglas**
+**28 tablas · 205 columnas · 39 referencias · 21 reglas**
 
 ---
 
@@ -62,6 +62,12 @@ Cinco reglas que el modelo anterior no tenía, y cuya ausencia explica sus fallo
 
 `MAN_Mantenimientos` pasa de 24 columnas heterogéneas a un registro de ejecución limpio. El
 resto son campos que guardaban por segunda vez un dato alcanzable por referencia.
+
+**`USR_Usuarios`**
+
+| Campo | Motivo |
+|---|---|
+| `SedeID` | Retirada el 2026-08-10 para que el modelo diga lo que dice la especificacion. FUNCIONAL_SGMC 6.3 la declara descartada frente a ASG_AsignacionZona: la sede es un edificio y la asignacion es un tramo, y un tecnico puede atender varias unidades funcionales, asi que la relacion es de muchos a muchos y no cabe como columna. RG-04, el filtro de seguridad que decide que activos ve cada tecnico, lee la asignacion y no menciona la sede. El modelo la declaraba Ref obligatoria mientras la spec la daba por descartada: se contradecian, y cablearla habria dejado dos formas de decir donde trabaja alguien. |
 
 **`MAN_Mantenimientos`**
 
@@ -157,8 +163,7 @@ Los nombres actuales se verificaron el 2026-08-07 leyendo `BD/Modelo de Datos (2
 | `CHD_ChecklistDetalle` | `ChecklistID` | Text | **Ref** | `CHK_Checklists` | Ademas IsPartOf: el detalle vive y muere con su encabezado. |
 | `CHD_ChecklistDetalle` | `PreguntaID` | Text | **Ref** | `FRM_Preguntas` | Produccion ya la llama PreguntaID, pero LST_ValoresLista guarda ahi el TEXTO 'Estado encontrado' en vez de la clave. Confirmar antes de convertir. |
 | `USR_Usuarios` | `RolID` | Number | **Ref** | `ROL_Roles` | Guarda enteros 2 a 5. Por confirmar el tipo. |
-| `USR_Usuarios` | `SedeID` | Number | **Ref** | `SED_Sedes` | Guarda 1 en los 11 usuarios. |
-| `TIP_TiposActivo` | `FormularioID` | Text | **Ref** | `FRM_Formularios` | Poblado en las dos hojas vivas: 18 de 18 en la de produccion, con valores FRM_SOS a FRM_SUBE, y 27 de 27 en la plantilla. Estuvo vacio en la hoja de la aplicacion abandonada, que es de donde viene ese aviso en documentos antiguos. Todos los valores existen en FRM_Formularios: la conversion no produce huerfanos en ninguna de las dos. |
+| `TIP_TiposActivo` | `FormularioID` | Text | **Ref** | `FRM_Formularios` | Poblado en las dos hojas vivas: 18 de 18 en la de produccion, con valores FRM_SOS a FRM_SUBE, y 28 de 28 en la plantilla. Estuvo vacio en la hoja de la aplicacion abandonada, que es de donde viene ese aviso en documentos antiguos. Todos los valores existen en FRM_Formularios: la conversion no produce huerfanos en ninguna de las dos. |
 | `LST_ValoresLista` | `PreguntaID` | Text | **Ref** | `FRM_Preguntas` | PELIGRO: sus 4 filas guardan el TEXTO 'Estado encontrado', no una clave. Convertir a Ref las deja huerfanas a las cuatro. Corregir los valores antes, o dejarla como Text y anotarlo como deuda. |
 | `FRM_Preguntas` | `FormularioID` | Text | **Ref** | `FRM_Formularios` | Por confirmar el tipo. |
 | `FRM_Preguntas` | `SeccionID` | Number | **Ref** | `FRM_Secciones` | Por confirmar el tipo. |
@@ -177,7 +182,6 @@ Los nombres actuales se verificaron el 2026-08-07 leyendo `BD/Modelo de Datos (2
 | `OT_OrdenesTrabajo` | `Fecha_Cierre` | **`FechaCierre`** | Convencion de nombres. |
 | `OT_OrdenesTrabajo` | `Cerrada_Por` | **`CerradaPor`** | Convencion de nombres. |
 | `ACT_Activos` | `EstadoID` | **`EstadoActivoID`** | La referencia se llama como la clave destino. |
-| `ACT_Activos` | `SedeID` | **`UnidadFuncionalID`** | Guarda 7 a 10, que en SED_Sedes son UF1 a UF4, es decir unidades funcionales y no sedes. La tabla ya mezclaba los dos conceptos; esto solo lo hace explicito. |
 | `USR_Usuarios` | `usuarioID` | **`UsuarioID`** | Produccion la escribe en minuscula inicial. AppSheet resuelve por nombre literal. |
 | `USR_Usuarios` | `Estado` | **`Activo`** | Convencion: todas las tablas usan Activo como bandera. |
 | `MAN_Mantenimientos` | `MttoID` | **`MantenimientoID`** | La clave no seguia la convencion <Prefijo>ID legible. |
@@ -208,8 +212,8 @@ las dos sin avisar cuál. `validar_modelo.py` lo señala como aviso V-14.
 
 ```mermaid
 erDiagram
+    SED_Sedes }o--|| UNF_UnidadesFuncionales : "UnidadFuncionalID"
     USR_Usuarios }o--|| ROL_Roles : "RolID"
-    USR_Usuarios }o--|| SED_Sedes : "SedeID"
     ASG_AsignacionZona }o--|| USR_Usuarios : "UsuarioID"
     ASG_AsignacionZona }o--|| UNF_UnidadesFuncionales : "UnidadFuncionalID"
     TIP_TiposActivo }o--|| FRM_Formularios : "FormularioID"
@@ -217,6 +221,7 @@ erDiagram
     ACT_Activos }o--|| UNF_UnidadesFuncionales : "UnidadFuncionalID"
     ACT_Activos }o--|| CAL_Calzadas : "CalzadaID"
     ACT_Activos }o--|| SEN_Sentidos : "SentidoID"
+    ACT_Activos }o--|| SED_Sedes : "SedeID"
     ACT_Activos }o--|| EST_Activo : "EstadoActivoID"
     ACT_Activos }o--|| FRE_Frecuencias : "FrecuenciaID"
     OT_OrdenesTrabajo }o--|| ACT_Activos : "ActivoID"
@@ -254,13 +259,16 @@ erDiagram
 
 #### `SED_Sedes`
 
-Sedes fisicas donde trabaja el personal: CCO, peajes y basculas.
+Edificaciones del corredor: CCO, peajes y basculas. Cada una esta al lado de la via, en un PR concreto, y por tanto dentro de una unidad funcional. Es el PADRE DE UBICACION del equipo bajo techo: un servidor, un NAS o una impresora no estan en un punto de la via, estan DENTRO de un edificio, y de el heredan donde estan.
 
 | Columna | Tipo | Clave | Referencia | Obligatoria | Nota |
 |---|---|---|---|---|---|
 | `SedeID` | Text | PK |  |  |  |
 | `Nombre` | Text |  |  | Sí |  |
 | `Ciudad` | Text |  |  |  |  |
+| `UnidadFuncionalID` | Ref |  | `UNF_UnidadesFuncionales` | Sí | La UF en la que cae el PR del edificio. Sin esto la sede no sabe donde esta, que es justo por lo que el requisito de que el equipo de un peaje heredara su unidad funcional estuvo registrado como no cubierto |
+| `PR` | Text |  |  |  | Punto de referencia del edificio, formato 23+600 |
+| `Ubicacion` | LatLong |  |  |  | Coordenada de la edificacion |
 | `Activo` | Yes/No |  |  |  | Valor inicial: `TRUE` |
 
 #### `UNF_UnidadesFuncionales` · **NUEVA**
@@ -298,7 +306,6 @@ Personas del sistema. El correo resuelve la sesion contra USEREMAIL().
 | `Cargo` | Text |  |  |  |  |
 | `Iniciales` | Text |  |  |  |  |
 | `RolID` | Ref |  | `ROL_Roles` | Sí |  |
-| `SedeID` | Ref |  | `SED_Sedes` | Sí |  |
 | `Telefono` | Phone |  |  |  |  |
 | `FechaIngreso` | Date |  |  |  |  |
 | `Activo` | Yes/No |  |  |  | Valor inicial: `TRUE` |
@@ -323,7 +330,7 @@ Taxonomia de activos. Determina que checklist abre la aplicacion.
 | `TipoActivoID` | Text | PK |  |  |  |
 | `Nombre` | Text |  |  | Sí |  |
 | `Categoria` | Enum |  |  |  |  |
-| `FormularioID` | Ref |  | `FRM_Formularios` | Sí | Sin este mapeo no hay checklist dinamico. Estuvo vacio en la hoja de la aplicacion anterior, y de ahi viene el aviso. HOY ESTA POBLADO EN LAS DOS HOJAS VIVAS: 18 de 18 en la de produccion y 27 de 27 en la plantilla |
+| `FormularioID` | Ref |  | `FRM_Formularios` | Sí | Sin este mapeo no hay checklist dinamico. Estuvo vacio en la hoja de la aplicacion anterior, y de ahi viene el aviso. HOY ESTA POBLADO EN LAS DOS HOJAS VIVAS: 18 de 18 en la de produccion y 28 de 28 en la plantilla |
 | `TieneQR` | Yes/No |  |  |  | Valor inicial: `TRUE` |
 | `RequiereGPS` | Yes/No |  |  |  | Valor inicial: `TRUE` |
 | `RadioGeofencingKm` | Decimal |  |  |  | Supuesto D-02: radio por tipo, no un numero unico. El catalogo (scripts/catalogo_tipos.py) lo fija por tipo y la plantilla lo trae poblado en los 27; el valor inicial solo aplica a un tipo nuevo. Valor inicial: `0.2` |
@@ -438,6 +445,7 @@ Inventario de los activos del corredor. Es el eje del sistema.
 | `CalzadaID` | Ref |  | `CAL_Calzadas` |  |  |
 | `SentidoID` | Ref |  | `SEN_Sentidos` |  |  |
 | `Ubicacion` | LatLong |  |  | Sí | Coordenada real. Hoy los 34 activos comparten un punto en Bogota |
+| `SedeID` | Ref |  | `SED_Sedes` |  | Solo para el equipo bajo techo -servidores, NAS, impresoras, video wall-, que vive DENTRO de una edificacion y no en un punto de la via. Vacia en el equipo de corredor, que tiene su propio PR y su propia coordenada. Cuando esta puesta, RG-21 obliga a que la unidad funcional del activo sea la de su edificacion: la UF se guarda en un solo sitio y no en dos |
 | `EstadoActivoID` | Ref |  | `EST_Activo` | Sí |  |
 | `CodigoQR` | Text |  |  |  | Configurada como Searchable y Scan |
 | `FrecuenciaID` | Ref |  | `FRE_Frecuencias` |  |  |
@@ -671,6 +679,16 @@ DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoI
 ```
 
 Cubre: RF-012
+
+### RG-21 · Valid_If sobre `ACT_Activos`.`UnidadFuncionalID`
+
+El equipo bajo techo hereda donde esta de su edificacion. Sin esta regla la unidad funcional se guardaria en dos sitios -en el activo y en su sede- y podrian decir cosas distintas sin que nada protestara. Con ella hay un solo sitio donde mirar: si el activo tiene sede, manda la sede.
+
+```
+OR(ISBLANK([SedeID]), [UnidadFuncionalID] = [SedeID].[UnidadFuncionalID])
+```
+
+Cubre: RF-002
 
 ### RG-02 · Initial value sobre `MAN_Mantenimientos`.`Precision_GPS`
 

@@ -31,6 +31,7 @@ haciendo falta el arquitecto-.
 import os
 import re
 import sys
+from datetime import date
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from modelo_objetivo import (MODELO, RETIRADAS, PROPUESTAS, DECISIONES,
@@ -121,9 +122,29 @@ for d in DECISIONES:
     vivas = [c["nombre"] for c in MODELO[tabla]["columnas"]]
     if columna not in vivas or columna in CAMPOS_RETIRADOS.get(tabla, {}):
         continue
-    if pendiente:
-        aviso("D-04", "%s se descarto y sigue viva. Programada para retirarse en %s"
-                      % (desc, pendiente))
+    # La valvula de escape CADUCA. Antes bastaba con escribir "paso 1" para que
+    # el fallo bajara a aviso, y esa marca no tenia fecha ni dueno: nunca vencia.
+    # USR_Usuarios.SedeID estuvo asi cuatro dias, visible en cada ejecucion, entre
+    # los avisos que uno aprende a saltarse, mientras el modelo la declaraba Ref
+    # obligatoria y la especificacion la daba por descartada. La regla funcionaba;
+    # lo que fallaba era que no obligaba a nadie a nada.
+    #
+    # Ahora la marca tiene que traer una fecha, y el dia que pasa vuelve a ser
+    # fallo. Un aplazamiento sin fecha no es un aplazamiento: es un olvido.
+    fecha = re.search(r"(\d{4})-(\d{2})-(\d{2})", pendiente or "")
+    if pendiente and fecha:
+        limite = date(int(fecha.group(1)), int(fecha.group(2)), int(fecha.group(3)))
+        if limite < date.today():
+            falla("D-04", "%s se descarto, sigue viva, y el plazo para retirarla vencio "
+                          "el %s. O se retira o se decide otra fecha, con quien la decide"
+                  % (desc, limite))
+        else:
+            aviso("D-04", "%s se descarto y sigue viva. Se retira antes del %s"
+                          % (desc, limite))
+    elif pendiente:
+        falla("D-04", "%s se descarto y sigue viva, y su aplazamiento -'%s'- no trae fecha. "
+                      "Un aplazamiento sin fecha no vence nunca: escribe AAAA-MM-DD"
+              % (desc, pendiente))
     else:
         falla("D-04", "%s se descarto en DECISIONES pero sigue viva en MODELO, y "
                       "nadie declaro cuando se retira" % desc)

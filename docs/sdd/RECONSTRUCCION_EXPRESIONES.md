@@ -13,7 +13,6 @@ La Fase A renombro columnas en la hoja. Toda expresion que cite un nombre viejo 
 | Tabla | Nombre viejo | Nombre correcto | Aviso |
 |---|---|---|---|
 | `ACT_Activos` | `EstadoID` | `EstadoActivoID` |  |
-| `ACT_Activos` | `SedeID` | `UnidadFuncionalID` | **Sigue vivo en `SED_Sedes`, `USR_Usuarios`** |
 | `CHD_ChecklistDetalle` | `Observaciones` | `Observacion` | **Sigue vivo en `ACT_Activos`, `OT_OrdenesTrabajo`, `MAN_Mantenimientos`** |
 | `CHK_Checklists` | `OTID` | `MantenimientoID` | **Sigue vivo en `OT_OrdenesTrabajo`, `MAN_Mantenimientos`** |
 | `FRM_Formularios` | `Descripción` | `Descripcion` |  |
@@ -44,7 +43,7 @@ La Fase A renombro columnas en la hoja. Toda expresion que cite un nombre viejo 
 y `Activo` —la bandera Si/No—. Una formula que diga `Activo` **no da error**: apunta a la bandera
 y devuelve lista vacia.
 
-## 2. Las 20 reglas, con su expresion completa
+## 2. Las 21 reglas, con su expresion completa
 
 ### RG-01 — `MAN_Mantenimientos` · `Coordenadas_Cierre`
 
@@ -64,6 +63,14 @@ python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"
 ```
 
 En la hoja vigente estan **poblados los 27**, con 0.05 km en 18 · 0.1 km en 8 · 1.5 km en 1. Un literal en su lugar -por ejemplo `<= 1.0`- hace que el sistema pruebe "estas en el corredor" en vez de "estas frente al equipo", que es su proposito.
+
+### RG-21 — `ACT_Activos` · `UnidadFuncionalID`
+
+**Tipo:** Valid_If · cubre RF-002
+
+```
+OR(ISBLANK([SedeID]), [UnidadFuncionalID] = [SedeID].[UnidadFuncionalID])
+```
 
 ### RG-02 — `MAN_Mantenimientos` · `Precision_GPS`
 
@@ -250,7 +257,7 @@ Updates, Adds
 | `UNF_UnidadesFuncionales` | `UnidadFuncionalID` |
 | `USR_Usuarios` | `UsuarioID` |
 
-## 4. Las 38 referencias
+## 4. Las 39 referencias
 
 **Son las del modelo, no las 15 de `ESPEC-002`.** Aquellas eran las que faltaban en la aplicacion
 anterior; en una construida de cero no sobrevive ninguna.
@@ -261,6 +268,7 @@ anterior; en una construida de cero no sobrevive ninguna.
 | `ACT_Activos` | `UnidadFuncionalID` | `UNF_UnidadesFuncionales` | no |
 | `ACT_Activos` | `CalzadaID` | `CAL_Calzadas` | no |
 | `ACT_Activos` | `SentidoID` | `SEN_Sentidos` | no |
+| `ACT_Activos` | `SedeID` | `SED_Sedes` | no |
 | `ACT_Activos` | `EstadoActivoID` | `EST_Activo` | no |
 | `ACT_Activos` | `FrecuenciaID` | `FRE_Frecuencias` | no |
 | `ASG_AsignacionZona` | `UsuarioID` | `USR_Usuarios` | no |
@@ -292,13 +300,13 @@ anterior; en una construida de cero no sobrevive ninguna.
 | `PLA_PlanMantenimiento` | `ActivoID` | `ACT_Activos` | no |
 | `PLA_PlanMantenimiento` | `FrecuenciaID` | `FRE_Frecuencias` | no |
 | `PLA_PlanMantenimiento` | `ResponsableID` | `USR_Usuarios` | no |
+| `SED_Sedes` | `UnidadFuncionalID` | `UNF_UnidadesFuncionales` | no |
 | `TIP_TiposActivo` | `FormularioID` | `FRM_Formularios` | no |
 | `USR_Usuarios` | `RolID` | `ROL_Roles` | no |
-| `USR_Usuarios` | `SedeID` | `SED_Sedes` | no |
 
 ## 5. Lo que NO se repone: columnas retiradas
 
-**47 columnas.** Siguen en la hoja a proposito. En la aplicacion: tipo `Text`, `Show?`
+**48 columnas.** Siguen en la hoja a proposito. En la aplicacion: tipo `Text`, `Show?`
 desmarcado, sin formula. **No se borran.**
 
 | Tabla | Columna | Por que | |
@@ -346,12 +354,13 @@ desmarcado, sin formula. **No se borran.**
 | `OT_OrdenesTrabajo` | `FormularioID` | El formulario lo determina el tipo del activo, no la orden. | **TRAMPA -> `FRM_Formularios`** |
 | `OT_OrdenesTrabajo` | `Informe_Final` | Se genera del mantenimiento y su checklist, no se transcribe. |  |
 | `OT_OrdenesTrabajo` | `Motivo_Cierre` | Se tipifica en MOT_MotivosPendiente desde la ejecucion. |  |
+| `USR_Usuarios` | `SedeID` | Retirada el 2026-08-10 para que el modelo diga lo que dice la especificacion. FUNCIONAL_SGMC 6.3 la declara descartada frente a ASG_AsignacionZona: la sede es un edificio y la asignacion es un tramo, y un tecnico puede atender varias unidades funcionales, asi que la relacion es de muchos a muchos y no cabe como columna. RG-04, el filtro de seguridad que decide que activos ve cada tecnico, lee la asignacion y no menciona la sede. El modelo la declaraba Ref obligatoria mientras la spec la daba por descartada: se contradecian, y cablearla habria dejado dos formas de decir donde trabaja alguien. | **TRAMPA -> `SED_Sedes`** |
 | `FOT_Fotografias` | `Fecha` | El modelo guarda FechaHora. Sobra, o una de las dos esta mal nombrada. Merece mirada: la fecha de la fotografia es parte de la evidencia | **SIN DECIDIR** |
 | `FRM_Formularios` | `Orden` | Ordenaria los formularios en una lista. Hoy ninguna vista los ordena y la columna esta vacia. Si algun dia se ordenan, se decide aqui | **SIN DECIDIR** |
 | `FRM_Preguntas` | `ValorDefecto` | Precargaria la respuesta antes de que el tecnico conteste. En una evidencia eso es peligroso: una respuesta por defecto que nadie toca parece contestada | **SIN DECIDIR** |
 | `USR_Usuarios` | `UltimaSincronizacion` | Probablemente de una version anterior. El modelo no la usa | **SIN DECIDIR** |
 
-**Las 3 marcadas TRAMPA** se llaman igual que la clave de otra tabla, asi que **AppSheet las
+**Las 4 marcadas TRAMPA** se llaman igual que la clave de otra tabla, asi que **AppSheet las
 convierte a `Ref` sola**. Hay que deshacerlo.
 
 ---

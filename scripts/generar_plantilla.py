@@ -211,6 +211,31 @@ for f in generar_filas(cuenta):
     activos.append({c: f.get(c, "") for c in columnas("ACT_Activos")})
 escribir("ACT_Activos", activos)
 
+# ------------------------------------- 4b. valores de catalogo que el dominio exige
+#
+# CAL_Calzadas traia solo Izquierda y Derecha. Operacion usa tres costados: un
+# equipo puede estar a la izquierda, a la derecha o EN EL CENTRO, y en doble
+# calzada ese centro se llama separador. Sin la tercera fila, quien instale un
+# panel en el separador tiene que elegir un costado que no es el suyo, o dejarlo
+# en blanco: las dos opciones ensucian el dato y ninguna da error.
+CATALOGO_MINIMO = {
+    "CAL_Calzadas": [
+        {"CalzadaID": "3", "Nombre": "Separador",
+         "Activo": "TRUE"},
+        ],
+    }
+
+anadidos_catalogo = []
+for tabla, filas_min in CATALOGO_MINIMO.items():
+    actuales = leer(tabla)
+    clave = columnas(tabla)[0]
+    tiene = {texto(f[clave]) for f in actuales}
+    for fila in filas_min:
+        if texto(fila[clave]) not in tiene:
+            actuales.append(fila)
+            anadidos_catalogo.append("%s.%s" % (tabla, fila.get("Nombre", fila[clave])))
+    escribir(tabla, actuales)
+
 # ------------------------------------------- 5. los bancos de preguntas
 #
 # Tres bancos ya existian con 15 preguntas cada uno, pero DOS de ellos vivian en
@@ -489,6 +514,8 @@ print("Pestanas: %d + _LEEME   ·   Columnas: %d   ·   Filas: %d"
          sum(v[1] for v in resumen.values())))
 print()
 print("Claves y referencias normalizadas a texto: %d" % normalizadas)
+if anadidos_catalogo:
+    print("Valores de catalogo anadidos: %s" % " · ".join(anadidos_catalogo))
 print()
 print("Tipos de activo: %d   ·   Formularios anadidos: %d   ·   Activos: %d (%d fixture + %d generados)"
       % (len(TIPOS_ACTIVO), len(anadidos), len(activos), fixture, len(activos) - fixture))
