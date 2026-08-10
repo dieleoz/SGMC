@@ -1,3 +1,10 @@
+> # Documento historico. NO SE APLICA.
+>
+> Construccion inicial. **La aplicacion se reconstruyo desde cero** el 2026-08-09 por otro camino.
+>
+> Se conserva por trazabilidad: explica por que se decidio lo que hay hoy.
+> **El estado vigente esta en [`ESTADO.md`](../../ESTADO.md).**
+
 # Prompt de construcción del SGMC
 
 Directiva de ejecución para el agente que va a reparar y completar el sistema. Sustituye a

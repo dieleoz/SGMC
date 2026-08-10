@@ -1,3 +1,10 @@
+> # Documento historico. NO SE APLICA.
+>
+> Auditoria del 2026-08-06, antes de que existiera `modelo_objetivo.py` como fuente unica.
+>
+> Se conserva por trazabilidad: explica por que se decidio lo que hay hoy.
+> **El estado vigente esta en [`ESTADO.md`](../../ESTADO.md).**
+
 # 🤖 PROMPT Y DIRECTIVA DE INSTRUCCIÓN PARA EL AGENTE DE AUDITORÍA Y SUBSANACIÓN
 
 > **DOCUMENTO SUPERADO — 6 de agosto de 2026.** Su Paso 2 ordena configurar sobre un modelo cuyas referencias no están cableadas.

@@ -1,3 +1,10 @@
+> # Documento historico. NO SE APLICA.
+>
+> Baja de activos y datos de prueba. **Ejecutado**, `ACTA-003`.
+>
+> Se conserva por trazabilidad: explica por que se decidio lo que hay hoy.
+> **El estado vigente esta en [`ESTADO.md`](../../ESTADO.md).**
+
 # Prompt para el agente que trabaja sobre la hoja — ESPEC-001C
 
 **Autocontenido a propósito.** El agente que lo recibe trabaja dentro del Google Sheets y no tiene

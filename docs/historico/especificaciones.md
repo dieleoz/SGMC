@@ -1,3 +1,10 @@
+> # Documento historico. NO SE APLICA.
+>
+> Especificaciones del 2026-08-06, antes de la reconstruccion. **Lo sustituye `docs/FUNCIONAL_SGMC.md`**.
+>
+> Se conserva por trazabilidad: explica por que se decidio lo que hay hoy.
+> **El estado vigente esta en [`ESTADO.md`](../../ESTADO.md).**
+
 # 🛠️ ESPECIFICACIONES TÉCNICAS Y REQUERIMIENTOS AS-BUILT (SGMC)
 
 **Proyecto:** Sistema de Gestión de Mantenimiento en Campo (SGMC)  

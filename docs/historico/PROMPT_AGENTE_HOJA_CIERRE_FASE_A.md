@@ -1,3 +1,10 @@
+> # Documento historico. NO SE APLICA.
+>
+> Cierre de la Fase A. **Ejecutado**, `ACTA-003`.
+>
+> Se conserva por trazabilidad: explica por que se decidio lo que hay hoy.
+> **El estado vigente esta en [`ESTADO.md`](../../ESTADO.md).**
+
 # Prompt para el agente de la hoja — cierre definitivo de la Fase A
 
 Autocontenido. Cópialo íntegro desde la línea siguiente.

@@ -1,3 +1,10 @@
+> # Documento historico. NO SE APLICA.
+>
+> Guia de iconos para la aplicacion anterior. Nunca se aplico.
+>
+> Se conserva por trazabilidad: explica por que se decidio lo que hay hoy.
+> **El estado vigente esta en [`ESTADO.md`](../../ESTADO.md).**
+
 # 🎨 GUÍA TÉCNICA RESCATADA: SVG DINÁMICOS, BOTONES Y TARJETAS EN APPSHEET
 
 **Proyecto:** Sistema de Gestión de Mantenimiento en Campo (SGMC)  

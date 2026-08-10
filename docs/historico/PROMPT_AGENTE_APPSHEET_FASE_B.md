@@ -1,3 +1,10 @@
+> # Documento historico. NO SE APLICA.
+>
+> Instructivo de la Fase B. **Lo sustituye `docs/MANUAL_DESPLIEGUE.md`**, que trae la ficha de las 28 tablas, y `docs/prompts/PROMPT_CONTINUAR_DESPLIEGUE.md` para lo que falta.
+>
+> Se conserva por trazabilidad: explica por que se decidio lo que hay hoy.
+> **El estado vigente esta en [`ESTADO.md`](../../ESTADO.md).**
+
 # Prompt para el agente de AppSheet — cablear la app nueva
 
 Autocontenido. Cópialo íntegro desde la línea siguiente.

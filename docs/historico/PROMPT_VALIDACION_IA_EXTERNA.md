@@ -1,3 +1,10 @@
+> # Documento historico. NO SE APLICA.
+>
+> Validacion externa del 2026-08-06. El proyecto tiene ahora sus propios verificadores y agentes.
+>
+> Se conserva por trazabilidad: explica por que se decidio lo que hay hoy.
+> **El estado vigente esta en [`ESTADO.md`](../../ESTADO.md).**
+
 # 🤖 PROMPT MAESTRO PARA AUDITORÍA Y VALIDACIÓN POR IA EXTERNA
 
 **Instrucción:** Copia y pega el siguiente prompt completo en cualquier agente de IA o modelo de lenguaje (ChatGPT, Claude, Gemini, Copilot, DeepSeek) para solicitar una auditoría técnica externa e imparcial del proyecto SGMC.

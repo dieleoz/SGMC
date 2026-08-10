@@ -1,3 +1,10 @@
+> # Documento historico. NO SE APLICA.
+>
+> Plan del 2026-08-06. **Lo sustituye `docs/ROADMAP.md` §2**, el orden de implementacion.
+>
+> Se conserva por trazabilidad: explica por que se decidio lo que hay hoy.
+> **El estado vigente esta en [`ESTADO.md`](../../ESTADO.md).**
+
 # 📅 PLAN DE TRABAJO Y HOJA DE RUTA OPERATIVA (SGMC)
 
 > **DOCUMENTO SUPERADO — 6 de agosto de 2026.** Su Fase 0 cubre 2 de los bloqueantes reales y presupone decisiones que no estaban tomadas.

@@ -1,3 +1,10 @@
+> # Documento historico. NO SE APLICA.
+>
+> Especificaciones de interfaz de la aplicacion anterior, que ya no existe.
+>
+> Se conserva por trazabilidad: explica por que se decidio lo que hay hoy.
+> **El estado vigente esta en [`ESTADO.md`](../../ESTADO.md).**
+
 # 🖼️ ESPECIFICACIONES VISUALES Y DE INTERFAZ (especificaciones_visuales.md)
 
 **Proyecto:** Sistema de Gestión de Mantenimiento en Campo (SGMC)  

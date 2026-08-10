@@ -1,3 +1,10 @@
+> # Documento historico. NO SE APLICA.
+>
+> Las 14 decisiones enviadas al lider funcional el 2026-08-06. **Lo sustituye `docs/INDICACIONES_POR_ROL.md`**, organizado por quien decide.
+>
+> Se conserva por trazabilidad: explica por que se decidio lo que hay hoy.
+> **El estado vigente esta en [`ESTADO.md`](../../ESTADO.md).**
+
 # Definición funcional y mesa de trabajo — SGMC
 
 **Proyecto:** Sistema de Gestión de Mantenimiento en Campo
