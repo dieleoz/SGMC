@@ -123,6 +123,25 @@ coordenada, la fecha, el decimal— y qué columnas hay que completar.
 
 **El principio es de operación: entregamos la estructura; el dato real lo pone quien lo conoce.**
 
+### Lo que sí está anclado en fuente
+
+**Las cuatro unidades funcionales son las reales**, de la ANI: Sisga–Guateque (49 km),
+Guateque–Macanal (22), Macanal–Santa María (18) y Santa María–San Luis de Gaceno–Aguaclara (47).
+**No son cuartos iguales**, que es como estaban repartidas hasta el 2026-08-10 — y al corregirlo
+resultó que **103 de los 368 activos estaban en la unidad funcional equivocada**. Importa porque
+`RG-04` filtra por UF: cada técnico habría visto un conjunto de activos que no es el suyo.
+
+**El origen del corredor es el PR 0+000 de la Ruta INVÍAS `55CN03`**, sector El Sisga.
+
+> **Y de ahí sale una carencia del modelo que no se puede tapar con datos: un PR no identifica un
+> punto por sí solo.** Los PR pertenecen a un tramo de INVÍAS y **cada tramo reinicia su
+> numeración**; este corredor cruza Cundinamarca, Boyacá y Casanare, así que atraviesa varios. Dos
+> equipos a 60 km uno de otro pueden estar los dos en el «PR 34+500».
+>
+> Lo resuelve el **PK**, que es lineal y continuo de 0 a 137,03 en todo el corredor. Están
+> declaradas como columnas propuestas `ACT_Activos.PK` y `ACT_Activos.TramoINVIAS`, sin implementar:
+> es cambio de modelo y pasa por especificación.
+
 ### Por qué el catálogo tiene 27 tipos y el Plan Maestro 18 familias
 
 **No son la misma lista, y que los dos números fueran 18 lo escondía.** `TIP_TiposActivo` decide

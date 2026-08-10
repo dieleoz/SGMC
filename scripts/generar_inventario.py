@@ -46,6 +46,18 @@ TRAZADO = [
     (4.780, -72.900, "Aguaclara"),
 ]
 LARGO_KM = 137.03   # longitud oficial del corredor
+# Confirmado el 2026-08-10 contra la ANI y el Ministerio de Transporte.
+#
+# EL ORIGEN, que da operacion: la concesion arranca en el PR 0+000 de la Ruta
+# INVIAS 55CN03 -Ruta Nacional 55, codigo departamental CN de Cundinamarca,
+# tramo 03-, sector El Sisga.
+#
+# Y de ahi sale una distincion que el modelo todavia no representa: el PK es
+# lineal y continuo de 0 a 137,03 en todo el corredor, mientras que el PR
+# pertenece a un tramo de INVIAS y REINICIA en cada uno. Como el corredor cruza
+# Cundinamarca, Boyaca y Casanare, un PR sin su tramo no identifica un punto.
+# Lo que este script genera es PR sin tramo, asi que vale para repartir los
+# activos por el corredor y NO vale como referencia de campo.
 
 # El trazado de arriba es una aproximacion de 7 puntos: su poligonal mide menos
 # que el corredor real, que serpentea. El PR se escala a los 137,03 oficiales
@@ -81,9 +93,33 @@ def pr(frac):
     return "%02d+%03d" % (int(km), int(round((km - int(km)) * 1000)))
 
 
+# Las cuatro unidades funcionales REALES, con su nombre y su longitud.
+#
+# Fuente: ANI, "ABC del corredor de la Transversal del Sisga", consultado el
+# 2026-08-10. Antes esto se repartia en cuartos iguales de 34,26 km, que era
+# invencion nuestra: no son iguales ni de lejos -la primera mide 49 km y la
+# tercera 18-, asi que cada activo sintetico caia en la UF equivocada en cuanto
+# se alejaba de los extremos.
+#
+# (id, nombre, km_desde, km_hasta)
+UNIDADES = [
+    (7,  "Sisga - Guateque",                              0.0,  49.0),
+    (8,  "Guateque - Macanal",                           49.0,  71.0),
+    (9,  "Macanal - Santa Maria",                        71.0,  89.0),
+    (10, "Santa Maria - San Luis de Gaceno - Aguaclara", 89.0, 136.0),
+]
+# Las cuatro suman 136 km y la longitud oficial son 137,03. La diferencia sale
+# de que la ANI publica las longitudes redondeadas. El ultimo tramo se estira
+# hasta el final para que ningun activo quede fuera de toda unidad funcional.
+
+
 def unidad_funcional(frac):
-    """Cuatro UF repartidas por el corredor. IDs 7 a 10, como en la hoja."""
-    return 7 + min(int(frac * 4), 3)
+    """La UF en la que cae un punto, por su kilometro real del corredor."""
+    km = frac * LARGO_KM
+    for uid, _nombre, desde, hasta in UNIDADES:
+        if desde <= km < hasta:
+            return uid
+    return UNIDADES[-1][0]
 
 
 COLS = ["ActivoID", "CodigoActivo", "Nombre", "TipoActivoID", "UnidadFuncionalID",

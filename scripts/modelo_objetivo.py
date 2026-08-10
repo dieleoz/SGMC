@@ -962,11 +962,18 @@ PROPUESTAS = {
 # sabe distinguir "propuesta" de "inventada", asi que se declara aqui.
 COLUMNAS_PROPUESTAS = {
     ("ACT_Activos", "PK"):
-        "Punto kilometrico DEL PROYECTO: lineal desde el PK 0+000 hasta el final de la "
-        "concesion. NO es lo mismo que el PR, que es la referencia de INVIAS sobre la ruta "
-        "nacional -el proyecto puede arrancar, por ejemplo, en el PR 37+650 de la Ruta 42-. "
-        "Son dos sistemas distintos y operacion usa los dos, asi que todo activo tiene ambos. "
-        "Hoy el modelo solo guarda PR y el PK se pierde o acaba a mano en Observaciones.",
+        "Punto kilometrico DEL PROYECTO: lineal y continuo desde el PK 0+000 hasta el final de "
+        "la concesion, 137,03 km. Es el unico de los dos que identifica un punto sin "
+        "ambiguedad en todo el corredor.",
+    ("ACT_Activos", "TramoINVIAS"):
+        "El tramo al que pertenece el PR, con la nomenclatura de INVIAS: 55CN03 es Ruta "
+        "Nacional 55, codigo departamental CN de Cundinamarca, tramo 03. La concesion arranca "
+        "en el PR 0+000 de ese tramo, en El Sisga. "
+        "POR QUE HACE FALTA: un PR SOLO NO IDENTIFICA UN PUNTO. Los PR pertenecen al tramo y "
+        "cada tramo reinicia su numeracion, y este corredor cruza Cundinamarca, Boyacá y "
+        "Casanare, asi que atraviesa varios. Dos equipos a 60 km uno de otro pueden estar los "
+        "dos en el 'PR 34+500'. Hoy ACT_Activos.PR guarda el numero sin el tramo, de modo que "
+        "el dato es ambiguo en cuanto se pasa de tramo, y nada lo detecta.",
     ("ACT_Activos", "ActivoPadreID"):
         "Ref a ACT_Activos. El equipo compuesto: un panel de mensaje variable tiene portico, "
         "fuentes y camaras, y hoy cada pieza seria un activo suelto sin nada que diga de quien "

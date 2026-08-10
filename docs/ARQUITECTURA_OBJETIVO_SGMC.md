@@ -163,7 +163,7 @@ Los nombres actuales se verificaron el 2026-08-07 leyendo `BD/Modelo de Datos (2
 | `CHD_ChecklistDetalle` | `ChecklistID` | Text | **Ref** | `CHK_Checklists` | Ademas IsPartOf: el detalle vive y muere con su encabezado. |
 | `CHD_ChecklistDetalle` | `PreguntaID` | Text | **Ref** | `FRM_Preguntas` | Produccion ya la llama PreguntaID, pero LST_ValoresLista guarda ahi el TEXTO 'Estado encontrado' en vez de la clave. Confirmar antes de convertir. |
 | `USR_Usuarios` | `RolID` | Number | **Ref** | `ROL_Roles` | Guarda enteros 2 a 5. Por confirmar el tipo. |
-| `TIP_TiposActivo` | `FormularioID` | Text | **Ref** | `FRM_Formularios` | Poblado en las dos hojas vivas: 18 de 18 en la de produccion, con valores FRM_SOS a FRM_SUBE, y 28 de 28 en la plantilla. Estuvo vacio en la hoja de la aplicacion abandonada, que es de donde viene ese aviso en documentos antiguos. Todos los valores existen en FRM_Formularios: la conversion no produce huerfanos en ninguna de las dos. |
+| `TIP_TiposActivo` | `FormularioID` | Text | **Ref** | `FRM_Formularios` | Poblado en las dos hojas vivas: 18 de 18 en la de produccion, con valores FRM_SOS a FRM_SUBE, y 27 de 27 en la plantilla. Estuvo vacio en la hoja de la aplicacion abandonada, que es de donde viene ese aviso en documentos antiguos. Todos los valores existen en FRM_Formularios: la conversion no produce huerfanos en ninguna de las dos. |
 | `LST_ValoresLista` | `PreguntaID` | Text | **Ref** | `FRM_Preguntas` | PELIGRO: sus 4 filas guardan el TEXTO 'Estado encontrado', no una clave. Convertir a Ref las deja huerfanas a las cuatro. Corregir los valores antes, o dejarla como Text y anotarlo como deuda. |
 | `FRM_Preguntas` | `FormularioID` | Text | **Ref** | `FRM_Formularios` | Por confirmar el tipo. |
 | `FRM_Preguntas` | `SeccionID` | Number | **Ref** | `FRM_Secciones` | Por confirmar el tipo. |
@@ -330,7 +330,7 @@ Taxonomia de activos. Determina que checklist abre la aplicacion.
 | `TipoActivoID` | Text | PK |  |  |  |
 | `Nombre` | Text |  |  | Sí |  |
 | `Categoria` | Enum |  |  |  |  |
-| `FormularioID` | Ref |  | `FRM_Formularios` | Sí | Sin este mapeo no hay checklist dinamico. Estuvo vacio en la hoja de la aplicacion anterior, y de ahi viene el aviso. HOY ESTA POBLADO EN LAS DOS HOJAS VIVAS: 18 de 18 en la de produccion y 28 de 28 en la plantilla |
+| `FormularioID` | Ref |  | `FRM_Formularios` | Sí | Sin este mapeo no hay checklist dinamico. Estuvo vacio en la hoja de la aplicacion anterior, y de ahi viene el aviso. HOY ESTA POBLADO EN LAS DOS HOJAS VIVAS: 18 de 18 en la de produccion y 27 de 27 en la plantilla |
 | `TieneQR` | Yes/No |  |  |  | Valor inicial: `TRUE` |
 | `RequiereGPS` | Yes/No |  |  |  | Valor inicial: `TRUE` |
 | `RadioGeofencingKm` | Decimal |  |  |  | Supuesto D-02: radio por tipo, no un numero unico. El catalogo (scripts/catalogo_tipos.py) lo fija por tipo y la plantilla lo trae poblado en los 27; el valor inicial solo aplica a un tipo nuevo. Valor inicial: `0.2` |

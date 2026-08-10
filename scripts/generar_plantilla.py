@@ -40,7 +40,7 @@ sys.path.insert(0, os.path.join(RAIZ, "scripts"))
 
 from modelo_objetivo import MODELO
 from catalogo_tipos import TIPOS_ACTIVO, FAMILIAS, comprobar
-from generar_inventario import generar_filas, LARGO_KM
+from generar_inventario import generar_filas, LARGO_KM, UNIDADES, unidad_funcional
 from banco_preguntas import (preguntas_de, comprobar as comprobar_banco,
                              MARCA, VALORES_ESTADO)
 
@@ -209,6 +209,22 @@ for a in activos:
 fixture = len(activos)
 for f in generar_filas(cuenta):
     activos.append({c: f.get(c, "") for c in columnas("ACT_Activos")})
+# La unidad funcional se DERIVA del PR, no se arrastra. Venia de un reparto en
+# cuartos iguales que no existe: con los tramos reales de la ANI, la frontera
+# entre la primera y la segunda esta en el km 49 y no en el 34, asi que decenas
+# de activos estaban en la UF equivocada. Y la UF es lo que decide que ve cada
+# tecnico: RG-04 filtra por ella.
+recolocados = 0
+for a in activos:
+    m = re.match(r"(\d+)\+(\d+)", texto(a.get("PR")))
+    if not m:
+        continue
+    km = int(m.group(1)) + int(m.group(2)) / 1000.0
+    correcta = str(unidad_funcional(min(km / LARGO_KM, 0.999999)))
+    if texto(a.get("UnidadFuncionalID")) != correcta:
+        a["UnidadFuncionalID"] = correcta
+        recolocados += 1
+
 escribir("ACT_Activos", activos)
 
 # ------------------------------------- 4b. valores de catalogo que el dominio exige
@@ -334,14 +350,20 @@ escribir("LST_ValoresLista", valores)
 # colgar. Se reparten los 137,03 km oficiales entre las cuatro, que es lo que
 # hace el generador de inventario para decidir a que UF cae cada activo. Es un
 # reparto uniforme y por tanto provisional: operacion tiene los PR reales.
-unidades = leer("UNF_UnidadesFuncionales")
-if unidades:
-    tramo = LARGO_KM / len(unidades)
-    for i, u in enumerate(unidades):
-        ini, fin = i * tramo, (i + 1) * tramo
-        u["PRInicial"] = "%02d+%03d" % (int(ini), int(round((ini - int(ini)) * 1000)))
-        u["PRFinal"] = "%02d+%03d" % (int(fin), int(round((fin - int(fin)) * 1000)))
-    escribir("UNF_UnidadesFuncionales", unidades)
+# Las cuatro con su nombre y su tramo REALES, de la ANI. Antes se repartia el
+# corredor en cuartos iguales, que no lo son: la primera mide 49 km y la tercera
+# 18. Con el reparto uniforme, un activo del kilometro 60 caia en la UF2 cuando
+# esta en la UF2 de verdad por poco, y uno del 80 caia en la UF3 cuando esta en
+# la UF3 tambien por poco -pero los limites estaban a 34, 68 y 103 km, que no
+# son ninguna frontera real-.
+def pk(km):
+    return "%02d+%03d" % (int(km), int(round((km - int(km)) * 1000)))
+
+
+escribir("UNF_UnidadesFuncionales", [
+    {"UnidadFuncionalID": str(uid), "Nombre": nombre,
+     "PRInicial": pk(desde), "PRFinal": pk(hasta), "Activo": "TRUE"}
+    for uid, nombre, desde, hasta in UNIDADES])
 
 # ------------------------------------------- 7. fuera los registros de prueba
 #
@@ -513,6 +535,7 @@ print("Pestanas: %d + _LEEME   ·   Columnas: %d   ·   Filas: %d"
       % (len(resumen), sum(v[0] for v in resumen.values()),
          sum(v[1] for v in resumen.values())))
 print()
+print("Activos recolocados en su unidad funcional real: %d" % recolocados)
 print("Claves y referencias normalizadas a texto: %d" % normalizadas)
 if anadidos_catalogo:
     print("Valores de catalogo anadidos: %s" % " · ".join(anadidos_catalogo))
