@@ -65,8 +65,14 @@ reposición de expresiones. Nada de eso se escribe a mano.
 
 ### La aplicación
 
-**Las 28 tablas dadas de alta sobre la hoja limpia**, y el 2026-08-10 se empezó a poner al día su
-esquema tras cambiar la hoja. `SED_Sedes` ya tiene sus 10 columnas regeneradas.
+**Las 28 tablas dadas de alta sobre la hoja definitiva**, con las claves alfanuméricas ya puestas.
+Comprobado por API el 2026-08-10: las 28 responden, **ninguna de más ni de menos**, y cada una ve
+exactamente las columnas que el modelo declara más el `_RowNumber` que añade AppSheet.
+
+> **Lo que esa comprobación demuestra y lo que no.** La API devuelve **filas de datos**, así que
+> prueba que las tablas existen, que la estructura llegó y que las claves entraron como texto
+> —`ACT-0001`, `TIP-001`, `UNF-01`—. **No devuelve tipos**: que `Ubicacion_LatLong` sea `LatLong` y
+> no `Text` solo se ve abriendo `Data > Columns` en el editor.
 
 > **Subir el Excel arregla la hoja, no la aplicación.** Son dos sitios distintos. El Excel fija
 > columnas y datos; **el tipo de cada columna, la clave y las referencias viven en el esquema de

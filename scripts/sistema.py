@@ -22,8 +22,8 @@ decirlo.
 """
 
 # ------------------------------------------------------------- lo que ES hoy
-APP_NOMBRE = "SISGA_-323965761-26-08-10"
-APP_ID = "d180a1b5-19ca-448e-a44c-f985396dce12"
+APP_NOMBRE = "_SISGA_-323965761"
+APP_ID = "aca92ac5-a6eb-4c73-be81-471a5b3fe04e"
 APP_URL = "https://www.appsheet.com/template/appdef?appId=" + APP_ID
 
 HOJA_NOMBRE = "Modelo_Datos_10082026"
@@ -42,8 +42,11 @@ VOLCADO = "BD/Modelo_Datos_PLANTILLA.xlsx"
 # Si alguien abre un enlace de esta tabla, tiene que saber en un vistazo que no
 # es el sistema y por que dejo de serlo.
 SUPERADOS = [
+    ("aplicacion", "SISGA_-323965761-26-08-10", "d180a1b5-19ca-448e-a44c-f985396dce12",
+     "Construida sobre la hoja antes de resembrar las claves. Se abandono al rehacer la "
+     "plantilla con claves alfanumericas: su esquema tenia las claves como Number"),
     ("aplicacion", "SISGA_-323965761", "7cc0b0eb-8c28-4cfb-9916-1e80367b43bc",
-     "Intento previo del 2026-08-10. La vigente es su copia"),
+     "Intento previo del 2026-08-10"),
     ("aplicacion", "SISGA", "",
      "Leia Modelo_Datos_09082026. Respaldo del estado anterior a la hoja limpia"),
     ("aplicacion", "SGMC2", "",

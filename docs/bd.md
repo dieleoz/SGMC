@@ -13,7 +13,7 @@ forma de que mienta es que mienta el archivo**.
 | | |
 |---|---|
 | Backend de producción | Google Sheets `Modelo_Datos_10082026` |
-| Aplicación | AppSheet `SISGA_-323965761-26-08-10` |
+| Aplicación | AppSheet `_SISGA_-323965761` |
 | Archivo leído | `Modelo_Datos_PLANTILLA.xlsx` |
 | Hojas | **29** |
 | Filas con datos | **1007** |
