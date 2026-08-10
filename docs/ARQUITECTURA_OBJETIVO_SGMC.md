@@ -4,11 +4,16 @@
 `scripts/modelo_objetivo.py`. No editar a mano: los cambios se hacen en el modelo y se
 regenera. Validado con `scripts/validar_modelo.py`.
 
-Este documento define el sistema que se va a construir, no el que existe. El actual está
-descrito en `AUDITORIA_PLAN_Y_ROADMAP.md` y no sirve como base: sus referencias no están
-cableadas, cuatro tablas están vacías y la cadena relacional existe solo en el papel.
+Este documento define **el diseño de datos que se construye**: tablas, columnas, claves,
+referencias y reglas. Lo que la hoja tiene hoy, columna a columna, está en `bd.md`, también
+generado; para qué sirve cada pieza y quién la usa, en `FUNCIONAL_SGMC.md`. Los tres se
+complementan y ninguno sustituye a los otros dos.
 
-**28 tablas · 200 columnas · 38 referencias · 20 reglas**
+**El modelo describe datos, no interfaz.** No hay aquí vistas, acciones ni slices: no existen en
+`modelo_objetivo.py`. Mientras no se declaren, el paso de vistas de cualquier manual se queda en
+«se construye sola», que es la clase de instrucción que este proyecto tiene prohibida.
+
+**28 tablas · 202 columnas · 38 referencias · 20 reglas**
 
 ---
 
@@ -59,7 +64,6 @@ resto son campos que guardaban por segunda vez un dato alcanzable por referencia
 
 | Campo | Motivo |
 |---|---|
-| `ActivoID` | El activo se alcanza por [OTID].[ActivoID]. Guardarlo tambien aqui permite que la ejecucion diga un activo y su orden diga otro, y no hay forma de saber cual miente. Existe en el Excel local; AppSheet confirmo que en produccion no esta. |
 | `Imagen_Inicio` | Sustituido por FOT_Fotografias con Tipo=Antes. |
 | `Imagen_Final` | Sustituido por FOT_Fotografias con Tipo=Despues. |
 | `Firma_Tecnico` | Sustituido por FIR_Firmas. |
@@ -86,7 +90,6 @@ resto son campos que guardaban por segunda vez un dato alcanzable por referencia
 
 | Campo | Motivo |
 |---|---|
-| `SedeID` | Se sustituye por UnidadFuncionalID. Mezclar donde trabaja la persona con donde esta el activo es lo que dejo a los usuarios en la sede 1 y a los activos en las sedes 7 a 10, es decir en conjuntos disjuntos. |
 
 **`CHK_Checklists`**
 
@@ -628,6 +631,8 @@ Banco unico de preguntas. Es el motor: se retiran las hojas planas FRM_SOS, FRM_
 | `VisibleSi` | Text |  |  |  | Expresion de visibilidad condicional |
 | `RequiereFoto` | Yes/No |  |  |  | Valor inicial: `FALSE` |
 | `Version` | Number |  |  |  | Valor inicial: `1` |
+| `RequiereGPS` | Yes/No |  |  |  | La lee el show_if de CHD_ChecklistDetalle.RespuestaGPS. Valor inicial: `FALSE` |
+| `RequiereFirma` | Yes/No |  |  |  | Valor inicial: `FALSE` |
 | `Activo` | Yes/No |  |  |  | Valor inicial: `TRUE` |
 
 #### `TPR_TiposRespuesta`
@@ -884,17 +889,19 @@ momento, habría ahorrado meses.
 
 ## 7. Orden de despliegue
 
-1. **Copia de respaldo manual** de la aplicación y del Sheets. No se toca nada sin ella.
-2. Crear las tablas nuevas y sus columnas en el Sheets.
-3. *Regenerate Structure* de cada tabla afectada en AppSheet.
-4. Tipar las columnas y cablear las referencias. **Este es el paso crítico.**
-5. Migrar los datos existentes al modelo nuevo.
-6. Retirar tablas y campos obsoletos, ya sin datos vivos.
-7. Configurar las reglas RG-01 a RG-10.
-8. Poblar con datos de prueba y ejercitar la aplicación.
-9. Construir los reportes.
+**No es *Regenerate Structure* sobre la aplicación anterior.** Ese camino se intentó y no
+converge: *Regenerate* fusiona en vez de reemplazar y conserva las columnas viejas a propósito.
+La aplicación se **reconstruye desde cero** sobre la hoja generada del modelo.
 
-El detalle está en `prompts/PROMPT_CONSTRUCCION_SGMC.md`.
+1. **Copia de respaldo manual** del Sheets. No se toca nada sin ella.
+2. Generar la hoja del modelo y verificarla hasta `FASE A CERRADA`, sin pestañas ocultas.
+3. Crear la aplicación nueva y dar de alta las tablas, con su clave en `Text`.
+4. Cablear las referencias, empezando por las claves de destino. **Es el paso crítico.**
+5. Reponer las reglas RG-01 a RG-20 y los filtros de seguridad.
+6. Ocultar en la aplicación lo que la hoja de origen traiga de más, si se heredó una hoja.
+7. Ejercitar la aplicación con las pruebas de aceptación.
+
+El paso a paso, con la ficha de cada tabla, está en `MANUAL_DESPLIEGUE.md`, también generado.
 
 ---
 *Documento generado. Para modificarlo, edita `scripts/modelo_objetivo.py` y ejecuta

@@ -287,7 +287,7 @@ anterior; en una construida de cero no sobrevive ninguna.
 
 ## 5. Lo que NO se repone: columnas retiradas
 
-**45 columnas.** Siguen en la hoja a proposito. En la aplicacion: tipo `Text`, `Show?`
+**47 columnas.** Siguen en la hoja a proposito. En la aplicacion: tipo `Text`, `Show?`
 desmarcado, sin formula. **No se borran.**
 
 | Tabla | Columna | Por que | |
@@ -336,6 +336,8 @@ desmarcado, sin formula. **No se borran.**
 | `OT_OrdenesTrabajo` | `Informe_Final` | Se genera del mantenimiento y su checklist, no se transcribe. |  |
 | `OT_OrdenesTrabajo` | `Motivo_Cierre` | Se tipifica en MOT_MotivosPendiente desde la ejecucion. |  |
 | `FOT_Fotografias` | `Fecha` | El modelo guarda FechaHora. Sobra, o una de las dos esta mal nombrada. Merece mirada: la fecha de la fotografia es parte de la evidencia | **SIN DECIDIR** |
+| `FRM_Formularios` | `Orden` | Ordenaria los formularios en una lista. Hoy ninguna vista los ordena y la columna esta vacia. Si algun dia se ordenan, se decide aqui | **SIN DECIDIR** |
+| `FRM_Preguntas` | `ValorDefecto` | Precargaria la respuesta antes de que el tecnico conteste. En una evidencia eso es peligroso: una respuesta por defecto que nadie toca parece contestada | **SIN DECIDIR** |
 | `USR_Usuarios` | `UltimaSincronizacion` | Probablemente de una version anterior. El modelo no la usa | **SIN DECIDIR** |
 
 **Las 3 marcadas TRAMPA** se llaman igual que la clave de otra tabla, asi que **AppSheet las

@@ -15,8 +15,12 @@ que este proyecto ya tiene con el modelo de datos.
 scripts/generate_figuras.py              -> docs/images/fig_01..07.png
 scripts/generate_especificaciones_docx.py -> entregables/Especificaciones_Tecnicas_SGMC_AsBuilt.docx
 scripts/generate_mesa_trabajo_docx.py     -> entregables/Definicion_Funcional_SGMC_Mesa_de_Trabajo.docx
-scripts/generate_user_manual_docx.py      -> Manuales/Manual_de_Usuario_SGMC_Con_Diagramas.docx
 ```
+
+**`scripts/generate_user_manual_docx.py` está fuera de la cadena.** Producía
+`Manuales/Manual_de_Usuario_SGMC_Con_Diagramas.docx`, que se retiró a `docs/historico/` el
+2026-08-09 porque sus diagramas retratan el flujo antiguo con QR. **No lo corras**: volvería a
+escribir el documento retirado en `Manuales/`. Se rehace cuando la aplicación esté construida.
 
 Las figuras van primero: los dos primeros documentos las incrustan.
 
@@ -32,8 +36,9 @@ python scripts/generate_mesa_trabajo_docx.py
 ## Reglas
 
 - **Sin emojis ni iconos** en documentos, mensajes de error y textos de interfaz.
-- Español con tildes correctas. Verifica después de generar: las maquetas viejas de
-  `Manuales/images/` tienen la codificación rota (`M?VIL`, `DIN?MICO`) y no deben usarse.
+- Español con tildes correctas. Verifica después de generar: las maquetas viejas, hoy en
+  `docs/historico/images_manual/`, tienen la codificación rota (`M?VIL`, `DIN?MICO`) y no deben
+  usarse.
 - Rutas relativas a la raíz del repositorio, nunca `D:\...`:
   `RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))`.
 - Si un contenido vive a la vez en un `.md` y en un `.docx`, **genera el `.md` desde los mismos

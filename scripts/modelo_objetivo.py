@@ -849,6 +849,12 @@ COLUMNAS_SIN_DECIDIR = {
     ("FOT_Fotografias", "Fecha"):
         "El modelo guarda FechaHora. Sobra, o una de las dos esta mal nombrada. "
         "Merece mirada: la fecha de la fotografia es parte de la evidencia",
+    ("FRM_Formularios", "Orden"):
+        "Ordenaria los formularios en una lista. Hoy ninguna vista los ordena y la "
+        "columna esta vacia. Si algun dia se ordenan, se decide aqui",
+    ("FRM_Preguntas", "ValorDefecto"):
+        "Precargaria la respuesta antes de que el tecnico conteste. En una evidencia "
+        "eso es peligroso: una respuesta por defecto que nadie toca parece contestada",
     }
 
 # ------------------------------------- una sola forma por proposito

@@ -1,3 +1,16 @@
+> # Documento historico. NO SE APLICA.
+>
+> Fase A: preparar a mano el Sheets `1a4MmZ0u…KbITRc` de la aplicación `SGMC-886843353`.
+> **Se ejecutó y se cerró** el 2026-08-07 (`ACTA-001`, `ACTA-002`). Después, el 2026-08-09, esa
+> aplicación se abandonó y la hoja dejó de prepararse a mano: **hoy se genera del modelo**, con
+> `scripts/generar_hoja_limpia.py` sobre `BD/Modelo_Datos_PLANTILLA.xlsx`.
+>
+> Lo que esta especificación decidió —23 renombrados, 7 tablas nuevas, las claves de
+> `EOT_EstadosOrden`— vive hoy en `scripts/modelo_objetivo.py`, que es la fuente única.
+>
+> Se conserva por trazabilidad: explica por qué se decidió lo que hay hoy.
+> **El estado vigente está en [`ESTADO.md`](../../ESTADO.md).**
+
 # ESPEC-001 — Preparación del Sheets de producción
 
 Primera de las dos especificaciones del cableado. Cubre **todo lo que se puede hacer sobre la hoja

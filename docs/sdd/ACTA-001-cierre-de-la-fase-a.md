@@ -1,5 +1,23 @@
 # ACTA-001 — Cierre de la Fase A
 
+> **Nota añadida el 2026-08-09. El acta no se corrige: se anota qué resultó falso.**
+>
+> Un acta describe un hecho fechado y este ocurrió. Pero dos de sus afirmaciones no sobrevivieron:
+>
+> **1. `FASE A CERRADA` era cierto para las comprobaciones de entonces, y aun así la hoja no servía.**
+> `BD/Modelo de Datos (6).xlsx` tiene **8 pestañas del modelo ocultas** —`ACT_Activos`,
+> `USR_Usuarios`, `TIP_TiposActivo`, `ROL_Roles`, `SED_Sedes`, `CAL_Calzadas`, `SEN_Sentidos`,
+> `FRE_Frecuencias`—, comprobado leyendo `sheet_state` del archivo. **AppSheet ignora las pestañas
+> ocultas y no avisa:** de las 32 solo habría cargado 24. `openpyxl` sí las lee, así que el
+> verificador dio verde. Lo cierra `F-18`, que entonces no existía.
+>
+> **2. «La Fase B queda desbloqueada» no llegó a nada.** La Fase B se autorizó con `ORDEN-002` y
+> **nunca se ejecutó**: la aplicación `SGMC-886843353` se abandonó el 2026-08-09 y se reconstruyó
+> desde cero como `SISGA`. `ORDEN-002` está en `docs/historico/`.
+>
+> Lo que sí sobrevivió intacto: el modelo de datos, los renombrados y la regla **R-8**.
+> El estado vigente está en [`ESTADO.md`](../../ESTADO.md).
+
 **Fase A cerrada y verificada el 7 de agosto de 2026.**
 
 | | |

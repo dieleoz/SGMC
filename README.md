@@ -3,33 +3,22 @@
 Aplicación de campo para la inspección y el mantenimiento de la infraestructura tecnológica,
 eléctrica y de TI del corredor vial de la **Concesión Transversal del Sisga S.A.S.**
 
+> ## El estado vive en [`ESTADO.md`](ESTADO.md)
+>
+> **Léalo primero.** Este README explica qué es el sistema y cómo está organizado el repositorio;
+> `ESTADO.md` dice en qué punto está hoy, qué falta y quién lo bloquea. Si los dos discrepan, manda
+> `ESTADO.md`.
+>
+> En una frase, a 2026-08-09: **la aplicación está reconstruida y cableada; faltan cuatro ajustes,
+> probarla y cargar las coordenadas reales antes de que salga a campo.**
+
 Construida sobre **Google AppSheet** con backend en **Google Sheets**. Sin servidores propios,
 sin compilación de APK, sin Play Console: los técnicos instalan la app de AppSheet e inician
 sesión con su cuenta corporativa.
 
-> **Estado: Fase A cerrada. Fase B aprobada, esperando ejecución. Modelo de dominio en
-> especificación.**
->
-> - **Fase A** —estructura y datos en la hoja— **cerrada** el 2026-08-07 con 59 comprobaciones
->   conformes y 0 fallos sobre `BD/Modelo de Datos (11).xlsx`. Ver [`ACTA-004`](docs/sdd/ACTA-004-cierre-de-formatos.md)
-> - **Fase B** —cableado de referencias— **en ejecucion sobre una aplicacion reconstruida**.
->   Son **38**, no 15: las 15 de `ESPEC-002` valian para convertir la app existente, donde otras
->   23 ya estaban puestas. Ver [`MANUAL_DESPLIEGUE.md`](docs/MANUAL_DESPLIEGUE.md), con la ficha de las 28 tablas
-> - **El alcance creció** al incorporar el contexto operativo real: varias tareas por tipo de
->   equipo, cuatro clases de mantenimiento, correctivo con tiempos contractuales. Por eso la
->   implementación pasa a ser progresiva, con **orden explícito** en el [ROADMAP](docs/ROADMAP.md#2-orden-de-implementación)
->
-> **Documento funcional vigente: [`FUNCIONAL_SGMC.md`](docs/FUNCIONAL_SGMC.md)** — qué hace el
-> sistema, para quién, cómo y para qué, con una sola forma decidida por propósito.
->
-> Siguen abiertas tres decisiones de Dirección: propiedad del backend, plan de licenciamiento y
-> definición contractual de disponibilidad. Ver [ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md).
->
-> **La aplicacion se reconstruyo desde cero** el 2026-08-09. AppSheet no admite un cambio de
-> esquema tan profundo: su *Regenerate* fusiona en vez de reemplazar. Ver
-> [`BASE_CONOCIMIENTO_APPSHEET.md`](docs/BASE_CONOCIMIENTO_APPSHEET.md) §11 y §12.
->
-> **El manual de usuario no se entrega**: describe una versión anterior del sistema.
+**La aplicación vigente es `SISGA`.** La anterior, `SGMC-886843353`, se abandonó el 2026-08-09: su
+esquema divergía demasiado y el *Regenerate* de AppSheet fusiona en vez de reemplazar. El porqué
+está en [`BASE_CONOCIMIENTO_APPSHEET.md`](docs/BASE_CONOCIMIENTO_APPSHEET.md) §11 y §12.
 
 ---
 
@@ -40,22 +29,31 @@ problemas que el SGMC ataca directamente:
 
 | Problema | Cómo lo resuelve el SGMC |
 |---|---|
-| No hay evidencia verificable de que el técnico estuvo en el activo | Geofencing GPS: el cierre solo se permite dentro del radio definido para ese tipo de activo, con registro de precisión satelital |
+| No hay evidencia verificable de que el técnico estuvo en el activo | Geofencing GPS: el cierre solo se permite dentro del radio definido para ese tipo de activo, con registro de precisión satelital y las columnas de captura no editables |
 | Buena parte del corredor no tiene señal celular (montaña, túneles) | Operación offline nativa: se diligencia sin red y sincroniza al recuperar conexión |
-| Cada tipo de activo requiere una inspección distinta | Checklist dinámico: la app abre el formulario que corresponde al tipo de activo escaneado |
-| El CCO se entera tarde de una falla | Bot de automatización: correo con informe PDF cuando un activo queda fuera de servicio |
+| Cada tipo de activo requiere una inspección distinta | Checklist dinámico: la app abre el formulario que corresponde al tipo del activo |
+| El CCO se entera tarde de una falla | Bot de automatización: correo con informe cuando un activo queda fuera de servicio |
+
+**Para qué existe, en una línea:** garantizar que el mantenimiento se hizo, que quien lo hizo estuvo
+físicamente frente al equipo, y que la evidencia que lo respalda es difícil de falsificar.
 
 ## 2. Qué gestiona
 
-**En el archivo hoy: 34 activos sobre 18 tipos**, que es una muestra sintética —tres de cada tipo—.
+La plantilla de datos, [`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTILLA.xlsx), tiene
+**389 activos** repartidos así:
 
-**En la operación real: 355 activos contables sobre 24 tipos**, confirmados por operación el
+- **34 activos de fixture** sobre 18 tipos, tres de cada tipo. Son los que traían las seis órdenes
+  de trabajo existentes y se conservan intactos.
+- **355 activos sintéticos** con los códigos del Plan Maestro repartidos sobre los 137 km del
+  corredor. Cada fila lo dice en `Observaciones`: son de prueba, no son inventario real.
+
+**En la operación real hay 355 activos contables sobre 24 tipos**, confirmados por operación el
 2026-08-07 desde el Plan Maestro. La aritmética y el desglose están en
-[`CONTEXTO_OPERACION.md`](docs/CONTEXTO_OPERACION.md#2-el-inventario-del-sisga-tenemos-el-censo-no-el-registro).
+[`CONTEXTO_OPERACION.md`](docs/CONTEXTO_OPERACION.md).
 **Tenemos el censo, no el registro**: sabemos cuántos postes SOS hay, no cuál es cada uno ni dónde
 está.
 
-Los 34 del archivo, en cuatro categorías:
+Los 18 tipos del archivo, en cuatro categorías:
 
 - **ITS** — Postes SOS, CCTV, paneles de mensaje variable fijo y móvil (PMVF/PMVM), sensores
   meteorológicos y ambientales (SGM/SGE/SSA), básculas de pesaje
@@ -63,14 +61,21 @@ Los 34 del archivo, en cuatro categorías:
 - **Comunicaciones** — Fibra óptica
 - **TI** — Servidores, NAS, switches, routers, firewalls, videowall
 
+> **Ninguna coordenada es la real.** Los 34 de fixture comparten un punto en Bogotá y las 355
+> sintéticas se generaron sobre el trazado. Cargar las reales es el bloqueante D-01 para salir a
+> campo.
+
 ## 3. Actores
 
 | Rol | Dónde trabaja | Qué hace |
 |---|---|---|
-| **Técnico** | App móvil, mayoritariamente offline | Recibe OT, escanea QR, diligencia checklist, toma fotos, firma, cierra con GPS |
-| **Supervisor** | Portal web | Programa y asigna OT, revisa evidencias, aprueba, consulta el tablero |
-| **Administrador** | Portal web | Gestiona usuarios, catálogos, activos y formularios de inspección |
+| **Técnico** | App móvil, mayoritariamente offline | Recibe la orden, diligencia el checklist, toma fotos, firma y la deja en revisión |
+| **Supervisor** | Portal web | Programa y asigna órdenes, revisa evidencias, aprueba, cierra y consulta el tablero |
+| **Administrador** | Portal web | Gestiona usuarios, catálogos, activos y plantillas de inspección |
 | **Consulta** | Portal web | Solo lectura y reportes |
+
+El activo **se abre por lista, no por escaneo**: el código QR quedó fuera de alcance por decisión
+del 2026-08-07.
 
 ## 4. Cómo funciona
 
@@ -82,14 +87,14 @@ graph TD
     end
     subgraph C2[Capa 2: Logica en la nube]
         E[AppSheet Cloud Engine]
-        S[SSO Microsoft 365 / Google]
-        F[Security Filter por SedeID]
-        G[Geofencing DISTANCE menor o igual a 1.0 km]
-        B[Bot de correo con informe PDF]
+        S[Inicio de sesion con la cuenta corporativa]
+        F[Security Filter por unidad funcional asignada]
+        G[Geofencing con radio por tipo de activo]
+        B[Bot de correo por activo fuera de servicio]
     end
     subgraph C3[Capa 3: Datos]
-        GS[Google Sheets - 24 tablas de produccion]
-        X[Excel maestro As-Built - BD/Modelo de Datos 2.xlsx]
+        GS[Google Sheets Modelo_Datos_09082026 - 32 pestanas]
+        X[Plantilla generada - BD/Modelo_Datos_PLANTILLA.xlsx]
         OD[Almacenamiento de evidencias fotograficas]
     end
     M -->|sync offline| E
@@ -99,44 +104,59 @@ graph TD
     E --> G
     E --> B
     E -->|API| GS
-    GS <-->|respaldo As-Built| X
+    GS <-->|se genera del modelo| X
     E -->|fotos 600px| OD
 ```
 
-**Ciclo del técnico:** iniciar sesión y sincronizar, descargar las OT de su sede, seleccionar la
-OT o escanear el QR del activo, abrir el checklist que corresponde al tipo, responder, adjuntar
-fotografías, firmar, cerrar validando la posición GPS. Si no hay red, todo queda en cola local y
-sube solo al recuperar señal.
+**Ciclo del técnico:** iniciar sesión y sincronizar, abrir sus órdenes, elegir la del día, responder
+el checklist del tipo de activo, adjuntar fotografías, firmar y cerrar en sitio validando la
+posición. La orden queda **En revisión**, no cerrada: quien hace el trabajo no certifica que se
+hizo. Si no hay red, todo queda en cola local y sube solo al recuperar señal.
 
-**Ciclo del supervisor:** programar la OT en el portal, asignarla a un técnico (el bot le avisa
-por correo), revisar la evidencia sincronizada y aprobar, con el tablero de indicadores al lado.
+**Ciclo del supervisor:** programar la orden en el portal, asignarla a un técnico, revisar la
+evidencia sincronizada, aprobarla y cerrarla.
 
 ## 5. Modelo de datos
 
-Fuente de verdad: **`BD/Modelo de Datos (2).xlsx`**, 24 hojas. `entregables/Modelo_Datos_SGMC_AsBuilt.xlsx`
-es una copia idéntica publicada, para enviar; no se edita. Diccionario completo en [bd.md](docs/bd.md).
+La fuente única es **[`scripts/modelo_objetivo.py`](scripts/modelo_objetivo.py)**: de ahí se generan
+la validación, el diccionario, el manual de despliegue y la plantilla de datos. **Nada se documenta
+a mano.**
+
+**28 tablas · 202 columnas · 38 referencias · 20 reglas.**
+
+| Documento | Qué describe |
+|---|---|
+| [`docs/ARQUITECTURA_OBJETIVO_SGMC.md`](docs/ARQUITECTURA_OBJETIVO_SGMC.md) | El sistema que se construye. Generado del modelo |
+| [`docs/bd.md`](docs/bd.md) | Lo que la hoja tiene hoy, columna a columna. Generado del `.xlsx` |
 
 ```mermaid
 erDiagram
-    SED_Sedes ||--o{ USR_Usuarios : "asigna sede"
     ROL_Roles ||--o{ USR_Usuarios : "define permisos"
-    SED_Sedes ||--o{ ACT_Activos : "ubica"
+    SED_Sedes ||--o{ USR_Usuarios : "sede de la persona"
+    USR_Usuarios ||--o{ ASG_AsignacionZona : "que zonas ve"
+    UNF_UnidadesFuncionales ||--o{ ASG_AsignacionZona : "zona asignada"
+
+    UNF_UnidadesFuncionales ||--o{ ACT_Activos : "ubica"
     TIP_TiposActivo ||--o{ ACT_Activos : "clasifica"
-    TIP_TiposActivo ||--o{ FRM_Formularios : "determina checklist"
+    FRM_Formularios ||--o{ TIP_TiposActivo : "determina checklist"
     EST_Activo ||--o{ ACT_Activos : "estado"
-    FRE_Frecuencias ||--o{ ACT_Activos : "periodicidad"
     CAL_Calzadas ||--o{ ACT_Activos : "calzada"
     SEN_Sentidos ||--o{ ACT_Activos : "sentido"
 
     ACT_Activos ||--o{ OT_OrdenesTrabajo : "objeto de la orden"
-    USR_Usuarios ||--o{ OT_OrdenesTrabajo : "tecnico asignado"
+    USR_Usuarios ||--o{ OT_OrdenesTrabajo : "tecnico y supervisor"
+    EOT_EstadosOrden ||--o{ OT_OrdenesTrabajo : "estado"
     OT_OrdenesTrabajo ||--o{ MAN_Mantenimientos : "ejecucion"
-    OT_OrdenesTrabajo ||--o{ CHK_Checklists : "inspeccion"
+    FAL_ModosFalla ||--o{ MAN_Mantenimientos : "modo de falla"
+    MOT_MotivosPendiente ||--o{ MAN_Mantenimientos : "por que quedo pendiente"
 
     MAN_Mantenimientos ||--o{ FOT_Fotografias : "evidencia fotografica"
     MAN_Mantenimientos ||--o{ FIR_Firmas : "firmas"
-    MAN_Mantenimientos ||--o{ GPS : "traza de posicion"
+    MAN_Mantenimientos ||--o{ CHK_Checklists : "inspeccion"
     CHK_Checklists ||--o{ CHD_ChecklistDetalle : "respuesta por item"
+
+    ACT_Activos ||--o{ PLA_PlanMantenimiento : "programacion"
+    ACT_Activos ||--o{ NOV_Novedades : "novedad reportada"
 
     FRM_Formularios ||--o{ FRM_Preguntas : "banco de preguntas"
     FRM_Secciones ||--o{ FRM_Preguntas : "agrupa"
@@ -144,156 +164,128 @@ erDiagram
     FRM_Preguntas ||--o{ LST_ValoresLista : "opciones de lista"
 ```
 
-### Las 24 tablas
+### Las 28 tablas, por grupo
 
-| Grupo | Tablas | Función |
+| Grupo | Cuántas | Tablas |
 |---|---|---|
-| **Catálogos (9)** | `USR_Usuarios`, `ROL_Roles`, `SED_Sedes`, `TIP_TiposActivo`, `EST_Activo`, `FRE_Frecuencias`, `CAL_Calzadas`, `SEN_Sentidos`, `FRM_Formularios` | Usuarios y roles RBAC, sedes, taxonomía de activos y catálogos viales |
-| **Maestras (3)** | `ACT_Activos`, `CHK_Checklists`, `CHD_ChecklistDetalle` | Inventario de activos con PR, QR y `Ubicacion` (LatLong); inspecciones ejecutadas y su detalle |
-| **Transaccionales (5)** | `OT_OrdenesTrabajo`, `MAN_Mantenimientos`, `FOT_Fotografias`, `FIR_Firmas`, `GPS` | Orden programada, ejecución con `Coordenadas_Cierre` y `Precision_GPS`, y evidencias |
-| **Motor de formularios (7)** | `FRM_Preguntas`, `FRM_Secciones`, `TPR_TiposRespuesta`, `LST_ValoresLista`, `FRM_SOS`, `FRM_CCTV`, `FRM_PMVF` | Checklists dinámicos por tipo de activo |
+| **Catálogos** | 14 | `SED_Sedes`, `UNF_UnidadesFuncionales`, `ROL_Roles`, `USR_Usuarios`, `ASG_AsignacionZona`, `TIP_TiposActivo`, `EST_Activo`, `EOT_EstadosOrden`, `MOT_MotivosPendiente`, `PAR_Parametros`, `FRE_Frecuencias`, `CAL_Calzadas`, `SEN_Sentidos`, `FAL_ModosFalla` |
+| **Maestra** | 1 | `ACT_Activos` |
+| **Transaccionales** | 4 | `OT_OrdenesTrabajo`, `MAN_Mantenimientos`, `NOV_Novedades`, `PLA_PlanMantenimiento` |
+| **Evidencias** | 2 | `FOT_Fotografias`, `FIR_Firmas` |
+| **Checklist** | 2 | `CHK_Checklists`, `CHD_ChecklistDetalle` |
+| **Motor de formularios** | 5 | `FRM_Formularios`, `FRM_Secciones`, `FRM_Preguntas`, `TPR_TiposRespuesta`, `LST_ValoresLista` |
+
+La tabla `GPS` **se retiró**: la traza de posición vive en las columnas de captura de
+`MAN_Mantenimientos`, no en una tabla aparte.
 
 ### Regla de geofencing
 
 `ACT_Activos` guarda un único campo `Ubicacion` de tipo LatLong. No hay columnas `Latitud` y
-`Longitud` separadas. La expresión válida contra el modelo objetivo, con el radio tomado del tipo
-de activo porque una subestación y un poste SOS no admiten la misma tolerancia:
+`Longitud` separadas. El radio sale del tipo de activo, porque una subestación y un poste SOS no
+admiten la misma tolerancia:
 
 ```
 DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]
 ```
 
-**No es aplicable todavía.** La ruta atraviesa dos referencias que hoy son texto. El procedimiento
-para cablearlas está en [ESPEC-002](docs/sdd/ESPEC-002-cableado-en-appsheet.md), con sus pruebas de
-aceptación en [PRUEBA-002](docs/sdd/PRUEBA-002-cableado-en-appsheet.md).
+**Está cableada y puesta.** `TIP_TiposActivo.RadioGeofencingKm` ya no está vacía: 0,05 km en poste
+SOS, cámara, sensores y equipos de TI; 0,1 km en paneles de mensaje variable, báscula, generador y
+subestación; 1,5 km en el tramo de fibra, que es lineal. Y las cuatro columnas de captura llevan
+`Editable_If = FALSE`, sin lo cual el técnico podría arrastrar el pin del mapa encima del activo.
 
-## 6. Estado real (verificado)
+**Lo que falta es la coordenada del activo**, no la regla.
 
-Verificado el 6 de agosto de 2026 leyendo el Excel maestro directamente en disco.
+## 6. Estado, hallazgos y bloqueantes
 
-**Construido y funcionando**
-- Modelo de 24 tablas, con `Coordenadas_Cierre` y `Precision_GPS` en `MAN_Mantenimientos`
-- Catálogos poblados: 34 activos, 18 tipos, 10 sedes, 4 roles, 11 usuarios. El campo `CodigoQR`
-  está lleno, pero repite el `CodigoActivo`: no hay etiqueta física detrás (B-10)
-- 6 órdenes de trabajo registradas y 1 checklist de inspección SOS con su detalle
-- Banco de preguntas del formulario de postes SOS (15 preguntas)
-- App AppSheet publicada, con vistas móviles y web
+Todos en [`ESTADO.md`](ESTADO.md), que se actualiza; aquí no, para que no se contradigan.
 
-**Divergencia entre los dos modelos**
-
-El Excel local y el Google Sheets de producción no coinciden. Ninguno es superconjunto del otro.
-Lo que corre la app es el Sheets.
-
-| Tabla | Excel local | Producción |
-|---|---|---|
-| `TIP_TiposActivo.FormularioID` | Vacío en los 18 tipos | Poblado en los 18 |
-| `MAN_Mantenimientos` | 24 columnas | 27 columnas. Las de GPS se agregaron el 6 de agosto de 2026 |
-| `CHK_Checklists` | 9 columnas | 21 columnas |
-| `CHD_ChecklistDetalle` | Pregunta en texto libre | Relacional, con `PreguntaID` |
-
-**Abierto y bloqueante** (verificado en producción)
-
-| # | Hallazgo |
+| Si necesita | Lea |
 |---|---|
-| B-01 | Los 34 activos comparten una sola coordenada, situada en Bogotá y no en el corredor. El geofencing es inoperante hasta levantar las coordenadas reales |
-| B-02 | La cadena relacional del modelo **no existe en la aplicación**: `OTID` es texto y no referencia. Sin eso no hay geofencing, ni navegación padre-hijo, ni reportes por activo. Corrección especificada y probada en [ESPEC-002](docs/sdd/ESPEC-002-cableado-en-appsheet.md); pendiente de ejecutar |
-| B-03 | Todos los usuarios están en la sede 1 y todos los activos en las sedes 7 a 10. El Security Filter dejaría a cada técnico sin activos |
-| B-04 | Solo 1 de 18 formularios tiene banco de preguntas |
-| B-09 | La fórmula de geofencing documentada durante meses, con `[ActivoID].[Ubicacion]`, no funciona: esa columna no existe en `MAN_Mantenimientos` |
-| B-10 | **El código QR no existe como objeto físico.** `ACT_Activos.CodigoQR` está poblado en los 34 activos, pero su valor es una copia literal de `CodigoActivo` (`SOS-001`, `CCTV-001`). Nada genera, imprime ni asigna una etiqueta, y AppSheet lee códigos pero no los produce. **Fuera de alcance por decisión del 7 de agosto de 2026:** el activo se abre por lista. La propuesta enviada a Dirección lo marca «Incluido», discrepancia abierta |
-| B-05 | La entrega del backend del Propietario de la Aplicación a la Concesión está pendiente de fecha |
-| B-06 | Fotografías, firmas y GPS están modelados dos veces: campos en `MAN_Mantenimientos` y tablas hijas vacías |
-| B-07 | `MAN_Mantenimientos` está vacía: ningún mantenimiento se ha ejecutado nunca de extremo a extremo |
-| B-08 | Datos de prueba sin limpiar en `CHK_Checklists`: un registro trae el nombre del técnico en lugar de su identificador y `NOW()` como texto literal |
+| Qué está hecho y qué falta hoy | [`ESTADO.md`](ESTADO.md) |
+| Qué le toca a usted según su rol | [`docs/INDICACIONES_POR_ROL.md`](docs/INDICACIONES_POR_ROL.md) |
+| Qué hace el sistema, para quién y cómo | [`docs/FUNCIONAL_SGMC.md`](docs/FUNCIONAL_SGMC.md) |
+| Cómo se construye o configura la app | [`docs/MANUAL_DESPLIEGUE.md`](docs/MANUAL_DESPLIEGUE.md) |
+| Qué expresión va en cada sitio | [`docs/sdd/RECONSTRUCCION_EXPRESIONES.md`](docs/sdd/RECONSTRUCCION_EXPRESIONES.md) |
+| Cómo se prueba que funciona | [`docs/sdd/PRUEBA-003-despliegue.md`](docs/sdd/PRUEBA-003-despliegue.md) |
+| Por qué AppSheet se comporta así | [`docs/BASE_CONOCIMIENTO_APPSHEET.md`](docs/BASE_CONOCIMIENTO_APPSHEET.md) |
+| Cómo se mantiene el corredor de verdad | [`docs/CONTEXTO_OPERACION.md`](docs/CONTEXTO_OPERACION.md) |
+| Con qué supuestos se construye | [`docs/ALCANCE_Y_SUPUESTOS_SGMC.md`](docs/ALCANCE_Y_SUPUESTOS_SGMC.md) |
 
-Detalle, evidencia y plan de remediación en [AUDITORIA_PLAN_Y_ROADMAP.md](docs/AUDITORIA_PLAN_Y_ROADMAP.md).
+## 7. Método: nada se ejecuta contra producción sin las tres firmas
 
-## 7. Por qué el proyecto vuelve a la definición funcional
+El método vigente es SDD, descrito en [`docs/SDD_PIPELINE_SGMC.md`](docs/SDD_PIPELINE_SGMC.md):
+especificar, probar y aprobar antes de tocar producción. Los cinco agentes están en
+`.claude/agents/`, y **`python scripts/validar_modelo.py` en 0 errores es el único gate objetivo**.
 
-El SGMC nació como un MVP de 8 días sobre una ERS v1.0 y un formulario de levantamiento
-diligenciado el 25 de julio de 2026 (ver `legacy/Plan_Implementacion_SGMC_AppSheet.docx`). Desde
-entonces mutó: el modelo pasó de 17 a 24 tablas, aparecieron dos arquitecturas de formularios en
-paralelo y las evidencias quedaron modeladas por duplicado.
+Los tres verificadores, que no se sustituyen entre sí:
 
-Esa mutación ocurrió sin una validación funcional intermedia. Varios bloqueantes de la lista
-anterior no son errores de implementación sino **decisiones de negocio que nadie tomó**: qué
-gobierna la sede de un activo, cuántas fotos exige realmente una inspección, qué reportes debe
-entregar el sistema.
-
-Por eso el paso siguiente no es configurar sino definir. El documento
-[DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md) presenta los
-flujos funcionales por actor y las decisiones pendientes al líder funcional. Sus respuestas
-producen el roadmap de implementación.
+| Script | Mide |
+|---|---|
+| [`scripts/validar_modelo.py`](scripts/validar_modelo.py) | El modelo consigo mismo |
+| [`scripts/verificar_faseA.py`](scripts/verificar_faseA.py) | El modelo contra la hoja descargada |
+| [`scripts/verificar_documentos.py`](scripts/verificar_documentos.py) | La prosa contra el modelo |
 
 ## 8. Organización del repositorio
 
 ```
-BD/            Fuente de verdad: Modelo de Datos (2).xlsx, 24 hojas
+ESTADO.md      Dónde vamos y qué falta. Se lee primero
+README.md      Este archivo
+CLAUDE.md      Reglas de trabajo para agentes
+MAP.md         Índice maestro y referencias cruzadas
+
+BD/            Hojas de datos. Modelo_Datos_PLANTILLA.xlsx es el entregable de datos
 docs/          Documentación técnica y funcional
-docs/images/   Figuras de los documentos
-docs/prompts/  Directivas para agentes de auditoría
-Manuales/      Manuales de usuario y sus imágenes
-entregables/   Documentos Word y Excel listos para enviar al cliente
-scripts/       Generadores de figuras y documentos
-.claude/skills/ Skills: auditar-modelo, generar-entregables, revisar-arquitectura
-               y cablear-referencias
-.claude/agents/ Agentes del pipeline SDD: especificador, verificador, arquitecto,
-               ejecutor y probador
-docs/sdd/      Artefactos del pipeline: ESPEC, PRUEBA, ORDEN y ACTA
+  historico/   Documentos retirados. No usar como fuente
+  images/      Figuras de los documentos
+  prompts/     Directivas para agentes
+  sdd/         Artefactos del pipeline: ESPEC, PRUEBA, ORDEN y ACTA
+Manuales/      Manual de usuario
+entregables/   Word y Excel listos para enviar al cliente
+scripts/       Fuente del modelo, validadores y generadores
+contexto/      Material de contexto operativo. No es la vara
 archivo/       Material de origen, no versionado
 ```
 
 | Documento | Para qué sirve |
 |---|---|
-| [INDICACIONES_POR_ROL.md](docs/INDICACIONES_POR_ROL.md) | **Quién hace qué para que esto llegue a campo.** Los cinco roles —Funcional, Operación, Dirección, Propietario de la Aplicación, mantenedor del repositorio— con sus pasos, sus decisiones exclusivas y su costo |
-| [ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) | **Frente activo.** Modelo objetivo: 27 tablas, 192 columnas, 38 referencias, 13 reglas. Generado desde `scripts/modelo_objetivo.py` y validado automáticamente |
-| [historico/](docs/historico/) | **Documentos retirados el 2026-08-07.** Describen estados superados; seguirlos induce a deshacer trabajo correcto. No usar como fuente |
-| [BASE_CONOCIMIENTO_APPSHEET.md](docs/BASE_CONOCIMIENTO_APPSHEET.md) | **Base de conocimiento propia.** Cómo se comporta AppSheet, con cita textual y URL oficial, y qué regla del SGMC sostiene cada una |
-| [SDD_PIPELINE_SGMC.md](docs/SDD_PIPELINE_SGMC.md) | **Método vigente.** Cómo se construye cualquier cambio: especificado y probado antes de tocar producción. Los cinco agentes, las dos fases y el gate |
-| [sdd/ESPEC-001-preparacion-del-sheets.md](docs/sdd/ESPEC-001-preparacion-del-sheets.md) | **Frente activo.** Fase A del cableado, verificada contra producción |
-| [scripts/faseA_sheets.gs](scripts/faseA_sheets.gs) | La Fase A como Apps Script. La cuenta de Google bloqueó su ejecución |
-| [sdd/ESPEC-001B-cierre-de-la-fase-a.md](docs/sdd/ESPEC-001B-cierre-de-la-fase-a.md) | Los 23 fallos que faltaban para cerrar la Fase A. Aplicados |
-| [sdd/ACTA-001-cierre-de-la-fase-a.md](docs/sdd/ACTA-001-cierre-de-la-fase-a.md) | Acta de cierre de la Fase A, con la verificación y las lecciones de método |
-| [sdd/ESPEC-001C-baja-de-activos-y-datos-de-prueba.md](docs/sdd/ESPEC-001C-baja-de-activos-y-datos-de-prueba.md) | Baja de activos, huérfanos y poblado de prueba. Aplicado y verificado |
-| [sdd/ACTA-002-cierre-definitivo-de-la-fase-a.md](docs/sdd/ACTA-002-cierre-definitivo-de-la-fase-a.md) | Cierre de la Fase A, con la integridad referencial comprobada relación por relación |
-| [sdd/ACTA-003-cierre-de-la-hoja.md](docs/sdd/ACTA-003-cierre-de-la-hoja.md) | **Cierre definitivo de la hoja.** Ya no se toca desde Google Sheets |
-| [prompts/PROMPT_AGENTE_HOJA_ESPEC_001C.md](docs/prompts/PROMPT_AGENTE_HOJA_ESPEC_001C.md) | Prompt autocontenido para el agente que aplica los cambios sobre la hoja |
-| [prompts/PROMPT_AGENTE_HOJA_CIERRE_FASE_A.md](docs/prompts/PROMPT_AGENTE_HOJA_CIERRE_FASE_A.md) | Las cuatro ediciones de contenido de la hoja. Aplicado |
-| [prompts/PROMPT_AGENTE_HOJA_FORMATOS.md](docs/prompts/PROMPT_AGENTE_HOJA_FORMATOS.md) | Normalizar formatos: los 8 puntos de F-16 y F-17. Aplicado |
-| [sdd/ACTA-004-cierre-de-formatos.md](docs/sdd/ACTA-004-cierre-de-formatos.md) | **Cierre de formatos.** La hoja queda cerrada en contenido y en formato |
-| [sdd/ESPEC-002-cableado-en-appsheet.md](docs/sdd/ESPEC-002-cableado-en-appsheet.md) | **Frente activo.** Fase B: el cableado en AppSheet, paso a paso |
-| [sdd/ESPEC-003-modelo-de-dominio.md](docs/sdd/ESPEC-003-modelo-de-dominio.md) | El modelo de dominio en dos planos: lo que la operación necesita y lo que hoy cabe en AppSheet, con lo no realizable declarado y fechado. **No se aplica hasta cerrar la Fase B** |
-| [scripts/verificar_faseA.py](scripts/verificar_faseA.py) | Verifica un `.xlsx` exportado contra el modelo objetivo, encabezado por encabezado. No cierra nada por reporte |
-| [ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md) | Alcance del sistema completo y los 14 supuestos adoptados |
-| [prompts/PROMPT_CONSTRUCCION_SGMC.md](docs/prompts/PROMPT_CONSTRUCCION_SGMC.md) | Directiva de construcción en 7 pasos con criterios de aceptación |
-| [DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](docs/DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md) | Flujos funcionales por actor y las 14 decisiones, ya enviadas al funcional |
-| [AUDITORIA_PLAN_Y_ROADMAP.md](docs/AUDITORIA_PLAN_Y_ROADMAP.md) | Dictamen vigente: hallazgos, evidencia y Fase 0 corregida |
-| [bd.md](docs/bd.md) | **Diccionario As-Built, generado.** Las 32 hojas reales, con el estado de cada columna: pendiente de `Ref`, retirada, renombrada o fuera del modelo |
-| [especificaciones.md](docs/especificaciones.md) | Requerimientos funcionales RF-001 a RF-016 |
-| [especificaciones_visuales.md](docs/especificaciones_visuales.md) | Pantallas, vistas y elementos de interfaz |
-| [plan_de_trabajo.md](docs/plan_de_trabajo.md) | Plan operativo, supeditado a la mesa de trabajo |
-| [ROADMAP.md](docs/ROADMAP.md) | Fases y criterios de cierre |
-| [GUIA_SVG_BOTONES_DINAMICOS_APPSHEET.md](docs/GUIA_SVG_BOTONES_DINAMICOS_APPSHEET.md) | Diseño de botones e iconos dinámicos en AppSheet |
+| [ESTADO.md](ESTADO.md) | **Empiece aquí.** Qué está hecho, qué falta, qué está bloqueado |
+| [docs/INDICACIONES_POR_ROL.md](docs/INDICACIONES_POR_ROL.md) | Quién hace qué para que esto llegue a campo, con sus decisiones exclusivas y su costo |
+| [docs/FUNCIONAL_SGMC.md](docs/FUNCIONAL_SGMC.md) | Qué hace el sistema. Su §6 es el registro de una sola forma por propósito |
+| [docs/ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) | Modelo objetivo, generado desde `scripts/modelo_objetivo.py` y validado |
+| [docs/bd.md](docs/bd.md) | Diccionario As-Built, generado del archivo |
+| [docs/MANUAL_DESPLIEGUE.md](docs/MANUAL_DESPLIEGUE.md) | De cero a app desplegada, con la ficha de las 28 tablas columna por columna |
+| [docs/MIGRACION_HOJA_LIMPIA.md](docs/MIGRACION_HOJA_LIMPIA.md) | El coste de migrar a la hoja limpia, para poder decidirlo |
+| [docs/GUIA_IMPLEMENTACION_FUNCIONAL.md](docs/GUIA_IMPLEMENTACION_FUNCIONAL.md) | La implementación vista desde la operación |
+| [docs/MODELO_EVOLUCION_FASE_2.md](docs/MODELO_EVOLUCION_FASE_2.md) | Lo que viene después del piloto |
+| [docs/BASE_CONOCIMIENTO_APPSHEET.md](docs/BASE_CONOCIMIENTO_APPSHEET.md) | Cómo se comporta AppSheet, con cita textual y URL oficial |
+| [docs/SDD_PIPELINE_SGMC.md](docs/SDD_PIPELINE_SGMC.md) | El método: cinco agentes, dos fases y el gate |
+| [docs/ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md) | Alcance del sistema y los 14 supuestos adoptados |
+| [docs/CONTEXTO_OPERACION.md](docs/CONTEXTO_OPERACION.md) | Cómo se mantiene el corredor, y la procedencia de cada documento de contexto |
+| [docs/COMUNICACION_PROPIETARIO_APP.md](docs/COMUNICACION_PROPIETARIO_APP.md) | Qué decirle al dueño de la aplicación anterior |
+| [docs/ROADMAP.md](docs/ROADMAP.md) | Fases con criterio de cierre verificable |
+| [docs/prompts/PROMPT_CONTINUAR_DESPLIEGUE.md](docs/prompts/PROMPT_CONTINUAR_DESPLIEGUE.md) | Lo que falta para el agente que está en el editor |
+| [docs/sdd/](docs/sdd/) | Especificaciones, pruebas y actas del pipeline |
+| [docs/historico/](docs/historico/) | **Documentos retirados.** Describen estados superados; seguirlos induce a deshacer trabajo correcto |
+| [Manuales/MANUAL_DE_USUARIO.md](Manuales/MANUAL_DE_USUARIO.md) | Guía de operación por rol. **No se entrega todavía**: describe funciones que aún no están montadas, y lo dice en su cabecera |
 | [MAP.md](MAP.md) | Índice maestro y referencias cruzadas |
 | [CLAUDE.md](CLAUDE.md) | Reglas de trabajo para agentes sobre este repositorio |
-| [Manuales/](Manuales/) | Manual de usuario, versión ilustrada y documento Word |
-| [entregables/](entregables/) | Mesa de trabajo, especificaciones técnicas y modelo de datos publicado |
 
 **Entregables al cliente**
 
 | Archivo | Estado |
 |---|---|
-| `entregables/Propuesta_Arquitectura_SGMC.docx` | **Enviado a Dirección y al funcional.** Qué se va a construir, validado desde 6 roles, con 3 decisiones que pide |
-| `entregables/Definicion_Funcional_SGMC_Mesa_de_Trabajo.docx` | Enviado. 14 decisiones con propuesta marcada |
-| `entregables/CORREO_ENVIO_MESA_DE_TRABAJO.md` | Texto del correo de envío, listo para copiar |
-| `entregables/Especificaciones_Tecnicas_SGMC_AsBuilt.docx` | v2.0. Qué hace, qué ofrece y cómo funciona, con el modelo real de 24 tablas y el estado verificado de los 16 requerimientos |
-| `entregables/Modelo_Datos_SGMC_AsBuilt.xlsx` | Copia publicada del maestro. No editar: se edita `BD/` y se replica |
-| `Manuales/Manual_de_Usuario_SGMC_Con_Diagramas.docx` | No es entregable ahora: el manual sirve cuando la app esté lista para usarse. Además sus imágenes tienen las tildes corruptas |
+| [`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTILLA.xlsx) | **El entregable de datos.** Generado del modelo: 28 pestañas, 202 columnas, ninguna de sobra |
+| `entregables/Propuesta_Arquitectura_SGMC.docx` | Enviado a Dirección y al funcional. Describe el alcance anterior al QR retirado |
+| `entregables/Definicion_Funcional_SGMC_Mesa_de_Trabajo.docx` | Enviado. 14 decisiones con propuesta marcada, hoy adoptadas como supuestos |
+| `entregables/CORREO_ENVIO_MESA_DE_TRABAJO.md` | Texto del correo de envío |
+| `entregables/Especificaciones_Tecnicas_SGMC_AsBuilt.docx` | v2.0. **Desactualizado**: describe el modelo de 24 tablas anterior a la reconstrucción |
+| `entregables/Modelo_Datos_SGMC_AsBuilt.xlsx` | Copia publicada del maestro anterior. Sustituida por la plantilla |
 
 ## 9. Enlaces
 
-- Aplicación AppSheet: `SGMC-886843353` — [abrir](https://www.appsheet.com/start/060b99df-2037-4049-b94d-03c1eefc3219?platform=desktop#appName=SGMC-886843353&view=Usuarios)
-- Backend Google Sheets: [abrir](https://docs.google.com/spreadsheets/d/1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc/edit)
+- Aplicación AppSheet `SISGA`: [abrir](https://www.appsheet.com/template/appdef?appId=9e947fce-c445-4477-af20-a6c6c984bd1e)
+- Backend Google Sheets `Modelo_Datos_09082026`, 32 pestañas, propiedad de la Concesión:
+  [abrir](https://docs.google.com/spreadsheets/d/1LGabjn1iNDKiJNP7CUD4_LwCH2BGXC8oTBfXmuuAkFs)
 - Repositorio: [github.com/dieleoz/SGMC](https://github.com/dieleoz/SGMC)
 
 ---

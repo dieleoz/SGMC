@@ -1,12 +1,17 @@
 # Manual de usuario y guía de operación — SGMC
 
 **Sistema de Gestión de Mantenimiento en Campo**
-Concesión Transversal del Sisga S.A.S. · Google AppSheet `SGMC-886843353`
+Concesión Transversal del Sisga S.A.S. · Google AppSheet **`SISGA`**
 
 Reescrito el 2026-08-07 contra [`docs/FUNCIONAL_SGMC.md`](../docs/FUNCIONAL_SGMC.md) y verificado
 sobre `scripts/modelo_objetivo.py`. **La versión anterior describía un sistema que no existe** —
 incluía escáner QR, que se retiró del alcance, e indicaba editar la tabla de respuestas para cambiar
 las preguntas, lo que corrompe el histórico.
+
+**Cabecera y recuadro de estado actualizados el 2026-08-09** contra [`ESTADO.md`](../ESTADO.md), que
+es el estado vigente. La aplicación anterior, `SGMC-886843353`, **se abandonó**: el 2026-08-09 se
+reconstruyó desde cero sobre la hoja `Modelo_Datos_09082026`. Si alguien le pasa un enlace a
+`SGMC-886843353`, no es este sistema.
 
 > ## Antes de usar este manual
 >
@@ -15,12 +20,18 @@ las preguntas, lo que corrompe el histórico.
 >
 > | Función | Estado |
 > |---|---|
-> | Órdenes, checklist, fotografías, firmas, histórico | Modelo construido |
-> | Referencias entre tablas | **Pendiente** — Fase B |
-> | Geofencing operativo | **Pendiente** — el radio por tipo de activo está vacío |
-> | Que el técnico no pueda cerrar su propia orden | **Pendiente** — está definido, no impuesto |
-> | Coordenadas de los activos | **No existen.** Se levantan en campo |
+> | Órdenes, checklist, fotografías, firmas, histórico | Construido. Las 28 tablas dadas de alta en la aplicación reconstruida |
+> | Referencias entre tablas | **Puestas.** Las 38 del modelo, con `IsPartOf` en las cuatro que lo llevan |
+> | Radio de cierre por tipo de activo | **Poblado.** 0,05 km en poste SOS, cámara, sensores y equipos de TI; 0,1 km en paneles de mensaje variable, báscula, generador y subestación; 1,5 km en el tramo de fibra |
+> | Que la coordenada de cierre no se pueda mover a mano | **Impuesto.** `Editable_If = FALSE` en las cuatro columnas de captura |
+> | Que no se pueda borrar una orden ni una ejecución | **Impuesto.** Se retiró el botón de borrado en las dos tablas: un error se corrige con `Activo = FALSE`, que deja traza |
+> | Que el técnico no pueda cerrar su propia orden | **Pendiente.** Está definido en el catálogo de estados, no impuesto como regla |
+> | Coordenadas de los activos | **No son las reales.** 34 activos comparten una coordenada en Bogotá y 355 son sintéticas repartidas sobre el corredor. **Ninguna sirve para operar** |
 > | Creación automática de las órdenes del mes | **No cabe en el plan actual** |
+>
+> **Lo que falta para que el geofencing funcione de verdad son las coordenadas**, no el cableado.
+> Con las de hoy, cualquier cierre en la vía queda fuera de rango y cualquier cierre en Bogotá queda
+> dentro.
 
 ---
 
@@ -117,8 +128,10 @@ Conviene saber qué prueba y qué no: **confirma que usted estaba cerca, no que 
 trabajando**. Lo que sí aporta valor son las fotografías, porque cada una lleva su propia
 coordenada y su hora.
 
-> **Estado:** el radio por tipo de activo **está vacío en los 24 tipos**, así que la comprobación
-> todavía no discrimina. Se configura antes del piloto.
+> **Estado:** el radio ya está definido para los 18 tipos de la plantilla de datos —0,05 km, 0,1 km
+> o 1,5 km según el equipo—, así que la comprobación **ya discrimina**. Lo que todavía no sirve es
+> la coordenada del activo: ninguna es la real. Hasta cargarlas, la comprobación no significa nada
+> en campo.
 
 ## 4. Guía del supervisor
 
@@ -203,8 +216,12 @@ la aplicación.
 
 ### 5.4 Parámetros
 
-Umbrales como la precisión mínima de GPS o el radio de cierre se ajustan **en la tabla de
-parámetros**, sin abrir el editor de la aplicación.
+El umbral de precisión de GPS se ajusta **en la tabla de parámetros**, sin abrir el editor de la
+aplicación.
+
+**El radio de cierre no está ahí: va por tipo de activo**, en el campo `RadioGeofencingKm` de la
+tabla de tipos. La tabla de parámetros conserva un radio general, pero es un valor provisional que
+la regla de cierre ya no usa.
 
 ## 6. Problemas frecuentes
 

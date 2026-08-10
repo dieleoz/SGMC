@@ -3,8 +3,6 @@
 **Todo lo demás del repositorio está organizado por tema. Esto está organizado por persona.**
 Si usted acaba de llegar, busque su rol y empiece por ahí.
 
-<!-- verificar_documentos: ignorar FRM_Formularios.Orden, FRM_Preguntas.ValorDefecto -->
-
 > **Escrito por rol, no por persona.** Ninguna sección nombra a nadie. Es deliberado: el mismo
 > reparto sirve en otro contrato sin reescribirlo.
 
@@ -19,10 +17,16 @@ Si usted acaba de llegar, busque su rol y empiece por ahí.
 ## Lo primero, y sin adornos
 
 **Nada sale a campo hasta que existan coordenadas reales.** Los 34 activos de la hoja de producción
-comparten la coordenada `4.728512, -74.114531`, que está en Bogotá. La plantilla trae 355 activos con
-355 coordenadas distintas repartidas sobre el corredor, y **las 355 filas dicen de sí mismas**
-`COORDENADA SINTETICA - pendiente levantamiento D-01` en su columna de observaciones. Sirven para
-probar el sistema. No sirven para cerrar una orden con un técnico delante.
+comparten la coordenada `4.728512, -74.114531`, que está en Bogotá. La plantilla trae esos 34 más
+355 sintéticos con 355 coordenadas distintas repartidas sobre el corredor, y **cada fila dice de sí
+misma** lo que es, en `ACT_Activos.Observaciones`:
+
+```
+las 34   FIXTURE DE LA FASE A - COORDENADA DE BOGOTA, NO ES UBICACION REAL
+las 355  ACTIVO SINTETICO DE PRUEBA - NO ES INVENTARIO REAL
+```
+
+Sirven para probar el sistema. No sirven para cerrar una orden con un técnico delante.
 
 **Diecisiete de los dieciocho formularios no tienen ni una pregunta.** `FRM_Formularios` tiene 18
 filas. `FRM_Preguntas` tiene 15, y las 15 son del formulario `FRM_SOS`. Un técnico que abra el
@@ -61,17 +65,20 @@ Cada una con el comando que la produce. Si alguna no cuadra dentro de un mes, ma
 | Tablas, columnas, referencias, reglas del modelo | 28 · 202 · 38 · 20 | `python scripts/validar_modelo.py` |
 | El modelo consigo mismo | 0 errores, 3 avisos, `APTO PARA DESPLEGAR` | `python scripts/validar_modelo.py` |
 | La hoja de producción | `FASE A CERRADA`, **61 conformes**, 0 fallos | `python scripts/verificar_faseA.py "BD/Modelo_Datos_09082026_VISIBLE.xlsx"` |
-| La prosa contra el modelo | 45 documentos, consistentes, 5 avisos | `python scripts/verificar_documentos.py` |
+| La plantilla | `FASE A CERRADA`, **60 conformes**, 0 fallos | `python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"` |
+| La prosa contra el modelo | `DOCUMENTOS CONSISTENTES CON EL MODELO`, 0 fallos. **El número de documentos y de avisos se mueve** según se retira material a `historico/` y se declaran columnas sin decidir | `python scripts/verificar_documentos.py` |
 | Formularios declarados | 18 | `FRM_Formularios`, hoja de producción |
 | Preguntas escritas | **15, todas de `FRM_SOS`** | `FRM_Preguntas`, columna `FormularioID` |
 | Activos en producción | 34, **una sola coordenada** | `ACT_Activos`, columna `Ubicacion` |
-| Activos en la plantilla | 355, **355 coordenadas sintéticas** | `BD/Modelo_Datos_PLANTILLA.xlsx` |
+| Activos en la plantilla | 389: los 34 de fixture y **355 sintéticos** con coordenada propia | `BD/Modelo_Datos_PLANTILLA.xlsx` |
+| Radio de geofencing por tipo | **Poblado en los 18**: 0,05 km en 12, 0,1 km en 5, 1,5 km en la fibra | `TIP_TiposActivo.RadioGeofencingKm` en la plantilla |
 | Usuarios | 11, de los cuales **2 inactivos** | `USR_Usuarios`, columna `Activo` |
 | Asignaciones de zona | **4**, para cuatro técnicos | `ASG_AsignacionZona` |
 | Roles poblados | **4** de los 12 oficios del Plan Maestro | `ROL_Roles` |
 
-**`ESTADO.md` §2 dice «ocultar 51 columnas». Ese número no sale de ningún sitio.** El bueno es **47**,
-y así lo devuelven las dos descargas de la hoja:
+**Las columnas sobrantes son 47, y ese número ya está corregido en todas partes.** Lo decía mal
+`ESTADO.md` §2 —«51»— y lo decía mal el prompt del Funcional —«49», con dos columnas vivas dentro—.
+Se deja aquí la derivación porque es la que hay que rehacer si alguien vuelve a escribir otra cifra:
 
 ```
 43  columnas declaradas en CAMPOS_RETIRADOS   MAN 13 · CHK 15 · CHD 12 · OT 3
@@ -81,9 +88,9 @@ y así lo devuelven las dos descargas de la hoja:
 ```
 
 Las cuatro sin declarar son `USR_Usuarios.UltimaSincronizacion`, `FOT_Fotografias.Fecha`, y las
-columnas `Orden` de `FRM_Formularios` y `ValorDefecto` de `FRM_Preguntas`. Las dos primeras están en
-`COLUMNAS_SIN_DECIDIR` y las avisa la regla D-06; **las otras dos no están declaradas en ninguna
-estructura del modelo.**
+columnas `Orden` de `FRM_Formularios` y `ValorDefecto` de `FRM_Preguntas`. **Las cuatro están hoy en
+`COLUMNAS_SIN_DECIDIR` y las avisa la regla D-06**, con el motivo de cada una: existen en la hoja,
+nadie ha decidido si sobran, y hasta entonces no se ocultan a ciegas.
 
 Se reproduce así, contra el archivo y no contra un documento:
 
@@ -104,17 +111,21 @@ print('TOTAL', total)
 EOF
 ```
 
-**Y hay dos errores más en la lista que se le pasa al Funcional.**
-`docs/prompts/PROMPT_CONTINUAR_DESPLIEGUE.md` §5 pide ocultar **49** columnas, e incluye
-`FRM_Preguntas.RequiereGPS` y `FRM_Preguntas.RequiereFirma`. **Las dos son columnas vivas del
-modelo.** Ocultarlas quita del formulario dos campos que el sistema usa. La lista buena es la del
-anexo de `MANUAL_DESPLIEGUE.md`, que se genera del modelo y por eso no puede desviarse.
+**Y las 47 son de la hoja de producción, no de la plantilla.** Sobre
+`BD/Modelo_Datos_PLANTILLA.xlsx` el mismo comando devuelve **cero**: esa hoja se generó del modelo y
+no arrastra nada. **Si se migra a la hoja limpia, el trabajo de ocultar desaparece entero**, y con
+él las tres trampas. Está medido en [`MIGRACION_HOJA_LIMPIA.md`](MIGRACION_HOJA_LIMPIA.md).
+
+**El prompt del Funcional pedía ocultar 49, dos de ellas columnas vivas** —`FRM_Preguntas.RequiereGPS`
+y `FRM_Preguntas.RequiereFirma`—, y ocultarlas habría quitado del formulario dos campos que el
+sistema usa. **Ya está corregido a 47.** La lista buena sigue siendo la del anexo de
+`MANUAL_DESPLIEGUE.md`, que se genera del modelo y por eso no puede desviarse.
 
 **Y las trampas son tres, no siete.** Derivadas del modelo —columna retirada cuyo nombre coincide con
 la clave de otra tabla, que es lo que hace que AppSheet la convierta a `Ref` sola— salen exactamente
 tres: `CHK_Checklists.ActivoID`, `CHD_ChecklistDetalle.TipoRespuestaID` y
-`OT_OrdenesTrabajo.FormularioID`. Es lo que dice el paso 6 del manual generado. La cifra de siete que
-aparece en `CLAUDE.md` §7.9 no se reproduce con ninguna derivación sobre `modelo_objetivo.py`.
+`OT_OrdenesTrabajo.FormularioID`. Es lo que dice el paso 6 del manual generado, y `CLAUDE.md` §7.9
+ya está corregido. Se rederiva así:
 
 ```bash
 python -c "import sys;sys.path.insert(0,'scripts');from modelo_objetivo import MODELO,CAMPOS_RETIRADOS;pk={c['nombre']:t for t,d in MODELO.items() for c in d['columnas'] if c.get('pk')};print([(t,c,pk[c]) for t,f in CAMPOS_RETIRADOS.items() for c in f if c in pk and pk[c]!=t])"
@@ -159,11 +170,15 @@ anote lo que encuentre.
 *Verificable: el tipo de las cuatro, copiado del editor.*
 
 **5. Ocultar las 47 columnas sobrantes, con la lista del manual.**
-Use el anexo de `docs/MANUAL_DESPLIEGUE.md`: ficha por tabla, columna por columna. **No use la lista
-de 49 del prompt**, que incluye dos columnas vivas. Para cada una: tipo `Text`, `Show?` desmarcado,
-sin fórmula. **No se borra ninguna.** Y en las tres trampas hay que deshacer la referencia que
-AppSheet puso sola.
+Use el anexo de `docs/MANUAL_DESPLIEGUE.md`: ficha por tabla, columna por columna. Para cada una:
+tipo `Text`, `Show?` desmarcado, sin fórmula. **No se borra ninguna.** Y en las tres trampas hay que
+deshacer la referencia que AppSheet puso sola.
 *Verificable: cuántas ocultó por tabla, y las tres trampas de vuelta en `Text`.*
+
+> **Pregunte antes de empezar este punto si se va a migrar a la hoja limpia.** Si se migra, las 47
+> desaparecen del archivo en vez de esconderse en la aplicación y este punto entero se tira. El
+> coste de la migración está medido en [`MIGRACION_HOJA_LIMPIA.md`](MIGRACION_HOJA_LIMPIA.md): 8
+> tablas de 28 y 14 reglas a reponer. **Es la única decisión que le puede ahorrar dos horas.**
 
 **6. Las tres expresiones, en el Asistente de Expresiones y no en una columna.**
 
@@ -222,8 +237,9 @@ capturarlas en un recorrido de campo **con el mismo celular que usará el técni
 levantamiento topográfico previo. El `ROADMAP.md` propone hacerlo como la primera orden de trabajo
 del propio sistema, que es la forma barata: se prueba la aplicación y se levanta el dato en el mismo
 viaje.
-*Verificable: la columna `Ubicacion` de `ACT_Activos` sin ninguna fila que diga* `COORDENADA
-SINTETICA`.
+*Verificable: ninguna fila de* `ACT_Activos.Observaciones` *dice ya* `ACTIVO SINTETICO DE PRUEBA`
+*ni* `FIXTURE DE LA FASE A`*, y las coordenadas de* `Ubicacion` *son todas distintas y están sobre
+el corredor.*
 
 **2. Escribir los 17 bancos de preguntas que faltan.**
 Hay 18 formularios y preguntas escritas para uno solo. El de postes SOS tiene 15 preguntas
@@ -314,9 +330,10 @@ AppSheet.**
 **1. D-A — decidir de quién es el backend.**
 El documento de Google Sheets y las fotografías que el sistema genera pertenecen hoy a la cuenta de
 un tercero. **Las imágenes consumen la cuota de Drive del propietario del documento**, no la de la
-Concesión. Con el inventario completo esa cuota se agota **en 4,1 años**, antes de los cinco años de
-retención de evidencia que el propio proyecto adoptó. Con el inventario de hoy da para décadas: el
-problema aparece al crecer, no ahora.
+Concesión. Con los 355 activos del Plan Maestro esa cuota da **5,7 años** frente a los cinco de
+retención de evidencia que el propio proyecto adoptó —alcanza y no sobra nada—, y con el corredor
+completo de 500 se agota **en 4,1 años, antes de la retención**. Con los 34 de hoy da para décadas:
+el problema aparece al crecer, no ahora. Las cuatro cifras salen de `python scripts/capacidad.py`.
 
 Las dos opciones funcionan y las dos están escritas en `docs/COMUNICACION_PROPIETARIO_APP.md` §3:
 seguir sobre la hoja del tercero, o que pase a una cuenta de la Concesión.
@@ -408,9 +425,9 @@ documentación no vuelva a divergir del archivo**, que es la avería que costó 
 
 | Script | Mide | Estado hoy |
 |---|---|---|
-| `python scripts/validar_modelo.py` | El modelo consigo mismo | 0 errores, 3 avisos, sale 0 |
-| `python scripts/verificar_faseA.py "BD/<archivo>.xlsx"` | El modelo contra la hoja descargada | `FASE A CERRADA` sobre `Modelo_Datos_09082026_VISIBLE.xlsx` |
-| `python scripts/verificar_documentos.py` | La prosa contra el modelo | 45 documentos consistentes, 5 avisos |
+| `python scripts/validar_modelo.py` | El modelo consigo mismo | `APTO PARA DESPLEGAR`, 0 errores |
+| `python scripts/verificar_faseA.py "BD/<archivo>.xlsx"` | El modelo contra la hoja descargada | `FASE A CERRADA` sobre `Modelo_Datos_09082026_VISIBLE.xlsx` y sobre `Modelo_Datos_PLANTILLA.xlsx` |
+| `python scripts/verificar_documentos.py` | La prosa contra el modelo | `DOCUMENTOS CONSISTENTES CON EL MODELO`, 0 fallos |
 
 **`validar_modelo.py` en 0 errores es el único gate objetivo.** Lo que ninguno mide es si algo es
 buena idea.
@@ -442,43 +459,42 @@ una regla correcta.
 en `validar_modelo.py` propuesto por quien está siendo verificado se revisa antes de aceptarlo, y **se
 prefiere endurecer la comprobación a retirarla**.
 
-## Tres cosas que hay que arreglar en el repositorio
+## Lo que hay que arreglar en el repositorio
 
-Verificadas hoy, y ninguna es urgente para el campo.
+Revisado el 2026-08-09. **Dos de los tres puntos que había aquí ya están cerrados**, y se dejan
+anotados con qué los cerró para que nadie los vuelva a abrir.
 
-**1. La plantilla no pasa la Fase A.** `ESTADO.md` §3 presenta `BD/Modelo_Datos_PLANTILLA.xlsx` como
-lista, y el verificador devuelve **cinco fallos** y sale con código 1:
+**1. La plantilla ya pasa la Fase A. CERRADO.** Traía cinco fallos —`F-15` sobre la fila 34 y cuatro
+`F-16` de tipo mezclado en las claves— y hoy devuelve `FASE A CERRADA` con **60 conformes y 0
+fallos**:
 
-```
-F-15  ACT_Activos fila 34 dice Activo=TRUE pero está Retirado. Debe ser FALSE
-F-16  ACT_Activos.TipoActivoID       guarda texto y la clave destino guarda número
-F-16  ACT_Activos.UnidadFuncionalID  igual
-F-16  ACT_Activos.CalzadaID          igual
-F-16  ACT_Activos.EstadoActivoID     igual
+```bash
+python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"
 ```
 
-Los cuatro `F-16` no son cosméticos. **Una conversión de `Text` a `Ref` conserva solo las filas cuyo
-valor coincide con la clave del destino**, y AppSheet no anuncia las que quedan huérfanas. Si esa
-plantilla se sube tal cual y luego se cablea, los 355 activos pueden quedar sin resolver contra su
-tipo, su unidad funcional, su calzada y su estado. **Se arregla en el generador**,
-`scripts/generar_hoja_limpia.py`, no a mano sobre el archivo.
+Lo que enseñó sigue valiendo: **una conversión de `Text` a `Ref` conserva solo las filas cuyo valor
+coincide con la clave del destino**, y AppSheet no anuncia las huérfanas. Por eso se verifica la hoja
+**antes** de cablear, no después.
 
-**2. Hay dos descargas con la misma fecha y solo una pasa.** `BD/Modelo_Datos_09082026.xlsx` falla la
-regla `F-18` con ocho pestañas ocultas; `BD/Modelo_Datos_09082026_VISIBLE.xlsx` cierra la Fase A. Son
-la misma hoja antes y después de mostrar las pestañas. **AppSheet ignora las pestañas ocultas y no
-avisa**, así que verificar contra la primera y desplegar contra la segunda es exactamente el error
-que costó una semana. Conviene dejar una sola.
+**2. Hay dos descargas con la misma fecha y solo una pasa. ABIERTO.**
+`BD/Modelo_Datos_09082026.xlsx` falla la regla `F-18` con ocho pestañas ocultas;
+`BD/Modelo_Datos_09082026_VISIBLE.xlsx` cierra la Fase A. Son la misma hoja antes y después de
+mostrar las pestañas. **AppSheet ignora las pestañas ocultas y no avisa**, así que verificar contra
+la primera y desplegar contra la segunda es exactamente el error que costó una semana. Conviene
+dejar una sola.
 
-**3. Tres cifras de la prosa no cuadran con el archivo.** Las tres se corrigen editando el documento:
-
-| Dónde | Dice | El archivo dice |
-|---|---|---|
-| `ESTADO.md` §2 | ocultar 51 columnas | **47** |
-| `docs/prompts/PROMPT_CONTINUAR_DESPLIEGUE.md` §5 | 49 columnas, dos de ellas vivas | **47**, y las dos vivas fuera |
-| `ESTADO.md` §1 y `docs/ROADMAP.md` §3 | 59 comprobaciones conformes | **61** |
+**3. Las cifras de la prosa. CERRADO.** Las tres que no cuadraban ya están corregidas: `ESTADO.md`
+dice 47 y 61, y el prompt del Funcional dice 47 sin las dos columnas vivas dentro.
 
 `verificar_documentos.py` no las habría cazado: comprueba que los nombres existan, no que las cifras
-sean ciertas. **Esa es su limitación y hay que tenerla presente.**
+sean ciertas. **Esa es su limitación y hay que tenerla presente** — es la razón de que cada cifra de
+este documento venga con el comando que la produce.
+
+**4. La plantilla no se reproduce con un comando. ABIERTO.** `generar_hoja_limpia.py` y
+`generar_inventario.py` producen `Modelo_Datos_LIMPIO.xlsx` y `ACT_Activos_355_SINTETICO.xlsx`;
+**unirlos, añadir la pestaña `_LEEME` y poblar `TIP_TiposActivo.RadioGeofencingKm` no está escrito
+en ningún script.** Mientras siga así, la plantilla es un artefacto que hay que conservar, no
+regenerar, y eso es justo lo que este proyecto decidió no volver a hacer.
 
 ## Qué leer
 

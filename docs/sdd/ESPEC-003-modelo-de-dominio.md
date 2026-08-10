@@ -4,6 +4,35 @@
 <!-- Se menciona en §12.3 solo para explicar por que el nombre elegido es
      ETR_Estructuras: el prefijo EST_ ya lo ocupa EST_Activo. -->
 
+> # BLOQUEADA. No se aplica nada de este documento.
+>
+> **Estado al 2026-08-09: bloqueada por el arquitecto, con 14 condiciones sin resolver.**
+> Así consta en [`ESTADO.md`](../../ESTADO.md) §6, que es el estado vigente. El veredicto en sí no
+> está versionado en el repositorio: si alguien va a levantar el bloqueo, **pídalo antes de tocar
+> `scripts/modelo_objetivo.py`**.
+>
+> **Qué significa en la práctica.** Nada de aquí —ni las tablas nuevas de §7.1, ni las columnas de
+> §7.2, ni las reglas RG-21 en adelante de §12.1— se escribe en `scripts/modelo_objetivo.py`.
+> Declarar una tabla en `MODELO` sin su pestaña en el libro **hace fallar `F-02`** de
+> `verificar_faseA.py`, que es el gate de datos. Está explicado en §2.4 y **sigue siendo cierto**.
+>
+> **No es el siguiente paso: es un documento por terminar.** Su pieza principal, `TAR_Tareas`,
+> cambia cómo se generan las órdenes —un poste SOS tiene tarea semanal, mensual y trimestral, no
+> una— y no se toca con el piloto a punto de arrancar.
+>
+> **Dos referencias suyas ya caducaron, y no invalidan el resto:**
+>
+> - Su cabecera dice que precede a **`ESPEC-002` cerrada con su acta**. `ESPEC-002` nunca se cerró:
+>   se autorizó con `ORDEN-002` sobre la aplicación `SGMC-886843353`, que **se abandonó** el
+>   2026-08-09 y se reconstruyó desde cero como `SISGA`. No hay `ACTA-005`. La secuencia real es
+>   ahora: terminar el despliegue de `SISGA`, probarlo con `PRUEBA-003`, y solo después esto.
+> - Donde dice «Fase C, posterior al cierre de la Fase B», léase «posterior al cierre del despliegue
+>   reconstruido».
+>
+> **Lo que no caduca** es el plano de dominio: las secciones 3 a 6 describen la operación, no la
+> plataforma, y sobreviven aunque mañana el backend no sea Google Sheets. Es la mejor descripción
+> escrita de lo que el sistema tendría que representar.
+
 
 Lo que el sistema tiene que representar para que la operación quepa dentro, escrito **antes** de
 recortarlo a lo que AppSheet permite. Es la primera especificación del proyecto que no describe una

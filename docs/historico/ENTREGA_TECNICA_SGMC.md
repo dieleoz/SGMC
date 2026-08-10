@@ -41,12 +41,12 @@ to create the column structure*.
 
 | # | Documento | Para que |
 |---|---|---|
-| 1 | [`FUNCIONAL_SGMC.md`](FUNCIONAL_SGMC.md) | Que hace el sistema, para quien y por que. **Su §6 es el registro de decisiones**: una sola forma por proposito |
-| 2 | [`bd.md`](bd.md) | Diccionario de datos As-Built. **Generado del archivo**: la unica forma de que mienta es que mienta la hoja |
-| 3 | [`sdd/RECONSTRUCCION_EXPRESIONES.md`](sdd/RECONSTRUCCION_EXPRESIONES.md) | La lista de reposicion: 27 nombres viejos, 20 reglas, 28 claves, 15 retipados |
-| 4 | [`sdd/ESPEC-002-cableado-en-appsheet.md`](sdd/ESPEC-002-cableado-en-appsheet.md) | El detalle del cableado de referencias, con sus 17 pruebas |
-| 5 | [`BASE_CONOCIMIENTO_APPSHEET.md`](BASE_CONOCIMIENTO_APPSHEET.md) | 11 comportamientos de la plataforma verificados contra la fuente, con su URL |
-| 6 | [`CONTEXTO_OPERACION.md`](CONTEXTO_OPERACION.md) | Como se mantiene el corredor de verdad. De donde sale el modelo |
+| 1 | [`FUNCIONAL_SGMC.md`](../FUNCIONAL_SGMC.md) | Que hace el sistema, para quien y por que. **Su §6 es el registro de decisiones**: una sola forma por proposito |
+| 2 | [`bd.md`](../bd.md) | Diccionario de datos As-Built. **Generado del archivo**: la unica forma de que mienta es que mienta la hoja |
+| 3 | [`sdd/RECONSTRUCCION_EXPRESIONES.md`](../sdd/RECONSTRUCCION_EXPRESIONES.md) | La lista de reposicion: 27 nombres viejos, 20 reglas, 28 claves, 15 retipados |
+| 4 | [`sdd/ESPEC-002-cableado-en-appsheet.md`](../sdd/ESPEC-002-cableado-en-appsheet.md) | El detalle del cableado de referencias, con sus 17 pruebas |
+| 5 | [`BASE_CONOCIMIENTO_APPSHEET.md`](../BASE_CONOCIMIENTO_APPSHEET.md) | 11 comportamientos de la plataforma verificados contra la fuente, con su URL |
+| 6 | [`CONTEXTO_OPERACION.md`](../CONTEXTO_OPERACION.md) | Como se mantiene el corredor de verdad. De donde sale el modelo |
 
 **Si solo lee uno, que sea el 3.** Es la lista contra la que se valida el trabajo.
 
@@ -267,7 +267,7 @@ Si el asistente la rechaza, pare.
 
 ### Paso 6 — Reponer las reglas
 
-**20 reglas.** Estan en [`sdd/RECONSTRUCCION_EXPRESIONES.md`](sdd/RECONSTRUCCION_EXPRESIONES.md)
+**20 reglas.** Estan en [`sdd/RECONSTRUCCION_EXPRESIONES.md`](../sdd/RECONSTRUCCION_EXPRESIONES.md)
 §2 con su expresion completa. Aqui solo el mapa:
 
 | # | Tabla | Columna | Tipo |
@@ -308,7 +308,7 @@ python scripts/verificar_faseA.py "BD/Modelo de Datos (N).xlsx"   # el modelo co
 python scripts/verificar_documentos.py                            # la prosa contra el modelo
 ```
 
-Y las **17 pruebas de aceptacion** de [`sdd/PRUEBA-002-cableado-en-appsheet.md`](sdd/PRUEBA-002-cableado-en-appsheet.md),
+Y las **17 pruebas de aceptacion** de [`sdd/PRUEBA-002-cableado-en-appsheet.md`](../sdd/PRUEBA-002-cableado-en-appsheet.md),
 con sus cuatro innegociables: `P-05`, `P-09`, `P-12` y `P-16`.
 
 ## 4. Lo que NO cabe en el plan gratuito

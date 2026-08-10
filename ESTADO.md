@@ -168,7 +168,16 @@ una tabla que ya existe, sin tocar ninguna regla.
 
 **AppSheet ignora las pestañas ocultas.** Ocho catálogos estaban ocultos y cargaban 24 tablas de 32,
 sin un solo mensaje. Nuestra propia verificación decía `FASE A CERRADA` porque `openpyxl` sí las lee.
-Cerrado con `F-18`.
+
+> **Lo que está cerrado es la detección, no la condición.** `F-18` lo ve, y hoy **lo sigue viendo**:
+> `python scripts/verificar_faseA.py "BD/Modelo_Datos_09082026.xlsx"` da **`FASE A INCOMPLETA`** por
+> esas mismas ocho —`ACT_Activos`, `CAL_Calzadas`, `FRE_Frecuencias`, `ROL_Roles`, `SED_Sedes`,
+> `SEN_Sentidos`, `TIP_TiposActivo` y `USR_Usuarios`—. Las ocho vienen ocultas desde
+> `Modelo de Datos (2).xlsx` y **nunca se han mostrado**.
+>
+> Existe `BD/Modelo_Datos_09082026_VISIBLE.xlsx`, idéntico y con cero ocultas, pero **el repositorio
+> no puede decir cuál de los dos está publicado en Drive**. Antes de dar de alta ninguna tabla hay
+> que abrir el Sheets y mirarlo: si carga 24 en vez de 32, es esto y no habrá ningún mensaje.
 
 **`Regenerate` fusiona, no reemplaza.** Conserva las columnas viejas a propósito. Con un esquema muy
 divergente impide converger, y por eso se reconstruyó en vez de reparar.

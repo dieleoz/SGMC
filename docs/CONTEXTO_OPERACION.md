@@ -3,9 +3,15 @@
 Lo que aportan los siete documentos de `contexto/` al modelo de datos del SGMC. No es un resumen
 de cada uno: es **lo que sirve** para decidir tablas, columnas y flujos, con la cita de dónde sale.
 
+> **Nota del 2026-08-09.** El contenido de este documento no ha cambiado: destila documentos de
+> operación, y esos documentos no se han movido. Lo que se corrigió son **dos cifras de capacidad
+> mal atribuidas** —los 4,1 años de cuota son del escenario de 500 activos, no de los 355— y la
+> lectura de `OT_OrdenesTrabajo`, que no tiene fecha de creación sino fecha programada. Nada de lo
+> que aquí se pregunta a operación se ha respondido todavía.
+
 | | |
 |---|---|
-| Origen | `contexto/`, aportado el 2026-08-07 |
+| Origen | `contexto/`, aportado el 2026-08-07. Cifras revisadas el 2026-08-09 |
 | Documentos | 7 · **todos leídos** |
 | Para qué sirve | Alimentar `MODELO_EVOLUCION_FASE_2.md` con dominio verificado, no supuesto |
 | Qué **no** es | Una especificación. Nada de aquí se ejecuta sin pasar por `ESPEC-00N` y su veredicto |
@@ -39,6 +45,10 @@ Peaje Pata.
 `BD/Modelo de Datos (11).xlsx`**, el archivo con el que se cerró la Fase A, no de producción ni de
 memoria.
 
+Ese libro sigue en `BD/` y las lecturas siguen siendo ciertas, pero **ya no es el archivo vigente**:
+desde el 2026-08-09 la hoja se genera del modelo y la referencia es `BD/Modelo_Datos_PLANTILLA.xlsx`.
+Quien rehaga una comprobación de aquí, que declare contra cuál de los dos la hizo.
+
 ---
 
 ## 1. El inventario de documentos
@@ -57,9 +67,14 @@ memoria.
 
 ## 2. El inventario del Sisga: tenemos el censo, no el registro
 
-`Plan Maestro de Mantenimiento ITS_TI.xlsx`, 24 filas × 11 columnas. Confirmado por operación el
-2026-08-07 como **el inventario real del Sisga**. Lo que da: tipo, cantidad, unidad, área, tipo de
-mantenimiento, tarea, periodicidad, herramienta, personal y costo.
+`Plan Maestro de Mantenimiento ITS_TI.xlsx`, 24 filas × 11 columnas. Lo que da: tipo, cantidad,
+unidad, área, tipo de mantenimiento, tarea, periodicidad, herramienta, personal y costo.
+
+**Y aquí hay una media verdad que conviene deshacer.** Este apartado lo daba por confirmado el
+2026-08-07 como el inventario real del Sisga, y la pregunta 6 del apartado 6 dice a la vez que
+operación lo describió como «muy similar» al del Sisga, no como el del Sisga. **Las dos cosas no
+pueden ser ciertas.** Vale la segunda, que es la cauta: hasta que operación lo confirme por escrito,
+estas cantidades son un maestro parecido y no el censo de este corredor.
 
 Lo que **no** da: **las propiedades de cada equipo**. Sabemos que hay 54 postes SOS; no sabemos cuál
 es cada uno, dónde está, ni qué serie tiene. `ACT_Activos` necesita 355 filas con identidad y
@@ -78,8 +93,13 @@ Fuera quedan, y no son activos contables: fibra troncal (137 **km**), antivirus,
 certificados SSL (1 **Glb** cada uno) e internet (12 **Mes**). **508 − 355 = 153**, que es la suma
 de esos seis.
 
-De los 355 cuelgan las 1.916 órdenes anuales y los 4,1 años de cuota de Drive. Ahora la aritmética
-está escrita y es verificable.
+De los 355 cuelgan las 1.916 órdenes anuales y la cuota de Drive. Ahora la aritmética está escrita y
+es verificable.
+
+**La cifra de cuota que circulaba estaba mal atribuida.** `scripts/capacidad.py` calcula cuatro
+escenarios —34, 150, 355 y 500 activos— y los **4,1 años** son los del corredor completo de 500. Con
+los 355 de este maestro la cuota da **5,7 años**, frente a los 5 de retención exigida: alcanza y no
+sobra nada.
 
 ### Cuatro tipos de mantenimiento, no uno
 
@@ -209,8 +229,10 @@ esperar un repuesto.
 ### Qué le falta al modelo para esto
 
 `OT_OrdenesTrabajo` no tiene criticidad, ni hora de aviso, ni hora de inicio de trabajos, ni reloj
-parado. Tiene `FechaCreacion` y `FechaCierre`, que dan una duración total — y la duración total no
-es ninguno de los dos tiempos que se miden.
+parado. Lo que tiene es `FechaProgramada` y `FechaCierre`, y **eso no es ni siquiera una duración**:
+es adherencia al cronograma, si se cerró antes o después de lo previsto. **No existe fecha de
+creación.** Para una preventiva basta; para una correctiva falta el dato de partida, porque una
+avería no se programa: ocurre.
 
 **Lo que describe operación encaja, con un canal más que el PDF no nombra:** el operador del centro
 de control recibe la llamada —«no funciona el poste 3»—, **lo valida contra el SCADA** y lanza la
@@ -317,8 +339,12 @@ Estas no salen de leer más. Salen de preguntar en operación:
 6. **El inventario real del Sisga.** Trabajamos con 355 activos de un maestro que usted describió
    como «muy similar» al del Sisga, no el del Sisga. **Es el vacío más grande que queda.**
 
-La 6 es la que más pesa: todo el dimensionamiento —1.916 órdenes al año, la cuota de 15 GB que se
-agota en 4,1 años— está calculado sobre un inventario que no es el de este corredor.
+La 6 es la que más pesa: todo el dimensionamiento —1.916 órdenes al año, la cuota de 15 GB que da
+5,7— está calculado sobre un inventario que no es el de este corredor.
+
+**Y la plantilla de 355 activos sintéticos no responde la pregunta 6.** Lleva los códigos de este
+maestro y coordenadas interpoladas sobre el corredor, y cada fila lo dice de sí misma. Sirve para
+ejercitar el sistema; no para saber cuántos equipos hay ni dónde están.
 
 ---
 

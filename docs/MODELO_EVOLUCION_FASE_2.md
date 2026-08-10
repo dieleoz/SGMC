@@ -6,10 +6,23 @@ o una conversación con operación.
 
 **Esto no invalida la Fase B.** Ver la sección 9.
 
+> ## Qué cambió desde que se escribió (2026-08-09)
+>
+> El backlog sigue en pie entero. Dos cosas que este documento daba por pendientes ya no lo están:
+>
+> - **`TIP_TiposActivo.RadioGeofencingKm` ya no está vacío.** Se pobló por familia de activo, y con
+>   los valores que la sección 6 pedía. Deja de ser deuda; pasa a ser una decisión tomada.
+> - **Los 355 activos ya están en `BD/Modelo_Datos_PLANTILLA.xlsx`**, como inventario **sintético**
+>   de prueba. Son códigos reales del Plan Maestro con coordenadas interpoladas, y cada fila lo dice
+>   de sí misma. No es el registro real, así que el hueco de la sección 13.1 sigue abierto.
+>
+> Y una cifra que estaba mal: la cuota de Drive **no** se agota antes de la retención con este
+> inventario. Ver la sección 8, corregida contra `scripts/capacidad.py`.
+
 | | |
 |---|---|
 | Estado | Backlog de modelo. Ninguna pieza es todavía una especificación ejecutable |
-| Origen | `contexto/`, aportado el 2026-08-07 |
+| Origen | `contexto/`, aportado el 2026-08-07. Revisado el 2026-08-09 |
 | Cuando una pieza se pueda ejecutar | Pasa a `ESPEC-004`, `005`… con su `PRUEBA` y su veredicto |
 
 ## 1. Por qué existe
@@ -45,6 +58,12 @@ Lo que sigue en este documento son los huecos de modelo; lo que aporta cada fuen
 | Fibra troncal | 1 fila | **137 km**, ~600 cajas |
 
 Los 34 son **3 de cada tipo**: una muestra sintética. El piloto corre sobre el 10% del parque.
+
+> **Desde el 2026-08-09 la plantilla lleva los 355**, con los códigos del Plan Maestro —`SOS_1` a
+> `SOS_54`, `SWIT_1` a `SWIT_142`— y coordenadas interpoladas sobre los 137 km del corredor. **Son
+> de prueba**: sirven para ejercitar el filtro por zona, la navegación y el volumen de
+> sincronización, y cada fila lo declara en `ACT_Activos.Observaciones`. **Los tipos siguen siendo
+> 18, no 24**, y el hueco de la sección 3 no lo cierra ninguna carga de datos.
 
 **Órdenes preventivas al año, calculadas del plan real: 1.916.** Ocho por día hábil, dos por
 técnico. Manejable a mano, aunque sean 2.000 filas anuales tecleadas.
@@ -183,21 +202,40 @@ para las segundas visitas.
 proyecto propio, no una carga de datos. Mientras tanto, un tramo se representa por rango de PR con
 una coordenada representativa.
 
-### El radio de geofencing deja de ser deuda
+### El radio de geofencing dejó de ser deuda
 
-`TIP_TiposActivo.RadioGeofencingKm` se creó por tipo de activo y está vacío en los 18. Aquí es
-donde hace falta:
+`TIP_TiposActivo.RadioGeofencingKm` se creó por tipo de activo y estuvo vacío en los 18. **Se pobló
+el 2026-08-09**, y con los valores que este apartado pedía:
 
-| Tipo | Radio |
-|---|---|
-| Poste SOS, cámara | 50 m |
-| **Tramo de fibra** | **1,5 km** |
+| Familia | Radio | Tipos |
+|---|---|---|
+| Puntual: postes SOS, cámaras, gálibos, video wall, equipos de TI | **0,05 km** — 50 m | 12 |
+| Voluminoso o con recinto: PMV fijos y móviles, generador, báscula, subestación | **0,1 km** — 100 m | 5 |
+| **Tramo de fibra** | **1,5 km** | 1 |
 
-Sin él, o el poste admite 1 km —y no prueba nada— o el tramo rechaza cierres legítimos.
+Sin él, o el poste admite 1 km —y no prueba nada— o el tramo rechaza cierres legítimos. Y con los 355
+sintéticos repartidos por el corredor deja de ser una preferencia. Medido sobre las coordenadas de la
+plantilla, contando cada activo dentro de su propio geofence:
 
-**El precio, dicho claro:** un radio de 1,5 km confirma que el técnico estaba en ese tramo del
-corredor, no que estuviera trabajando en la fibra. Un trabajo lineal no admite la misma prueba que
-uno puntual. Lo que conserva su valor son las fotografías con coordenada propia.
+| Radio | Activos por geofence | Máximo |
+|---|---|---|
+| 1 km, el literal provisional | **7,9 de media** | 14 |
+| 0,05 km, el de los puntuales | 1,1 | 2 |
+| 0,1 km | 1,3 | 4 |
+| 1,5 km, el de la fibra | 11,7 | 20 |
+
+**Con 1 km ninguno queda identificado de forma única**: el sistema probaría «estás en el corredor»,
+no «estás frente al equipo». Con 50 m, **313 de los 355 —el 88 %— quedan solos en su geofence**. Ahí
+está la diferencia entre una prueba de presencia y una de tránsito.
+
+**El precio de la fibra, dicho claro:** 1,5 km mete 11,7 activos de media dentro del geofence, así
+que confirma que el técnico estaba en ese tramo del corredor, no que estuviera trabajando en la
+fibra. Un trabajo lineal no admite la misma prueba que uno puntual. Lo que conserva su valor son las
+fotografías con coordenada propia.
+
+**Lo que todavía no está cerrado es la expresión.** `PAR_Parametros` sigue llevando
+`RADIO_GEOFENCING_KM = 1` como literal provisional, y hay documentos que mandan pegar esa variante.
+Mientras la aplicación no lea el radio por tipo, la columna poblada no cambia nada.
 
 ---
 
@@ -217,23 +255,26 @@ MED_MedicionesHilo   (hija del checklist, IsPartOf)
 
 ## 8. Dos hallazgos de capacidad, con número
 
-Calculado con `scripts/capacidad.py` y con el volumen real del plan.
+Calculado con `scripts/capacidad.py`, escenario **«Inventario del Plan Maestro», 355 activos**. Es
+el que corresponde a este documento; los otros tres del script son 34, 150 y 500.
 
 **La sincronización se degrada.** AppSheet degrada por encima de **~50.000 filas por tabla**:
 
 ```
-CHD_ChecklistDetalle:  32.400 filas/año  →  162.000 a 5 años   (casi el triple)
+CHD_ChecklistDetalle:  76.680 filas/año  →  383.400 a 5 años
 ```
 
-No es opcional archivar por año. Y eso **sin** contar las mediciones de 48 hilos.
+**Pasa el umbral en el primer año.** No es opcional archivar por año. Y eso **sin** contar las
+mediciones de 48 hilos, que multiplicarían la tabla de detalle otra vez.
 
-**El almacenamiento se agota antes que la retención.** Con inventario real, la cuota de 15 GB de la
-cuenta personal que hoy posee el backend **se agota en 13,5 años**, antes de los 5 de retención
-exigida.
+**El almacenamiento aprieta, y con 500 activos no llega.** Con los 355, la cuota de 15 GB de la
+cuenta personal que hoy posee el backend da para **5,7 años** —13,10 GB a cinco años, el 87 %—
+frente a los 5 de retención exigida. **No sobra nada.** Y en el escenario de corredor completo, 500
+activos, **se agota en 4,1 años: antes de la retención**.
 
 Esto da número a **D-A** (propiedad del backend) y **D-B** (plan de licenciamiento), enviadas a
-Dirección como decisiones abstractas. Un «hace falta plan de pago» pesa poco; «la cuota se agota
-antes de la retención contractual» decide.
+Dirección como decisiones abstractas. Un «hace falta plan de pago» pesa poco; «la cuota da 5,7 años
+para una retención de 5, y menos si el parque crece» decide.
 
 ---
 
@@ -393,8 +434,9 @@ Ninguna se puede responder desde los documentos. Los siete están leídos: lo qu
 hay que preguntar en operación.
 
 1. **El inventario real del Sisga.** Trabajamos con 355 activos de un maestro «muy similar», no el
-   de este corredor. Todo el dimensionamiento —1.916 órdenes al año, los 4,1 años de cuota— cuelga
-   de ahí. **Es el vacío más grande que queda.**
+   de este corredor. Todo el dimensionamiento —1.916 órdenes al año, los 5,7 años de cuota— cuelga
+   de ahí. **Es el vacío más grande que queda**, y la plantilla de 355 activos sintéticos no lo
+   cierra: son códigos del Plan Maestro con coordenadas inventadas, no el registro del corredor.
 2. **¿Cuántas estructuras** —puentes, viaductos— tienen paso de fibra, y están inventariadas?
 3. **¿El mantenimiento de fibra se programa por tramo o por ruta completa?** De ahí salen 1.200
    órdenes al año o 2.

@@ -1,5 +1,22 @@
 # ACTA-002 — Cierre definitivo de la Fase A
 
+> **Nota añadida el 2026-08-09. El acta no se corrige: se anota qué resultó falso.**
+>
+> **El «cierre definitivo» no lo fue, y por una causa que ninguna comprobación de entonces medía.**
+> `BD/Modelo de Datos (7).xlsx` tiene **8 pestañas del modelo ocultas** —comprobado leyendo
+> `sheet_state` del archivo—, y **AppSheet ignora las pestañas ocultas sin avisar**: habría cargado
+> 24 de 32 tablas. El verificador dio verde porque `openpyxl` sí las lee. Lo cierra `F-18`.
+>
+> La hoja se «cerró definitivamente» cuatro veces —esta, `ACTA-003`, `ACTA-004` y el cierre de
+> agosto— y las cuatro sobre libros con esas mismas 8 pestañas ocultas.
+>
+> Sigue siendo cierto todo lo demás: la integridad referencial comprobada relación por relación, el
+> registro a 8,89 km que hace medible RG-01, y el incidente de método del verificador editado, que
+> es hoy una regla de `CLAUDE.md`.
+>
+> La Fase B que este acta declara abierta **nunca se ejecutó**: la aplicación `SGMC-886843353` se
+> abandonó y se reconstruyó como `SISGA`. El estado vigente está en [`ESTADO.md`](../../ESTADO.md).
+
 **Fase A cerrada, verificada y con la hoja poblada. 7 de agosto de 2026.**
 
 | | |

@@ -5,12 +5,12 @@ Lo lee del ARCHIVO, no de la memoria de nadie. Cruza lo que la hoja tiene hoy
 contra lo que scripts/modelo_objetivo.py dice que debe tener, y marca cada
 columna con su estado.
 
-Uso:  python scripts/generar_diccionario_bd.py "BD/Modelo de Datos (9).xlsx"
+Uso:  python scripts/generar_diccionario_bd.py "BD/Modelo_Datos_09082026.xlsx"
 
 Por que se genera y no se escribe
 ---------------------------------
 La version anterior de bd.md decia "24 Hojas Produccion" cuando habia 32,
-apuntaba al Excel (2) como maestro cuando vamos por el (9), y describia columnas
+apuntaba a un Excel maestro de tres dias antes, y describia columnas
 -MttoID, Tecnico_Asignado- renombradas dos dias antes. No por descuido: un
 diccionario escrito a mano envejece en cuanto alguien toca la hoja, y este
 proyecto ya perdio meses porque bd.md y el Excel describian modelos distintos
@@ -24,6 +24,7 @@ from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from modelo_objetivo import (MODELO, RENOMBRADOS, RETIPADOS, CAMPOS_RETIRADOS,
+                             COLUMNAS_SIN_DECIDIR,
                              RETIRADAS, PARAMETROS)
 
 try:
@@ -32,7 +33,7 @@ except ImportError:
     print("Falta openpyxl."); sys.exit(2)
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ruta = sys.argv[1] if len(sys.argv) > 1 else "BD/Modelo de Datos (9).xlsx"
+ruta = sys.argv[1] if len(sys.argv) > 1 else "BD/Modelo_Datos_09082026.xlsx"
 if not os.path.isabs(ruta):
     ruta = os.path.join(RAIZ, ruta)
 SALIDA = os.path.join(RAIZ, "docs", "bd.md")
@@ -94,8 +95,9 @@ w("forma de que mienta es que mienta el archivo**.")
 w("")
 w("| | |")
 w("|---|---|")
-w("| Backend de producción | Google Sheets `1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc` |")
-w("| Aplicación | AppSheet `SGMC-886843353` |")
+w("| Backend de producción | Google Sheets `Modelo_Datos_09082026` |")
+w("| Aplicación | AppSheet `SISGA` |")
+w("| Archivo leído | `%s` |" % os.path.basename(ruta))
 w("| Hojas | **%d** |" % len(hojas))
 w("| Filas con datos | **%d** |" % sum(n_filas.values()))
 w("| Generado el | %s |" % datetime.now().strftime("%Y-%m-%d"))
@@ -112,6 +114,10 @@ w("|---|---|---|")
 w("| Columnas que siguen siendo `Text` y deben ser `Ref` | **%d** | Fase B, `ESPEC-002` |" % len(pendientes))
 w("| Columnas marcadas como retiradas que siguen en la hoja | **%d** | Pasada posterior, con datos ya migrados |"
   % sum(len(c) for c in CAMPOS_RETIRADOS.values()))
+w("| Columnas presentes sin decidir todavía | **%d** | Decisión de operación |"
+  % len(COLUMNAS_SIN_DECIDIR))
+w("| **Total a ocultar al dar de alta las tablas** | **%d** | `MANUAL_DESPLIEGUE.md`, anexo |"
+  % (sum(len(c) for c in CAMPOS_RETIRADOS.values()) + len(COLUMNAS_SIN_DECIDIR)))
 w("| Tablas marcadas como retiradas que siguen en la hoja | %d | Idem |"
   % len([t for t in RETIRADAS if t in hojas]))
 w("| Tablas del modelo objetivo que ya existen | %d de %d | — |"
@@ -211,7 +217,7 @@ for h in hojas:
 
 w("---")
 w("*Documento generado. Para actualizarlo, descarga la hoja a `BD/` y ejecuta*")
-w("*`python scripts/generar_diccionario_bd.py \"BD/Modelo de Datos (N).xlsx\"`.*")
+w("*`python scripts/generar_diccionario_bd.py \"BD/Modelo_Datos_09082026.xlsx\"`.*")
 
 with open(SALIDA, "w", encoding="utf-8") as f:
     f.write("\n".join(L) + "\n")

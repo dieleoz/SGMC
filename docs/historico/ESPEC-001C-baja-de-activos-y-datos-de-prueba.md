@@ -1,3 +1,17 @@
+> # Documento historico. NO SE APLICA.
+>
+> Última pasada a mano sobre el Sheets de la aplicación `SGMC-886843353`: baja de activos, doctrina
+> de reportes históricos y poblado de prueba. **Se ejecutó y se cerró** el 2026-08-07 (`ACTA-002`).
+> Esa aplicación se abandonó el 2026-08-09 y **la hoja ya no se prepara a mano: se genera del
+> modelo**, con `scripts/generar_hoja_limpia.py`.
+>
+> Lo que decidió sigue vivo, pero **en el modelo, no aquí**: `FechaBaja` y `MotivoBaja` en
+> `ACT_Activos`, y las reglas RG-16, RG-17 y RG-18 en `scripts/modelo_objetivo.py`. La lista de
+> expresiones vigente es [`docs/sdd/RECONSTRUCCION_EXPRESIONES.md`](../sdd/RECONSTRUCCION_EXPRESIONES.md).
+>
+> Se conserva por trazabilidad: explica por qué se decidió lo que hay hoy.
+> **El estado vigente está en [`ESTADO.md`](../../ESTADO.md).**
+
 # ESPEC-001C — Baja de activos y poblado completo de prueba
 
 Última pasada sobre la hoja antes de la Fase B. Deja el Sheets **completo y ejercitable**: con el

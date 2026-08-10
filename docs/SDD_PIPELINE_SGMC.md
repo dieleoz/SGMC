@@ -1,9 +1,29 @@
 # Pipeline SDD del SGMC
 
+> ## Qué cambió desde que se escribió (2026-08-09)
+>
+> **El pipeline sigue vigente y sus cinco agentes existen**, con los modelos que esta tabla declara:
+> `sgmc-especificador`, `sgmc-verificador`, `sgmc-arquitecto`, `sgmc-ejecutor` y `sgmc-probador`,
+> todos en `.claude/agents/`. Se comprueba con `ls .claude/agents/`.
+>
+> Lo que cambió es **el frente sobre el que corre**:
+>
+> - **La Fase A dejó de ser trabajo manual sobre el Sheets.** La hoja se genera del modelo con
+>   `scripts/generar_hoja_limpia.py`. Sus especificaciones `ESPEC-001`, `001B` y `001C` están en
+>   `historico/`, ejecutadas y cerradas.
+> - **La Fase B dejó de ser «convertir 15 columnas».** La aplicación `SGMC-886843353` se abandonó y
+>   **se reconstruyó desde cero como `SISGA`**, porque *Regenerate* fusiona en vez de reemplazar.
+>   Sobre una aplicación nueva no sobrevive ninguna referencia: son **38**. `ORDEN-002`, que
+>   autorizaba la conversión sobre la aplicación vieja, está en `historico/` sin acta de cierre.
+> - **El apartado 7 está reescrito** con los frentes de hoy.
+>
+> Lo que no cambió, y es lo importante: nada se ejecuta contra producción sin las tres firmas, y
+> `validar_modelo.py` en 0 errores sigue siendo el único gate objetivo.
+
 Cómo se construye cualquier cambio en este proyecto: especificado y probado sobre papel y sobre el
 modelo **antes** de gastar tokens y riesgo manejando el navegador contra producción.
 
-Adoptado el 7 de agosto de 2026.
+Adoptado el 7 de agosto de 2026. Revisado el 9 de agosto de 2026.
 
 ## 1. Por qué existe
 
@@ -105,6 +125,10 @@ Todos en `docs/sdd/`, numerados en serie y compartiendo número dentro de un mis
 | `ACTA-NNN-nombre.md` | Ejecutor | Al aplicar |
 | `ACTA-NNN-pruebas.md` | Probador | Al terminar |
 
+**Un acta no caduca:** registra un hecho fechado y se queda en `docs/sdd/` aunque después se
+demuestre que lo que certificó era incompleto. Las especificaciones y las órdenes sí caducan, y
+cuando su frente se cierra o se abandona pasan a `docs/historico/` con el motivo.
+
 ## 5.1 Dos fases, dos gates de peso distinto
 
 Un cambio no se especifica entero de una vez. Se parte por **dónde se aplica**, porque el costo y
@@ -112,17 +136,26 @@ la reversibilidad de las dos mitades no se parecen en nada.
 
 | | Alcance | Gate |
 |---|---|---|
-| **Fase A — Sheets** | Renombrados, columnas nuevas, tablas nuevas, limpieza, datos de prueba | **Ligero.** Es barato, reversible y se verifica leyendo de vuelta |
-| **Fase B — Navegador** | *Regenerate Structure*, tipado, cableado de referencias, reglas | **Pesado.** Es el paso caro y frágil. Aquí sí se exigen las tres firmas |
+| **Fase A — la hoja** | Estructura y datos del libro que AppSheet va a leer | **Ligero.** Es barato, reversible y se verifica leyendo de vuelta |
+| **Fase B — Navegador** | Dar de alta las tablas, tipado, cableado de referencias, reglas | **Pesado.** Es el paso caro y frágil. Aquí sí se exigen las tres firmas |
+
+> **La Fase A ya no se ejecuta a mano.** Cuando esto se escribió consistía en renombrar columnas y
+> crear tablas dentro del Sheets heredado. Hoy la hoja **se genera del modelo** con
+> `scripts/generar_hoja_limpia.py`, y lo que queda de la fase es verificarla:
+> `python scripts/verificar_faseA.py "BD/<archivo>.xlsx"` hasta `FASE A CERRADA`. El gate ligero
+> sigue siendo el mismo; lo que desapareció es el trabajo de edición manual que lo hacía necesario.
 
 Hay una razón técnica además de la económica: **AppSheet deriva su estructura leyendo la hoja e
-infiere el tipo a partir de los datos.** Si toda la Fase A está hecha, la Fase B necesita **un solo
-*Regenerate Structure* por tabla** en vez de uno por cambio, y una columna que ya trae
+infiere el tipo a partir de los datos.** Si toda la Fase A está hecha, una columna que ya trae
 `4.728512, -74.114531` tiene opción de salir tipada como `LatLong` sin intervención.
 
 Lo que la Fase A **no** consigue: las referencias no se infieren de forma fiable. AppSheet leerá una
 columna de enteros y dirá `Number`, no `Ref`. El cableado sigue siendo trabajo de navegador, columna
-por columna. La Fase A reduce el paso caro; no lo elimina.
+por columna, y son **38**. La Fase A reduce el paso caro; no lo elimina.
+
+**Y hay dos cosas que la Fase A tiene que dejar hechas o la Fase B no arranca:** ninguna pestaña
+oculta —AppSheet las ignora sin avisar, y por eso solo cargaban 24 tablas de 32— y la clave de cada
+tabla con el valor que ya guardan los datos.
 
 ### Orden dentro de la Fase A
 
@@ -154,12 +187,23 @@ en `scripts/modelo_objetivo.py`.**
 
 ## 7. Estado de los frentes
 
+Actualizado el 2026-08-09. **La verdad del estado está en `ESTADO.md`**; esto solo dice qué frente
+corre por el pipeline y cuál no.
+
 | Frente | Estado |
 |---|---|
-| Fase A, la hoja | **CERRADA DEFINITIVAMENTE** el 7 de agosto. `Modelo de Datos (9).xlsx`, 0 fallos. Actas `ACTA-001`, `ACTA-002` y `ACTA-003`. **La hoja no se vuelve a tocar** |
-| Fase B (navegador) | **Frente activo.** `ESPEC-002`, cableado en AppSheet |
+| Fase A, la hoja | **CERRADA.** Actas `ACTA-001` a `ACTA-004`. Hoy la hoja se genera del modelo y la fase se reduce a verificarla: `BD/Modelo_Datos_PLANTILLA.xlsx` da `FASE A CERRADA` con 60 conformes |
+| Reconstrucción de la aplicación | **Hecha.** `SGMC-886843353` se abandonó; la aplicación es `SISGA`, con las 28 tablas dadas de alta y las 38 referencias puestas |
+| Fase B, el editor | **Frente activo, en cierre.** Falta el `OR(ISBLANK(...))` de la regla del umbral de GPS, terminar las columnas retiradas y correr las tres expresiones. Guion en `prompts/PROMPT_CONTINUAR_DESPLIEGUE.md` |
+| Migración a la hoja limpia | **Sin decidir.** Preparada y sin ejecutar; el coste está medido en `MIGRACION_HOJA_LIMPIA.md`. Si se ejecuta, las columnas sobrantes desaparecen del archivo y ocultarlas deja de hacer falta. **Se decide antes de terminar de ocultarlas**, o ese trabajo se tira |
+| `ESPEC-003`, modelo de dominio | **BLOQUEADA** por el arquitecto, con 14 condiciones sin resolver. No es un paso disponible: es un documento por terminar |
 | Coordenadas reales (D-01) | Bloqueado por levantamiento en campo |
 | Código QR | **Fuera de alcance por decisión del 2026-08-07.** Ver sección 8 |
+
+**`ESPEC-002` y `ORDEN-002` describían la Fase B sobre la aplicación anterior**, donde quedaban 15
+columnas por convertir porque otras 23 ya estaban puestas. Sobre una aplicación reconstruida no
+sobrevive ninguna: son 38. La orden nunca se cerró y no hay `ACTA-005`. **Cuando una especificación
+y `modelo_objetivo.py` discrepan, manda el modelo.**
 
 ## 8. Decisión sobre el código QR
 

@@ -1,3 +1,20 @@
+> # Documento historico. NO SE APLICA.
+>
+> **Esta orden autorizaba tocar una aplicación que ya no existe.** Autorizaba ejecutar `ESPEC-002`
+> sobre `SGMC-886843353` —convertir 15 columnas de `Text` a `Ref` en el editor— y esa aplicación
+> **se abandonó el 2026-08-09**: AppSheet no admite un cambio de esquema de ese tamaño, porque su
+> `Regenerate` fusiona en vez de reemplazar (`docs/BASE_CONOCIMIENTO_APPSHEET.md` §11 y §12).
+>
+> Su §5 exigía un `ACTA-005` de cierre. **No existe y no va a existir:** la orden no llegó a
+> cerrarse, se reconstruyó la aplicación en su lugar. La app vigente es `SISGA`, con las **38**
+> referencias del modelo, no 15.
+>
+> Lo que la sustituye: [`docs/MANUAL_DESPLIEGUE.md`](../MANUAL_DESPLIEGUE.md) para construir, y
+> [`docs/sdd/PRUEBA-003-despliegue.md`](../sdd/PRUEBA-003-despliegue.md) para medir.
+>
+> Se conserva por trazabilidad: explica por qué se decidió lo que hay hoy.
+> **El estado vigente está en [`ESTADO.md`](../../ESTADO.md).**
+
 # ORDEN-002 — Ejecución de la Fase B
 
 **Queda autorizada la ejecución de `ESPEC-002` en el editor de AppSheet.** Es la primera vez en este

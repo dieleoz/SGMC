@@ -1,5 +1,25 @@
 # ACTA-004 — Cierre de formatos
 
+> **Nota añadida el 2026-08-09. El acta no se corrige: se anota qué resultó falso.**
+>
+> **Quedaba un noveno punto que `F-16` y `F-17` no podían ver.** `BD/Modelo de Datos (11).xlsx`
+> —el archivo que este acta certifica con 59 conformes y 0 fallos— tiene **8 pestañas del modelo
+> ocultas**: `ACT_Activos`, `USR_Usuarios`, `TIP_TiposActivo`, `ROL_Roles`, `SED_Sedes`,
+> `CAL_Calzadas`, `SEN_Sentidos` y `FRE_Frecuencias`. Comprobado leyendo `sheet_state` del archivo.
+>
+> **AppSheet ignora las pestañas ocultas y no lo anuncia:** de las 32 solo habría cargado 24, y esas
+> ocho no aparecían siquiera en el desplegable de tabla origen. Lo cierra `F-18`, escrita después.
+>
+> Este acta escribió que **«ningún script leía valores: todos leían fórmulas»**. El defecto de las
+> ocultas es el mismo patrón una vuelta más allá: `openpyxl` las lee sin distinción, así que la
+> comprobación pasaba midiendo lo que no era.
+>
+> **Y el `ESPEC-002` que este acta deja pendiente del décimo veredicto nunca se ejecutó.** Se
+> autorizó con `ORDEN-002`, la aplicación `SGMC-886843353` se abandonó el 2026-08-09 y se
+> reconstruyó desde cero como `SISGA`. No hay `ACTA-005`.
+>
+> El estado vigente está en [`ESTADO.md`](../../ESTADO.md).
+
 **La hoja queda cerrada en contenido y en formato el 7 de agosto de 2026.** No se toca una celda más
 desde Google Sheets.
 

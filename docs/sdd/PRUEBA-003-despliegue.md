@@ -36,20 +36,36 @@ aplicación existente; esto mide construir una aplicación de cero.
 Están verificadas contra el archivo. **Con el ejecutor trabajando bien, harían fallar pruebas
 innegociables.**
 
-**C-1 — La lista de reposición manda pegar la RG-01 que rompe `P-08` y `P-09`.**
+> **Repasadas contra el archivo el 2026-08-09. Dos siguen abiertas y una está cerrada.** Cada una
+> lleva debajo su estado y el comando con el que se comprobó.
+
+**C-1 — ABIERTA, y ahora depende de contra qué hoja se despliegue.**
 `RECONSTRUCCION_EXPRESIONES.md` §2 trae RG-01 en su variante por tipo:
-`... <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]`. Esa columna está **vacía en los 18
-tipos**, así que compara contra blanco y **rechaza también el cierre legítimo**: las dos pruebas
-fallarían y la tanda dejaría de discriminar. **El literal `1.0` es lo vigente**, y así está en el
-manual.
+`... <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]`. Si esa columna está vacía compara
+contra blanco y **rechaza también el cierre legítimo**: `P-08` y `P-09` fallarían las dos y la tanda
+dejaría de discriminar.
 
-**C-2 — El modelo y la prueba discrepan sobre `Adds`.** `modelo_objetivo.py` RG-14 dice
-`"Updates, Adds"`; `ESPEC-002` §7 y `P-11` exigen que el botón de añadir **no aparezca** en
-`OT_OrdenesTrabajo`. Hay que decidir cuál manda y **corregir la fuente, no la prueba**.
+**Y las dos hojas del proyecto no dicen lo mismo**, leídas con `openpyxl` y `data_only=True`:
 
-**C-3 — Las listas de 15 contra las 38 del modelo.** Resuelto en el manual, pero
-`RECONSTRUCCION_EXPRESIONES.md` §4 sigue listando 15. Quien valide contra ese documento dará por
-buena una app a la que le faltan 23 referencias.
+| Hoja | `TIP_TiposActivo.RadioGeofencingKm` |
+|---|---|
+| `BD/Modelo_Datos_09082026.xlsx` — sobre la que corre la app hoy | **vacía en los 18 tipos** |
+| `BD/Modelo_Datos_PLANTILLA.xlsx` — generada del modelo | **poblada en los 18**, de `0,05` a `1,5` km |
+
+**Sobre la hoja actual el literal `1.0` sigue siendo lo vigente**, y así está en el manual. **Sobre
+la plantilla la variante por tipo es la correcta y el literal es el error**, porque `1,0` km mete
+una media de 8 activos dentro de cada geofence y el sistema pasa a probar «estás en el corredor» en
+vez de «estás frente al equipo». La contradicción se cierra sola el día que se migre a la plantilla;
+hasta entonces, **el ejecutor tiene que saber contra qué hoja está trabajando**.
+
+**C-2 — ABIERTA. El modelo y la prueba discrepan sobre `Adds`.** `modelo_objetivo.py` RG-14 sigue
+diciendo `"Updates, Adds"`; `ESPEC-002` §7 y `P-11` exigen que el botón de añadir **no aparezca** en
+`OT_OrdenesTrabajo`. Hay que decidir cuál manda y **corregir la fuente, no la prueba**. Comprobado
+volcando `REGLAS` de `scripts/modelo_objetivo.py`.
+
+**C-3 — CERRADA el 2026-08-09.** `RECONSTRUCCION_EXPRESIONES.md` §4 lista hoy **las 38**, con el
+aviso de que las 15 de `ESPEC-002` eran las que faltaban en la aplicación anterior. `ESPEC-002`
+lleva además una nota de alcance en su cabecera. Ya no hay documento vigente que mande cablear 15.
 
 ## 3. Las pruebas nuevas
 
@@ -203,9 +219,23 @@ distingue de un acierto.**
 
 ### La causa raíz, en una frase
 
-Los 45 campos retirados **siguen en la hoja a propósito**. El procedimiento da de alta cada tabla
+Los **47** campos retirados **siguen en la hoja a propósito**. El procedimiento da de alta cada tabla
 **leyendo la hoja**. Luego vuelven al esquema como columnas reales, y **toda expresión que las cite
 resolverá**.
+
+> **Corregido el 2026-08-09: aquí decía 45.** Son **47**, y el número está derivado del archivo, no
+> contado: columnas presentes en `BD/Modelo_Datos_09082026.xlsx` que el modelo no declara vivas. Es
+> el mismo 47 de `ESTADO.md` y de `docs/prompts/PROMPT_CONTINUAR_DESPLIEGUE.md`.
+>
+> **Durante unas horas hubo un 45 que también era correcto, por otro camino, y eso era el síntoma
+> de un hueco.** `RECONSTRUCCION_EXPRESIONES.md` §5 se genera del modelo, y el modelo solo describía
+> 45: **43** de `CAMPOS_RETIRADOS` más **2** de `COLUMNAS_SIN_DECIDIR`. Las dos que faltaban estaban
+> en la hoja y el modelo no las mencionaba de ninguna forma.
+>
+> **Cerrado el 2026-08-09 en la fuente.** `FRM_Formularios.Orden` y `FRM_Preguntas.ValorDefecto`
+> están declaradas en `COLUMNAS_SIN_DECIDIR` con su motivo, así que **el modelo y la hoja dicen 47
+> los dos** y `D-06` avisa de las cuatro indecisas, no de dos. Se corrigió la fuente, no el
+> documento: es lo que exige `CLAUDE.md` §7.9.
 
 ### Los once casos
 

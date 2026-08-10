@@ -104,4 +104,4 @@ graph TD
 | `screen_after_ok` | Guardado de checklist | Generación exitosa de registro ID `d02d8a3d` en `OT-0001` |
 
 ---
-*Referencias Cruzadas:* [README.md](../README.md) | [especificaciones.md](../docs/especificaciones.md) | [bd.md](../docs/bd.md) | [MAP.md](../MAP.md)
+*Referencias Cruzadas:* [README.md](../../README.md) | [especificaciones.md](especificaciones.md) | [bd.md](../bd.md) | [MAP.md](../../MAP.md)

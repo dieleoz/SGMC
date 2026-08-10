@@ -1,5 +1,21 @@
 # ACTA-003 — Cierre de la hoja
 
+> **Nota añadida el 2026-08-09. El acta no se corrige: se anota qué resultó falso.**
+>
+> **«La hoja no se vuelve a tocar» duró un día.** Se reabrió con `ACTA-004` para arreglar los
+> formatos, y el 2026-08-09 dejó de usarse: la hoja vigente es `Modelo_Datos_09082026` y **se genera
+> del modelo**, no se edita a mano (`BD/Modelo_Datos_PLANTILLA.xlsx`).
+>
+> **Y el `FASE A CERRADA` de aquí no bastaba.** `BD/Modelo de Datos (9).xlsx` tiene **8 pestañas del
+> modelo ocultas** —comprobado leyendo `sheet_state` del archivo—, y **AppSheet ignora las pestañas
+> ocultas sin avisar**: habría cargado 24 de 32 tablas. `openpyxl` sí las lee, así que el verificador
+> dio verde. Lo cierra `F-18`, que entonces no existía.
+>
+> Es la misma familia de fallo que este acta celebra haber parado dos veces: **la comprobación pasaba
+> porque medía lo que no era.**
+>
+> El estado vigente está en [`ESTADO.md`](../../ESTADO.md).
+
 **La Fase A queda cerrada de forma definitiva el 7 de agosto de 2026.** La hoja no se vuelve a tocar
 desde Google Sheets: todo lo que sigue ocurre dentro del editor de AppSheet.
 

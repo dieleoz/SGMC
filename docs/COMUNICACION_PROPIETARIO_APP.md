@@ -13,11 +13,17 @@ Se resolvió por otro camino, y ahora lo que queda es **avisar y cerrar un punto
 | Actualizado | 2026-08-09 |
 | Aplicación original | `SGMC-886843353`, de `[correo del Propietario]` |
 | Aplicación nueva | `SISGA`, propiedad de `[correo de la Concesión]` |
-| Hoja de producción | `Modelo de Datos`, del Propietario, compartida con nosotros |
+| Hoja de producción | `Modelo_Datos_09082026`, 32 pestañas |
+
+> **Y aquí hay un punto que no se puede cerrar desde el repositorio.** `ESTADO.md` y `CLAUDE.md` §2
+> dan esa hoja como **propiedad de la Concesión**; este documento la daba como del Propietario,
+> compartida con nosotros. **Las dos no pueden ser ciertas, y ninguna se verifica leyendo un archivo
+> del repositorio**: hay que abrir el documento en Drive y mirar el propietario. Si ya es de la
+> Concesión, el apartado 3 está resuelto y lo único que queda de este documento es el apartado 4.
 
 ## 1. Qué pasó
 
-El modelo de datos se corrigió **en la hoja**: 27 columnas renombradas, 8 tablas nuevas, 45 campos
+El modelo de datos se corrigió **en la hoja**: 27 columnas renombradas, 8 tablas nuevas, 43 campos
 retirados. La aplicación conservaba el esquema anterior y no había forma de que lo recogiera.
 
 **Y no era falta de maña. Son dos límites de AppSheet, los dos verificados:**
@@ -60,8 +66,11 @@ ella, así que técnicamente no hace falta nada más. Solo saber que está de ac
 estaba prevista, porque las fotografías del sistema consumen cuota de Drive del propietario del
 documento, y eso hoy es su cuenta.
 
-**No corre prisa**: con el inventario real esa cuota da para trece años y medio. Pero es el tipo de
-cosa que conviene decidir antes de que haya técnicos en campo, no después.
+**No corre prisa, pero tampoco sobra tanto como parecía.** Con los 355 activos del Plan Maestro esa
+cuota da para **5,7 años**, frente a los 5 de retención de evidencia que exige el proyecto; si el
+parque crece a 500, se agota en 4,1 y ya no llega. Sale de `python scripts/capacidad.py`. Es el tipo
+de cosa que conviene decidir antes de que haya técnicos en campo, no después: mover un backend con
+evidencia dentro cuesta mucho más.
 
 ## 4. Y una cosa que le debemos
 
@@ -84,7 +93,7 @@ sigue pudiendo escribir con permisos que el modelo nuevo ya no concede.
 >
 > Te cuento dónde estamos con el SGMC.
 >
-> El modelo de datos de la hoja se corrigió bastante —columnas renombradas, ocho tablas nuevas,
+> El modelo de datos de la hoja se corrigió bastante —27 columnas renombradas, ocho tablas nuevas,
 > campos retirados— y la aplicación no había forma de que lo recogiera. No era cosa de insistir: el
 > *Regenerate* de AppSheet conserva las columnas viejas en vez de sustituirlas, y las columnas
 > reales no se pueden borrar una a una. Lo dice el propio AppSheet cuando te atascas.
@@ -97,8 +106,8 @@ sigue pudiendo escribir con permisos que el modelo nuevo ya no concede.
 >
 > Lo único que necesitamos de ti es confirmar sobre qué hoja opera la aplicación de producción: si
 > seguimos con la tuya —tenemos permiso de edición— o si pasa a la cuenta de la Concesión. Lo
-> segundo es más limpio porque las fotografías consumen cuota de Drive del propietario, pero no
-> corre prisa: con el inventario real hay para trece años.
+> segundo es más limpio porque las fotografías consumen cuota de Drive del propietario, y con el
+> inventario completo esos 15 GB dan justo para los cinco o seis años que hay que guardar.
 >
 > Y algo que te debemos: la aplicación original quedó en un estado que no arranca. Ya venía
 > fallando, pero dos de esos errores los provocamos nosotros diagnosticando, y no se arreglan
@@ -109,5 +118,6 @@ sigue pudiendo escribir con permisos que el modelo nuevo ya no concede.
 
 ---
 
-*Estado técnico y procedimiento en `docs/prompts/PROMPT_AGENTE_APPSHEET_FASE_B.md`. Qué hace el*
-*sistema, en `docs/FUNCIONAL_SGMC.md`.*
+*Estado del proyecto en `ESTADO.md`. Qué hace el sistema, en `docs/FUNCIONAL_SGMC.md`. Los dos*
+*límites de AppSheet que explican la reconstrucción, con su cita oficial, en*
+*`docs/BASE_CONOCIMIENTO_APPSHEET.md` §11 y §12.*

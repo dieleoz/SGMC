@@ -1,3 +1,16 @@
+> # Documento historico. NO SE APLICA.
+>
+> Corrección de los 19 fallos que dejó abiertos `ESPEC-001` sobre el Sheets de la aplicación
+> `SGMC-886843353`. **Se ejecutó y se cerró** el 2026-08-07 (`ACTA-001`). Esa aplicación se
+> abandonó el 2026-08-09 y la hoja ya no se prepara a mano: **se genera del modelo**.
+>
+> Su hallazgo principal —un catálogo se diseña con la clave que los datos ya guardan— quedó como
+> regla **R-8** de `CLAUDE.md`, y las claves de `EOT_EstadosOrden` viven en
+> `scripts/modelo_objetivo.py`.
+>
+> Se conserva por trazabilidad: explica por qué se decidió lo que hay hoy.
+> **El estado vigente está en [`ESTADO.md`](../../ESTADO.md).**
+
 # ESPEC-001B — Cierre real de la Fase A
 
 La Fase A se reportó como «100% cerrada y validada». **No lo está.** Verificado el 2026-08-07 con

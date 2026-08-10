@@ -13,9 +13,14 @@ de un sistema construido sobre **Google AppSheet** (no-code) con backend en **Go
 El entregable de este repo es el As-Built: especificaciones, diccionario de datos, manuales,
 dictámenes de auditoría y el archivo Excel maestro.
 
-- Aplicación: AppSheet `SGMC-886843353` (app en vivo, enlaces en `README.md`)
-- Backend de producción: Google Sheets `1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc`
+- Aplicación: AppSheet **`SISGA`** (app en vivo, enlaces en `ESTADO.md` y en `README.md`)
+- Backend de producción: Google Sheets `Modelo_Datos_09082026`,
+  `1LGabjn1iNDKiJNP7CUD4_LwCH2BGXC8oTBfXmuuAkFs`
 - Repositorio remoto: `github.com/dieleoz/SGMC`
+
+**La aplicación anterior, `SGMC-886843353`, se abandonó el 2026-08-09**, y con ella su hoja
+`1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc`. Los dos identificadores siguen apareciendo en
+documentos generados y en el histórico: si te encuentras uno, no es este sistema.
 
 ## 2. Dónde está la verdad
 
@@ -42,9 +47,12 @@ Lo que queda de aquello son tres reglas que siguen valiendo:
 
 ## 2.1 Propiedad y edición del backend
 
-El Sheets de producción es propiedad de `[correo del Propietario]`. el Propietario de la Aplicación es el
-desarrollador y product owner, y **hay una entrega planificada** a la Concesión una vez recibido el
-sistema. No es una falla de gobierno: es un paso de transición con responsable.
+**La hoja vigente, `Modelo_Datos_09082026`, es propiedad de la Concesión.** Eso cierra el punto
+para el backend nuevo.
+
+Lo que sigue abierto es la aplicación y la hoja anteriores: `SGMC-886843353` y su Sheets son de
+`[correo del Propietario]`, que es el desarrollador y product owner. Qué comunicarle está en
+`docs/COMUNICACION_PROPIETARIO_APP.md`.
 
 Nota de método: `get_file_permissions` devuelve únicamente al propietario, pero eso **no** implica
 que no haya otros editores. Comprobado en la práctica: la cuenta del cliente sí tiene permiso de
@@ -68,8 +76,10 @@ como supuesto, en la tabla del final de ese documento.
 - Para el Excel, usa `openpyxl` (disponible, 3.1.5) y muestra el dato leído, no un resumen.
 - Distingue siempre **estructura** de **población**: que exista la columna no significa que el
   campo tenga datos, y que la tabla exista no significa que el flujo se haya ejercitado.
-  Cuatro tablas del modelo están hoy vacías (`MAN_Mantenimientos`, `FOT_Fotografias`,
-  `FIR_Firmas`, `GPS`).
+  Vale también al revés: `MAN_Mantenimientos`, `FOT_Fotografias` y `FIR_Firmas` **ya no están
+  vacías** —traen 2, 3 y 1 fila de fixture—, y eso **no** significa que el ciclo se haya recorrido
+  de extremo a extremo. Sigue sin ejercitarse. Y de los 18 formularios, **solo `FRM_SOS` tiene
+  banco de preguntas**. Cuenta las filas del archivo antes de afirmar cualquiera de las dos cosas.
 - Al cerrar un hallazgo, deja constancia de con qué comando y qué salida lo cerraste.
 - **Al leer un `.xlsx` con openpyxl, `data_only=True` o estarás leyendo fórmulas.** Sin él,
   `TIP_TiposActivo.FormularioID` devolvía `=CONCAT("FRM_",MID(B2,1,4))` en vez de `FRM_SOS`: 18
@@ -235,8 +245,17 @@ Mensaje de error, en texto plano:
 Ubicación fuera de rango: debe estar junto al activo para cerrar.
 ```
 
-Mientras `TIP_TiposActivo.RadioGeofencingKm` no exista o esté vacío, usar el literal `1.0` y
-anotarlo como provisional.
+**Ese radio ya está poblado.** `TIP_TiposActivo.RadioGeofencingKm` trae valor en los 18 tipos de
+`BD/Modelo_Datos_PLANTILLA.xlsx`: `0.05` en poste SOS, cámara, sensores y equipos de TI; `0.1` en
+paneles de mensaje variable, báscula, generador y subestación; `1.5` en el tramo de fibra, que es
+lineal. **El literal `1.0` ya no se usa**, y `PAR_Parametros.RADIO_GEOFENCING_KM` queda como valor
+provisional histórico: la regla no lo lee. Cualquier documento que siga mandando el literal `1.0`
+describe un estado superado.
+
+Y la regla no basta por sí sola: las cuatro columnas de captura de `MAN_Mantenimientos`
+—`Coordenadas_Cierre`, `Precision_GPS`, `UbicacionEscaneo` y `FechaHoraEscaneo`— van con
+`Editable_If = FALSE` (RG-20). Sin eso, `Coordenadas_Cierre` dibuja un pin arrastrable sobre el
+mapa, el técnico lo suelta encima del activo y RG-01 valida sin protestar.
 
 Son incorrectas contra este modelo, y fallan en ejecución, todas estas variantes:
 
@@ -251,9 +270,16 @@ asignadas al usuario resuelto vía `USEREMAIL()`. No por `SedeID`, que es donde 
 y no donde está el activo; esa confusión es la que dejó a usuarios y activos en conjuntos
 disjuntos.
 
-**El cableado no basta para que el geofencing funcione.** Los 34 activos comparten la coordenada
-`4.728512, -74.114531`, en Bogotá. Hasta que se carguen coordenadas reales (D-01), cualquier cierre
-en la vía queda fuera de rango y cualquier cierre en Bogotá queda dentro.
+**El cableado no basta para que el geofencing funcione, y el radio poblado tampoco.** Lo que falta
+es la coordenada del activo, y eso **no ha cambiado**:
+
+- Los **34 activos de fixture** comparten la coordenada `4.728512, -74.114531`, en Bogotá.
+- Los **355 sintéticos** llevan coordenadas distintas repartidas sobre el corredor, pero son
+  generadas: **ninguna es el sitio real del equipo.**
+
+Hasta que se carguen coordenadas reales (D-01), cualquier cierre en la vía queda fuera de rango y
+cualquier cierre en Bogotá queda dentro. **No declares el geofencing operativo por haber puesto la
+regla.**
 
 ## 7. Estado: no vive en este archivo
 
@@ -262,13 +288,15 @@ hizo que durante dos dias `CLAUDE.md` describiera una Fase 0 abierta que ya se h
 
 | Que quieres saber | Donde esta |
 |---|---|
+| **En que punto va todo y que falta** | **`ESTADO.md`. Es la verdad del estado, y se lee primero** |
 | En que fase vamos y que sigue | `docs/ROADMAP.md` §2, orden de implementacion |
 | Que hace el sistema, para quien y como | `docs/FUNCIONAL_SGMC.md` |
 | Que tiene la hoja hoy, columna a columna | `docs/bd.md`, **generado** |
 | Por que se cerro cada fase | `docs/sdd/ACTA-00N-*.md` |
+| Por que se decidio algo que ya no aplica | `docs/historico/`, con su README |
 
 Para comprobar la hoja en cualquier momento: *Archivo → Descargar → Microsoft Excel*, guardar en
-`BD/` y correr `python scripts/verificar_faseA.py "BD/Modelo de Datos (N).xlsx"`. **No cierres nada
+`BD/` y correr `python scripts/verificar_faseA.py "BD/<archivo>.xlsx"`. **No cierres nada
 por el reporte de quien lo aplico**, ni siquiera por el tuyo.
 
 ## Método de trabajo vigente: construir bajo supuestos
@@ -281,12 +309,15 @@ hasta que el campo los desmienta**. Trabaja con ellos. No abras un punto para co
 falta una definición, adóptala como supuesto, decláralo y sigue.
 
 La razón es doble. Un cuestionario en abstracto a quien todavía no tiene el modelo mental produce
-silencio o un "de acuerdo" a todo, que simula una decisión inexistente. Y el sistema actual no
-permite formarse criterio: cuatro tablas vacías, un formulario de dieciocho y ninguna transacción.
-Una suposición escrita y probada se corrige en una tarde; una pregunta sin responder bloquea
-semanas.
+silencio o un "de acuerdo" a todo, que simula una decisión inexistente. Y el sistema todavía no
+permite formarse criterio: un formulario con preguntas de dieciocho, y ningún ciclo recorrido de
+extremo a extremo. Una suposición escrita y probada se corrige en una tarde; una pregunta sin
+responder bloquea semanas.
 
-La directiva de ejecución es `docs/prompts/PROMPT_CONSTRUCCION_SGMC.md`.
+Lo que hay que ejecutar ahora está en `ESTADO.md` §2 y en
+`docs/prompts/PROMPT_CONTINUAR_DESPLIEGUE.md`. La directiva anterior,
+`PROMPT_CONSTRUCCION_SGMC.md`, construía la aplicación que se reemplazó y **está en
+`docs/historico/`**: no la sigas.
 
 ## Para qué existe el sistema
 
@@ -296,10 +327,14 @@ Antes de decidir nada, ancla contra esto:
 > y que la evidencia que lo respalda es difícil de falsificar.
 
 Todo lo demás sirve a eso o sobra. La presencia se garantiza encadenando evidencias
-independientes: escaneo del QR físico con hora y coordenada, fotografías tomadas con la cámara de
-la app y no de la galería —cada una con su propia coordenada—, cierre dentro del radio del activo,
-y marca de tiempo del servidor y no del teléfono. La cadena no es infalsificable: eleva el costo
-de falsificar por encima del de hacer el trabajo, que es el objetivo realista.
+independientes: fotografías tomadas con la cámara de la app y no de la galería —cada una con su
+propia coordenada—, cierre dentro del radio del tipo de activo con las columnas de captura no
+editables, y marca de tiempo del servidor y no del teléfono. La cadena no es infalsificable: eleva
+el costo de falsificar por encima del de hacer el trabajo, que es el objetivo realista.
+
+**El escaneo del QR físico ya no es un eslabón de esa cadena**: quedó fuera de alcance el
+2026-08-07 y el activo se abre por lista. Es el eslabón más fuerte que se perdió, y por eso el
+peso recae en la fotografía y en el `Editable_If = FALSE` de la captura.
 
 Detalle con consecuencia: la compresión a 600 px descarta los metadatos de la imagen, así que
 fecha, hora y coordenada se guardan **como datos de cada fotografía**, nunca confiados al archivo.
@@ -357,39 +392,64 @@ siempre se abren, y el viewport cambia de tamaño entre llamadas y desplaza las 
 - Prefiere leer el backend con el conector de Google Drive antes que navegar la interfaz.
 
 Lo que sí está verificado como resuelto: `Coordenadas_Cierre` y `Precision_GPS` existen en
-`MAN_Mantenimientos`; la columna `Observaciones` ya no está duplicada (24 columnas únicas).
+`MAN_Mantenimientos`, y la columna `Observaciones` ya no está duplicada. **El recuento de columnas
+de esa tabla se deriva, no se cita de memoria** —el modelo declara hoy 23— porque esa cifra cambió
+tres veces y cada versión sobrevivió en algún documento.
 
-## 7.4 Los tres verificadores, y qué mide cada uno
+## 7.4 Los cuatro verificadores, y qué mide cada uno
 
-Ninguno sustituye a otro. Los tres se corren antes de dar nada por cerrado.
+Ninguno sustituye a otro. Los cuatro se corren antes de dar nada por cerrado.
 
 | Script | Mide | Cuándo falla |
 |---|---|---|
 | `validar_modelo.py` | El modelo consigo mismo: tipos, claves, rutas de desreferencia, reglas | Siempre. Es el único gate objetivo del pipeline |
 | `verificar_faseA.py` | El modelo contra **la hoja descargada** | Al cerrar una fase de datos |
 | `verificar_documentos.py` | **La prosa** contra el modelo | Al escribir o tocar cualquier `.md` |
+| `verificar_enlaces.py` | Que todo enlace relativo entre documentos **resuelve** | Al mover, renombrar o retirar cualquier documento |
+
+**El cuarto se añadió el 2026-08-09, y nació de un fallo concreto.** Al retirar 15 documentos a
+`docs/historico/` quedaron **31 enlaces rotos**, y se encontraron leyéndolos uno a uno. Un enlace
+roto no es cosmético: manda a quien retoma el proyecto a un documento que no existe, y lo que hará
+entonces es guiarse por el que sí encuentre, que suele ser el viejo. **Mover un documento es la
+operación que más silenciosamente rompe cosas**, y era la única que no tenía red.
 
 **Lo que ninguno mide es si algo es buena idea.** Para eso está el arquitecto, y por eso su
 veredicto no se sustituye por «los scripts pasan».
 
-## 7.9 Una instruccion que exige criterio se ejecuta mal (regla nueva, 2026-08-09)
+## 7.5 Una sola forma por propósito (regla nueva, 2026-08-07)
 
-El manual de despliegue decia «oculte las 47 columnas retiradas» y «las 3 columnas trampa». **Quien
-lo ejecuta no tiene el modelo delante**, asi que dedujo. Resultado: cableo `CHK_Checklists.ActivoID`
-como referencia —es una trampa, habia que ocultarla— y propuso `Abierto / En Proceso / Completado`
-como valores de `NOV_Novedades.Estado`, que el modelo declara `Reportada / Aceptada / Descartada`.
+**Riesgo real, señalado por operación:** con tanto material acumulado —los documentos de contexto,
+once rondas de revisión, cuatro actas—, es fácil **proponer dos mecanismos para lo mismo** y que
+alguien implemente los dos. Eso ya pasó dos veces: `Requiere_Repuesto` y `MotivoPendienteID`
+registraban el mismo hecho, y el manual de usuario describía un bypass de GPS por nota libre
+mientras el modelo tiene `CierreConExcepcion`.
 
-**Ninguno de los dos errores es del ejecutor. Son del documento.**
+**Las dos están cerradas.** El manual se reescribió el 2026-08-07 y hoy manda el cierre con
+excepción; su versión ilustrada, que aún describía el bypass, se retiró a `docs/historico/` el
+2026-08-09. Se dejan escritas porque el patrón vuelve, no porque sigan vivas.
 
-Y las trampas son **tres**, derivadas del archivo. Las conte de memoria en vez de derivarlas.
+**Antes de proponer un mecanismo, comprueba si ya existe uno para ese propósito.** El registro está
+en `docs/FUNCIONAL_SGMC.md` §6. Si existe, se usa el que está; si el nuevo es mejor, se retira el
+viejo **en el mismo cambio** y se anota en esa tabla. Nunca conviven los dos.
 
-**Regla: todo documento operativo lleva la lista completa, generada.** Si una instruccion dice «las
-retiradas», «las trampa» o «los valores correspondientes», esta mal escrita. El anexo de
-`MANUAL_DESPLIEGUE.md` es el patron: **ficha por tabla, columna por columna, sin nada que deducir.**
+Ese mismo hábito evita el error inverso, que también ocurrió: **proponer como nuevo algo que ya está
+en el modelo.** `ROL_Roles` y las cuatro tablas de plantilla de checklist —`FRM_Formularios`,
+`FRM_Secciones`, `FRM_Preguntas`, `TPR_TiposRespuesta`— ya existían cuando se propusieron como
+tablas a crear. **Vuelca `MODELO` antes de proponer una tabla.**
 
-**Y el corolario que falta:** hoy el modelo describe datos, no interfaz. `VISTAS`, `ACCIONES` y
-`SLICES` no existen en `modelo_objetivo.py`, asi que el paso de vistas del manual sigue siendo
-«se construye sola» — exactamente la clase de instruccion que esta regla prohibe.
+## 7.6 Los documentos de contexto no son la vara
+
+`contexto/` tiene **ocho archivos**, de los que `docs/CONTEXTO_OPERACION.md` §1 cataloga siete; el
+octavo, `MATRIZ_MANTENIMIENTO_SISGA_2026.xlsx`, no está en esa tabla. **Tres no son del Sisga**: el
+PDF de ETRA y el informe de enero de 2025 son del corredor Neiva–Girardot, y la propuesta de la
+manta es de INDRA en otra doble calzada. Su procedencia está etiquetada en ese mismo documento.
+
+**Son ejemplos que dan contexto, no obligaciones contractuales.** De ellos se copia método. Ninguna
+cifra ni estructura suya se convierte en requisito del Sisga sin que operación lo confirme: entra
+como **supuesto abierto**, nunca como carencia del modelo.
+
+Este proyecto ya midió el modelo del Sisga contra la estructura de otro corredor una vez. La
+advertencia de procedencia existía y contenía ella misma el error.
 
 ## 7.7 Una lista es correcta para UN punto de partida (regla nueva, 2026-08-09)
 
@@ -434,38 +494,50 @@ salida: «Delete and re-add the table». Y una cuenta coautora no puede dar de a
 ese camino tampoco estaba disponible.
 
 **Por debajo de cierto umbral se repara; por encima se reconstruye.** El umbral no está escrito en
-ninguna parte y hay que estimarlo: 27 columnas renombradas, 8 tablas nuevas y 45 campos retirados
-estaban muy por encima.
+ninguna parte y hay que estimarlo. En su momento se estimó con 27 columnas renombradas, 8 tablas
+nuevas y 45 campos retirados, que estaban muy por encima.
 
-## 7.5 Una sola forma por propósito (regla nueva, 2026-08-07)
+**Esos tres números describen aquel momento, no el modelo de hoy: no los reutilices.** Las tablas
+nuevas frente al modelo anterior siguen siendo ocho —`UNF_UnidadesFuncionales`, `ASG_AsignacionZona`,
+`EOT_EstadosOrden`, `MOT_MotivosPendiente`, `PAR_Parametros`, `NOV_Novedades`, `PLA_PlanMantenimiento`
+y `FAL_ModosFalla`—, pero `RENOMBRADOS` y `CAMPOS_RETIRADOS` se derivan del modelo y hoy dan otra
+cifra. Vuélcalas antes de citarlas.
 
-**Riesgo real, señalado por operación:** con tanto material acumulado —siete documentos de
-contexto, once rondas de revisión, tres actas—, es fácil **proponer dos mecanismos para lo mismo** y
-que alguien implemente los dos. Eso ya pasó: `Requiere_Repuesto` y `MotivoPendienteID` registraban
-el mismo hecho; el manual de usuario describe un bypass de GPS por nota libre mientras el modelo
-tiene `CierreConExcepcion`.
+## 7.9 Una instruccion que exige criterio se ejecuta mal (regla nueva, 2026-08-09)
 
-**Antes de proponer un mecanismo, comprueba si ya existe uno para ese propósito.** El registro está
-en `docs/FUNCIONAL_SGMC.md` §6. Si existe, se usa el que está; si el nuevo es mejor, se retira el
-viejo **en el mismo cambio** y se anota en esa tabla. Nunca conviven los dos.
+El manual de despliegue decia «oculte las 47 columnas retiradas» y «las 3 columnas trampa». **Quien
+lo ejecuta no tiene el modelo delante**, asi que dedujo. Resultado: cableo `CHK_Checklists.ActivoID`
+como referencia —es una trampa, habia que ocultarla— y propuso `Abierto / En Proceso / Completado`
+como valores de `NOV_Novedades.Estado`, que el modelo declara `Reportada / Aceptada / Descartada`.
 
-Ese mismo hábito evita el error inverso, que también ocurrió: **proponer como nuevo algo que ya está
-en el modelo.** `ROL_Roles` y las cuatro tablas de plantilla de checklist —`FRM_Formularios`,
-`FRM_Secciones`, `FRM_Preguntas`, `TPR_TiposRespuesta`— ya existían cuando se propusieron como
-tablas a crear. **Vuelca `MODELO` antes de proponer una tabla.**
+**Ninguno de los dos errores es del ejecutor. Son del documento.**
 
-## 7.6 Los documentos de contexto no son la vara
+Y las trampas son **tres**, derivadas del archivo. Las conte de memoria en vez de derivarlas. Son
+`OT_OrdenesTrabajo.FormularioID`, `CHK_Checklists.ActivoID` y `CHD_ChecklistDetalle.TipoRespuestaID`:
+retiradas del modelo, pero con nombre de clave de otra tabla, así que invitan a cablearlas.
 
-`contexto/` contiene siete documentos. **Tres no son del Sisga**: el PDF de ETRA y el informe de
-enero de 2025 son del corredor Neiva–Girardot, y la propuesta de la manta es de INDRA en otra doble
-calzada. Su procedencia está etiquetada en `docs/CONTEXTO_OPERACION.md`.
+**El «47» es correcto, y su historia es la mejor ilustración de la regla.** No sale de una sola
+estructura: son **43** de `CAMPOS_RETIRADOS` más **4** de `COLUMNAS_SIN_DECIDIR`. Quien volcaba solo
+la primera obtenía 43 y creía haber pillado un error; quien contaba la hoja obtenía 47. Las dos
+cuentas eran ciertas y el desacuerdo señalaba un hueco real: dos columnas de la hoja
+—`FRM_Formularios.Orden` y `FRM_Preguntas.ValorDefecto`— que el modelo no mencionaba de ninguna
+forma. **Se cerró declarándolas en la fuente**, no ajustando la cifra en los documentos.
 
-**Son ejemplos que dan contexto, no obligaciones contractuales.** De ellos se copia método. Ninguna
-cifra ni estructura suya se convierte en requisito del Sisga sin que operación lo confirme: entra
-como **supuesto abierto**, nunca como carencia del modelo.
+Se deriva con una línea, y nunca se repite de memoria:
 
-Este proyecto ya midió el modelo del Sisga contra la estructura de otro corredor una vez. La
-advertencia de procedencia existía y contenía ella misma el error.
+```bash
+python -c "import sys;sys.path.insert(0,'scripts');import modelo_objetivo as M;print(sum(len(v) for v in M.CAMPOS_RETIRADOS.values())+len(M.COLUMNAS_SIN_DECIDIR))"
+```
+
+**Una cifra que dos caminos calculan distinto no es una errata: es un hueco en el modelo.**
+
+**Regla: todo documento operativo lleva la lista completa, generada.** Si una instruccion dice «las
+retiradas», «las trampa» o «los valores correspondientes», esta mal escrita. El anexo de
+`MANUAL_DESPLIEGUE.md` es el patron: **ficha por tabla, columna por columna, sin nada que deducir.**
+
+**Y el corolario que falta:** hoy el modelo describe datos, no interfaz. `VISTAS`, `ACCIONES` y
+`SLICES` no existen en `modelo_objetivo.py` —comprobado—, asi que el paso de vistas del manual
+sigue siendo «se construye sola», exactamente la clase de instruccion que esta regla prohibe.
 
 ## 8. Deriva documental: ahora es mecanica
 
@@ -497,29 +569,39 @@ sitios, el problema es el criterio y no el documento.
 ## 9. Estructura del repositorio
 
 ```
-README.md          Entrada: qué es el proyecto, cómo funciona, estado real
+ESTADO.md          Dónde vamos y qué falta. La verdad del estado
+README.md          Entrada: qué es el proyecto y cómo funciona
 CLAUDE.md          Este archivo
 MAP.md             Índice maestro y referencias cruzadas
 
-BD/                FUENTE DE VERDAD: Modelo de Datos (2).xlsx, 24 hojas
+BD/                Hojas de datos. Modelo_Datos_PLANTILLA.xlsx es el entregable,
+                   generado del modelo. Modelo_Datos_09082026.xlsx es la descarga
+                   del Sheets de producción
 docs/              Documentación técnica y funcional (.md)
-  images/          Figuras de los documentos (fig_01 a fig_05)
-  prompts/         Directivas para agentes de auditoría
-Manuales/          Manuales de usuario
-  images/          Maquetas del manual (img_01 a img_06)
+  historico/       Documentos retirados. No usar como fuente
+    images_manual/ Maquetas del manual antiguo (img_01 a img_06)
+  sdd/             Artefactos del pipeline: ESPEC, PRUEBA y ACTA
+  prompts/         Directivas para agentes
+  images/          Figuras de los documentos (fig_01 a fig_07)
+Manuales/          MANUAL_DE_USUARIO.md
 entregables/       Word y Excel listos para enviar al cliente
-scripts/           Generadores de figuras y documentos
+scripts/           Fuente del modelo, validadores y generadores
+contexto/          Material de contexto operativo. No es la vara
 archivo/           Material de origen. No versionado (en .gitignore)
 ```
 
 Reglas de ubicación al crear archivos:
 
-- Un `.md` de documentación va en `docs/`. Solo README, CLAUDE y MAP viven en la raíz.
+- Un `.md` de documentación va en `docs/`. Solo ESTADO, README, CLAUDE y MAP viven en la raíz.
 - Un `.py` va en `scripts/` y resuelve sus rutas desde la raíz del repositorio con
   `os.path.dirname(os.path.dirname(os.path.abspath(__file__)))`. Nunca rutas absolutas `D:\`.
-- Un `.docx` o `.xlsx` destinado al cliente va en `entregables/`. Los manuales van en `Manuales/`.
-- Las figuras de un documento van en `docs/images/`; las del manual, en `Manuales/images/`.
+- Un `.docx` o `.xlsx` destinado al cliente va en `entregables/`. El manual de usuario va en
+  `Manuales/`.
+- Las figuras de un documento van en `docs/images/`.
 - Todo documento nuevo se enlaza en `MAP.md` y en la tabla de `README.md`.
+- **Nada se borra: se mueve a `docs/historico/`**, con un aviso en su cabecera que diga de dónde
+  vino y por qué salió, y una fila en `docs/historico/README.md`. Después se arreglan los enlaces
+  que apuntaban a su sitio anterior — un enlace roto es peor que no tener enlace.
 
 ## 10. Alcance y método de construcción
 

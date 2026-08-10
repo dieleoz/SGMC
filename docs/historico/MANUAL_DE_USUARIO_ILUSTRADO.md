@@ -1,14 +1,18 @@
-> # NO ENTREGAR. Versión superada.
+> # RETIRADO A HISTÓRICO EL 2026-08-09. NO ENTREGAR.
+>
+> **Estaba en `Manuales/`. Se movió aquí junto con `Manual_de_Usuario_SGMC_Con_Diagramas.docx` y
+> las seis imágenes, que ahora viven en [`images_manual/`](images_manual/).** Motivo: sus diagramas
+> y sus maquetas retratan el flujo antiguo con escáner QR, que se retiró del alcance el 2026-08-07,
+> y rehacerlos no tiene sentido hasta que la aplicación esté construida.
 >
 > Este documento arrastra los mismos errores que tenía `MANUAL_DE_USUARIO.md` antes de reescribirse
 > el 2026-08-07: escáner QR —retirado del alcance—, filtro de seguridad por `SedeID` —es por unidad
 > funcional—, geofencing fijo de 1 km —el radio va por tipo de activo—, y bypass de GPS con nota
-> libre —es cierre con excepción—.
+> libre —es cierre con excepción—. Además cita la aplicación `SGMC-886843353`, que **se abandonó**:
+> la vigente es `SISGA`.
 >
-> **El manual vigente es [`MANUAL_DE_USUARIO.md`](MANUAL_DE_USUARIO.md).** Los diagramas y las
-> pantallas de este archivo se rehacen cuando la aplicación esté construida, para que retraten lo
-> que el técnico ve de verdad. Lo mismo vale para `Manual_de_Usuario_SGMC_Con_Diagramas.docx` y para
-> las seis imágenes de `images/`, que ilustran el flujo antiguo con QR.
+> **El manual vigente es [`Manuales/MANUAL_DE_USUARIO.md`](../../Manuales/MANUAL_DE_USUARIO.md), y
+> el estado vigente es [`ESTADO.md`](../../ESTADO.md).**
 
 # MANUAL DE USUARIO ILUSTRADO Y GUÍA DE OPERACIÓN (SGMC)
 
@@ -166,4 +170,4 @@ graph TD
 * 📱 **`MANUAL_DE_USUARIO_ILUSTRADO.md`** (Manual en línea con diagramas y maqueta visual de pantallas).
 
 ---
-*Referencias Cruzadas:* [README.md](../README.md) | [MAP.md](../MAP.md) | [plan_de_trabajo.md](../docs/plan_de_trabajo.md) | [especificaciones.md](../docs/especificaciones.md)
+*Referencias Cruzadas:* [README.md](../../README.md) | [MAP.md](../../MAP.md) | [plan_de_trabajo.md](plan_de_trabajo.md) | [especificaciones.md](especificaciones.md)

@@ -1,5 +1,26 @@
 # PRUEBA-002 — Pruebas de aceptación de ESPEC-002
 
+> # Nota de alcance, añadida el 2026-08-09.
+>
+> **Para qué sirve.** Nueve de sus 19 pruebas **se conservan íntegras** y son las que hoy se
+> ejecutan: `P-03`, `P-04`, `P-05`, `P-08`, `P-09`, `P-10`, `P-12`, `P-16` y `P-19`. Aquí está su
+> redacción completa, con el discriminador de fallo de cada una. **No se han copiado a otro sitio:
+> este es el documento donde se leen.**
+>
+> **Para qué NO sirve: como tanda completa.** Mide **convertir 15 columnas en la aplicación
+> existente** `SGMC-886843353`. Esa aplicación **se abandonó el 2026-08-09** y se reconstruyó desde
+> cero como `SISGA`, con las **38** referencias del modelo. Ejecutar esta tanda tal cual daría verde
+> con 23 referencias ausentes.
+>
+> **[`PRUEBA-003-despliegue.md`](PRUEBA-003-despliegue.md) es la vigente**, y su §1 dice prueba por
+> prueba cuál sobrevive, cuál hay que reescribir y cuál sobra. Empiece por ahí.
+>
+> Dos matices que ese §1 ya recoge: `P-06` vale salvo por una frase, y `P-14` y `P-15` no aparecen
+> en su tabla porque ya nacieron **bloqueada por D-01** y **fuera de alcance** respectivamente. Eso
+> hace 19.
+>
+> El estado vigente está en [`ESTADO.md`](../../ESTADO.md).
+
 Qué tiene que ocurrir para dar por bueno el cableado de la Fase B. **Escrito antes de ejecutar**,
 que es lo único que impide medir el resultado con la vara que convenga después.
 

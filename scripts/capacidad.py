@@ -15,6 +15,10 @@ Limites de plataforma (verificados 2026-08-06):
 ESCENARIOS = {
     "Hoy": dict(activos=34, mantenimientos_activo_anio=12),
     "Inventario real estimado": dict(activos=150, mantenimientos_activo_anio=12),
+    # 355 = las filas cuya unidad es Und en el Plan Maestro. Es el numero que
+    # citan CONTEXTO_OPERACION.md, MODELO_EVOLUCION_FASE_2.md y la plantilla, y
+    # antes no tenia escenario propio: la prosa le atribuia el 4,1 del de 500.
+    "Inventario del Plan Maestro": dict(activos=355, mantenimientos_activo_anio=12),
     "Corredor completo": dict(activos=500, mantenimientos_activo_anio=12),
 }
 

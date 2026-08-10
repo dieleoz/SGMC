@@ -1,3 +1,20 @@
+> # Documento historico. NO SE APLICA.
+>
+> Dictamen del 2026-08-06 sobre `plan_de_trabajo.md` v4.0 y la version de entonces de
+> `ROADMAP.md`, contrastados contra `BD/Modelo de Datos (2).xlsx`, un libro de **24 hojas**. Los dos
+> documentos auditados ya no existen en esa forma: `plan_de_trabajo.md` esta en esta misma carpeta y
+> `ROADMAP.md` se reescribio.
+>
+> **Su diagnostico esta superado por los hechos, no por otro documento.** La Fase A se cerro, la
+> aplicacion `SGMC-886843353` se abandono y **se reconstruyo desde cero como `SISGA`** el 2026-08-09,
+> y la hoja dejo de heredarse: hoy se genera del modelo. Sus adendas 9 y 10 describen la divergencia
+> entre el Excel local y el Sheets de produccion, que se cerro el 2026-08-07.
+>
+> Se conserva por trazabilidad: sus hallazgos **B-01 a B-14** son el origen de casi todo lo que se
+> decidio despues, y varios documentos vigentes los siguen citando por ese codigo.
+>
+> **El estado vigente esta en [`ESTADO.md`](../../ESTADO.md).**
+
 # Dictamen de auditoría: plan_de_trabajo.md y ROADMAP.md
 
 **Proyecto:** SGMC — Concesión Transversal del Sisga S.A.S.
@@ -351,7 +368,7 @@ de los dos modelos está escrito.
 ### 9.5 Consecuencia para el plan
 
 Se incorpora una **Fase 0.5 de reconciliación de modelos**, bloqueante y previa a cualquier
-configuración. Su detalle está en [ROADMAP.md](ROADMAP.md). Configurar sobre dos modelos que
+configuración. Su detalle está en [ROADMAP.md](../ROADMAP.md). Configurar sobre dos modelos que
 divergen es trabajar sobre un blanco móvil.
 
 

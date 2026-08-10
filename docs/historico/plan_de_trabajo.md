@@ -8,7 +8,7 @@
 # 📅 PLAN DE TRABAJO Y HOJA DE RUTA OPERATIVA (SGMC)
 
 > **DOCUMENTO SUPERADO — 6 de agosto de 2026.** Su Fase 0 cubre 2 de los bloqueantes reales y presupone decisiones que no estaban tomadas.
-> Vigentes: [ALCANCE_Y_SUPUESTOS_SGMC.md](ALCANCE_Y_SUPUESTOS_SGMC.md) y [PROMPT_CONSTRUCCION_SGMC.md](prompts/PROMPT_CONSTRUCCION_SGMC.md).
+> Vigentes: [ALCANCE_Y_SUPUESTOS_SGMC.md](../ALCANCE_Y_SUPUESTOS_SGMC.md) y [PROMPT_CONSTRUCCION_SGMC.md](PROMPT_CONSTRUCCION_SGMC.md).
 
 **Proyecto:** Sistema de Gestión de Mantenimiento en Campo (SGMC)  
 **Cliente:** Concesión Transversal del Sisga S.A.S.  
@@ -71,4 +71,4 @@ gantt
 
 ---
 *Plan de trabajo actualizado para el modelo de 24 hojas.*  
-*Referencias Cruzadas:* [README.md](../README.md) | [bd.md](../docs/bd.md) | [MAP.md](../MAP.md) | [especificaciones.md](../docs/especificaciones.md)
+*Referencias Cruzadas:* [README.md](../../README.md) | [bd.md](../bd.md) | [MAP.md](../../MAP.md) | [especificaciones.md](especificaciones.md)

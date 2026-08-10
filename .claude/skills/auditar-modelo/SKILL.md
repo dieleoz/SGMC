@@ -101,5 +101,9 @@ deshacer.
 
 ## Al terminar
 
-Actualiza `docs/AUDITORIA_PLAN_Y_ROADMAP.md` con lo encontrado, y `CLAUDE.md` si cambia el estado
-real. Deja constancia del comando y de la salida con que cerraste cada hallazgo.
+Actualiza `ESTADO.md` con lo encontrado, y `CLAUDE.md` solo si cambia una **regla**, no el estado.
+Deja constancia del comando y de la salida con que cerraste cada hallazgo.
+
+El dictamen del 2026-08-06 que antes se actualizaba aquí está en
+`docs/historico/AUDITORIA_PLAN_Y_ROADMAP.md`: es histórico y **no se edita**. Sus hallazgos se
+siguen citando como `B-01` a `B-14`.

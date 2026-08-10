@@ -2,25 +2,38 @@
 
 **Proyecto:** Sistema de Gestión de Mantenimiento en Campo
 **Cliente:** Concesión Transversal del Sisga S.A.S.
-**Actualizado:** 7 de agosto de 2026 | **Versión:** 4.0
-**Estado actual:** Fase A cerrada sobre el archivo. Fase B especificada y aprobada, esperando orden de ejecución. Modelo de dominio en especificación tras incorporar el contexto operativo real
+**Actualizado:** 9 de agosto de 2026 | **Versión:** 4.1
 
-> **Versión 4.0 — por qué cambia el enfoque.** Al leer los siete documentos de `contexto/` el
-> alcance creció: la operación real tiene varias tareas por tipo de equipo, cuatro clases de
-> mantenimiento, un flujo de correctivo con tiempos contractuales y cinco activos que no se visitan.
-> **Ya no cabe todo de una vez**, así que este roadmap deja de ser una lista de fases y pasa a tener
-> un **orden de implementación** con criterio explícito. Ver la sección 2.
+> ## Para qué sirve este documento, y para qué no
+>
+> **El estado del proyecto está en [`ESTADO.md`](../ESTADO.md), no aquí.** Este documento es el
+> **orden de implementación**: qué va antes que qué, y por qué ese orden y no otro. Es lo que no
+> cabe en un tablero de estado y lo que más caro sale improvisar.
+>
+> **Qué cambió en la 4.1, del 2026-08-09:**
+>
+> - **La aplicación se reconstruyó desde cero.** `SGMC-886843353` se abandonó; la nueva es `SISGA`.
+>   *Regenerate* fusiona en vez de reemplazar, así que con un esquema tan divergente no converge.
+> - **La hoja se genera del modelo**, no se hereda: `BD/Modelo_Datos_PLANTILLA.xlsx`, con 34 activos
+>   de fixture y 355 sintéticos.
+> - **Las referencias son 38, no 15.** Las 15 eran las que faltaban en la aplicación anterior, donde
+>   otras 23 ya estaban puestas. Sobre una aplicación nueva no sobrevive ninguna.
+> - **La Fase 0.5 de reconciliación de modelos está cerrada**, y su lista de tareas —que ocupaba la
+>   mitad de este documento— se ha reducido al registro de lo que dejó decidido.
 >
 > El documento funcional que se entrega es [`FUNCIONAL_SGMC.md`](FUNCIONAL_SGMC.md). El contexto
-> operativo destilado está en [`CONTEXTO_OPERACION.md`](CONTEXTO_OPERACION.md).
+> operativo destilado está en [`CONTEXTO_OPERACION.md`](CONTEXTO_OPERACION.md). El reparto de quién
+> hace qué, en [`INDICACIONES_POR_ROL.md`](INDICACIONES_POR_ROL.md).
 
-> Esta versión corrige la anterior, que declaraba completadas al 100 % la Fase 0 y la Fase 1.
-> La auditoría del 6 de agosto de 2026 verificó contra el archivo que esa declaración era falsa.
-> Ver [AUDITORIA_PLAN_Y_ROADMAP.md](AUDITORIA_PLAN_Y_ROADMAP.md).
+> **De dónde viene la versión 4.** La 3 declaraba completadas al 100 % la Fase 0 y la Fase 1, y la
+> auditoría del 6 de agosto de 2026 verificó contra el archivo que era falso. Ese dictamen está en
+> [`historico/AUDITORIA_PLAN_Y_ROADMAP.md`](historico/AUDITORIA_PLAN_Y_ROADMAP.md): sus hallazgos
+> `B-01` a `B-14` son el origen de casi todo lo que se decidió después.
 >
-> **Actualización del mismo día:** al leer por primera vez el backend de producción se descubrió
-> que el Excel local y el Google Sheets son modelos distintos. Se incorpora la Fase 0.5 de
-> reconciliación, y los hallazgos se reexpresan contra producción.
+> Y la 4.0 amplió el alcance al leer los siete documentos de `contexto/`: la operación real tiene
+> varias tareas por tipo de equipo, cuatro clases de mantenimiento, un flujo de correctivo con
+> tiempos contractuales y cinco activos que no se visitan. **Ya no cabe todo de una vez**, y por eso
+> esto dejó de ser una lista de fases y pasó a ser un orden con criterio explícito.
 
 ---
 
@@ -30,7 +43,6 @@
 producción. Y el comportamiento de la plataforma, en la documentación oficial de AppSheet, recogido
 en `BASE_CONOCIMIENTO_APPSHEET.md` con su cita y su URL. Durante cinco rondas de revisión solo se
 verificaba lo primero.
-
 
 Ninguna fase se declara cerrada sin un **criterio de cierre verificable**: un hecho que otra
 persona pueda comprobar leyendo el archivo o el sistema, no un reporte de avance.
@@ -53,7 +65,7 @@ De ahí salen tres clases, y el orden entre ellas no es negociable:
 
 | Clase | Cuándo | Por qué |
 |---|---|---|
-| **Esquema** — tablas y columnas | **Antes del piloto, todo junto** | `MAN_Mantenimientos` tiene 0 filas. Añadir hoy cuesta cero; después cuesta migración |
+| **Esquema** — tablas y columnas | **Antes del piloto, todo junto** | `MAN_Mantenimientos` solo tiene 2 filas, y las dos de prueba. Añadir hoy cuesta cero; después cuesta migración |
 | **Datos** — inventario, coordenadas | En medio, con las referencias ya tipadas | Así AppSheet valida cada fila al cargarla, gratis |
 | **Comportamiento** — reglas, permisos | Después, en cualquier orden | No tocan datos. Se endurece con el sistema andando |
 
@@ -61,9 +73,10 @@ De ahí salen tres clases, y el orden entre ellas no es negociable:
 
 | # | Paso | Contenido | Depende de |
 |---|---|---|---|
-| **0** | **Fase B — cableado de referencias** | **38 referencias** sobre una app reconstruida desde la hoja | En ejecucion. Ver `MANUAL_DESPLIEGUE.md` |
+| **0** | **Cerrar la aplicación** | Las **38 referencias** ya están puestas. Falta la regla del umbral de GPS con su `OR(ISBLANK(...))`, terminar las columnas retiradas y correr las tres expresiones de prueba | En ejecución. Guion en `prompts/PROMPT_CONTINUAR_DESPLIEGUE.md`; ficha por tabla en `MANUAL_DESPLIEGUE.md` |
+| **0b** | **Decidir la migración a la hoja limpia** | Si se migra, las 47 columnas sobrantes desaparecen del archivo y el trabajo de ocultarlas se tira | **Se decide antes de terminar el paso 0**, o es trabajo perdido. Coste en `MIGRACION_HOJA_LIMPIA.md` |
 | **1** | **Esquema completo** | `TAR_Tareas` · poblar `ROL_Roles` con los 12 · jerarquía de ubicación · columnas de tiempo en la orden · retirar `ACT.FrecuenciaID` y `TIP.FormularioID` | `ESPEC-003` y su veredicto |
-| **2** | **Carga del inventario** | 355 activos con `CodigoActivo`, sin coordenadas | Paso 1 |
+| **2** | **Carga del inventario real** | Los 355 con identidad, serie y ubicación. **Los que hay hoy son sintéticos** y lo dicen de sí mismos | Paso 1, y que operación confirme que 355 son los de este corredor |
 | **3** | **Reglas de integridad** | Imponer `QuienCambia` · estado de rechazo · valores de `TipoFirma` | Paso 1 |
 | **4** | **Piloto de campo** | El levantamiento de coordenadas **como primera orden de trabajo** | Pasos 2 y 3 |
 | **5** | **Correctivo** | Criticidad · pausas · escalado N1/N2/N3 | Decisión de alcance |
@@ -87,39 +100,50 @@ que llega solo con tiempo, y no llega — llega con la decisión de licenciamien
 
 | Fase | Estado | Criterio de cierre |
 |---|---|---|
-| Sprint 0. Definición funcional | **Enviado, esperando respuesta** | Respuesta del líder funcional a las 14 decisiones, o supuesto declarado por vencimiento |
-| Fase 0.5. Reconciliación de modelos | **Cerrada** el 2026-08-07 | `modelo_objetivo.py` es la fuente única; los documentos se generan de él |
-| **Fase A. Estructura y datos en la hoja** | **CERRADA** el 2026-08-07 | `verificar_faseA.py` sobre `Modelo de Datos (11).xlsx`: 61 conformes, 0 fallos. Ver `ACTA-004` |
-| **Fase B. Cableado de referencias** | **En ejecucion**, sobre app reconstruida | Las **38** referencias puestas, las retiradas ocultas, y `PRUEBA-003` pasada |
-| Fase 1. Datos maestros | Bloqueada por Sprint 0 y Fase 0.5 | Coordenadas reales cargadas, columnas de GPS presentes en producción, sedes realineadas, bancos priorizados construidos |
-| Fase 2. Configuración | Bloqueada por Fase 1 | Reglas, filtro, formularios, bots y reportes configurados y verificados en la app |
+| Sprint 0. Definición funcional | **Cerrado por supuestos.** No se espera respuesta | Los catorce adoptados por escrito en `ALCANCE_Y_SUPUESTOS_SGMC.md`, con su estado de cierre |
+| Fase 0.5. Reconciliación de modelos | **CERRADA** el 2026-08-07 | `modelo_objetivo.py` es la fuente única; los documentos se generan de él. Ver 4.5 |
+| **Fase A. La hoja** | **CERRADA.** Actas `ACTA-001` a `ACTA-004` | `verificar_faseA.py` en 0 fallos. Hoy: **61 conformes** sobre `Modelo_Datos_09082026_VISIBLE.xlsx` y **60** sobre `Modelo_Datos_PLANTILLA.xlsx` |
+| Reconstrucción de la aplicación | **HECHA** el 2026-08-09 | `SISGA`, con las 28 tablas dadas de alta sobre la hoja |
+| **Fase B. Cableado y reglas** | **En ejecución** | Las **38** referencias puestas —ya lo están—, las sobrantes ocultas o migradas, y `PRUEBA-003` pasada |
+| Fase 1. Datos maestros | Bloqueada por D-01 y D-09 | Coordenadas reales cargadas, sedes realineadas, bancos de preguntas construidos |
+| Fase 2. Configuración de interfaz | Bloqueada por Fase 1 y por declarar vistas | Reportes y pantallas construidos. **Antes hay que declarar la interfaz en el modelo**: hoy no tiene vistas, ni acciones, ni slices |
 | Fase 3. Prueba controlada | Bloqueada por Fase 2 | Registros reales en `MAN_Mantenimientos` y en las tablas de evidencia, verificados leyendo el archivo |
 | Fase 4. Piloto de campo | Bloqueada por Fase 3 | 10 técnicos operando una semana, con registros sincronizados desde el corredor |
 | Fase 5. Producción y evolución | Bloqueada por Fase 4 | Los 18 tipos con banco de preguntas, integraciones y respaldo automático |
 
 **No hay fechas.** El cronograma depende de dos tareas que son trabajo del cliente y cuya duración
-solo el equipo de la Concesión puede estimar: el levantamiento de las coordenadas reales de los 34
-activos (decisión D-01) y la redacción de los bancos de preguntas (decisión D-09). Las fechas se
-fijan en el acta de la mesa de trabajo, no antes.
+solo el equipo de la Concesión puede estimar: el levantamiento de las coordenadas reales (decisión
+D-01) y la redacción de los bancos de preguntas (decisión D-09). Las fechas se fijan en el acta de
+la mesa de trabajo, no antes.
 
 ---
 
-## 3. Lo que sí está construido
+## 3.1 Lo que sí está construido
 
-Verificado el 6 de agosto de 2026 leyendo `BD/Modelo de Datos (2).xlsx` con `openpyxl`.
+Verificado el 2026-08-09 contra `scripts/modelo_objetivo.py` y `BD/Modelo_Datos_PLANTILLA.xlsx`.
+**Cada cifra se rederiva con los verificadores; ninguna está escrita de memoria.**
 
-- Modelo relacional de 24 tablas en ambos entornos. `Coordenadas_Cierre` y `Precision_GPS` ya
-  están en los dos: en producción se agregaron el 6 de agosto de 2026, pendientes de que la
-  aplicación las reconozca. Ver Fase 0.5.
-- En producción, el mapeo de cada tipo de activo a su formulario está completo en los 18 tipos, y
-  el detalle de checklist es relacional mediante `PreguntaID`.
-- Catálogos poblados: 34 activos, 18 tipos de activo, 10 sedes, 4 roles, 11 usuarios, y catálogos
-  viales de calzada, sentido, estado y frecuencia. El campo `CodigoQR` está lleno, pero repite el
-  `CodigoActivo`: no hay etiqueta física detrás, y el QR quedó fuera de alcance (B-10).
-- 6 órdenes de trabajo registradas y 1 checklist de inspección SOS con su detalle.
-- Banco de preguntas del formulario de postes SOS: 15 preguntas con secciones, tipos de
-  respuesta, rangos y unidades.
-- Aplicación AppSheet publicada, con vistas móviles y web y autenticación corporativa.
+- **Modelo de 28 tablas, 202 columnas, 38 referencias y 20 reglas.** `validar_modelo.py` sale
+  `APTO PARA DESPLEGAR` con 0 errores.
+- **La hoja se genera del modelo.** La plantilla trae 28 pestañas de datos más `_LEEME`, sin una
+  sola columna de sobra. La hoja de producción todavía arrastra **47**.
+- **Aplicación `SISGA` reconstruida**, con las 28 tablas dadas de alta, las 38 referencias puestas,
+  `IsPartOf` en las cuatro que lo llevan, los dos filtros de seguridad y las cuatro marcas de tiempo
+  como `ChangeTimestamp` del servidor.
+- **Inventario de prueba:** 34 activos de fixture y 355 sintéticos con los códigos del Plan Maestro
+  repartidos por los 137 km del corredor. Cada fila declara en `ACT_Activos.Observaciones` que no es
+  inventario real.
+- **`TIP_TiposActivo.RadioGeofencingKm` poblado en los 18 tipos**, por familia: 0,05 km en 12,
+  0,1 km en 5 y 1,5 km en la fibra.
+- Catálogos poblados: 18 tipos de activo, 10 sedes, 4 unidades funcionales, 4 roles, 11 usuarios,
+  4 asignaciones de zona, 5 motivos de pendiente, 7 estados de orden, 3 parámetros y los catálogos
+  viales de calzada, sentido, estado y frecuencia.
+- 6 órdenes de trabajo, 2 mantenimientos de prueba y 1 checklist con su detalle.
+- Banco de preguntas de un solo formulario: **15 preguntas, todas de postes SOS**.
+
+**Y lo que está construido pero no probado:** el geofencing. Los 34 activos de fixture comparten una
+coordenada de Bogotá y los 355 sintéticos tienen coordenadas inventadas, así que la prueba del
+cierre legítimo no se puede ejecutar sin desplazarse. Es D-01.
 
 ---
 
@@ -145,8 +169,9 @@ La propuesta `entregables/Propuesta_Arquitectura_SGMC.docx` pide tres decisiones
 condicionan la salida a producción y ninguna es técnica:
 
 - **D-A. Propiedad del backend.** El documento y las fotografías pertenecen a una cuenta personal
-  de Gmail. Las imágenes consumen su cuota de 15 GB. Con el inventario completo se agota antes de
-  cumplir la retención de cinco años.
+  de Gmail. Las imágenes consumen su cuota de 15 GB, que con los 355 activos del Plan Maestro da
+  **5,7 años** frente a los 5 de retención, y con el corredor completo de 500 se agota **en 4,1**.
+  Sale de `python scripts/capacidad.py`.
 - **D-B. Plan de licenciamiento.** En el plan gratuito los procesos programados no se ejecutan. Sin
   plan pagado no hay generación automática de órdenes ni notificaciones, que es lo que convierte el
   sistema en gestión y no en registro.
@@ -155,191 +180,101 @@ condicionan la salida a producción y ninguna es técnica:
 
 ---
 
-## 4.5 Fase 0.5 — Reconciliación de modelos (nueva, bloqueante)
+## 4.5 Fase 0.5 — Reconciliación de modelos. CERRADA el 2026-08-07
 
-El 6 de agosto de 2026, al leer por primera vez el backend de producción, se encontró que **el
-Excel local y el Google Sheets no son el mismo modelo**. El Excel tiene las columnas de GPS pero
-no el mapeo de formularios; producción tenía el mapeo y no las columnas, hasta que estas se
-agregaron ese mismo día. Difieren además en `CHK_Checklists` y `CHD_ChecklistDetalle`. Alguien ha
-estado editando ambos por separado.
+**Qué pasó.** El 6 de agosto de 2026, al leer por primera vez el backend de producción, se encontró
+que el Excel local y el Google Sheets **no eran el mismo modelo**: el Excel tenía las columnas de
+GPS y no el mapeo de formularios, y producción al revés. Difería además `CHK_Checklists` y
+`CHD_ChecklistDetalle`. Dos personas editaban por separado y nadie lo sabía.
 
-Mientras esto no se resuelva, cualquier trabajo de configuración se hace sobre un blanco móvil.
+**Cómo se cerró.** No eligiendo uno de los dos, que era lo que este documento proponía, sino
+**sacando la verdad de los dos archivos**: desde entonces la fuente única es
+`scripts/modelo_objetivo.py`, la hoja se genera de él y los documentos también. Un modelo declarado
+en código no puede divergir en silencio de otro, porque solo hay uno.
 
-- [ ] Decidir cuál de los dos modelos es el válido, y dejarlo por escrito
-- [x] **Crear las dos columnas de GPS en el Sheets de producción.** Hecho el 6 de agosto de 2026
-      en `Z1` y `AA1` de `MAN_Mantenimientos`, verificado celda por celda
-- [x] **Hacerlas visibles en la aplicación:** *Regenerate Structure* ejecutado el 6 de agosto de
-      2026, la tabla pasó de 26 a 28 columnas; tipadas `LatLong` y `Number`; aplicación guardada
-- [x] **Especificar el cableado de referencias.** Hecho el 7 de agosto de 2026. Procedimiento en
-      `ESPEC-001`, declarado en `scripts/modelo_objetivo.py` (`RETIPADOS` y
-      `RENOMBRADOS`) y validado con 0 errores por `validar_modelo.py`, reglas V-14 a V-16
-- [ ] **Ejecutar el cableado en producción.** Lo aplica `sgmc-ejecutor` por navegador, siguiendo
-      `CABLEADO_REFERENCIAS_SGMC.md`, y **solo con las tres firmas** del pipeline SDD.
-      `MAN_Mantenimientos` tiene 0 filas, de modo que hoy la conversión no arrastra datos; después
-      de poblar obliga a migrar
-- [~] **Fase A aplicada en produccion el 7 de agosto de 2026**, a mano sobre la hoja. Se reporto
-      como cerrada al 100%: **no lo esta.** `python scripts/verificar_faseA.py` da 27 conformes y
-      **19 fallos**. Correccion en `ESPEC-001B`
-- [x] **`EOT_EstadosOrden` corregida el 7 de agosto:** sus claves son ahora el nombre del estado y
-      las 6 ordenes resuelven. Era el fallo grave
-- [x] **`ASG_AsignacionZona` poblada** con 4 asignaciones, verificadas por los dos lados
-- [x] **FASE A CERRADA Y VERIFICADA**, `verificar_faseA.py` en 0 fallos. Acta en `ACTA-001`
-- [ ] ~~Corregir `EOT_EstadosOrden`~~ Sus claves son `1..7` y
-      `OT_OrdenesTrabajo.EstadoOrdenID` guarda `Asignada`, `Cerrada`, `Suspendida`. Convertir a
-      `Ref` asi dejaria las 6 ordenes huerfanas y en silencio: el mismo defecto de `OTID`,
-      reproducido en una tabla creada ayer
-- [ ] **Poblar `ASG_AsignacionZona`**, hoy vacia y con 2 columnas en vez de 4. Sin ella el Security
-      Filter deja a cada tecnico con cero activos
-- [ ] **Completar las 4 tablas nuevas que quedaron como cascara** y las columnas que faltan, en
-      particular `FOT_Fotografias.Ubicacion`, `PrecisionGPS` y `FechaHora`, que son la cadena de
-      evidencia
-- [x] **`ESPEC-001C` aplicada y verificada el 7 de agosto.** `FASE A CERRADA`, 42 conformes, 0
-      fallos, sobre `BD/Modelo de Datos (7).xlsx`. Acta en `ACTA-002`
-- [ ] ~~`ESPEC-001C`: baja de activos y poblado completo de prueba~~ Añade
-      `FechaBaja` y `MotivoBaja`, corrige dos huérfanos que quedaron —`CHK.MantenimientoID` guarda
-      `OT-0001`, que es una orden, y `LST_ValoresLista.PreguntaID` guarda el texto de la pregunta—
-      y puebla el ciclo completo con filas `TEST-`, una de ellas a 9 km para que el geofencing
-      tenga algo que rechazar
-- [ ] **Decidir el ciclo de baja en los reportes.** RG-18: un histórico nunca filtra por el estado
-      actual del activo, o al dar de baja uno desaparecen sus mantenimientos pasados
-- [ ] **`ESPEC-003`: devolver a la app la creación de órdenes (CU-02).** DECIDIDO el 7 de agosto de
-      2026: se **aplaza**, no se descarta. Hoy `OT_OrdenesTrabajo` no admite `Adds` porque `OTID`
-      hace de clave y de etiqueta legible a la vez, y esos dos papeles piden cosas opuestas. La
-      solución está clara —`OTID` pasa a `UNIQUEID()` y `Numero_OT` vuelve como etiqueta calculada
-      con `Initial value`, nunca `App formula`, o se recalcularía años después— y cuesta una columna
-      nueva en la hoja. **Mientras tanto las órdenes se crean en el Sheets**, que es aceptable en el
-      piloto por el volumen, pero no como procedimiento: escribir en la hoja se salta todas las
-      validaciones, las referencias y el filtro de seguridad. `DEFINICION_FUNCIONAL` CU-02 y el
-      ciclo del supervisor del README describen hoy lo que no se puede hacer
-- [ ] **`ESPEC-003`: las reglas de negocio que hoy son prosa y ningún constructo aplica.** Salieron
-      al revisar si faltaban condicionales de AppSheet. `ModoFallaID` dice «solo en correctivos» y
-      no hay `Show_If` ni `Required_If` que lo imponga —depende de `OT.Tipo`, hoy vacía—, y
-      `ObservacionRechazo` es la traza de la devolución del supervisor, sin regla. Un campo que
-      existe y nada puebla es la misma patología que `CodigoQR`: estructura sin comportamiento
-- [x] **FORMATOS CERRADOS el 7 de agosto de 2026.** `Modelo de Datos (11).xlsx`, 59 conformes, 0
-      fallos. Acta en `ACTA-004`. La hoja no se toca más
-- [x] ~~REABIERTA: normalizar formatos antes del cableado.~~ F-16 y F-17 detectaron 8 puntos que
-      ninguna comprobación anterior veía: siete referencias donde la clave se guarda como número y
-      quien la apunta como texto —o mezcladas en la misma columna—, y `TIP_TiposActivo.FormularioID`
-      con 18 fórmulas de hoja de cálculo en vez de datos. Prompt en
-      `docs/prompts/PROMPT_AGENTE_HOJA_FORMATOS.md`
-- [x] **Hoja cerrada el 7 de agosto de 2026 en cuanto a contenido.** `Modelo de Datos (9).xlsx`, 0 fallos,
-      acta en `ACTA-003`. Ya no se toca desde Google Sheets
-- [ ] ~~Cerrar la hoja de una pasada: las cuatro ediciones que faltan.~~ `PAR_Parametros` con sus
-      tres umbrales calibrables, `OT_OrdenesTrabajo.Activo` y `EST_Activo.Activo` a `TRUE` —vacías
-      hoy, y un blanco se lee como falso—, y `ACT_Activos.Activo` a `FALSE` en la fila 34, que está
-      retirada y dice lo contrario. Prompt en `docs/prompts/PROMPT_AGENTE_HOJA_CIERRE_FASE_A.md`
-- [ ] **Fase B: cablear en AppSheet** siguiendo `ESPEC-002`. Arranca cuando `verificar_faseA.py`
-      vuelva a imprimir `FASE A CERRADA`
-- [x] **`IsPartOf` sobre `MAN_Mantenimientos.OTID`: DECIDIDO el 7 de agosto de 2026. Va sin él.**
-      La ejecución es el registro histórico y sobrevive a su orden. Además se retira la acción
-      `Deletes` de `OT_OrdenesTrabajo` y `MAN_Mantenimientos` (RG-14 y RG-15): el histórico no se
-      borra, se desactiva con `Activo = FALSE`
-- [ ] **Escribir la regla de geofencing (RG-01)** una vez cableadas las referencias:
-      `DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]`,
-      con su mensaje de error. Mientras `RadioGeofencingKm` no exista, el literal `1.0` como provisional
-- [ ] **POR REVISAR — cargar coordenadas reales de la vía de la Concesión**, al menos un subconjunto
-      para poder validar el geofencing antes del levantamiento completo de D-01
-- [ ] **POR REVISAR — poblar la base con datos de prueba** y ejercitar la aplicación, para
-      determinar qué tablas reciben escrituras, cuáles son legacy o quedaron sin relacionar, y
-      dónde escriben realmente los disparadores
-- [ ] Resolver qué hacer con las columnas que solo tiene producción (`Diagnostico`,
-      `Trabajo_Realizado`, `Duracion_Minutos`, `Repuestos_Utilizados`, `Requiere_Repuesto`)
-- [ ] Retirar el modelo perdedor o dejarlo marcado como histórico, para que nadie lo siga editando
-- [ ] Limpiar los datos de prueba de `CHK_Checklists` (`CHK001` con nombre en vez de identificador
-      y `NOW()` como texto)
-- [ ] Dejar por escrito quién puede editar el Sheets de producción y bajo qué autorización
+**Lo que dejó decidido, y por eso no se reabre:**
 
-**Cierra cuando:** existe un solo modelo declarado válido, con las columnas de GPS presentes **y
-visibles en la aplicación**, y una regla escrita de quién lo edita.
+| Decisión | Cómo quedó |
+|---|---|
+| Columnas de GPS en `MAN_Mantenimientos` | `Coordenadas_Cierre` como `LatLong` y `Precision_GPS` como `Number`. AppSheet las había inferido mal y cruzadas |
+| `EOT_EstadosOrden` | Sus claves son el nombre del estado, no `1..7`. Un catálogo se diseña mirando los datos que va a resolver |
+| `IsPartOf` sobre `MAN_Mantenimientos.OTID` | **Va sin él.** La ejecución es el registro histórico y sobrevive a su orden |
+| Borrado del histórico | Se retira `Deletes` en `OT_OrdenesTrabajo` y `MAN_Mantenimientos` (RG-14 y RG-15). Un error se corrige con `Activo = FALSE` |
+| Reportes históricos | RG-18: un histórico nunca filtra por el estado actual del activo, o al dar de baja uno desaparecen sus mantenimientos pasados |
+| Creación de órdenes desde la app | **Aplazada, no descartada.** `OT_OrdenesTrabajo` no admite `Adds` mientras `OTID` haga de clave y de etiqueta legible a la vez. Mientras tanto las órdenes se crean en el Sheets, que **se salta todas las validaciones**: es aceptable en el piloto por volumen, no como procedimiento |
+| Quién edita el Sheets | **Sin resolver.** Sigue sin haber una regla escrita, y hay dos cuentas con permiso |
 
-### 4.5.1 Especificación del cambio en `MAN_Mantenimientos`
+Las actas están en `docs/sdd/`: `ACTA-001` a `ACTA-004`. Las especificaciones que las produjeron
+—`ESPEC-001`, `001B` y `001C`— están en `docs/historico/`, ejecutadas y cerradas.
 
-Ejecuta quien tenga permiso de edición sobre el Sheets. El documento es propiedad de
-`[correo del Propietario]`, y la cuenta del cliente también tiene permiso de escritura.
-El paso 1 ya está aplicado; los pasos 2 a 4 requieren el editor de AppSheet.
-
-**Paso 1. En el Google Sheets** — **HECHO el 2026-08-06.** Se agregaron dos columnas al final de
-la hoja `MAN_Mantenimientos`, que terminaba en `Activo` (columna Y):
-
-| Celda | Encabezado exacto | Contenido |
-|---|---|---|
-| `Z1` | `Coordenadas_Cierre` | Vacío. Lo llena la aplicación al cerrar |
-| `AA1` | `Precision_GPS` | Vacío. Lo llena la aplicación al cerrar |
-
-Verificado leyendo cada celda en la barra de fórmulas. Las mayúsculas y el guion bajo importan:
-AppSheet resuelve las columnas por nombre exacto.
-
-**Paso 2. En el editor de AppSheet**, en `Data` sobre la tabla `MAN_Mantenimientos`, ejecutar
-**Regenerate Structure**. Sin este paso las columnas existen en la hoja pero la aplicación no las
-ve, y todo lo demás falla en silencio.
-
-**Paso 3. Tipar las columnas:** `Coordenadas_Cierre` como `LatLong` y `Precision_GPS` como
-`Number`. Si quedan como `Text`, la función de distancia no opera.
-
-**Paso 4. Configurar las reglas** sobre `Coordenadas_Cierre`:
-
-```
-Initial value:  HERE()
-Valid_If:       DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]
-Invalid text:   Ubicación fuera de rango: debe estar junto al activo para cerrar.
-```
-
-Y sobre `Precision_GPS`, valor inicial `USERLOCATIONACCURACY()`.
-
-**Advertencia sobre el alcance de este cambio.** Los pasos 1 a 3 están hechos. El paso 4 **no se
-pudo ejecutar**: al escribir la regla, AppSheet reveló que `OTID` no es una referencia sino texto.
-Ver la sección 10 del dictamen de auditoría. La regla queda pendiente del cableado de referencias,
-cuyo procedimiento completo —con su orden, sus verificaciones y su reversión— está en
-`docs/sdd/ESPEC-002-cableado-en-appsheet.md`.
-
-Aunque se cablee, el geofencing seguirá sin funcionar mientras los 34 activos compartan la
-coordenada de Bogotá (D-01) y el radio esté sin confirmar (D-02).
-
-**Criterio de cierre de este punto:** una fila de prueba escrita en `MAN_Mantenimientos` desde la
-aplicación, con valor en las dos columnas nuevas, verificada leyendo el Sheets.
+**Y lo que esta fase no arregló, porque no era suyo:** la aplicación seguía con el esquema viejo.
+Eso se resolvió el 2026-08-09 reconstruyéndola, no reconciliando nada más.
 
 ---
 
 ## 5. Fase 1 — Datos maestros
 
-Es la fase más larga y la que fija el cronograma. Su contenido depende de las decisiones tomadas.
+Es la fase más larga y la que fija el cronograma. **Todo su contenido es trabajo de operación**,
+y por eso no hay forma de adelantarlo desde el repositorio.
 
-- [ ] **D-01.** Levantamiento en campo de las coordenadas reales de los 34 activos y carga en
-      `ACT_Activos.Ubicacion`
-- [~] **B-10. Código QR: FUERA DE ALCANCE por decisión del 7 de agosto de 2026.** Primero tiene que
-      funcionar el ciclo básico. Lo verificado se conserva porque el hallazgo es real:
-      `ACT_Activos.CodigoQR` está poblado en los 34 activos, pero su valor es una copia literal de
-      `CodigoActivo`, y AppSheet lee códigos pero no los genera ni los imprime. **Consecuencia que
-      se asume:** el activo se abre por lista y `OrigenApertura = Lista` deja de ser excepción. Si
-      se retoma, falta decidir qué se codifica, quién genera las imágenes, en qué material se
-      imprime, quién las instala y cómo se verifica que cada etiqueta quedó en su equipo
-- [ ] **D-09.** Construcción de los bancos de preguntas de los tipos priorizados en
-      `FRM_Preguntas`
-- [ ] Mapeo de `TIP_TiposActivo.FormularioID` para los 18 tipos
-- [ ] Realineación de `SedeID` entre `USR_Usuarios` y `ACT_Activos` según lo decidido en D-03
-- [ ] Remediación del checklist huérfano `d02d8a3d`, cuyo `OTID` no corresponde a ninguna orden
-- [x] **Diccionario de datos regenerado el 7 de agosto de 2026.** `docs/bd.md` ya no se escribe:
-      sale de `generar_diccionario_bd.py` leyendo la hoja. Decía 24 tablas cuando hay 32
+- [ ] **D-01.** Levantamiento en campo de las coordenadas reales y carga en `ACT_Activos.Ubicacion`.
+      Los 34 de fixture comparten una coordenada de Bogotá; las 355 sintéticas están interpoladas
+      sobre el corredor. **Ninguna sirve para cerrar una orden con un técnico delante**
+- [ ] **D-09.** Construcción de los 17 bancos de preguntas que faltan en `FRM_Preguntas`. Hoy hay
+      15 preguntas y las 15 son del formulario de postes SOS
+- [ ] Poblar `ROL_Roles` con los doce oficios del Plan Maestro. **Es lo más barato que hay
+      pendiente:** doce filas en una tabla que ya existe, sin tocar ninguna regla
+- [ ] Asignar zona en `ASG_AsignacionZona` a los técnicos que no la tienen. Hay 4 asignaciones y 11
+      usuarios: quien no tenga fila abre la aplicación y no ve nada
+- [ ] Confirmar el umbral de GPS. La hoja dice 40 m en `PAR_Parametros`; la propuesta enviada decía
+      50. Hay que quedarse con uno
 - [ ] Corrección de los encabezados con codificación corrupta en el Excel
+- [~] **Código QR: FUERA DE ALCANCE por decisión del 7 de agosto de 2026.** Primero tiene que
+      funcionar el ciclo básico. El hallazgo se conserva porque es real: `ACT_Activos.CodigoQR` está
+      poblado, pero su valor es una copia literal de `CodigoActivo`, y AppSheet lee códigos pero no
+      los genera ni los imprime. **Consecuencia que se asume:** el activo se abre por lista y
+      `MAN_Mantenimientos.OrigenApertura = Lista` deja de ser excepción. Si se retoma, falta decidir
+      qué se codifica, quién genera las imágenes, en qué material se imprime, quién las instala y
+      cómo se verifica que cada etiqueta quedó en su equipo
+- [x] **Diccionario de datos regenerado.** `docs/bd.md` ya no se escribe: sale de
+      `generar_diccionario_bd.py` leyendo la hoja
+- [x] **`TIP_TiposActivo.FormularioID` mapeado en los 18 tipos.** Y el modelo lo declara descartado:
+      el formulario es de la tarea, no del tipo. Se retira en el paso 1 del orden de implementación
+- [x] **Checklist huérfano remediado.** `CHK_Checklists` cuelga hoy de `MantenimientoID`, no de la
+      orden
 
-**Cierra cuando:** las 34 coordenadas son distintas y están sobre el corredor; los tipos
-priorizados resuelven su formulario; y un usuario de prueba ve activos al aplicar el filtro.
+**Cierra cuando:** las coordenadas son todas distintas y están sobre el corredor; los 18 formularios
+tienen preguntas; y un usuario de prueba ve activos al aplicar el filtro.
 
 ---
 
 ## 6. Fase 2 — Configuración en AppSheet
 
-Solo después de las decisiones de arquitectura A-1 a A-5 del dictamen de auditoría.
+**Las reglas de datos ya están puestas.** Lo que queda de esta fase es la **interfaz**, y hay un
+requisito previo que no es de configuración sino de modelo.
 
-- [ ] Regla de geofencing `DISTANCE([Coordenadas_Cierre], [OTID].[Activo].[Ubicacion]) <= 1.0` con el
-      radio decidido en D-02, y mensaje de error en texto plano
-- [ ] Manejo de excepción por precisión GPS insuficiente, según D-04
-- [ ] Security Filter por sede, verificado con una cuenta real de técnico
-- [ ] Modelo definitivo de evidencias, según D-10: campos en `MAN` o tablas hijas, nunca ambos
-- [ ] Estados de la orden de trabajo y transiciones, según D-06
-- [ ] Bot de notificación de asignación y bot de alerta por activo fuera de servicio
-- [ ] Reportes y tablero, según D-12 y D-13
+Hecho, y pendiente solo de demostrarlo con `PRUEBA-003`:
+
+- [x] Geofencing, con la expresión que atraviesa la orden y el activo:
+      `DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]`
+      y mensaje de error en texto plano. **La variante con el literal `1.0` es la provisional**
+- [x] Los dos filtros de seguridad: activos por unidad funcional, órdenes por técnico o supervisor
+- [x] Las cuatro marcas de tiempo como `ChangeTimestamp` del servidor
+- [x] Evidencia en tablas hijas, con `IsPartOf` en las cuatro que lo llevan
+
+Pendiente:
+
+- [ ] La regla del umbral de GPS **entera**, con su `OR(ISBLANK(...))`. Sin él, si alguien borra la
+      fila del parámetro todos los cierres salen limpios y nadie se entera
+- [ ] Imponer `QuienCambia`: hoy nada impide que un técnico ponga «Cerrada» él mismo
+- [ ] Estado de rechazo. `MAN_Mantenimientos.ObservacionRechazo` existe y la orden no tiene a dónde
+      volver
+- [ ] Valores de `FIR_Firmas.TipoFirma`, hoy sin declarar
+- [ ] Bots de notificación y de alerta. **No caben en el plan gratuito**: dependen de D-B
+- [ ] **Declarar la interfaz en el modelo** —vistas, acciones y slices—, y generar de ahí el manual
+      de pantallas. Mientras no exista, el paso de vistas de cualquier manual dice «se construye
+      sola», que es la clase de instrucción que este proyecto tiene prohibida
+- [ ] Reportes y tablero, según D-12 y D-13, encima de lo anterior
 
 **Cierra cuando:** cada regla se demuestra funcionando en la app, no solo configurada.
 
@@ -351,12 +286,17 @@ Etapa que no existía en la versión anterior y cuya ausencia habría llevado el
 directamente a los 10 celulares del piloto.
 
 - [ ] Un mantenimiento completo de extremo a extremo, ejecutado por una persona sobre un activo
-      con coordenada real: apertura por QR, checklist, fotografías, firma y cierre con GPS
+      con coordenada real: apertura por lista, checklist, fotografías, firma y cierre con GPS
 - [ ] El mismo flujo repetido en modo avión, con verificación de la sincronización posterior
 - [ ] Prueba del bloqueo: intentar cerrar lejos del activo y confirmar que el sistema lo impide
 
+> **El par de pruebas del geofencing no discrimina hoy, y hay que decirlo.** Los registros de prueba
+> tienen su coordenada en Bogotá y el activo sintético más cercano queda a 60 km, así que el cierre
+> legítimo que debe aceptarse **es imposible sin desplazarse** y el que debe rechazarse se vuelve
+> trivial. Antes era al revés. **Solo D-01 lo arregla.**
+
 **Cierra cuando:** hay filas reales en `MAN_Mantenimientos` y en las tablas de evidencia,
-verificadas leyendo el archivo. Hoy esas cuatro tablas están vacías.
+verificadas leyendo el archivo. Las de hoy son de prueba y llevan el prefijo `TEST-`.
 
 ---
 
@@ -375,23 +315,31 @@ las incidencias críticas están resueltas.
 ## 9. Fase 5 — Producción y evolución
 
 - [ ] Construcción de los bancos de preguntas de los tipos de activo restantes, en tandas
-- [ ] Generación automática de órdenes por frecuencia de mantenimiento, si se decide en D-06
+- [ ] Generación automática de órdenes por frecuencia. **No es cuestión de tiempo: depende de D-B**,
+      porque en el plan gratuito los procesos programados no se ejecutan
 - [ ] Integración con Power BI para tableros ejecutivos
 - [ ] Integración con mesas de ayuda para tickets de TI
 - [ ] Respaldo automático de evidencias y base de datos
 
 ---
 
-## 10. Qué cambió frente a la versión anterior
+## 10. Lo que la versión 3 daba por hecho y no lo estaba
 
-| Afirmación anterior | Realidad verificada |
+Se conserva porque explica por qué este documento exige un criterio de cierre por fase. **Cada línea
+es un hito marcado como completado sin nada que lo demostrara.**
+
+| Afirmación de la versión 3 | Realidad verificada el 2026-08-06 |
 |---|---|
 | "Fase 0 y 1: completado 100 %" | 8 bloqueantes abiertos |
-| "Modelo de datos 17 tablas: done" | El modelo vigente tiene 24 hojas |
+| "Modelo de datos 17 tablas: done" | El libro de entonces tenía 24 hojas |
 | "18 formularios dinámicos: done" | 1 de 18 con banco de preguntas, y sin mapeo desde el tipo de activo |
 | "Validaciones GPS y Security Filter: done" | GPS inoperante por coordenada única; el filtro dejaría a los técnicos sin activos |
 | "Pruebas QA y dictamen: done" | `MAN_Mantenimientos` vacía: el flujo nunca se ejecutó |
-| "Estado actual: Fase 1.5, piloto" | El proyecto está en Sprint 0, definición funcional |
+| "Estado actual: Fase 1.5, piloto" | El proyecto estaba en definición funcional |
+
+**El problema de fondo no era la desactualización: era marcar hitos sin criterio de cierre.** Por eso
+cada fase de este documento lleva el suyo, y por eso son hechos que otra persona puede comprobar
+leyendo un archivo, no reportes de avance.
 
 ---
-*Referencias:* [README.md](../README.md) | [AUDITORIA_PLAN_Y_ROADMAP.md](AUDITORIA_PLAN_Y_ROADMAP.md) | [DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md](DEFINICION_FUNCIONAL_MESA_DE_TRABAJO.md) | [MAP.md](../MAP.md)
+*Referencias:* [ESTADO.md](../ESTADO.md) | [FUNCIONAL_SGMC.md](FUNCIONAL_SGMC.md) | [INDICACIONES_POR_ROL.md](INDICACIONES_POR_ROL.md) | [historico/AUDITORIA_PLAN_Y_ROADMAP.md](historico/AUDITORIA_PLAN_Y_ROADMAP.md) | [MAP.md](../MAP.md)

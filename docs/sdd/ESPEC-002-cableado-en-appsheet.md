@@ -1,17 +1,37 @@
 # ESPEC-002 — Cableado de referencias en AppSheet
 
-> **Nota de alcance, anadida el 2026-08-09.** Esta especificacion norma **convertir la aplicacion
-> existente**, donde 23 de las 38 referencias del modelo ya estaban puestas y faltaban **15**. Ese
-> es el origen de la lista de 15 columnas.
+> # Nota de alcance. Ampliada el 2026-08-09.
 >
-> **Para una aplicacion construida desde cero no hay ninguna heredada: son las 38 de `MODELO`.**
-> El instructivo actualizado esta en `docs/prompts/PROMPT_AGENTE_APPSHEET_FASE_B.md`.
+> **Para qué sirve.** Las reglas de cableado —qué es una referencia, en qué orden se convierten, qué
+> pasa con las filas que no coinciden— **siguen siendo ciertas**, y son la única redacción larga que
+> las explica. Las 20 reglas de negocio, con su expresión y su motivo, están aquí.
 >
-> Se descubrio al reconstruir: siguiendo esta especificacion al pie de la letra sobre una app nueva,
+> **Para qué NO sirve: como lista de trabajo.** Norma **convertir la aplicación existente**
+> `SGMC-886843353`, donde 23 de las 38 referencias del modelo ya estaban puestas y faltaban **15**.
+> De ahí sale su lista de 15 columnas, y de ahí que sea correcta y a la vez inaplicable hoy.
+>
+> **Esa aplicación se abandonó el 2026-08-09.** No se reparó: se reconstruyó desde cero como
+> `SISGA`, porque el `Regenerate` de AppSheet fusiona en vez de reemplazar
+> (`docs/BASE_CONOCIMIENTO_APPSHEET.md` §11 y §12). **En una aplicación construida de cero no
+> sobrevive ninguna referencia heredada: son las 38 de `MODELO`.**
+>
+> Se descubrió al reconstruir: siguiendo esta especificación al pie de la letra sobre una app nueva,
 > `OT_OrdenesTrabajo.ActivoID` quedaba en `Number` y la desreferencia
-> `[OTID].[ActivoID].[Ubicacion]` -que la propia especificacion usa como prueba- no resolvia.
+> `[OTID].[ActivoID].[Ubicacion]` —que la propia especificación usa como prueba— no resolvía.
 >
-> Cuando la especificacion y `scripts/modelo_objetivo.py` discrepen, **manda el modelo**.
+> **Qué leer en su lugar, según lo que vaya a hacer:**
+>
+> | Si va a | Lea |
+> |---|---|
+> | Construir la aplicación | [`docs/MANUAL_DESPLIEGUE.md`](../MANUAL_DESPLIEGUE.md), con la ficha de las 28 tablas |
+> | Pegar una expresión | [`RECONSTRUCCION_EXPRESIONES.md`](RECONSTRUCCION_EXPRESIONES.md): las 38 referencias y las 20 reglas, enteras |
+> | Terminar lo que falta hoy | [`docs/prompts/PROMPT_CONTINUAR_DESPLIEGUE.md`](../prompts/PROMPT_CONTINUAR_DESPLIEGUE.md) |
+> | Medir el resultado | [`PRUEBA-003-despliegue.md`](PRUEBA-003-despliegue.md) |
+>
+> Su orden de ejecución, `ORDEN-002`, está en `docs/historico/`: autorizaba tocar la aplicación
+> abandonada y **nunca se cerró**. No hay `ACTA-005`.
+>
+> Cuando esta especificación y `scripts/modelo_objetivo.py` discrepen, **manda el modelo**.
 
 
 Fase B. Es la que convierte el modelo en un sistema: hasta aquí hay una hoja de cálculo ordenada, y

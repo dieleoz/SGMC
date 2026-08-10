@@ -151,9 +151,9 @@ el indicador hay que ir a mirarlo.
 
 [Troubleshoot AppSheet databases](https://support.google.com/appsheet/answer/14255794?hl=en)
 
-Sostiene el orden de `ESPEC-002`: **primero la clave del destino, después quien la apunta** (R-3).
-El bloque 1 fija las 27 claves antes de que el bloque 3 cree una sola referencia, precisamente por
-esto.
+Sostiene R-3: **primero la clave del destino, después quien la apunta.** Las claves de las 28 tablas
+se fijan antes de crear una sola de las 38 referencias, precisamente por esto. Las dos cifras salen
+de `scripts/modelo_objetivo.py`, no de una especificación: cuando discrepan, manda el modelo.
 
 ## 9. `DISTANCE()` devuelve kilómetros
 
@@ -218,6 +218,12 @@ es **borrar cada tabla y volver a darla de alta**, más reponer después la capa
 **Y explica el bloqueo de permisos como algo estructural, no accesorio.** Si el procedimiento pasa
 por dar de alta tablas, **una cuenta coautora no puede ejecutar la Fase B en absoluto**: `Add data`
 está reservado al propietario. No es un obstáculo que se rodee con maña.
+
+**Cómo acabó, el 2026-08-09.** No se reparó tabla por tabla: **se creó una aplicación nueva**,
+`SISGA`, sobre la misma estructura de datos, y funcionó a la primera. Lo que llevaba dos días
+atascado se resolvió en una tarde. Y el número cambió con ella: **las 15 columnas eran las que
+faltaban en la aplicación vieja, donde otras 23 ya estaban puestas; sobre una nueva no sobrevive
+ninguna y son 38.** Toda lista derivada tiene que declarar de qué punto de partida sale.
 
 ## 12. AppSheet ignora las pestañas ocultas
 

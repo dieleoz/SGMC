@@ -5,9 +5,15 @@
 | | |
 |---|---|
 | Estado | Preparado, sin ejecutar |
-| **El entregable** | `BD/Modelo_Datos_PLANTILLA.xlsx` — 28 pestañas, con los 34 activos reales y 355 sintéticos |
+| **El entregable** | `BD/Modelo_Datos_PLANTILLA.xlsx` — 28 pestañas de datos más `_LEEME`, con los 34 activos de fixture y 355 sintéticos |
 | Intermedio | `BD/Modelo_Datos_LIMPIO.xlsx` — la estructura sin inventario. **No se entrega** |
-| Lo genera | `python scripts/generar_hoja_limpia.py "BD/<origen>.xlsx"` |
+| Lo genera | `python scripts/generar_hoja_limpia.py "BD/<origen>.xlsx"` produce el intermedio; `python scripts/generar_inventario.py`, los 355 sintéticos |
+
+> **Lo que hay que saber antes de regenerar: la plantilla no sale de un solo comando.** Esos dos
+> scripts producen `Modelo_Datos_LIMPIO.xlsx` y `ACT_Activos_355_SINTETICO.xlsx`. **Unirlos, añadir
+> la pestaña `_LEEME` y poblar `TIP_TiposActivo.RadioGeofencingKm` son pasos que hoy no están
+> escritos en ningún script**, así que la plantilla del repositorio no se reproduce ejecutando lo de
+> arriba. Es deuda del generador, y hasta que se cierre **la plantilla se conserva, no se rehace**.
 
 ## Por qué existe esta migración
 
@@ -180,10 +186,14 @@ Y las pruebas de [`sdd/PRUEBA-003-despliegue.md`](sdd/PRUEBA-003-despliegue.md).
 tienen coordenadas del corredor pero inventadas. **Ninguna hoja limpia lo soluciona**: hay que salir
 a levantar. Es la decisión **D-01** y sigue siendo el bloqueo del piloto.
 
-**Y el radio del geofencing.** Con 355 activos a 386 metros de separación media, un radio de 1 km
-mete **8 activos dentro de cada geofence**. El sistema probaría «estás en el corredor», no «estás
-frente al equipo». `TIP_TiposActivo.RadioGeofencingKm` está vacía en los 18 tipos y **deja de ser
-opcional**.
+**Y el radio del geofencing, a medias.** Con 355 activos a 386 metros de separación media, un radio
+de 1 km mete **8 activos dentro de cada geofence**. El sistema probaría «estás en el corredor», no
+«estás frente al equipo».
+
+`TIP_TiposActivo.RadioGeofencingKm` **ya no está vacía**: la plantilla la trae poblada por familia
+—0,05 km en 12 tipos, 0,1 km en 5 y 1,5 km en la fibra—. **Lo que falta es la expresión**: mientras
+la regla del editor use el literal `1.0` en vez de desreferenciar esa columna, la plantilla no
+cambia nada. La expresión buena está en `RECONSTRUCCION_EXPRESIONES.md`.
 
 ## Si se decide no migrar
 

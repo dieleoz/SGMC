@@ -6,9 +6,15 @@ funcional.** Todo lo demás —especificaciones, actas, base de conocimiento— 
 | | |
 |---|---|
 | Sistema | Gestión de Mantenimiento en Campo · Concesión Transversal del Sisga S.A.S. |
-| Plataforma | Google AppSheet `SGMC-886843353` sobre Google Sheets |
-| Verificado contra | `scripts/modelo_objetivo.py` y `BD/Modelo de Datos (11).xlsx` (Fase A cerrada) |
-| Fecha | 2026-08-07 |
+| Plataforma | Google AppSheet `SISGA` sobre Google Sheets |
+| Verificado contra | `scripts/modelo_objetivo.py`, `BD/Modelo_Datos_PLANTILLA.xlsx` y `BD/Modelo_Datos_09082026_VISIBLE.xlsx` |
+| Fecha | 2026-08-09 |
+
+> **La aplicación es nueva.** `SGMC-886843353` se abandonó el 2026-08-09: su esquema había divergido
+> tanto del modelo que *Regenerate* no podía converger, porque fusiona en vez de reemplazar. Se
+> reconstruyó desde cero sobre la misma estructura de datos. **Nada de lo funcional cambió por eso**
+> —el modelo es el mismo—, pero cualquier documento que hable de la aplicación anterior describe algo
+> que ya no existe.
 
 **Regla de este documento: una sola forma por propósito.** Si dos mecanismos pueden resolver lo
 mismo, aquí se elige uno y se dice cuál se descarta. La sección 6 es el registro de esas decisiones,
@@ -172,10 +178,19 @@ No es «más adelante». Es **no en el plan actual**, y solo cambia con la decis
 | **Garantía de unicidad de un consecutivo** | Offline-first: dos técnicos sin señal generan el mismo número |
 | **Que una escritura directa en la hoja respete las validaciones** | Imposible por diseño de la plataforma |
 
-**Volumen:** AppSheet degrada por encima de ~50.000 filas por tabla. Con inventario real,
-`CHD_ChecklistDetalle` llega a 162.000 filas en cinco años. **Archivar por año no es opcional.** Y
-la cuota de 15 GB de la cuenta que hoy posee el backend se agota en 13,5 años, antes de los 5 de
-retención exigida.
+**Volumen.** Las cifras salen de `python scripts/capacidad.py`, que tiene cuatro escenarios. Con los
+**355 activos** del Plan Maestro:
+
+```
+CHD_ChecklistDetalle   76.680 filas/año  ->  383.400 a 5 años   (AppSheet degrada sobre ~50.000)
+Almacenamiento          2,62 GB/año      ->  13,10 GB a 5 años  (87% de los 15 GB)
+La cuota se agota en    5,7 años
+```
+
+**Archivar por año no es opcional:** la tabla de detalle pasa el umbral de sincronización en el
+primer año. Y **la cuota de 15 GB de la cuenta que hoy posee el backend dura 5,7 años frente a los 5
+de retención exigida**, es decir, no sobra nada. Si el corredor crece a 500 activos, el escenario que
+también calcula el script, la cuota se agota **en 4,1 años, antes de la retención**.
 
 ---
 
@@ -183,16 +198,19 @@ retención exigida.
 
 | | Estado |
 |---|---|
-| Modelo de datos, 28 tablas | **Existe.** Fase A cerrada, 59 comprobaciones conformes |
-| Plantillas de checklist | **Existe** — `FRM_Formularios`, `FRM_Secciones`, `FRM_Preguntas` |
-| Catálogo de roles | **Existe** — `ROL_Roles`. Falta poblarlo |
-| Referencias entre tablas | **Especificado, sin ejecutar.** 15 columnas siguen siendo texto. Es la Fase B |
-| Capa de tareas `TAR_Tareas` | **En especificación** |
-| Jerarquía de ubicación | **En especificación** |
-| Correctivo con criticidad y SLA | **En especificación** |
+| Modelo de datos, 28 tablas | **Existe.** 202 columnas y 20 reglas. `FASE A CERRADA` con 61 conformes sobre la hoja de producción y 60 sobre la plantilla |
+| Plantillas de checklist | **Existe** — `FRM_Formularios`, `FRM_Secciones`, `FRM_Preguntas`. 18 formularios, 14 secciones |
+| Banco de preguntas | **1 de 18.** Las 15 filas de `FRM_Preguntas` son todas del formulario de postes SOS |
+| Catálogo de roles | **Existe** — `ROL_Roles`, con 4 filas. Faltan los doce oficios del Plan Maestro |
+| Referencias entre tablas | **Puestas.** Las **38** del modelo, sobre la aplicación reconstruida, con `IsPartOf` en las cuatro que lo llevan |
+| Geofencing y filtros de seguridad | **Puestos.** No probados en campo: falta la coordenada real |
+| Capa de tareas `TAR_Tareas` | **En especificación**, y `ESPEC-003` está bloqueada por el arquitecto |
+| Jerarquía de ubicación | **En especificación**, dentro de `ESPEC-003` |
+| Correctivo con criticidad y SLA | **En especificación**, dentro de `ESPEC-003` |
 | Imponer `QuienCambia` y el rechazo | **Pendiente** |
-| Inventario de 355 activos | **Pendiente de carga.** Tenemos el censo, no el registro |
-| Coordenadas de los activos | **No existen.** Se levantan en campo |
+| Inventario de 355 activos | **En la plantilla como sintético.** 34 de fixture y 355 de prueba, cada uno marcado como tal en `ACT_Activos.Observaciones`. **No es el registro real** |
+| Coordenadas de los activos | **No existen.** Los 34 comparten una de Bogotá y las 355 sintéticas están interpoladas sobre el corredor. Se levantan en campo |
+| Vistas, acciones y slices | **No están en el modelo.** Mientras no se declaren, la interfaz no se puede generar ni auditar |
 | Certificaciones múltiples, vigencias | Fase 2 |
 | Almacén, SAT, flotas | Fuera de alcance |
 

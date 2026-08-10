@@ -1,7 +1,7 @@
 # Diccionario de datos — As-Built
 
 **Generado automáticamente** por `scripts/generar_diccionario_bd.py` desde
-`Modelo_Datos_09082026_VISIBLE.xlsx`. No editar a mano.
+`Modelo_Datos_09082026.xlsx`. No editar a mano.
 
 Describe **lo que la hoja tiene hoy**, no lo que debería tener. El modelo objetivo está en
 `ARQUITECTURA_OBJETIVO_SGMC.md`; aquí se marca la distancia entre uno y otro.
@@ -12,8 +12,9 @@ forma de que mienta es que mienta el archivo**.
 
 | | |
 |---|---|
-| Backend de producción | Google Sheets `1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc` |
-| Aplicación | AppSheet `SGMC-886843353` |
+| Backend de producción | Google Sheets `Modelo_Datos_09082026` |
+| Aplicación | AppSheet `SISGA` |
+| Archivo leído | `Modelo_Datos_09082026.xlsx` |
 | Hojas | **32** |
 | Filas con datos | **259** |
 | Generado el | 2026-08-09 |
@@ -26,6 +27,8 @@ forma de que mienta es que mienta el archivo**.
 |---|---|---|
 | Columnas que siguen siendo `Text` y deben ser `Ref` | **15** | Fase B, `ESPEC-002` |
 | Columnas marcadas como retiradas que siguen en la hoja | **43** | Pasada posterior, con datos ya migrados |
+| Columnas presentes sin decidir todavía | **4** | Decisión de operación |
+| **Total a ocultar al dar de alta las tablas** | **47** | `MANUAL_DESPLIEGUE.md`, anexo |
 | Tablas marcadas como retiradas que siguen en la hoja | 4 | Idem |
 | Tablas del modelo objetivo que ya existen | 28 de 28 | — |
 
@@ -76,8 +79,8 @@ número escondido dentro de una expresión no se puede calibrar.
 
 | Parámetro | Valor en la hoja | Unidad | Declarado en el modelo | Quién lo lee |
 |---|---|---|---|---|
-| `UMBRAL_GPS` | 40 | m | 40 | RG-19 |
-| `RADIO_GEOFENCING_KM` | 1 | km | 1.0 | RG-01 |
+| `UMBRAL_GPS` | 40.0 | m | 40 | RG-19 |
+| `RADIO_GEOFENCING_KM` | 1.0 | km | 1.0 | RG-01 |
 | `DISTANCIA_ESCANEO_CIERRE_KM` | 0.5 | km | 0.5 | RG-13 |
 
 ## 4. Detalle por hoja
@@ -119,7 +122,7 @@ Inventario de los activos del corredor. Es el eje del sistema.
 
 Calzadas del corredor.
 
-3 columnas · 2 filas · clave: `1`, `2`
+3 columnas · 2 filas · clave: `1.0`, `2.0`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -131,7 +134,7 @@ Calzadas del corredor.
 
 Estados del activo: Operativo, En mantenimiento, Fuera de servicio, Retirado.
 
-4 columnas · 4 filas · clave: `1`, `2`
+4 columnas · 4 filas · clave: `1.0`, `2.0`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -144,7 +147,7 @@ Estados del activo: Operativo, En mantenimiento, Fuera de servicio, Retirado.
 
 Periodicidad del mantenimiento preventivo.
 
-4 columnas · 8 filas · clave: `1`, `2`
+4 columnas · 8 filas · clave: `1.0`, `2.0`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -157,7 +160,7 @@ Periodicidad del mantenimiento preventivo.
 
 Sedes fisicas donde trabaja el personal: CCO, peajes y basculas.
 
-4 columnas · 10 filas · clave: `1`, `2`
+4 columnas · 10 filas · clave: `1.0`, `2.0`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -182,7 +185,7 @@ Sentidos de circulacion.
 
 Taxonomia de activos. Determina que checklist abre la aplicacion.
 
-8 columnas · 18 filas · clave: `1`, `2`
+8 columnas · 18 filas · clave: `1.0`, `2.0`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -219,7 +222,7 @@ Personas del sistema. El correo resuelve la sesion contra USEREMAIL().
 
 Perfiles de acceso: Administrador, Supervisor, Tecnico y Consulta.
 
-4 columnas · 4 filas · clave: `2`, `3`
+4 columnas · 4 filas · clave: `2.0`, `3.0`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -343,7 +346,7 @@ Banco unico de preguntas. Es el motor: se retiran las hojas planas FRM_SOS, FRM_
 
 Tipo de dato esperado en cada respuesta.
 
-3 columnas · 10 filas · clave: `1`, `2`
+3 columnas · 10 filas · clave: `1.0`, `2.0`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -415,7 +418,7 @@ Tipo de dato esperado en cada respuesta.
 
 Agrupacion de preguntas dentro del formulario.
 
-4 columnas · 14 filas · clave: `1`, `2`
+4 columnas · 14 filas · clave: `1.0`, `2.0`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -428,7 +431,7 @@ Agrupacion de preguntas dentro del formulario.
 
 Opciones de las preguntas de tipo lista.
 
-5 columnas · 4 filas · clave: `1`, `2`
+5 columnas · 4 filas · clave: `1.0`, `2.0`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -552,7 +555,7 @@ Respuesta a cada pregunta. Referencia la pregunta por su clave, no por su texto:
 
 Tramos del corredor donde estan los activos. Se separa de SED_Sedes porque son dos conceptos distintos que el modelo anterior mezclaba en una sola columna, dejando usuarios y activos en conjuntos disjuntos.
 
-5 columnas · 4 filas · clave: `7`, `8`
+5 columnas · 4 filas · clave: `7.0`, `8.0`
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -669,4 +672,4 @@ Umbrales que el administrador ajusta con las pruebas de campo, sin tocar la conf
 
 ---
 *Documento generado. Para actualizarlo, descarga la hoja a `BD/` y ejecuta*
-*`python scripts/generar_diccionario_bd.py "BD/Modelo de Datos (N).xlsx"`.*
+*`python scripts/generar_diccionario_bd.py "BD/Modelo_Datos_09082026.xlsx"`.*
