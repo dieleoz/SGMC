@@ -16,7 +16,7 @@ Construida sobre **Google AppSheet** con backend en **Google Sheets**. Sin servi
 sin compilación de APK, sin Play Console: los técnicos instalan la app de AppSheet e inician
 sesión con su cuenta corporativa.
 
-**La aplicación vigente es `SISGA_-323965761-26-08-10`.** Las versiones anteriores se abandonaron
+**La aplicación vigente es `_SISGA_-323965761`.** Las versiones anteriores se abandonaron
 el 2026-08-10 al limpiar el repositorio e iniciar la reconstrucción limpia sobre `Modelo_Datos_10082026`.
 El porqué está en [`BASE_CONOCIMIENTO_APPSHEET.md`](docs/BASE_CONOCIMIENTO_APPSHEET.md) §11 y §12.
 
@@ -284,7 +284,7 @@ archivo/       Material de origen, no versionado
 
 ## 9. Enlaces
 
-- Aplicación AppSheet `SISGA_-323965761-26-08-10`: [abrir en AppSheet](https://www.appsheet.com/template/appdef?appId=d180a1b5-19ca-448e-a44c-f985396dce12)
+- Aplicación AppSheet `_SISGA_-323965761`: [abrir en AppSheet](https://www.appsheet.com/template/appdef?appId=aca92ac5-a6eb-4c73-be81-471a5b3fe04e)
 - Backend Google Sheets `Modelo_Datos_10082026`, 29 pestañas, propiedad de la Concesión:
   [abrir](https://docs.google.com/spreadsheets/d/1h9kyCYGK6esRL1UiTcPXHlSmDQcPb13fNZ0hBznYOa0)
 - Repositorio: [github.com/dieleoz/SGMC](https://github.com/dieleoz/SGMC)

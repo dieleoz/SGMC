@@ -19,6 +19,16 @@ tres hojas mencionadas por el repositorio en cuatro días. Ver §9.2.
 
 - Repositorio remoto: `github.com/dieleoz/SGMC`
 
+## 1.1 Antes de tocar el modelo
+
+**`docs/REGLAS_DEL_MODELO_DE_DATOS.md` reúne las diez reglas que manda el motor**, cada una con el
+fallo del que salió y **quién la hace cumplir**. Se genera de `modelo_objetivo.py`, así que sus
+listas no pueden derivar.
+
+Las secciones 7.x de este archivo cuentan la historia de cada fallo; ese documento dice qué hay que
+respetar al cambiar algo. **Cualquier cambio en el modelo, en la plantilla o en la aplicación pasa
+por él.**
+
 ## 2. Dónde está la verdad
 
 **La fuente única es `scripts/modelo_objetivo.py`.** De ahí se generan el diccionario de datos, el

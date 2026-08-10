@@ -8,8 +8,8 @@ describía aplicaciones y hojas superadas. Lo que queda describe **un solo siste
 ## El sistema
 
 ```
-Aplicación   SISGA_-323965761-26-08-10
-             https://www.appsheet.com/template/appdef?appId=d180a1b5-19ca-448e-a44c-f985396dce12
+Aplicación   _SISGA_-323965761
+             https://www.appsheet.com/template/appdef?appId=aca92ac5-a6eb-4c73-be81-471a5b3fe04e
 
 Datos        Modelo_Datos_10082026   ·   Hoja de cálculo de Google
              https://docs.google.com/spreadsheets/d/1h9kyCYGK6esRL1UiTcPXHlSmDQcPb13fNZ0hBznYOa0
@@ -204,6 +204,7 @@ radio.
 | Si necesita | Lea |
 |---|---|
 | **Saber qué le toca a usted** | [`docs/INDICACIONES_POR_ROL.md`](docs/INDICACIONES_POR_ROL.md) |
+| **Cambiar algo del modelo** | [`docs/REGLAS_DEL_MODELO_DE_DATOS.md`](docs/REGLAS_DEL_MODELO_DE_DATOS.md) — las diez reglas del motor, con el fallo del que salió cada una y quién la hace cumplir |
 | **Construir la aplicación** | [`docs/MANUAL_DESPLIEGUE.md`](docs/MANUAL_DESPLIEGUE.md) — diez pasos y una ficha por tabla, columna por columna |
 | **La expresión exacta de una regla** | [`docs/sdd/RECONSTRUCCION_EXPRESIONES.md`](docs/sdd/RECONSTRUCCION_EXPRESIONES.md) — las 21 sin cortar |
 | **Probar que funciona** | [`docs/sdd/PRUEBA-003-despliegue.md`](docs/sdd/PRUEBA-003-despliegue.md) |

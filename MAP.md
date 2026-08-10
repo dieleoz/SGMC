@@ -97,6 +97,7 @@ D:\@Proyect\Sisga\
 | Documento | Contenido | Vigencia |
 |---|---|---|
 | [docs/ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) | Modelo objetivo: 28 tablas, 205 columnas, 39 referencias, 21 reglas | Vigente. **Se regenera, no se edita** |
+| [docs/REGLAS_DEL_MODELO_DE_DATOS.md](docs/REGLAS_DEL_MODELO_DE_DATOS.md) | Las diez reglas que manda el motor de datos, con el fallo del que salió cada una | Vigente. **Se regenera, no se edita** |
 | [docs/bd.md](docs/bd.md) | Diccionario As-Built: lo que la hoja tiene hoy, columna a columna | Vigente. **Se regenera, no se edita** |
 | [docs/MANUAL_DESPLIEGUE.md](docs/MANUAL_DESPLIEGUE.md) | De cero a app desplegada, con la ficha de las 28 tablas columna por columna | Vigente. Generado |
 | [docs/sdd/RECONSTRUCCION_EXPRESIONES.md](docs/sdd/RECONSTRUCCION_EXPRESIONES.md) | Los nombres renombrados y las 21 reglas a reponer, sin cortar | Vigente |
