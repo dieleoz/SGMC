@@ -90,9 +90,17 @@ exactamente las columnas que el modelo declara más el `_RowNumber` que añade A
 **La aplicación se reconstruyó desde cero el 2026-08-10, así que el cableado de la anterior no
 sirve: se repone entero.** No es una lista de retoques, es el procedimiento completo.
 
+> **Ningún documento de esta tabla sabe cuánto está hecho, y no es un descuido: todos salen del
+> modelo, así que describen el destino.** El estado lo tiene la aplicación y se le pregunta con
+> `scripts/auditar_cableado.py`. Lo aprendimos caro: el informe de cableado del 2026-08-10 decía
+> «39/39 asignadas» y de las que se podían mirar, cinco estaban mal —`TipoActivoID` apuntaba a la
+> tabla de sedes, y tres columnas de texto se habían vuelto referencia—. La API respondía 28/28 y
+> `validar_modelo.py` daba APTO. Es la regla **R-04**: *preguntar «apunta a algo» nunca contesta
+> «apunta a lo correcto»*.
+
 | # | Qué | Dónde está escrito |
 |---|---|---|
-| 1 | **Las 39 referencias**, con `IsPartOf` en las cuatro que lo llevan | [`docs/MANUAL_DESPLIEGUE.md`](docs/MANUAL_DESPLIEGUE.md), ficha por tabla |
+| 1 | **Las 39 referencias**, con `IsPartOf` en las cuatro que lo llevan | [`docs/PROMPT_CABLEADO.md`](docs/PROMPT_CABLEADO.md) — el encargo. Cuántas faltan **hoy**: `python scripts/auditar_cableado.py` |
 | 2 | **Las 21 reglas**: geofencing, umbral de GPS, `Editable_If`, los bots | [`docs/sdd/RECONSTRUCCION_EXPRESIONES.md`](docs/sdd/RECONSTRUCCION_EXPRESIONES.md), expresión completa |
 | 3 | **Los dos filtros de seguridad**: activos por unidad funcional, órdenes por técnico | Ídem |
 | 4 | **Las cuatro marcas de tiempo** como `ChangeTimestamp` del servidor | Ídem |

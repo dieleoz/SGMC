@@ -5,8 +5,8 @@ mano: vuelve a correr el script y se rehace con lo que quede pendiente.
 
 ---
 
-En la aplicacion **`_SISGA_-323965761`**, 9 columnas de `ACT_Activos` estan mal. El resto del
-cableado esta bien: **27 de las 39 referencias son correctas**.
+En la aplicacion **`_SISGA_-323965761`**, 4 columnas de `ACT_Activos` estan mal. El resto del
+cableado esta bien: **29 de las 39 referencias son correctas**.
 
 ## Antes de tocar nada, por que importa
 
@@ -21,7 +21,7 @@ Can't find column "RadioGeofencingKm" in table "SED_Sedes"
 `SED_Sedes` porque la referencia esta mal puesta, y ahi ese radio no existe. Reescribir la
 expresion para acomodarla seria romper una regla correcta para tapar un cableado roto.
 
-Ninguna regla se cablea hasta que estas 9 esten hechas.
+Ninguna regla se cablea hasta que estas 4 esten hechas.
 
 ## Como se llego a esto
 
@@ -33,22 +33,17 @@ respondio 28/28, `validar_modelo.py` dio APTO y las 368 filas seguian ahi.
 Es la regla **R-04**: *una referencia que resuelve puede apuntar a lo que no es.* Preguntar
 «apunta a algo» nunca contesta «apunta a lo correcto».
 
-## Las 9, en orden
+## Las 4, en orden
 
 Todas en **`Data > Columns > ACT_Activos`**. Guarda **una vez al final**, no columna a columna:
 mientras las tres primeras esten mal, la tabla no deja guardar.
 
 | # | Columna | Esta asi | Debe quedar |
 |---|---|---|---|
-| 1 | `CodigoQR` | `Ref` -> `SED_Sedes` | **`Text`**, sin tabla destino |
-| 2 | `Nombre` | `Ref` -> `SED_Sedes` | **`Text`**, sin tabla destino |
-| 3 | `PR` | `Ref` -> `SED_Sedes` | **`Text`**, sin tabla destino |
-| 4 | `CalzadaID` | `Ref` -> `SED_Sedes` | `Ref` -> **`CAL_Calzadas`** |
-| 5 | `TipoActivoID` | `Ref` -> `SED_Sedes` | `Ref` -> **`TIP_TiposActivo`** |
-| 6 | `EstadoActivoID` | no es `Ref` | `Ref` -> **`EST_Activo`** |
-| 7 | `FrecuenciaID` | no es `Ref` | `Ref` -> **`FRE_Frecuencias`** |
-| 8 | `SentidoID` | no es `Ref` | `Ref` -> **`SEN_Sentidos`** |
-| 9 | `UnidadFuncionalID` | no es `Ref` | `Ref` -> **`UNF_UnidadesFuncionales`** |
+| 1 | `EstadoActivoID` | no es `Ref` | `Ref` -> **`EST_Activo`** |
+| 2 | `FrecuenciaID` | no es `Ref` | `Ref` -> **`FRE_Frecuencias`** |
+| 3 | `SentidoID` | no es `Ref` | `Ref` -> **`SEN_Sentidos`** |
+| 4 | `UnidadFuncionalID` | no es `Ref` | `Ref` -> **`UNF_UnidadesFuncionales`** |
 
 > Las tres primeras van antes que las demas. Son las que bloquean el guardado.
 
@@ -64,7 +59,7 @@ python scripts/auditar_cableado.py
 ```
 
 Sale con **0 correcciones** cuando esta bien. No te fies del recuento de tablas de la API:
-dio 28/28 con estas 9 rotas.
+dio 28/28 con estas 4 rotas.
 
 ## Lo que este script NO puede ver
 
@@ -79,4 +74,4 @@ la columna virtual inversa vive en el destino. **No estan bien ni mal: no se sab
 - `OT_OrdenesTrabajo.OTOrigenID` -> `OT_OrdenesTrabajo`
 
 Abrelas en el editor una por una y confirma su `Source table`. Dar por buena una
-referencia que no se ha mirado es exactamente como se llego a las 9 de arriba.
+referencia que no se ha mirado es exactamente como se llego a las 4 de arriba.

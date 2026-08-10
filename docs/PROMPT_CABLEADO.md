@@ -52,6 +52,19 @@ la columna, **`Source table`** = la tabla destino.
 de una tabla, y las nuestras llevan prefijo —`UNF_UnidadesFuncionales`, no `UnidadFuncional`—,
 así que el parecido se rompe. Hay que ponerlas las 39.
 
+> **Cuántas faltan hoy, este documento no lo sabe.** Sale del modelo, así que describe el destino
+> y no el estado: seguirá diciendo 39 el día que estén las 39 puestas. Antes de empezar, pregúntaselo
+> a la aplicación:
+>
+> ```bash
+> python scripts/auditar_cableado.py
+> ```
+>
+> Emite [`CORRECCIONES_CABLEADO.md`](CORRECCIONES_CABLEADO.md) con **lo que quede pendiente**, y
+> distingue tres cosas que es fácil confundir: la que está mal, la que falta, y la que **no se
+> puede ver** porque su tabla destino está vacía. Dar por buena una referencia que nadie ha
+> mirado es como se llegó a tener `TipoActivoID` apuntando a la tabla de sedes.
+
 | Tabla | Columna | `Source table` | `IsPartOf` |
 |---|---|---|---|
 | `SED_Sedes` | `UnidadFuncionalID` | `UNF_UnidadesFuncionales` | no |
