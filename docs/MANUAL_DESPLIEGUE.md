@@ -202,6 +202,11 @@ Todo llega de una hoja, asi que entra como texto o numero.
 | `FOT_Fotografias` | `Archivo` | `Image` |  |
 | `FIR_Firmas` | `Imagen` | `Signature` |  |
 | `NOV_Novedades` | `Ubicacion` | `LatLong` |  |
+| `NOV_Novedades` | `Fotografia` | `Image` |  |
+| `MAN_Mantenimientos` | `FechaHoraRegistro` | `ChangeTimestamp` | **Marca del servidor.** AppSheet no lo infiere nunca |
+| `FOT_Fotografias` | `FechaHora` | `ChangeTimestamp` | **Sin esto la hora de la fotografia no prueba nada** |
+| `FIR_Firmas` | `FechaHora` | `ChangeTimestamp` | Idem para la firma |
+| `NOV_Novedades` | `FechaHora` | `ChangeTimestamp` |  |
 
 ## Paso 5 — Las 38 referencias
 
@@ -275,14 +280,8 @@ importe: primero la clave del destino, despues quien la apunta.
 38  FIR_Firmas.MantenimientoID         -> MAN_Mantenimientos   IsPartOf = TRUE
 ```
 
-**Y la ultima, aparte:**
-
-```
-39  OT_OrdenesTrabajo.OTOrigenID        -> OT_OrdenesTrabajo
-```
-
-Apunta a su propia tabla, para encadenar una orden derivada con la que la origino. Dejela para el
-final.
+**Nota sobre `OT_OrdenesTrabajo.OTOrigenID`**, que sale en el nivel 5: apunta a su propia tabla,
+para encadenar una orden derivada con la que la origino. **Dejela para el final del nivel.**
 
 ### `IsPartOf` va marcado en cuatro, y en ninguna mas
 
@@ -374,10 +373,24 @@ Coordenadas_Cierre · Precision_GPS · UbicacionEscaneo · FechaHoraEscaneo
 **Sin esto el geofencing es decorativo:** el tecnico arrastra el pin del mapa y cierra desde donde
 quiera. La regla parece funcionar y no prueba nada.
 
+> **Supuesto sin verificar, y es el peor modo de fallo del sistema.** No hay pagina oficial que
+> confirme si AppSheet evalua un `Valid_If` sobre una columna con `Editable_If = FALSE`. **Si no lo
+> evalua, la regla parece funcionar por no ejercitarse nunca.** Se detecta asi: pruebe un cierre
+> cercano y uno lejano. **Si los dos salen aceptados, sospeche de esto antes que del radio.**
+
 **Excepcion por GPS deficiente** — en `MAN_Mantenimientos.CierreConExcepcion`:
 
 ```
-App formula:  [Precision_GPS] > LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor")
+App formula:
+OR(ISBLANK(LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor")),
+   [Precision_GPS] > LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor"))
+```
+
+**El `ISBLANK` no sobra.** Sin el, borrar la fila del parametro hace que **todos los cierres
+salgan limpios y nadie se entere**. Con el, si el umbral no se puede leer el cierre se marca como
+excepcional: falla hacia el lado seguro. Es la forma exacta del defecto de RG-16.
+
+```
 ```
 
 **Filtros de seguridad** — *Data → Tables → [tabla] → Security Filter*:
@@ -393,6 +406,21 @@ OR([TecnicoID].[Correo] = USEREMAIL(), [SupervisorID].[Correo] = USEREMAIL())
 
 **No son solo control de acceso: son rendimiento.** Sin ellos, cada tecnico se descarga el
 inventario entero al telefono.
+
+### Retirar el borrado — sin esto el `IsPartOf` es peligroso
+
+*Data → Tables → [tabla] → Are updates allowed*:
+
+```
+OT_OrdenesTrabajo    Updates si · Adds si · Deletes NO
+MAN_Mantenimientos   Updates si · Adds si · Deletes NO
+```
+
+**Es la otra mitad del paso 5.** Marcar `IsPartOf` en cuatro referencias crea **borrado en
+cascada**: borrar un mantenimiento se lleva sus fotografias, su firma y su checklist.
+
+Eso solo es seguro **porque el mantenimiento nunca se borra**, y eso es exactamente lo que hace
+quitar `Deletes`. Configurar el `IsPartOf` sin esto deja la cascada abierta.
 
 ## Paso 8 — Las vistas
 
@@ -434,15 +462,35 @@ python scripts/verificar_documentos.py    # la prosa contra el modelo
 ```
 
 **Ninguno mira la aplicacion.** Para eso estan las pruebas de aceptacion de
-[`sdd/PRUEBA-002-cableado-en-appsheet.md`](sdd/PRUEBA-002-cableado-en-appsheet.md).
+[`sdd/PRUEBA-003-despliegue.md`](sdd/PRUEBA-003-despliegue.md).
 
 ## Paso 10 — Publicar
+
+> **Antes de publicar, lea esto.** Los 34 activos de la hoja comparten **una sola coordenada**,
+> `4.728512, -74.114531`, que esta en Bogota y no en el corredor. Con el radio de 1 km, la
+> aplicacion **rechaza todo cierre hecho en via y acepta todo cierre hecho en Bogota**.
+>
+> **No es un defecto de la configuracion: faltan las coordenadas reales**, que es la decision
+> D-01. Publicar antes de cargarlas entrega un sistema donde ningun tecnico puede cerrar una
+> orden, y se descubre con el tecnico delante.
 
 *Manage → Deploy → Run deployment check*, y despues **Move app to Deployed state**.
 
 **Antes de publicar, si existe una aplicacion anterior sobre la misma hoja, despubliquela.** Dos
 aplicaciones sobre un backend sin integridad referencial es una fuente de corrupcion silenciosa:
 la vieja conserva permisos de anadir y borrar que el modelo nuevo ya no concede.
+
+## Reversion — hasta donde se puede volver atras
+
+**Todo lo anterior al paso 10 se puede abandonar sin coste.** La aplicacion no esta publicada y
+nadie la usa: se borra y se empieza de nuevo. La hoja no se toca en ningun paso salvo el 0.
+
+**El paso 0 SI escribe en la hoja** al mostrar las pestanas ocultas. Antes de empezar, haga una
+copia fechada del documento. Es el unico punto de restauracion del dato.
+
+**El punto de no retorno es el paso 10**, y no por publicar: por **despublicar la aplicacion
+anterior**. Si el *deployment check* falla despues, la vieja ya no esta en servicio. Compruebe
+todo el paso 9 **antes** de despublicar nada.
 
 ## Lo que NO cabe en el plan gratuito
 
