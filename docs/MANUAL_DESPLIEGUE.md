@@ -220,6 +220,13 @@ una cabecera acabada en `?` para un Yes/No— y **ninguna de nuestras columnas l
 > 2026-08-10 con `SED_Sedes.TramoINVIAS`: el unico valor cargado era `5607`, asi que salio
 > `Number` — y los otros tramos del corredor son `55CN03`, que no cabe en un numero.
 
+> **Si va a automatizarlo:** los desplegables de `TYPE` son `<select>` nativos del navegador, no
+> widgets propios, asi que se pueden asignar de forma determinista en vez de a base de clics. **La
+> senal de que la aplicacion recogio el cambio es que el boton `SAVE` pasa de gris a azul**; si
+> sigue gris, el cambio se perdera al recargar. Metodo y riesgos en
+> `BASE_CONOCIMIENTO_APPSHEET.md` seccion 15. No sustituye a comprobar: quita los clics, no la
+> verificacion.
+
 **Como se comprueba, tabla por tabla.** Al terminar de dar de alta o de regenerar una tabla,
 abrela en *Data > Columns* y **recorre la columna TYPE de arriba abajo contra la ficha del
 anexo**. No es opcional ni es paranoia: el defecto no se ve en la hoja ni en los datos, solo

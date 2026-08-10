@@ -391,3 +391,37 @@ firma y su checklist. **La API no ve esa protección: borra igual.**
 
 Sondear una tabla vacía es inocuo. Hacerlo sobre una con histórico es exactamente el modo de fallo
 contra el que el sistema entero está diseñado.
+
+---
+
+## 15. Los desplegables de tipo del editor son controles nativos
+
+**Comprobado el 2026-08-10** en `Data > Columns` de `_SISGA_-323965761`: los selectores de la columna
+`TYPE` son elementos `<select>` del navegador, no widgets propios de AppSheet. Se comprobó
+enumerándolos desde la consola: diez columnas, diez `<select>`, cada uno con la lista completa de
+tipos —`Address`, `App`, `ChangeCounter`, `ChangeLocation`, `ChangeTimestamp`, `Color`, `Date`,
+`DateTime`…— como `<option>`.
+
+**Por qué importa.** El cableado de esta aplicación son 39 referencias, 4 `IsPartOf`, 12 `Enum`, 4
+`ChangeTimestamp` y una decena de tipos sueltos. Hacerlo a base de clics sobre una interfaz que se
+redibuja es lento y, peor, **un clic que cae medio píxel fuera cambia la fila de al lado sin que se
+note**. Contra un control nativo se puede asignar el valor y disparar su evento, que es
+determinista.
+
+### La señal de que el cambio se registró
+
+Cambiar el valor del `<select>` **no basta**: hay que confirmar que la aplicación lo recogió, no solo
+que el control se ve distinto. **La señal es que el botón `SAVE` de la cabecera pasa de gris a
+azul.** Si sigue gris, el cambio no llegó al modelo interno del editor y se perderá al recargar.
+
+Después de guardar, `SAVE` vuelve a gris. Ese ciclo —gris, azul, gris— es lo que hay que ver.
+
+### Lo que esto no autoriza
+
+**No sustituye a comprobar.** Al terminar cada tabla hay que releer la columna `TYPE` de arriba
+abajo contra la ficha del anexo del manual, exactamente igual que si se hubiera hecho a mano. La
+automatización quita los clics, no la verificación.
+
+Y va con su riesgo propio: **la interfaz deja de protegerte**. Un valor equivocado aplicado en serie
+se aplica en serie. Por eso conviene ir tabla por tabla y guardar en cada una, en vez de encadenar
+las 28 y descubrir el error al final.
