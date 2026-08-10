@@ -226,7 +226,7 @@ Cuatro cosas que hay que leer bien, porque cada una nació de un error real:
   La columna se llamó `OTID` y guardaba números de orden; ese desajuste produjo un checklist huérfano.
 - **El activo cuelga siempre de una unidad funcional, y opcionalmente de una sede.** Un poste SOS
   está sobre la vía; un servidor está dentro del peaje, que a su vez está en un tramo. Por eso
-  `SED_Sedes` tiene ahora `UnidadFuncionalID`, y por eso `RG-21` obliga a que, **si el activo tiene
+  `SED_Sedes` tiene ahora `UnidadFuncionalID`, y por eso `RG-34` obliga a que, **si el activo tiene
   sede, su unidad funcional sea la de la sede**. Sin esa regla el mismo hecho estaría guardado en
   dos sitios y podrían decir cosas distintas sin que nada protestara.
 
@@ -252,7 +252,7 @@ manual de usuario.
 | 6.7 | Qué se reparó en una correctiva | Formulario propio de correctivo | Reactivar `Diagnostico` y `Repuestos_Utilizados` | Un formulario no duplica columnas y encaja en la capa de tareas |
 | 6.8 | Cuánto duró | Derivar de `FechaHoraInicio` y `FechaHoraFin` | `Duracion_Minutos` almacenada | Un dato derivable no se guarda |
 | 6.9 | Coordenada de un activo | `ACT_Activos.Ubicacion_LatLong`, tipo LatLong | `Latitud` y `Longitud` separadas | AppSheet trata LatLong como un tipo, y `DISTANCE()` lo exige. **El sufijo `_LatLong` no es adorno**: es lo que hace que AppSheet infiera el tipo al dar de alta la tabla. Sin él entra como `Text` |
-| 6.9b | Dónde está la edificación, y dónde el equipo de dentro | `SED_Sedes` con `UnidadFuncionalID`, `PR`, `TramoINVIAS`, `PK` y `Ubicacion_LatLong`; `ACT_Activos.SedeID` opcional | Poner el PR de la vía a un servidor | Un servidor no está en un punto de la carretera: está dentro de un peaje que sí lo está. `RG-21` impide que el activo y su sede declaren unidades funcionales distintas |
+| 6.9b | Dónde está la edificación, y dónde el equipo de dentro | `SED_Sedes` con `UnidadFuncionalID`, `PR`, `TramoINVIAS`, `PK` y `Ubicacion_LatLong`; `ACT_Activos.SedeID` opcional | Poner el PR de la vía a un servidor | Un servidor no está en un punto de la carretera: está dentro de un peaje que sí lo está. `RG-34` impide que el activo y su sede declaren unidades funcionales distintas |
 | 6.9c | A qué altura del corredor está algo | `PK`, lineal y continuo, **más** `PR` con su `TramoINVIAS` | Solo `PR` | El corredor atraviesa tres rutas de INVÍAS, y **hay dos puntos distintos llamados `PR 0+000`** separados por unos 50 km. Un PR sin ruta no identifica un punto |
 | 6.10 | Preguntas de inspección | `FRM_Preguntas`, que apunta a `FRM_Formularios` **y** a `FRM_Secciones` | Editar `CHD_ChecklistDetalle` | `CHD` guarda **respuestas**. Editarlo para cambiar preguntas corrompe el histórico. Y la sección **no cuelga del formulario**: las 14 son un catálogo plano que comparten los 27 |
 | 6.11 | Activos sin ubicación física | Camino sin evidencia de coordenada | Forzarles geofencing | Un certificado SSL no tiene dónde estar. **Decisión pendiente**: camino propio o fuera de alcance |
@@ -335,7 +335,7 @@ tres es lo que hizo que este documento dijera durante un día que las referencia
 | Punto kilométrico del activo | `ACT_Activos.PK` y `ACT_Activos.TramoINVIAS` | **`PK` poblado en las 368; `PR` y `TramoINVIAS` vacíos en las 368.** El valor que estaba en `PR` era el kilómetro lineal del proyecto: se mudó a `PK`, y el PR de INVÍAS no se inventa | — |
 | Registros de prueba | — | **Ninguno.** `OT`, `MAN`, `CHK`, `CHD`, `FOT`, `FIR`, `NOV` y `PLA` están vacías | El ciclo no se ha recorrido |
 | Capa de tareas `TAR_Tareas` | **No.** Declarada en `PROPUESTAS` | — | — |
-| Jerarquía de ubicación | **A medias.** El nivel de edificación existe —`SED_Sedes` con su UF y su coordenada, `ACT_Activos.SedeID`, `RG-21`—. El de estructura no: `ETR_Estructuras` sigue en `PROPUESTAS` | Las 6 sedes están, sin situar salvo una. **`ACT_Activos.SedeID` está vacía en las 368** | — |
+| Jerarquía de ubicación | **A medias.** El nivel de edificación existe —`SED_Sedes` con su UF y su coordenada, `ACT_Activos.SedeID`, `RG-34`—. El de estructura no: `ETR_Estructuras` sigue en `PROPUESTAS` | Las 6 sedes están, sin situar salvo una. **`ACT_Activos.SedeID` está vacía en las 368** | — |
 | Los tramos donde el GPS no fija: los túneles | **No.** `TUN_Tuneles` en `PROPUESTAS`, sin especificar | — | — |
 | Correctivo con criticidad y SLA | **No.** `CRI_Criticidad`, `EVT_EventosOrden` y `PAU_Pausas` en `PROPUESTAS` | — | — |
 | Imponer `QuienCambia` y el rechazo | **No.** Ninguna de las 21 reglas lee `QuienCambia` | Falta la fila `Devuelta` en `EOT_EstadosOrden` | — |
@@ -360,7 +360,7 @@ columna. Todas están declaradas en `PROPUESTAS` o en `COLUMNAS_PROPUESTAS` de
 | El Plan Maestro clasifica en cuatro clases de mantenimiento | `OT_OrdenesTrabajo.Tipo` solo admite `Preventivo` y `Correctivo`. `Admin` y `Servicio` no se pueden registrar |
 | §7 — medir tiempos de respuesta y resolución de un correctivo | `OT_OrdenesTrabajo` no tiene **ninguna fecha de creación**. Faltarían `HoraAviso`, `CriticidadID` y **`CRI_Criticidad`**, más **`EVT_EventosOrden`** y **`PAU_Pausas`** para el reloj parado, que no puede ser una columna acumulada |
 | §3 — el oficio decide a quién se asigna | `ROL_Roles` existe y sirve; falta **`USR_Usuarios.OficioID`** y un discriminador de clase en `ROL_Roles` que separe los cuatro perfiles de acceso de los doce oficios, o los doce no tienen dónde leerse |
-| ~~Que el equipo de un peaje herede la unidad funcional del peaje~~ | **RESUELTO el 2026-08-10.** `SED_Sedes` tiene nueve columnas y sí sabe dónde está —`UnidadFuncionalID`, `PR`, `TramoINVIAS`, `PK`, `Ubicacion_LatLong`—, `ACT_Activos.SedeID` la referencia y `RG-21` impide que digan unidades funcionales distintas. Lo que sigue faltando es la **estructura** —puente, viaducto—, declarada como `ETR_Estructuras` en `PROPUESTAS` |
+| ~~Que el equipo de un peaje herede la unidad funcional del peaje~~ | **RESUELTO el 2026-08-10.** `SED_Sedes` tiene nueve columnas y sí sabe dónde está —`UnidadFuncionalID`, `PR`, `TramoINVIAS`, `PK`, `Ubicacion_LatLong`—, `ACT_Activos.SedeID` la referencia y `RG-34` impide que digan unidades funcionales distintas. Lo que sigue faltando es la **estructura** —puente, viaducto—, declarada como `ETR_Estructuras` en `PROPUESTAS` |
 
 **Y dos cosas que el modelo ya sostiene, y que conviene no volver a construir:** la segunda visita
 encadenada tiene `OT_OrdenesTrabajo.OTOrigenID`; la baja de un activo tiene `FechaBaja`, `MotivoBaja`

@@ -32,7 +32,9 @@ devuelve ninguna fila y por tanto ningun nombre de columna: de esas
 referencias este script NO PUEDE DECIR NADA. No las da por buenas ni por malas,
 las separa. Confundir "no lo puedo ver" con "esta bien" es como se llego aqui.
 
-Solo lee: usa la accion Find. No escribe, no borra y no toca la aplicacion.
+No toca la APLICACION: usa solo la accion Find, no escribe ni borra en ella.
+Si escribe en el REPOSITORIO: reemite docs/CORRECCIONES_CABLEADO.md con lo que
+quede pendiente. Correrlo cambia ese archivo en disco.
 
 Uso:  python scripts/auditar_cableado.py
 Sale con codigo 1 si alguna referencia visible no coincide con el modelo.
@@ -82,15 +84,32 @@ def filas(tabla):
 
 
 def columna_de(origen, destino, sufijo):
-    """Que columna del origen produjo esta virtual inversa."""
+    """Que columna del origen produjo esta virtual inversa, y con que fuerza.
+
+    Devuelve (columna, atribuida). `atribuida` dice si la COLUMNA esta probada
+    o solo supuesta, y la diferencia no es un matiz:
+
+      con ' By '   AppSheet nombra la columna. Es prueba directa: por eso se
+                   vio que ACT_Activos.TipoActivoID apuntaba a SED_Sedes.
+      sin ' By '   AppSheet solo nombra la tabla, porque hay UNA sola
+                   referencia entre el par. Para saber cual columna la
+                   produjo hay que preguntarselo AL MODELO -y el modelo es
+                   justo lo que estamos tratando de verificar-.
+
+    Ese segundo caso es INFERENCIA CIRCULAR y hay que decirlo. Prueba "existe
+    alguna referencia a ese destino", nunca "esta en esa columna". Si el
+    ejecutor pusiera la referencia correcta en la columna equivocada, la
+    inversa se llamaria igual y este script diria que esta bien.
+
+    Y tiene una ironia que conviene tener presente: el metodo es mas fuerte
+    cuando las cosas estan MAL -varias referencias al mismo destino obligan a
+    AppSheet a desambiguar con ' By '- y mas debil cuando estan bien.
+    """
     if sufijo:
-        return sufijo
-    # Sin ' By ', AppSheet la nombra asi porque hay UNA sola referencia entre el
-    # par. Si el modelo declara exactamente una, es esa; si declara varias, la
-    # aplicacion y el modelo ya no coinciden y no se puede deducir.
+        return sufijo, True
     cand = [c["nombre"] for c in MODELO[origen]["columnas"]
             if c.get("ref") == destino]
-    return cand[0] if len(cand) == 1 else None
+    return (cand[0], False) if len(cand) == 1 else (None, False)
 
 
 def tabla_llamada(txt):
@@ -105,7 +124,7 @@ print("Aplicacion: %s" % APP_NOMBRE)
 print("Lectura indirecta: se miden las columnas virtuales inversas, no el esquema.")
 print("")
 
-real, vacias, caidas = {}, [], []
+real, atribuida, vacias, caidas = {}, set(), [], []
 for destino in sorted(MODELO):
     datos, error = filas(destino)
     if error:
@@ -122,9 +141,26 @@ for destino in sorted(MODELO):
         origen = tabla_llamada(txt)
         if not origen:
             continue
-        nombre = columna_de(origen, destino, sufijo)
+        nombre, directa = columna_de(origen, destino, sufijo)
         if nombre:
             real[(origen, nombre)] = destino
+            if directa:
+                atribuida.add((origen, nombre))
+
+if caidas:
+    # Una tabla que no responde no es una tabla sin referencias. Sin esto, sus
+    # inversas no se leen, sus referencias caen en "declaradas y ausentes" y el
+    # documento manda PONER una Ref que probablemente ya esta puesta. Una lectura
+    # incompleta no produce un encargo incompleto: produce un encargo EQUIVOCADO,
+    # y ese se ejecuta con la misma confianza que uno bueno.
+    print("LECTURA INCOMPLETA. No se emite nada.")
+    print("")
+    for t, e in caidas:
+        print("   ! %s no respondio: %s" % (t, e))
+    print("")
+    print("Vuelve a correrlo. Si insiste, mira si esa tabla existe en la aplicacion.")
+    print(ancho)
+    sys.exit(2)
 
 declarado = {(t, c["nombre"]): c["ref"]
              for t in MODELO for c in MODELO[t]["columnas"] if c.get("ref")}
@@ -135,6 +171,8 @@ juzgable = {k: v for k, v in declarado.items() if v not in vacias}
 ciegas = {k: v for k, v in declarado.items() if v in vacias}
 
 bien = [k for k, v in juzgable.items() if real.get(k) == v]
+probadas = [k for k in bien if k in atribuida]
+compatibles = [k for k in bien if k not in atribuida]
 mal = [k for k, v in juzgable.items() if k in real and real[k] != v]
 faltan = [k for k in juzgable if k not in real]
 sobran = [k for k in real if k not in declarado]
@@ -177,7 +215,10 @@ print(ancho)
 print("%d correcciones en el editor" % n)
 print("")
 print("De las %d referencias declaradas:" % len(declarado))
-print("   %3d bien" % len(bien))
+print("   %3d VERIFICADAS: la aplicacion nombra la columna" % len(probadas))
+print("   %3d compatibles, no atribuidas: la aplicacion nombra la tabla" % len(compatibles))
+print("       destino pero no la columna. Que sea la que el modelo declara")
+print("       lo dice el modelo, no la aplicacion")
 print("   %3d apuntan a otra tabla" % len(mal))
 print("   %3d declaradas y ausentes" % len(faltan))
 print("   %3d convertidas en Ref sin serlo" % len(sobran))
@@ -241,8 +282,15 @@ w("«apunta a algo» nunca contesta «apunta a lo correcto».")
 w("")
 w("## Las %d, en orden" % n)
 w("")
-w("Todas en **`Data > Columns > ACT_Activos`**. Guarda **una vez al final**, no columna a columna:")
-w("mientras las tres primeras esten mal, la tabla no deja guardar.")
+w("Todas en **`Data > Columns > ACT_Activos`**.")
+w("")
+if sobran:
+    w("Guarda **una sola vez, al final**. El orden de la tabla importa porque mientras las %d de"
+      % len(sobran))
+    w("la seccion A esten mal, el editor no deja guardar: hazlas primero dentro de la misma sesion.")
+else:
+    w("Guarda **una sola vez, al final**. No hay columnas que bloqueen el guardado, asi que dentro")
+    w("de la sesion el orden da igual.")
 w("")
 w("| # | Columna | Esta asi | Debe quedar |")
 w("|---|---|---|---|")

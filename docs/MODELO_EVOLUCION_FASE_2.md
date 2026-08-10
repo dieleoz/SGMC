@@ -192,7 +192,7 @@ Unidad Funcional
 | Qué | Estado |
 |---|---|
 | `SED_Sedes` gana `UnidadFuncionalID`, `PR`, `TramoINVIAS`, `PK` y `Ubicacion_LatLong` | **HECHO** el 2026-08-10. Son **cinco** columnas, no tres: el `TramoINVIAS` hace falta porque un PR sin ruta no identifica un punto |
-| `ACT_Activos` gana `SedeID` **opcional**, y `UnidadFuncionalID` sigue obligatoria | **HECHO.** Y con `RG-21`, que exige que si el activo tiene sede su unidad funcional sea la de la sede. Sin esa regla el mismo hecho viviría en dos sitios |
+| `ACT_Activos` gana `SedeID` **opcional**, y `UnidadFuncionalID` sigue obligatoria | **HECHO.** Y con `RG-34`, que exige que si el activo tiene sede su unidad funcional sea la de la sede. Sin esa regla el mismo hecho viviría en dos sitios |
 | `SED_Sedes` se limpia de las filas UF1-UF4, que ya viven en `UNF_UnidadesFuncionales` | **HECHO.** La tabla tiene 6 filas: CCO, Bogotá, los dos peajes y las dos básculas |
 | Aparece **`ETR_Estructuras`**: puentes y viaductos por los que pasa la fibra | **Sigue abierto.** Declarada en `PROPUESTAS`, sin especificar |
 | Aparece **`TUN_Tuneles`**: los quince túneles del contrato, con su PR de entrada y salida | **Sigue abierto.** Declarada en `PROPUESTAS`, sin especificar. **No es un nivel más de la jerarquía por simetría: es el único donde el GPS no fija posición** — ver el recuadro de abajo |

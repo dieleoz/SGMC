@@ -161,7 +161,7 @@ Verificado el 2026-08-10 contra `scripts/modelo_objetivo.py` y `BD/Modelo_Datos_
   `USR-001`, `ROL-01`, `EST-01`, `FRE-01`, `CAL-01`, `SEC-01`, `TPR-01`, más las que ya lo eran
   —`OT-0001`, `MOT-01`, `FAL-01`, `ASG-01`, `PLA-001`, `FRM_SOS`, `SOS001`, `UMBRAL_GPS`—.
 - **`SED_Sedes` sabe dónde está**, con `UnidadFuncionalID`, `PR`, `TramoINVIAS`, `PK` y
-  `Ubicacion_LatLong`, y `ACT_Activos.SedeID` cuelga de ella para el equipo bajo techo. `RG-21`
+  `Ubicacion_LatLong`, y `ACT_Activos.SedeID` cuelga de ella para el equipo bajo techo. `RG-34`
   impide que el activo y su sede declaren unidades funcionales distintas.
 - **`ACT_Activos` distingue `PK` de `PR`**, y lleva `TramoINVIAS` para que el PR identifique un
   punto. `PK` está poblado en las 368; `PR` y `TramoINVIAS`, vacíos en las 368.
@@ -286,7 +286,7 @@ y por eso no hay forma de adelantarlo desde el repositorio.
 - [ ] Colgar de su sede el equipo bajo techo. `ACT_Activos.SedeID` existe, es opcional y **está
       vacía en las 368 filas**, así que los 7 servidores, los 29 portátiles, las 3 impresoras y el
       resto del equipo de interior no dicen dentro de qué edificación están. Mientras esté vacía
-      `RG-21` no compara nada, y un servidor sigue localizándose por un punto de la carretera
+      `RG-34` no compara nada, y un servidor sigue localizándose por un punto de la carretera
 - [ ] **D-09.** Validación de las **288 preguntas en borrador** de `FRM_Preguntas`, repartidas en 24
       de los 27 formularios. No están por escribir: están escritas y marcadas
       `[BORRADOR: validar con operacion]` en su ayuda, y el día que no aparezca ninguna el banco

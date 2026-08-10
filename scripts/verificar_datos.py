@@ -18,7 +18,7 @@ El 2026-08-10, ocho cambios pasaron los cinco en verde y tres eran defectuosos:
     columna que RG-01 desreferencia para el geofencing. DISTANCE() contra
     blanco no da error: da un valor que rechaza el cierre legitimo.
   - SED_Sedes.UnidadFuncionalID quedo vacia en 5 de 6 siendo obligatoria, y
-    RG-21 la compara. La regla volvia la fila imposible de guardar.
+    RG-34 la compara. La regla volvia la fila imposible de guardar.
   - ACT_Activos.SedeID nacio vacia en las 368, asi que el cambio que la
     introdujo no lo ejercita ni una fila.
 
@@ -59,8 +59,10 @@ if not os.path.isabs(ARCHIVO):
 # partir de la cual el aviso pasa a fallo, igual que hace D-04 con los
 # aplazamientos. Un aviso que no caduca deja de leerse (CLAUDE.md 7.11).
 POBLA_OPERACION = {
-    ("ACT_Activos", "SedeID"):
-        ("solo la lleva el equipo bajo techo; el de via no tiene sede", None),
+    # ACT_Activos.SedeID estuvo aqui con limite None -el aviso que no caduca
+    # que este mismo comentario prohibe- y ADEMAS no se evaluaba nunca, porque
+    # la columna no es obligatoria. Una excusa preinstalada: el dia que se
+    # declarara obligatoria habria silenciado el fallo para siempre. Retirada.
     ("SED_Sedes", "UnidadFuncionalID"):
         ("la UF de cada edificacion sale de su PR, y el PR de las sedes lo "
          "tiene operacion, no el contrato", "2026-08-31"),
