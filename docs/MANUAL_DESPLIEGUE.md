@@ -211,8 +211,9 @@ una cabecera acabada en `?` para un Yes/No— y **ninguna de nuestras columnas l
 > **Y de ahi salen dos cosas que conviene tener claras.**
 >
 > **Ninguna de las referencias se creara sola.** AppSheet infiere `Ref` cuando el nombre de
-> una columna se parece al de otra tabla, y nuestras tablas llevan prefijo —`UNF_Unidades`
-> `Funcionales`, no `UnidadFuncional`—, asi que el parecido se rompe. Es el precio de la
+> una columna se parece al de otra tabla, y nuestras tablas llevan prefijo:
+> `UNF_UnidadesFuncionales` no se parece a `UnidadFuncional`, asi que el parecido se rompe.
+> Es el precio de la
 > convencion, y a la vez su proteccion: impide que AppSheet invente referencias.
 >
 > **Una columna de texto cuyos valores parecen numeros se tipara `Number`.** Paso el
