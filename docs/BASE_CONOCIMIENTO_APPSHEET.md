@@ -349,3 +349,45 @@ sobre columnas retiradas.
 *Data > Columns* con el desplegable, y que para cambios de estructura se modifica el origen y se
 regenera. Que formatear la columna como texto plano en Google Sheets fuerce el tipo `Text`
 **es un supuesto no verificado**: no aparece en la documentación consultada.
+
+---
+
+## 14. Cómo averiguar el tipo de una columna sin abrir el editor, y hasta dónde vale
+
+**La API v2 devuelve filas, no esquema.** No hay endpoint que diga si una columna es `Text`, `Ref`
+o `LatLong`. Eso deja una pregunta sin respuesta barata: las tablas que llegan **vacías** no le dan
+a AppSheet ningún dato del que inferir la clave, así que la elige a ciegas — y son justo las seis
+que generan clave con `UNIQUEID()`, es decir alfanumérica.
+
+**Si esa clave quedó `Number`, cada fila que cree un técnico se pierde.** Como se perdió un usuario
+el 2026-08-10.
+
+### La prueba de sondeo
+
+Se insertó por API una fila con clave alfanumérica en cada una de las ocho tablas de movimiento
+—`TEST-OT-999`, `TEST-MAN-999`…— y las ocho fueron aceptadas.
+
+**Qué establece:** si la columna estuviera tipada `Number`, un valor con letras debería fallar la
+validación. Que lo acepte es evidencia fuerte de que quedó `Text`.
+
+**Dónde está el hueco, y hay que decirlo:** no está verificado si la API valida el tipo en un `Add`
+o si escribe directo a la hoja. Si escribe directo, la aceptación solo prueba que la fila llegó al
+Sheets, no que la columna sea `Text`.
+
+**Cómo se cierra:** leyendo la fila **de vuelta** con `Find` antes de borrarla. Si la clave regresa
+literal, la columna la aceptó y la conserva. Si vuelve vacía, coercionada, o la fila no aparece, es
+`Number`. Eso convierte «lo aceptó» en «lo aceptó y lo conserva», que es lo que importa.
+
+**La comprobación definitiva sigue siendo `Data > Columns`.** El sondeo sirve cuando no se puede
+abrir el editor, no en su lugar.
+
+### La advertencia que va con la técnica
+
+**La prueba escribe y borra en producción, y la API tiene más permisos que la aplicación.**
+
+El modelo manda retirar `Deletes` de `OT_OrdenesTrabajo` y `MAN_Mantenimientos` porque hay cuatro
+referencias con `IsPartOf` y borrar un mantenimiento se llevaría en cascada sus fotografías, su
+firma y su checklist. **La API no ve esa protección: borra igual.**
+
+Sondear una tabla vacía es inocuo. Hacerlo sobre una con histórico es exactamente el modo de fallo
+contra el que el sistema entero está diseñado.

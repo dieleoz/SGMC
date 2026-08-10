@@ -194,3 +194,9 @@ cada fila que cree un técnico se perderá igual que se perdió aquel usuario.**
 - `MAN_Mantenimientos`
 - `NOV_Novedades`
 
+**Se puede sondear sin abrir el editor**: insertar por API una fila con clave alfanumerica y
+**leerla de vuelta** antes de borrarla. Si regresa literal, la columna es `Text`. Metodo y sus
+limites en `BASE_CONOCIMIENTO_APPSHEET.md` seccion 14 — con la advertencia de que la API tiene
+mas permisos que la aplicacion: **no ve el `Deletes` retirado**, asi que sobre una tabla con
+historico ese sondeo es justo el fallo contra el que el sistema esta disenado.
+

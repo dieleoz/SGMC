@@ -246,6 +246,12 @@ w("")
 for t in sorted(CLAVE_GENERADA):
     w("- `%s`" % t)
 w("")
+w("**Se puede sondear sin abrir el editor**: insertar por API una fila con clave alfanumerica y")
+w("**leerla de vuelta** antes de borrarla. Si regresa literal, la columna es `Text`. Metodo y sus")
+w("limites en `BASE_CONOCIMIENTO_APPSHEET.md` seccion 14 — con la advertencia de que la API tiene")
+w("mas permisos que la aplicacion: **no ve el `Deletes` retirado**, asi que sobre una tabla con")
+w("historico ese sondeo es justo el fallo contra el que el sistema esta disenado.")
+w("")
 
 with open(SALIDA, "w", encoding="utf-8") as f:
     f.write("\n".join(L) + "\n")
