@@ -67,6 +67,26 @@ if not API_KEY:
 
 URL = "https://api.appsheet.com/api/v2/apps/%s/tables/%s/Action"
 
+# Las que no se pueden medir y ALGUIEN MIRO EN EL EDITOR.
+#
+# No convierte la referencia en verificada: una lectura visual no es una
+# medicion, y por eso se guarda con fecha y con quien la hizo. Lo que hace es
+# distinguir "nadie la ha mirado" de "se miro el dia tal", que es justo la
+# diferencia que se paso por alto cuando se dio por bueno un "39/39 asignadas"
+# que nadie habia comprobado.
+#
+# CADUCA sola: si la referencia se vuelve medible -porque su tabla destino deja
+# de estar vacia- manda la medicion y esto sobra. Y si alguien vuelve a cablear,
+# esta confirmacion habla de un estado anterior. Por eso lleva fecha.
+CONFIRMADAS_A_OJO = {
+    ("FOT_Fotografias", "MantenimientoID"): ("2026-08-10", "Diego, en el editor"),
+    ("FIR_Firmas", "MantenimientoID"): ("2026-08-10", "Diego, en el editor"),
+    ("CHK_Checklists", "MantenimientoID"): ("2026-08-10", "Diego, en el editor"),
+    ("CHD_ChecklistDetalle", "ChecklistID"): ("2026-08-10", "Diego, en el editor"),
+    ("MAN_Mantenimientos", "OTID"): ("2026-08-10", "Diego, en el editor"),
+    ("OT_OrdenesTrabajo", "OTOrigenID"): ("2026-08-10", "Diego, en el editor"),
+    }
+
 
 def filas(tabla):
     pet = urllib.request.Request(
@@ -228,10 +248,19 @@ if ciegas:
     print("   No estan bien ni mal: no son observables por este medio. La virtual")
     print("   inversa vive en el destino y un destino vacio no devuelve columnas.")
     for t, c in sorted(ciegas):
-        print("     - %s.%s -> %s" % (t, c, ciegas[(t, c)]))
+        vista = CONFIRMADAS_A_OJO.get((t, c))
+        print("     - %-42s %s" % ("%s.%s -> %s" % (t, c, ciegas[(t, c)]),
+              "mirada el %s por %s" % vista if vista else "NADIE LA HA MIRADO"))
+    sin_mirar = [k for k in ciegas if k not in CONFIRMADAS_A_OJO]
     print("")
-    print("   Para verlas: sembrar una fila en la tabla destino y volver a correr,")
-    print("   o abrirlas en el editor una por una.")
+    if sin_mirar:
+        print("   %d sin mirar. Abrelas en el editor y confirma su Source table."
+              % len(sin_mirar))
+    else:
+        print("   Las %d se miraron en el editor. Eso NO las vuelve verificadas: una"
+              % len(ciegas))
+        print("   lectura visual no es una medicion, y por eso se guarda con fecha.")
+    print("   Para MEDIRLAS: sembrar una fila en la tabla destino y volver a correr.")
 if caidas:
     print("")
     for t, e in caidas:
@@ -330,11 +359,28 @@ if ciegas:
       % len(ciegas))
     w("la columna virtual inversa vive en el destino. **No estan bien ni mal: no se sabe.**")
     w("")
+    w("| Referencia | Destino | Mirada en el editor |")
+    w("|---|---|---|")
     for t, c in sorted(ciegas):
-        w("- `%s.%s` -> `%s`" % (t, c, ciegas[(t, c)]))
+        vista = CONFIRMADAS_A_OJO.get((t, c))
+        w("| `%s.%s` | `%s` | %s |" % (t, c, ciegas[(t, c)],
+          "el %s por %s" % vista if vista else "**nadie la ha mirado**"))
     w("")
-    w("Abrelas en el editor una por una y confirma su `Source table`. Dar por buena una")
-    w("referencia que no se ha mirado es exactamente como se llego a las %d de arriba." % n)
+    _sin = [k for k in ciegas if k not in CONFIRMADAS_A_OJO]
+    if _sin:
+        w("**%d sin mirar.** Abrelas en el editor una por una y confirma su `Source table`."
+          % len(_sin))
+        w("Dar por buena una referencia que nadie ha mirado es como se llego a un informe de")
+        w("«39/39 asignadas» con cinco columnas rotas.")
+    else:
+        w("Las %d se miraron en el editor. **Eso no las vuelve verificadas:** una lectura visual"
+          % len(ciegas))
+        w("no es una medicion, y por eso queda con fecha y con quien la hizo. Si alguien vuelve a")
+        w("cablear, esa confirmacion habla de un estado anterior.")
+    w("")
+    w("Para **medirlas**, sembrar una fila en `MAN_Mantenimientos`, `CHK_Checklists` y")
+    w("`OT_OrdenesTrabajo` y volver a correr el auditor. De paso deja de haber tablas cuya clave")
+    w("AppSheet tipo a ciegas por llegar vacias.")
 
 with open(os.path.join(RAIZ, "docs", "CORRECCIONES_CABLEADO.md"), "w",
           encoding="utf-8") as f:

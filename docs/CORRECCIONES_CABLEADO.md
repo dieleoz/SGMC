@@ -5,8 +5,8 @@ mano: vuelve a correr el script y se rehace con lo que quede pendiente.
 
 ---
 
-En la aplicacion **`_SISGA_-323965761`**, 4 columnas de `ACT_Activos` estan mal. El resto del
-cableado esta bien: **29 de las 39 referencias son correctas**.
+En la aplicacion **`_SISGA_-323965761`**, 0 columnas de `ACT_Activos` estan mal. El resto del
+cableado esta bien: **33 de las 39 referencias son correctas**.
 
 ## Antes de tocar nada, por que importa
 
@@ -21,7 +21,7 @@ Can't find column "RadioGeofencingKm" in table "SED_Sedes"
 `SED_Sedes` porque la referencia esta mal puesta, y ahi ese radio no existe. Reescribir la
 expresion para acomodarla seria romper una regla correcta para tapar un cableado roto.
 
-Ninguna regla se cablea hasta que estas 4 esten hechas.
+Ninguna regla se cablea hasta que estas 0 esten hechas.
 
 ## Como se llego a esto
 
@@ -33,17 +33,15 @@ respondio 28/28, `validar_modelo.py` dio APTO y las 368 filas seguian ahi.
 Es la regla **R-04**: *una referencia que resuelve puede apuntar a lo que no es.* Preguntar
 «apunta a algo» nunca contesta «apunta a lo correcto».
 
-## Las 4, en orden
+## Las 0, en orden
 
-Todas en **`Data > Columns > ACT_Activos`**. Guarda **una vez al final**, no columna a columna:
-mientras las tres primeras esten mal, la tabla no deja guardar.
+Todas en **`Data > Columns > ACT_Activos`**.
+
+Guarda **una sola vez, al final**. No hay columnas que bloqueen el guardado, asi que dentro
+de la sesion el orden da igual.
 
 | # | Columna | Esta asi | Debe quedar |
 |---|---|---|---|
-| 1 | `EstadoActivoID` | no es `Ref` | `Ref` -> **`EST_Activo`** |
-| 2 | `FrecuenciaID` | no es `Ref` | `Ref` -> **`FRE_Frecuencias`** |
-| 3 | `SentidoID` | no es `Ref` | `Ref` -> **`SEN_Sentidos`** |
-| 4 | `UnidadFuncionalID` | no es `Ref` | `Ref` -> **`UNF_UnidadesFuncionales`** |
 
 > Las tres primeras van antes que las demas. Son las que bloquean el guardado.
 
@@ -59,19 +57,26 @@ python scripts/auditar_cableado.py
 ```
 
 Sale con **0 correcciones** cuando esta bien. No te fies del recuento de tablas de la API:
-dio 28/28 con estas 4 rotas.
+dio 28/28 con estas 0 rotas.
 
 ## Lo que este script NO puede ver
 
 6 referencias no son observables por este medio, porque su tabla destino esta **vacia** y
 la columna virtual inversa vive en el destino. **No estan bien ni mal: no se sabe.**
 
-- `CHD_ChecklistDetalle.ChecklistID` -> `CHK_Checklists`
-- `CHK_Checklists.MantenimientoID` -> `MAN_Mantenimientos`
-- `FIR_Firmas.MantenimientoID` -> `MAN_Mantenimientos`
-- `FOT_Fotografias.MantenimientoID` -> `MAN_Mantenimientos`
-- `MAN_Mantenimientos.OTID` -> `OT_OrdenesTrabajo`
-- `OT_OrdenesTrabajo.OTOrigenID` -> `OT_OrdenesTrabajo`
+| Referencia | Destino | Mirada en el editor |
+|---|---|---|
+| `CHD_ChecklistDetalle.ChecklistID` | `CHK_Checklists` | el 2026-08-10 por Diego, en el editor |
+| `CHK_Checklists.MantenimientoID` | `MAN_Mantenimientos` | el 2026-08-10 por Diego, en el editor |
+| `FIR_Firmas.MantenimientoID` | `MAN_Mantenimientos` | el 2026-08-10 por Diego, en el editor |
+| `FOT_Fotografias.MantenimientoID` | `MAN_Mantenimientos` | el 2026-08-10 por Diego, en el editor |
+| `MAN_Mantenimientos.OTID` | `OT_OrdenesTrabajo` | el 2026-08-10 por Diego, en el editor |
+| `OT_OrdenesTrabajo.OTOrigenID` | `OT_OrdenesTrabajo` | el 2026-08-10 por Diego, en el editor |
 
-Abrelas en el editor una por una y confirma su `Source table`. Dar por buena una
-referencia que no se ha mirado es exactamente como se llego a las 4 de arriba.
+Las 6 se miraron en el editor. **Eso no las vuelve verificadas:** una lectura visual
+no es una medicion, y por eso queda con fecha y con quien la hizo. Si alguien vuelve a
+cablear, esa confirmacion habla de un estado anterior.
+
+Para **medirlas**, sembrar una fila en `MAN_Mantenimientos`, `CHK_Checklists` y
+`OT_OrdenesTrabajo` y volver a correr el auditor. De paso deja de haber tablas cuya clave
+AppSheet tipo a ciegas por llegar vacias.
