@@ -88,22 +88,13 @@ no prueba nada**, que es justo lo que el sistema existe para sostener.
 
 ## 5. Ocultar las columnas retiradas — la lista completa
 
-Son **45 columnas**. Estan en la hoja, el modelo no las usa, y al dar de alta las tablas entraron
+Son **49 columnas**. Estan en la hoja, el modelo no las usa, y al dar de alta las tablas entraron
 con `Show?` marcado: aparecen en el formulario del tecnico junto a las buenas.
 
 **Para cada una: tipo `Text`, `Show?` desmarcado, sin formula.** No se borran.
 
-**Y siete de ellas son TRAMPA:** su nombre coincide con la clave de otra tabla, asi que **AppSheet
-las convierte en `Ref` sola**. Si las ve como `Ref`, hay que deshacerlo.
-
-### `ACT_Activos` — 1 columnas
-
-```
-SedeID                   <-- TRAMPA
-```
-
-**`SedeID` es TRAMPA**: AppSheet la convierte a `Ref` hacia `SED_Sedes` por coincidencia de
-nombre. Hay que **deshacerlo**: tipo `Text` y `Show?` desmarcado.
+**Tres son TRAMPA:** su nombre coincide con la clave de otra tabla, asi que **AppSheet las convierte
+en `Ref` sola**. Si las ve como `Ref`, hay que deshacerlo.
 
 ### `CHD_ChecklistDetalle` — 12 columnas
 
@@ -122,8 +113,8 @@ TipoRespuestaID          <-- TRAMPA
 TotalPreguntas        
 ```
 
-**`TipoRespuestaID` es TRAMPA**: AppSheet la convierte a `Ref` hacia `TPR_TiposRespuesta` por coincidencia de
-nombre. Hay que **deshacerlo**: tipo `Text` y `Show?` desmarcado.
+**`TipoRespuestaID` es TRAMPA**: AppSheet la convierte a `Ref` hacia `TPR_TiposRespuesta` sola. Deshagalo: tipo
+`Text` y `Show?` desmarcado.
 
 ### `CHK_Checklists` — 15 columnas
 
@@ -145,13 +136,12 @@ TecnicoID
 TotalPreguntas        
 ```
 
-**`ActivoID` es TRAMPA**: AppSheet la convierte a `Ref` hacia `ACT_Activos` por coincidencia de
-nombre. Hay que **deshacerlo**: tipo `Text` y `Show?` desmarcado.
+**`ActivoID` es TRAMPA**: AppSheet la convierte a `Ref` hacia `ACT_Activos` sola. Deshagalo: tipo
+`Text` y `Show?` desmarcado.
 
-### `MAN_Mantenimientos` — 14 columnas
+### `MAN_Mantenimientos` — 13 columnas
 
 ```
-ActivoID                 <-- TRAMPA
 Diagnostico           
 Duracion_Minutos      
 Estado_Intervencion   
@@ -167,9 +157,6 @@ Tipo
 Trabajo_Realizado     
 ```
 
-**`ActivoID` es TRAMPA**: AppSheet la convierte a `Ref` hacia `ACT_Activos` por coincidencia de
-nombre. Hay que **deshacerlo**: tipo `Text` y `Show?` desmarcado.
-
 ### `OT_OrdenesTrabajo` — 3 columnas
 
 ```
@@ -178,13 +165,38 @@ Informe_Final
 Motivo_Cierre         
 ```
 
-**`FormularioID` es TRAMPA**: AppSheet la convierte a `Ref` hacia `FRM_Formularios` por coincidencia de
-nombre. Hay que **deshacerlo**: tipo `Text` y `Show?` desmarcado.
+**`FormularioID` es TRAMPA**: AppSheet la convierte a `Ref` hacia `FRM_Formularios` sola. Deshagalo: tipo
+`Text` y `Show?` desmarcado.
 
-**Por que importa, mas alla del orden.** Quedan pares que registran lo mismo en dos sitios:
-`Requiere_Repuesto` junto a `MotivoPendienteID`, `Firma_Tecnico` junto a la tabla `FIR_Firmas`,
-`Imagen_Inicio` e `Imagen_Final` junto a `FOT_Fotografias`, `Diagnostico` y `Trabajo_Realizado`
-junto al checklist. El tecnico veria dos formas de registrar lo mismo.
+### `FOT_Fotografias` — 1 columnas
+
+```
+Fecha
+```
+
+### `FRM_Formularios` — 1 columnas
+
+```
+Orden
+```
+
+### `FRM_Preguntas` — 3 columnas
+
+```
+RequiereFirma
+RequiereGPS
+ValorDefecto
+```
+
+### `USR_Usuarios` — 1 columnas
+
+```
+UltimaSincronizacion
+```
+
+**Por que importa.** Quedan pares que registran lo mismo en dos sitios: `Requiere_Repuesto` junto a
+`MotivoPendienteID`, `Firma_Tecnico` junto a la tabla `FIR_Firmas`, `Imagen_Inicio` e `Imagen_Final`
+junto a `FOT_Fotografias`, `Diagnostico` y `Trabajo_Realizado` junto al checklist.
 
 ## 6. Las pruebas, y esta vez en el sitio correcto
 

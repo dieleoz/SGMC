@@ -17,36 +17,28 @@ dictámenes de auditoría y el archivo Excel maestro.
 - Backend de producción: Google Sheets `1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc`
 - Repositorio remoto: `github.com/dieleoz/SGMC`
 
-## 2. Dónde está la verdad: hay dos modelos y no coinciden
+## 2. Dónde está la verdad
 
-**Verificado el 2026-08-06: el Excel local y el Google Sheets de producción son modelos
-distintos.** No es deriva menor: difieren en las tablas que más importan. Cualquier afirmación
-sobre "el modelo" es ambigua hasta que declares cuál de los dos leíste.
+**La fuente única es `scripts/modelo_objetivo.py`.** De ahí se generan el diccionario de datos, el
+manual de despliegue y la lista de reposición. Nada se documenta a mano.
 
-| Tabla | `BD/Modelo de Datos (2).xlsx` (local) | Google Sheets (producción) |
-|---|---|---|
-| `TIP_TiposActivo.FormularioID` | Vacío en los 18 tipos | **Poblado en los 18** |
-| `MAN_Mantenimientos` | 24 col, con `Coordenadas_Cierre` y `Precision_GPS` | 27 col. Las dos de GPS **se agregaron el 2026-08-06** en `Z1` y `AA1`. Ademas tiene `Diagnostico`, `Trabajo_Realizado`, `Duracion_Minutos`, `Repuestos_Utilizados`, `Requiere_Repuesto` |
-| `CHK_Checklists` | 9 col, 1 fila | 21 col, 3 filas |
-| `CHD_ChecklistDetalle` | 6 col, pregunta en texto libre | 21 col, **con `PreguntaID`** |
-| `MAN_Mantenimientos.ActivoID` | **Existe** (columna 3), verificado el 2026-08-07 con `openpyxl` | **No existe.** AppSheet lo confirmó al rechazar la fórmula |
-| `CHK.OTID` del registro `d02d8a3d` | `'1'`, huérfano | `'OT-0001'`, válido |
+**El dato vive en Google Sheets** y se verifica descargándolo a `BD/` y corriendo
+`verificar_faseA.py`. La hoja vigente es `Modelo_Datos_09082026`, propiedad de la Concesión: 32
+pestañas, ninguna oculta, `FASE A CERRADA`.
 
-Hasta el 2026-08-06 en producción no existían las columnas de GPS, de modo que la regla de
-geofencing ni siquiera podía configurarse. **Ya se agregaron al Sheets**, pero eso resuelve solo el
-lado del dato: siguen pendientes el *Regenerate Structure* en el editor de AppSheet, el tipado de
-las columnas y las reglas. Ver `docs/ROADMAP.md` sección 4.5.1.
+### La divergencia de agosto está cerrada
 
-Reglas mientras esto no se reconcilie:
-- El **Sheets es el que corre la app**. El Excel es un registro paralelo que alguien ha estado
-  editando por separado. Ante una discrepancia, manda producción.
-- **Antes de afirmar cualquier cosa sobre el modelo, lee producción**, no el Excel. Se lee con el
-  conector de Google Drive: `fileId = 1a4MmZ0u9sNgWmyiR2OPJo9YuUEKJFftbJWMW-KbITRc`.
-- Al reportar un hallazgo, escribe siempre contra cuál de los dos lo verificaste.
-- No "sincronices" uno con otro sin decisión explícita: ninguno es superconjunto del otro y
-  copiar en cualquier dirección destruye trabajo.
-- `entregables/Modelo_Datos_SGMC_AsBuilt.xlsx` es copia byte a byte del Excel local
-  (sha256 verificado). Artefacto de publicación, no una tercera fuente.
+Durante días el Excel local y el Sheets de producción fueron modelos distintos, y esa brecha causó
+media docena de hallazgos. **Convergieron el 2026-08-07**: los dos tienen hoy 32 pestañas y el
+mismo esquema.
+
+Lo que queda de aquello son tres reglas que siguen valiendo:
+
+- **Antes de afirmar algo sobre el modelo, declara contra qué archivo lo verificaste.**
+- **Al leer un `.xlsx` con `openpyxl`, `data_only=True`** o estarás leyendo fórmulas en vez de
+  valores. Y al revés para detectar fórmulas: hacen falta dos libros abiertos del mismo archivo.
+- **Lo que el modelo declara y el archivo no tiene, es deriva.** `F-18` la caza para pestañas
+  ocultas y `F-19` para columnas retiradas que ya no existen. Las dos nacieron de fallos reales.
 
 ## 2.1 Propiedad y edición del backend
 

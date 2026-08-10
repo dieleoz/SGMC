@@ -287,12 +287,11 @@ anterior; en una construida de cero no sobrevive ninguna.
 
 ## 5. Lo que NO se repone: columnas retiradas
 
-**51 columnas.** Siguen en la hoja a proposito. En la aplicacion: tipo `Text`, `Show?`
+**49 columnas.** Siguen en la hoja a proposito. En la aplicacion: tipo `Text`, `Show?`
 desmarcado, sin formula. **No se borran.**
 
 | Tabla | Columna | Por que | |
 |---|---|---|---|
-| `ACT_Activos` | `SedeID` | Se sustituye por UnidadFuncionalID. Mezclar donde trabaja la persona con donde esta el activo es lo que dejo a los usuarios en la sede 1 y a los activos en las sedes 7 a 10, es decir en conjuntos disjuntos. | **TRAMPA -> `SED_Sedes`** |
 | `CHD_ChecklistDetalle` | `Activo` | El detalle es parte de su checklist: no se desactiva por separado. |  |
 | `CHD_ChecklistDetalle` | `EstadoPregunta` | Redundante con Contestada. |  |
 | `CHD_ChecklistDetalle` | `FechaRespuesta` | Se deriva del ChangeTimestamp del mantenimiento. |  |
@@ -320,7 +319,6 @@ desmarcado, sin formula. **No se borran.**
 | `CHK_Checklists` | `PreguntaActual` | Estado de la interfaz, no dato. Se deriva de las respuestas. |  |
 | `CHK_Checklists` | `TecnicoID` | Se alcanza por [MantenimientoID].[TecnicoID]. Es el campo donde el dato de prueba dejo 'Santiago Moreno' en lugar de un identificador. |  |
 | `CHK_Checklists` | `TotalPreguntas` | Se cuenta de FRM_Preguntas. |  |
-| `MAN_Mantenimientos` | `ActivoID` | El activo se alcanza por [OTID].[ActivoID]. Guardarlo tambien aqui permite que la ejecucion diga un activo y su orden diga otro, y no hay forma de saber cual miente. Existe en el Excel local; AppSheet confirmo que en produccion no esta. | **TRAMPA -> `ACT_Activos`** |
 | `MAN_Mantenimientos` | `Diagnostico` | Se responde en el checklist, no en campo libre. |  |
 | `MAN_Mantenimientos` | `Duracion_Minutos` | Se calcula de FechaHoraInicio y FechaHoraFin. |  |
 | `MAN_Mantenimientos` | `Estado_Intervencion` | Redundante con el estado de la orden. |  |
@@ -344,7 +342,7 @@ desmarcado, sin formula. **No se borran.**
 | `FRM_Preguntas` | `ValorDefecto` | Valor por defecto de una pregunta. No hay regla que lo lea | **SIN DECIDIR** |
 | `USR_Usuarios` | `UltimaSincronizacion` | Probablemente de una version anterior. El modelo no la usa | **SIN DECIDIR** |
 
-**Las 5 marcadas TRAMPA** se llaman igual que la clave de otra tabla, asi que **AppSheet las
+**Las 3 marcadas TRAMPA** se llaman igual que la clave de otra tabla, asi que **AppSheet las
 convierte a `Ref` sola**. Hay que deshacerlo.
 
 ---

@@ -310,13 +310,11 @@ pida.
 
 | Tabla | Columna | Adonde apunta sola | Por que esta mal |
 |---|---|---|---|
-| `ACT_Activos` | `SedeID` | `SED_Sedes` | Se sustituye por UnidadFuncionalID. Mezclar donde trabaja la persona con donde esta el activo es lo que dejo a los usuarios en la sede 1 y a los activos en las sedes 7 a 10, es decir en conjuntos disjuntos. |
 | `CHD_ChecklistDetalle` | `TipoRespuestaID` | `TPR_TiposRespuesta` | Se alcanza por [PreguntaID].[TipoRespuestaID]. |
 | `CHK_Checklists` | `ActivoID` | `ACT_Activos` | Se alcanza por [MantenimientoID].[OTID].[ActivoID]. |
-| `MAN_Mantenimientos` | `ActivoID` | `ACT_Activos` | El activo se alcanza por [OTID].[ActivoID]. Guardarlo tambien aqui permite que la ejecucion diga un activo y su orden diga otro, y no hay forma de saber cual miente. Existe en el Excel local; AppSheet confirmo que en produccion no esta. |
 | `OT_OrdenesTrabajo` | `FormularioID` | `FRM_Formularios` | El formulario lo determina el tipo del activo, no la orden. |
 
-**Son 5, derivadas del archivo y no escritas a mano.** Estan tambien en la ficha de cada tabla,
+**Son 3, derivadas del archivo y no escritas a mano.** Estan tambien en la ficha de cada tabla,
 marcadas como TRAMPA.
 
 **Dejelas en `Text` y desmarque `Show?`.** Si se quedan como `Ref`, dibujan rutas de navegacion
@@ -555,12 +553,6 @@ Inventario de los activos del corredor. Es el eje del sistema.
 | `MotivoBaja` | `Enum` | Valores: `Obsolescencia` · `Dano irreparable` · `Robo o vandalismo` · `Reemplazo` · `Retiro por obra` |
 | `Activo` | `Yes/No` |  |
 | `Observaciones` | `LongText` |  |
-
-**Y estas, que estan en la hoja y NO se usan:**
-
-| Columna | Que hacer | Por que |
-|---|---|---|
-| `SedeID` | **OCULTAR** · **TRAMPA: AppSheet la pone `Ref` sola hacia `SED_Sedes`** | Se sustituye por UnidadFuncionalID. Mezclar donde trabaja la persona con donde esta el activo es lo que dejo a los usuarios en la sede 1 y a los activos en las sedes 7 a 10, es decir en conjuntos disjuntos. |
 
 ## `ASG_AsignacionZona`
 
@@ -836,7 +828,6 @@ Ejecucion real en campo. Cuelga de la orden y es padre de la evidencia.
 
 | Columna | Que hacer | Por que |
 |---|---|---|
-| `ActivoID` | **OCULTAR** · **TRAMPA: AppSheet la pone `Ref` sola hacia `ACT_Activos`** | El activo se alcanza por [OTID].[ActivoID]. Guardarlo tambien aqui permite que la ejecucion diga un activo y su orden diga otro, y no hay forma de saber cual miente. Existe en el Excel local; AppSheet confirmo que en produccion no esta. |
 | `Diagnostico` | **OCULTAR** | Se responde en el checklist, no en campo libre. |
 | `Duracion_Minutos` | **OCULTAR** | Se calcula de FechaHoraInicio y FechaHoraFin. |
 | `Estado_Intervencion` | **OCULTAR** | Redundante con el estado de la orden. |

@@ -1,6 +1,6 @@
 # ESPEC-003 — Modelo de dominio del SGMC
 
-<!-- verificar_documentos: ignorar EST_Estructuras -->
+<!-- verificar_documentos: ignorar EST_Estructuras, ACT_Activos.SedeID -->
 <!-- Se menciona en §12.3 solo para explicar por que el nombre elegido es
      ETR_Estructuras: el prefijo EST_ ya lo ocupa EST_Activo. -->
 

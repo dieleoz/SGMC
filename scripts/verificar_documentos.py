@@ -140,7 +140,8 @@ for ruta in documentos():
 
     # Salida explicita: un documento que menciona un nombre PARA DESCARTARLO -o que
     # cita la salida de este mismo script- lo declara con una linea
-    #     <!-- verificar_documentos: ignorar NOMBRE, NOMBRE -->
+    #     <!-- verificar_documentos: ignorar NOMBRE, Tabla.Columna -->
+# Vale tanto para tablas -D-01- como para columnas -D-03-.
     # Es deliberadamente incomoda y greppable: si aparece en muchos sitios, el
     # problema es el criterio, no el documento.
     ignorar_aqui = set()
@@ -170,6 +171,8 @@ for ruta in documentos():
             continue          # declarada como propuesta, con su motivo
         if (t, c) in COLUMNAS_SIN_DECIDIR:
             continue          # existe en la hoja, pendiente de decidir. Avisa D-06
+        if c in ignorar_aqui or (t + '.' + c) in ignorar_aqui:
+            continue          # el documento la nombra PARA DESCARTARLA
         if RE_CLAVE_FILA.match(c):
             continue          # PAR_Parametros.UMBRAL_GPS es una fila, no una columna
         if (t, c) in vistas:

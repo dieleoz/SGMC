@@ -503,10 +503,6 @@ RETIRADAS = {
 # ------------------------------------------- campos que se retiran
 CAMPOS_RETIRADOS = {
     "MAN_Mantenimientos": {
-        "ActivoID": ("El activo se alcanza por [OTID].[ActivoID]. Guardarlo tambien aqui "
-                     "permite que la ejecucion diga un activo y su orden diga otro, y no "
-                     "hay forma de saber cual miente. Existe en el Excel local; AppSheet "
-                     "confirmo que en produccion no esta."),
         "Imagen_Inicio": "Sustituido por FOT_Fotografias con Tipo=Antes.",
         "Imagen_Final": "Sustituido por FOT_Fotografias con Tipo=Despues.",
         "Firma_Tecnico": "Sustituido por FIR_Firmas.",
@@ -527,9 +523,6 @@ CAMPOS_RETIRADOS = {
         "Informe_Final": "Se genera del mantenimiento y su checklist, no se transcribe.",
     },
     "ACT_Activos": {
-        "SedeID": ("Se sustituye por UnidadFuncionalID. Mezclar donde trabaja la persona con "
-                   "donde esta el activo es lo que dejo a los usuarios en la sede 1 y a los "
-                   "activos en las sedes 7 a 10, es decir en conjuntos disjuntos."),
     },
     "CHK_Checklists": {
         "ActivoID": "Se alcanza por [MantenimientoID].[OTID].[ActivoID].",

@@ -417,6 +417,31 @@ if "ACT_Activos" in wb.sheetnames:
                 else:
                     oks.append("ACT_Activos fila 34 (SUBE-001) tiene Activo=FALSE correctamente")
 
+# ------------- F-19 lo declarado como retirado sigue existiendo en la hoja
+#
+# CAMPOS_RETIRADOS dice "esta columna existe en la hoja y el modelo no la usa".
+# Si la columna YA NO ESTA, la entrada esta obsoleta y contamina todo lo que se
+# genere de ella: el 2026-08-09 dos entradas fantasma -ACT_Activos.SedeID y
+# MAN_Mantenimientos.ActivoID- llegaron a un prompt de ejecucion, y el agente que
+# lo seguia perdio tiempo buscandolas en el editor.
+#
+# Es la misma familia que F-18: el modelo dice una cosa, el archivo otra, y
+# nadie los cruzaba.
+fantasma = []
+for tabla, campos in CAMPOS_RETIRADOS.items():
+    if tabla not in wb.sheetnames:
+        continue
+    presentes = set(encabezados(tabla))
+    for campo in campos:
+        if campo not in presentes:
+            fantasma.append("%s.%s" % (tabla, campo))
+if fantasma:
+    avisos.append("[F-19] %d columnas declaradas en CAMPOS_RETIRADOS que ya NO estan en la "
+                  "hoja: %s. Retirar la entrada del modelo: genera instrucciones sobre "
+                  "columnas que no existen" % (len(fantasma), ", ".join(sorted(fantasma))))
+else:
+    oks.append("Toda columna declarada como retirada sigue presente en la hoja")
+
 # ------------- F-18 ninguna pestana del modelo esta OCULTA
 #
 # AppSheet IGNORA las pestanas ocultas al escanear un libro. No avisa: la tabla
