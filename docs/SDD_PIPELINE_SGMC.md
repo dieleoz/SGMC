@@ -192,10 +192,10 @@ corre por el pipeline y cuál no.
 
 | Frente | Estado |
 |---|---|
-| Fase A, la hoja | **CERRADA.** Actas `ACTA-001` a `ACTA-004`. Hoy la hoja se genera del modelo y la fase se reduce a verificarla: `BD/Modelo_Datos_PLANTILLA.xlsx` da `FASE A CERRADA` con 60 conformes |
+| Fase A, la hoja | **CERRADA.** Actas `ACTA-001` a `ACTA-004`. Hoy la hoja se genera del modelo y la fase se reduce a verificarla: `FASE A CERRADA` sobre las dos, con **61 conformes** en `BD/Modelo_Datos_09082026.xlsx` y **52** en `BD/Modelo_Datos_PLANTILLA.xlsx` — son menos porque la plantilla va sin registros de prueba y las comprobaciones que necesitan filas se saltan |
 | Reconstrucción de la aplicación | **Hecha.** `SGMC-886843353` se abandonó; la aplicación es `SISGA`, con las 28 tablas dadas de alta y las 38 referencias puestas |
-| Fase B, el editor | **Frente activo, en cierre.** Falta el `OR(ISBLANK(...))` de la regla del umbral de GPS, terminar las columnas retiradas y correr las tres expresiones. Guion en `prompts/PROMPT_CONTINUAR_DESPLIEGUE.md` |
-| Migración a la hoja limpia | **Sin decidir.** Preparada y sin ejecutar; el coste está medido en `MIGRACION_HOJA_LIMPIA.md`. Si se ejecuta, las columnas sobrantes desaparecen del archivo y ocultarlas deja de hacer falta. **Se decide antes de terminar de ocultarlas**, o ese trabajo se tira |
+| Fase B, el editor | **Frente activo, en cierre. Faltan dos cosas:** el `OR(ISBLANK(...))` de la regla del umbral de GPS y correr las tres expresiones de prueba. Todo lo demás del editor está hecho. Guion en `prompts/PROMPT_CONTINUAR_DESPLIEGUE.md` |
+| Migración a la hoja limpia | **Decidida el 2026-08-09: se migra.** Preparada y sin ejecutar; el procedimiento y su coste están en `MIGRACION_HOJA_LIMPIA.md`. Con ella las columnas sobrantes desaparecen del archivo, así que **ocultarlas salió del plan** y ya no es trabajo de nadie |
 | `ESPEC-003`, modelo de dominio | **BLOQUEADA** por el arquitecto, con 14 condiciones sin resolver. No es un paso disponible: es un documento por terminar |
 | Coordenadas reales (D-01) | Bloqueado por levantamiento en campo |
 | Código QR | **Fuera de alcance por decisión del 2026-08-07.** Ver sección 8 |

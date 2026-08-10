@@ -18,21 +18,26 @@ Si usted acaba de llegar, busque su rol y empiece por ahí.
 
 **Nada sale a campo hasta que existan coordenadas reales.** Los 34 activos de la hoja de producción
 comparten la coordenada `4.728512, -74.114531`, que está en Bogotá. La plantilla trae esos 34 más
-355 sintéticos con 355 coordenadas distintas repartidas sobre el corredor, y **cada fila dice de sí
-misma** lo que es, en `ACT_Activos.Observaciones`:
+**334 generados** —368 en total— con coordenadas distintas repartidas sobre el corredor, pero
+inventadas. Los 334 lo dicen de sí mismos en `ACT_Activos.Observaciones`:
 
 ```
-las 34   FIXTURE DE LA FASE A - COORDENADA DE BOGOTA, NO ES UBICACION REAL
-las 355  ACTIVO SINTETICO DE PRUEBA - NO ES INVENTARIO REAL
+los 334  ACTIVO SINTETICO DE PRUEBA - NO ES INVENTARIO REAL
+los 34   (Observaciones vacío — no llevan marca, y por eso hay que saberlo de aquí)
 ```
 
 Sirven para probar el sistema. No sirven para cerrar una orden con un técnico delante.
 
-**Veintiséis de los veintisiete formularios no tienen ni una pregunta.** `FRM_Formularios` tiene 27
-filas en la plantilla —eran 18 hasta el 2026-08-09, y siguen siendo 18 en la hoja de producción, que
-todavía no lleva los nueve tipos nuevos—. `FRM_Preguntas` tiene 15 filas en las dos, y las 15 son
-del formulario `FRM_SOS`. Un técnico que abra el checklist de una cámara CCTV verá un formulario
-vacío. **Eso solo lo puede escribir Operación**: no es configuración, es el contenido del
+**Los 27 formularios de la plantilla ya tienen banco de preguntas, pero 24 están en borrador.**
+`FRM_Formularios` tiene 27 filas en la plantilla —eran 18 hasta el 2026-08-09, y siguen siendo 18 en
+la hoja de producción, que todavía no lleva los nueve tipos nuevos—. `FRM_Preguntas` tiene **333
+filas que cubren los 27**: 45 acordadas —`FRM_SOS`, `FRM_CCTV` y `FRM_PMVF`, 15 cada uno— y **288
+marcadas `[BORRADOR: validar con operacion]`** en los otros 24. **En la hoja de producción no ha
+cambiado nada: 15 preguntas, todas de `FRM_SOS`.**
+
+**El borrador no es contenido acordado.** Un técnico que abra el checklist de una cámara ya no ve un
+formulario vacío, pero ve preguntas que nadie de Operación ha validado, y eso puede ser peor: parece
+acordado. **Validarlas solo lo puede hacer Operación**; no es configuración, es el contenido del
 mantenimiento.
 
 **Sin plan de pago no hay órdenes automáticas ni avisos.** En el plan gratuito los procesos
@@ -67,13 +72,15 @@ Cada una con el comando que la produce. Si alguna no cuadra dentro de un mes, ma
 | Tablas, columnas, referencias, reglas del modelo | 28 · 202 · 38 · 20 | `python scripts/validar_modelo.py` |
 | El modelo consigo mismo | 0 errores, 3 avisos, `APTO PARA DESPLEGAR` | `python scripts/validar_modelo.py` |
 | La hoja de producción | `FASE A CERRADA`, **61 conformes**, 0 fallos | `python scripts/verificar_faseA.py "BD/Modelo_Datos_09082026.xlsx"` |
-| La plantilla | `FASE A CERRADA`, **61 conformes**, 0 fallos | `python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"` |
+| La plantilla | `FASE A CERRADA`, **52 conformes**, 0 fallos. **Son menos que los 61 de arriba y está bien:** la plantilla va sin registros de prueba, así que las comprobaciones que necesitan filas se saltan | `python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"` |
 | La prosa contra el modelo | `DOCUMENTOS CONSISTENTES CON EL MODELO`, 0 fallos. **El número de documentos y de avisos se mueve** según se retira material a `historico/` y se declaran columnas sin decidir | `python scripts/verificar_documentos.py` |
 | Tipos de activo y formularios en producción | **18 y 18** | `TIP_TiposActivo` y `FRM_Formularios`, hoja de producción |
 | Tipos de activo y formularios en la plantilla | **27 y 27**, uno por tipo | `TIP_TiposActivo` y `FRM_Formularios` en `BD/Modelo_Datos_PLANTILLA.xlsx` |
-| Preguntas escritas | **15, todas de `FRM_SOS`**, en las dos hojas | `FRM_Preguntas`, columna `FormularioID` |
+| Preguntas escritas, en producción | **15, todas de `FRM_SOS`** | `FRM_Preguntas`, columna `FormularioID`, hoja de producción |
+| Preguntas escritas, en la plantilla | **333 que cubren los 27 formularios**: 45 acordadas —`FRM_SOS`, `FRM_CCTV`, `FRM_PMVF`— y **288 en borrador** | `FRM_Preguntas` en la plantilla; el borrador se reconoce por `[BORRADOR: validar con operacion]` en `Ayuda` |
 | Activos en producción | 34, **una sola coordenada** | `ACT_Activos`, columna `Ubicacion` |
-| Activos en la plantilla | 389: los 34 de fixture y **355 sintéticos** con coordenada propia | `BD/Modelo_Datos_PLANTILLA.xlsx` |
+| Activos en la plantilla | **368**: los 34 de fixture y **334 generados** con coordenada propia | `BD/Modelo_Datos_PLANTILLA.xlsx` |
+| Registros de prueba en la plantilla | **Ninguno.** `OT`, `MAN`, `CHK`, `CHD`, `FOT`, `FIR` y `NOV` están vacías | Contar filas de esas pestañas en la plantilla |
 | Radio de geofencing por tipo, en la plantilla | **Poblado en los 27**: 0,05 km en 18 tipos, 0,1 km en 8, 1,5 km en la fibra | `TIP_TiposActivo.RadioGeofencingKm` en la plantilla |
 | Radio de geofencing por tipo, en producción | **Vacío en los 18.** No ha cambiado: rige el literal provisional de 1,0 km | `TIP_TiposActivo.RadioGeofencingKm` en la hoja de producción |
 | Usuarios | 11, de los cuales **2 inactivos** | `USR_Usuarios`, columna `Activo` |

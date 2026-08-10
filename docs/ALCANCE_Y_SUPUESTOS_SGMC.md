@@ -3,8 +3,9 @@
 > ## Qué cambió desde que se escribió (2026-08-09)
 >
 > **Sigue vigente el método: se construye bajo supuestos y no se espera respuesta.** Lo que cambió
-> es que **la mitad de los catorce ya no son supuestos, sino decisiones aplicadas al modelo**, y
-> alguna se cerró con un valor distinto del que aquí se propuso.
+> es que **ocho de los catorce ya no son supuestos, sino decisiones aplicadas al modelo** —D-02,
+> D-03, D-04, D-06, D-07, D-08, D-10 y D-11, las ocho del apartado 3.2—, y alguna se cerró con un
+> valor distinto del que aquí se propuso.
 >
 > - **La aplicación se reconstruyó desde cero.** `SGMC-886843353` se abandonó; la nueva es `SISGA`.
 > - **La hoja se genera del modelo**, no se hereda: `BD/Modelo_Datos_PLANTILLA.xlsx`.
@@ -76,7 +77,7 @@ siguen siendo suposiciones.**
 | D-06 | Ciclo de la OT | Siete estados. El técnico llega hasta En revisión; solo el supervisor cierra o suspende. Vencida al día siguiente. Se permite ejecutar sin orden previa como novedad | **CERRADA en la estructura, sin imponer.** Falta el rechazo |
 | D-07 | Trabajo incompleto | Cierre parcial con motivo tipificado que genera orden de seguimiento. Devolución reabre el mismo registro con traza | **CERRADA en el motivo, ABIERTA en la segunda visita** |
 | D-08 | Activo no inventariado | El técnico levanta novedad con foto y coordenada; el supervisor decide el alta. Fuera de servicio genera orden correctiva automática | **CERRADA en la estructura.** El alta automática no |
-| D-09 | Tipos priorizados | **Se construyen los 27.** Se redactan a partir de los tres existentes y de la práctica de mantenimiento; el funcional corrige sobre texto concreto | **ABIERTA.** 1 de 27 con preguntas |
+| D-09 | Tipos priorizados | **Se construyen los 27.** Se redactan a partir de los tres existentes y de la práctica de mantenimiento; el funcional corrige sobre texto concreto | **ABIERTA en la validación, no en la redacción.** Los 27 formularios de la plantilla tienen banco de preguntas: 3 acordados —SOS, CCTV y PMV fijo, 15 cada uno— y 24 en borrador, con sus 288 preguntas marcadas `[BORRADOR: validar con operacion]` |
 | D-10 | Evidencia | Tablas hijas para fotografías y firmas. Mínimo 3 fotos, máximo 6, tipificadas. El supervisor aprueba en el portal, no firma en campo | **CERRADA.** Falta declarar los valores de `FIR_Firmas.TipoFirma` |
 | D-11 | Trazabilidad | El detalle guarda `PreguntaID`; los formularios se versionan | **CERRADA** |
 | D-12 | Reportes | Se construyen los seis propuestos. Productividad del técnico queda desactivado por defecto | **ABIERTA.** El modelo no describe interfaz |
@@ -89,7 +90,7 @@ reversible barato — el modelo de evidencia está construido y la plantilla pob
 
 ### 3.2 Lo que se cerró, con qué y contra qué se comprueba
 
-**Ninguna de estas siete se decidió leyendo este documento: se decidió construyendo.** Cada fila
+**Ninguna de estas ocho se decidió leyendo este documento: se decidió construyendo.** Cada fila
 lleva dónde vive la decisión, para que nadie la vuelva a abrir por escrito.
 
 | # | Se cerró con | Se comprueba |

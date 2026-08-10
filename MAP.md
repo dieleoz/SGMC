@@ -46,7 +46,7 @@ D:\@Proyect\Sisga\
 │                                       0 ocultas, como Drive. De aquí sale bd.md
 │   ├── Modelo_Datos_LIMPIO.xlsx        Paso intermedio de la migración
 │   ├── ACT_Activos_355_SINTETICO.xlsx  Los 355 activos sintéticos del corredor
-│   └── Modelo de Datos (N).xlsx        Descargas anteriores. Histórico, no se editan
+│   └── historico/                      Descargas anteriores. No usar como fuente
 │
 ├── docs/                         Documentación técnica y funcional
 │   ├── historico/                 Documentos retirados. No usar como fuente
@@ -64,6 +64,7 @@ D:\@Proyect\Sisga\
 │   ├── validar_modelo.py          Gate objetivo del pipeline
 │   ├── verificar_faseA.py         El modelo contra la hoja descargada
 │   ├── verificar_documentos.py    La prosa contra el modelo
+│   ├── verificar_enlaces.py       Que todo enlace relativo entre documentos resuelve
 │   └── generar_*.py               Generadores de documentos y de la plantilla
 │
 ├── contexto/                     Material de contexto operativo. No es la vara
@@ -101,7 +102,7 @@ D:\@Proyect\Sisga\
 | [docs/ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) | Modelo objetivo, generado desde `scripts/modelo_objetivo.py` y validado | Vigente. **Se regenera, no se edita** |
 | [docs/bd.md](docs/bd.md) | Diccionario As-Built: lo que la hoja tiene hoy, columna a columna | Vigente. **Se regenera, no se edita** |
 | [docs/MANUAL_DESPLIEGUE.md](docs/MANUAL_DESPLIEGUE.md) | De cero a app desplegada, con la ficha de las 28 tablas columna por columna | Vigente. Generado |
-| [docs/MIGRACION_HOJA_LIMPIA.md](docs/MIGRACION_HOJA_LIMPIA.md) | El coste medido de migrar a la hoja limpia, para poder decidirlo | Vigente. **Decisión abierta** |
+| [docs/MIGRACION_HOJA_LIMPIA.md](docs/MIGRACION_HOJA_LIMPIA.md) | El procedimiento de migración a la hoja limpia, con su coste medido | Vigente. **Decisión cerrada el 2026-08-09: se migra.** Falta ejecutarla |
 | [docs/sdd/RECONSTRUCCION_EXPRESIONES.md](docs/sdd/RECONSTRUCCION_EXPRESIONES.md) | Los nombres renombrados y las 20 reglas a reponer, sin cortar | Vigente |
 | [docs/prompts/PROMPT_CONTINUAR_DESPLIEGUE.md](docs/prompts/PROMPT_CONTINUAR_DESPLIEGUE.md) | Las correcciones pendientes para el agente que está en el editor | Vigente |
 | [docs/sdd/PRUEBA-003-despliegue.md](docs/sdd/PRUEBA-003-despliegue.md) | Las pruebas del despliegue | Vigente |
@@ -165,7 +166,7 @@ qué etapa es cada cosa. `verificar_documentos.py` no revisa esa carpeta.
 
 ## 5. Enlaces externos
 
-- Aplicación AppSheet `SISGA`: [abrir](https://www.appsheet.com/template/appdef?appId=9e947fce-c445-4477-af20-a6c6c984bd1e)
+- Aplicación AppSheet `SISGA`: se entra por el listado de [appsheet.com](https://www.appsheet.com). **El enlace directo con `appId=9e947fce-…` no resuelve** — ver [`ESTADO.md`](ESTADO.md)
 - Backend Google Sheets `Modelo_Datos_09082026`: [abrir](https://docs.google.com/spreadsheets/d/1LGabjn1iNDKiJNP7CUD4_LwCH2BGXC8oTBfXmuuAkFs)
 - Repositorio: [github.com/dieleoz/SGMC](https://github.com/dieleoz/SGMC)
 

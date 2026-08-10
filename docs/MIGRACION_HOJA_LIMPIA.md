@@ -1,11 +1,13 @@
 # Migración a la hoja limpia
 
-**Qué se hace, qué cuesta y qué se gana.** Es la decisión pendiente para retomar.
+**Qué se hace, qué cuesta y qué se gana.** Es el procedimiento de la migración, no la deliberación
+sobre si conviene: **eso se decidió el 2026-08-09 y la respuesta fue que se migra.** Lo que queda
+es ejecutar el paso a paso de más abajo.
 
 | | |
 |---|---|
-| Estado | Preparado, sin ejecutar |
-| **El entregable** | `BD/Modelo_Datos_PLANTILLA.xlsx` — 28 pestañas de datos más `_LEEME`, con 27 tipos de activo, 27 formularios y 389 activos: los 34 de fixture y 355 sintéticos |
+| Estado | **Decidida el 2026-08-09.** Preparada, sin ejecutar |
+| **El entregable** | `BD/Modelo_Datos_PLANTILLA.xlsx` — 28 pestañas de datos más `_LEEME`, con 27 tipos de activo, 27 formularios y 368 activos: los 34 de fixture y 334 generados |
 | Intermedio | `BD/Modelo_Datos_LIMPIO.xlsx` — la estructura sin inventario. **No se entrega** |
 | Lo genera | `python scripts/generar_plantilla.py` — la plantilla entera, en un comando |
 
@@ -184,13 +186,14 @@ Y las pruebas de [`sdd/PRUEBA-003-despliegue.md`](sdd/PRUEBA-003-despliegue.md).
 
 ## Lo que esta migración NO arregla
 
-**Las coordenadas reales.** Los 34 activos reales comparten una sola, en Bogotá; los 355 sintéticos
-tienen coordenadas del corredor pero inventadas. **Ninguna hoja limpia lo soluciona**: hay que salir
-a levantar. Es la decisión **D-01** y sigue siendo el bloqueo del piloto.
+**Las coordenadas reales.** Los 34 activos de fixture comparten una sola, en Bogotá; los 334
+generados tienen coordenadas del corredor pero inventadas. **Ninguna hoja limpia lo soluciona**: hay
+que salir a levantar. Es la decisión **D-01** y sigue siendo el bloqueo del piloto.
 
-**Y el radio del geofencing, a medias.** Con 355 activos a 386 metros de separación media, un radio
-de 1 km mete **8 activos dentro de cada geofence**. El sistema probaría «estás en el corredor», no
-«estás frente al equipo».
+**Y el radio del geofencing, a medias.** Con los 334 repartidos sobre los 137 km del corredor, un
+radio de 1 km deja de media **7,4 activos dentro de cada geofence** —medido sobre la columna
+`Ubicacion` de la plantilla, no estimado—. El sistema probaría «estás en el corredor», no «estás
+frente al equipo».
 
 `TIP_TiposActivo.RadioGeofencingKm` **ya no está vacía en la plantilla**: la trae poblada por
 familia en sus 27 tipos —0,05 km en 18, 0,1 km en 8 y 1,5 km en la fibra—, mientras que en la hoja
@@ -198,12 +201,19 @@ de producción sigue vacía en los 18 suyos. **Y falta además la expresión**: 
 la regla del editor use el literal `1.0` en vez de desreferenciar esa columna, la plantilla no
 cambia nada. La expresión buena está en `RECONSTRUCCION_EXPRESIONES.md`.
 
-## Si se decide no migrar
+## Por qué no se dejó como estaba
 
-Es defendible. La aplicación funciona con las 47 columnas ocultas, y ocultarlas ya está casi hecho.
+La otra rama era dejar la hoja de producción con sus 47 columnas de más y esconderlas en la
+aplicación. **Se descartó el 2026-08-09**, y por tres razones que valía la pena escribir:
 
-**Lo que se acepta a cambio:** que la hoja y el modelo sigan divergiendo, que las tres trampas haya
-que vigilarlas en cada reconstrucción, y que quien retome el proyecto tenga que entender por qué hay
-columnas que existen pero no se usan.
+- **Ocultar es una instrucción que exige criterio, y esa clase de instrucción se ejecuta mal.** Ya
+  había pasado: quien ocultaba sin el modelo delante cableó una de las tres trampas como referencia.
+  Es la regla de `CLAUDE.md` §7.9, y la migración la vuelve innecesaria en vez de vigilarla.
+- **Ocultar no converge: hay que rehacerlo en cada reconstrucción.** La columna sigue en la hoja, así
+  que la siguiente alta de tabla la vuelve a traer visible. Borrarla del archivo se hace una vez.
+- **La divergencia entre la hoja y el modelo era la avería original del proyecto.** Mantenerla viva a
+  propósito, y documentada con anexos de ocultación, era conservar la causa.
 
-**No es deuda técnica grave. Es fricción permanente.**
+**Lo que costó la decisión:** rehacer 8 tablas de 28 y reponer 14 reglas y 27 referencias, que es lo
+que mide este documento. **No era deuda técnica grave, era fricción permanente**, y se prefirió
+pagarla una vez.

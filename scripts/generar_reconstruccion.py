@@ -63,6 +63,31 @@ for r in REGLAS:
     if r.get("nota"):
         w("> %s" % r["nota"].replace("\n", " "))
         w("")
+    # RG-01 es la unica regla cuya expresion correcta DEPENDE de contra que hoja
+    # se pegue, porque la columna que desreferencia esta poblada en una y vacia
+    # en la otra. Sin decirlo, quien la copia sobre la hoja de produccion pega
+    # una comparacion contra blanco que rechaza tambien el cierre legitimo.
+    if r.get("id") == "RG-01":
+        w("**Contra que hoja va cada version.** Esta regla desreferencia")
+        w("`TIP_TiposActivo.RadioGeofencingKm`, y esa columna no esta igual en las dos hojas:")
+        w("")
+        w("| Hoja | Que se pega | Por que |")
+        w("|---|---|---|")
+        w("| `BD/Modelo_Datos_PLANTILLA.xlsx` | **La expresion de arriba, la variante por tipo** | "
+          "El radio esta poblado en sus 27 tipos: 0.05 km en 18, 0.1 km en 8 y 1.5 km en la fibra |")
+        w("| `Modelo_Datos_09082026`, la hoja de produccion | **El literal `1.0`** en lugar de la "
+          "desreferencia | Ahi la columna sigue **vacia en sus 18 tipos**. La variante por tipo "
+          "compararia contra blanco y rechazaria tambien el cierre legitimo |")
+        w("")
+        w("```")
+        w("DISTANCE([Coordenadas_Cierre], [OTID].[ActivoID].[Ubicacion]) <= 1.0")
+        w("```")
+        w("")
+        w("> **El literal `1.0` no es el valor bueno: es el provisional mientras la aplicacion lea la")
+        w("> hoja de produccion.** Al migrar a la hoja limpia se sustituye por la variante por tipo, y")
+        w("> ese cambio es parte del paso 6 de `MIGRACION_HOJA_LIMPIA.md`. Comprobar cual esta puesta")
+        w("> es leer la formula entera, no dar por hecho que se pego bien.")
+        w("")
 w("## 3. Las claves, todas `Text`")
 w("")
 w("| Tabla | Clave |")

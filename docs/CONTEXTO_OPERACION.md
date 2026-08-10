@@ -1,7 +1,12 @@
 # Contexto de operación — qué dicen los documentos reales
 
-Lo que aportan los siete documentos de `contexto/` al modelo de datos del SGMC. No es un resumen
-de cada uno: es **lo que sirve** para decidir tablas, columnas y flujos, con la cita de dónde sale.
+Lo que aportan al modelo de datos del SGMC los documentos de `contexto/`. No es un resumen de cada
+uno: es **lo que sirve** para decidir tablas, columnas y flujos, con la cita de dónde sale.
+
+> **Son ocho archivos y aquí se destilan siete.** El que falta es
+> `MATRIZ_MANTENIMIENTO_SISGA_2026 (1).xlsx`, **que no se ha abierto**: no está en la tabla de
+> procedencia de más abajo ni ha alimentado ninguna decisión. Se deja dicho para que nadie lo lea
+> como que ya se revisó y no aportaba nada.
 
 > **Nota del 2026-08-09.** El contenido de este documento no ha cambiado: destila documentos de
 > operación, y esos documentos no se han movido. Lo que se corrigió son **dos cifras de capacidad
@@ -12,7 +17,7 @@ de cada uno: es **lo que sirve** para decidir tablas, columnas y flujos, con la 
 | | |
 |---|---|
 | Origen | `contexto/`, aportado el 2026-08-07. Cifras revisadas el 2026-08-09 |
-| Documentos | 7 · **todos leídos** |
+| Documentos | `contexto/` tiene **8**; este documento destila **7**. El octavo, `MATRIZ_MANTENIMIENTO_SISGA_2026 (1).xlsx`, **no se ha abierto** y no aporta nada aquí todavía |
 | Para qué sirve | Alimentar `MODELO_EVOLUCION_FASE_2.md` con dominio verificado, no supuesto |
 | Qué **no** es | Una especificación. Nada de aquí se ejecuta sin pasar por `ESPEC-00N` y su veredicto |
 

@@ -32,7 +32,12 @@ GRUPOS = ["Catalogos", "Maestras", "Transaccionales", "Evidencias", "Checklist",
 
 def col(nombre, tipo, **kw):
     """Define una columna. kw admite: pk, ref, obligatoria, formula, valor_inicial,
-    valid_if, mensaje_error, es_parte_de, nota, oculta."""
+    valid_if, mensaje_error, es_parte_de, nota, oculta, valores.
+
+    valores es el DATO -la lista del Enum- y nota es PROSA. Estaban mezclados: el
+    generador del manual partia la nota por comas y la publicaba como valores, asi
+    que Criticidad salia con un valor llamado "Baja. Pondera la disponibilidad de
+    D-13". Es justo el fallo que CLAUDE.md 7.9 prohibe, cometido por el generador."""
     d = {"nombre": nombre, "tipo": tipo}
     d.update(kw)
     return d
@@ -110,9 +115,12 @@ MODELO = {
         columnas=[
             col("TipoActivoID", "Text", pk=True),
             col("Nombre", "Text", obligatoria=True),
-            col("Categoria", "Enum", nota="ITS, Electrico, Comunicaciones, TI"),
+            col("Categoria", "Enum", valores=["ITS", "Electrico", "Comunicaciones", "TI"]),
             col("FormularioID", "Ref", ref="FRM_Formularios", obligatoria=True,
-                nota="Sin este mapeo no hay checklist dinamico. Estuvo vacio en la hoja heredada"),
+                nota="Sin este mapeo no hay checklist dinamico. Estuvo vacio en la hoja de la "
+                     "aplicacion abandonada SGMC-886843353, y de ahi viene el aviso. HOY ESTA "
+                     "POBLADO EN LAS DOS HOJAS VIVAS: 18 de 18 en la de produccion y 27 de 27 en "
+                     "la plantilla"),
             col("TieneQR", "Yes/No", valor_inicial="TRUE"),
             col("RequiereGPS", "Yes/No", valor_inicial="TRUE"),
             col("RadioGeofencingKm", "Decimal", valor_inicial="0.2",
@@ -143,7 +151,7 @@ MODELO = {
             col("Nombre", "Text", obligatoria=True,
                 nota="Programada, Asignada, En ejecucion, En revision, Cerrada, Suspendida, Vencida"),
             col("Orden", "Number"),
-            col("QuienCambia", "Enum", nota="Sistema, Tecnico, Supervisor"),
+            col("QuienCambia", "Enum", valores=["Sistema", "Tecnico", "Supervisor"]),
             col("EsFinal", "Yes/No", valor_inicial="FALSE"),
             col("Activo", "Yes/No", valor_inicial="TRUE"),
         ]),
@@ -227,13 +235,14 @@ MODELO = {
             col("EstadoActivoID", "Ref", ref="EST_Activo", obligatoria=True),
             col("CodigoQR", "Text", nota="Configurada como Searchable y Scan"),
             col("FrecuenciaID", "Ref", ref="FRE_Frecuencias"),
-            col("Criticidad", "Enum", nota="Alta, Media, Baja. Pondera la disponibilidad de D-13"),
+            col("Criticidad", "Enum", valores=["Alta", "Media", "Baja"],
+                nota="Pondera la disponibilidad de D-13"),
             col("FechaBaja", "Date", nueva=True,
                 nota="Cuando se dio de baja. Sin ella el historico no puede explicar por que el "
                      "activo dejo de recibir mantenimiento, y esa pregunta la hace la interventoria"),
             col("MotivoBaja", "Enum", nueva=True,
-                nota="Obsolescencia, Dano irreparable, Robo o vandalismo, Reemplazo, "
-                     "Retiro por obra"),
+                valores=["Obsolescencia", "Dano irreparable", "Robo o vandalismo",
+                         "Reemplazo", "Retiro por obra"]),
             col("Activo", "Yes/No", formula='[EstadoActivoID].[Nombre] <> "Retirado"',
                 nota="NO se edita a mano: se deriva del estado. Tener dos formas de decir "
                      "'dado de baja' garantiza que algun dia se contradigan"),
@@ -250,7 +259,7 @@ MODELO = {
             col("ActivoID", "Ref", ref="ACT_Activos", obligatoria=True),
             col("TecnicoID", "Ref", ref="USR_Usuarios", obligatoria=True, alias_justificado="Rol en la orden: quien ejecuta"),
             col("SupervisorID", "Ref", ref="USR_Usuarios", obligatoria=True, alias_justificado="Rol en la orden: quien supervisa"),
-            col("Tipo", "Enum", obligatoria=True, nota="Preventivo, Correctivo"),
+            col("Tipo", "Enum", obligatoria=True, valores=["Preventivo", "Correctivo"]),
             col("FechaProgramada", "DateTime", obligatoria=True),
             col("EstadoOrdenID", "Ref", ref="EOT_EstadosOrden", obligatoria=True),
             col("OTOrigenID", "Ref", ref="OT_OrdenesTrabajo", nueva=True, alias_justificado="Autorreferencia: la orden que origino esta",
@@ -275,9 +284,9 @@ MODELO = {
                 valor_inicial='LOOKUP(USEREMAIL(), "USR_Usuarios", "Correo", "UsuarioID")'),
             col("FechaHoraInicio", "DateTime", obligatoria=True, valor_inicial="NOW()"),
             col("FechaHoraFin", "DateTime"),
-            col("OrigenApertura", "Enum", obligatoria=True, valor_inicial="QR",
-                nota="QR o Lista. Abrir por lista no prueba presencia; se marca para poder exigir "
-                     "QR donde importe y para medir cuantos cierres carecen de escaneo"),
+            col("OrigenApertura", "Enum", valores=["QR", "Lista"], valor_inicial="Lista",
+                nota="Abrir por lista no prueba presencia; se marca para poder exigir "
+                     "QR donde importe y para medir cuantos cierres carecen de escaneo. El QR esta fuera de alcance desde el 2026-08-07, asi que hoy el valor inicial es Lista"),
             col("UbicacionEscaneo", "LatLong", editable=False,
                 nota="Donde estaba el tecnico al escanear. Junto con Coordenadas_Cierre permite "
                      "comprobar que llego y se quedo, no que paso cerca"),
@@ -318,12 +327,14 @@ MODELO = {
             col("NovedadID", "Text", pk=True),
             col("UsuarioID", "Ref", ref="USR_Usuarios", obligatoria=True,
                 valor_inicial='LOOKUP(USEREMAIL(), "USR_Usuarios", "Correo", "UsuarioID")'),
-            col("Tipo", "Enum", obligatoria=True, nota="Activo no inventariado, Falla detectada"),
+            col("Tipo", "Enum", obligatoria=True,
+                valores=["Activo no inventariado", "Falla detectada"]),
             col("Descripcion", "LongText", obligatoria=True),
             col("Ubicacion", "LatLong", obligatoria=True, valor_inicial="HERE()"),
             col("Fotografia", "Image", obligatoria=True),
             col("ActivoID", "Ref", ref="ACT_Activos", nota="Solo si la novedad es sobre uno existente"),
-            col("Estado", "Enum", valor_inicial="Reportada", nota="Reportada, Aceptada, Descartada"),
+            col("Estado", "Enum", valor_inicial="Reportada",
+                valores=["Reportada", "Aceptada", "Descartada"]),
             col("FechaHora", "ChangeTimestamp"),
         ]),
 
@@ -355,7 +366,7 @@ MODELO = {
             col("TipoActivoID", "Ref", ref="TIP_TiposActivo", obligatoria=True),
             col("Nombre", "Text", obligatoria=True),
             col("Componente", "Text"),
-            col("Criticidad", "Enum", nota="Alta, Media, Baja"),
+            col("Criticidad", "Enum", valores=["Alta", "Media", "Baja"]),
             col("Activo", "Yes/No", valor_inicial="TRUE"),
         ]),
 
@@ -367,7 +378,7 @@ MODELO = {
         columnas=[
             col("FotoID", "Text", pk=True),
             col("MantenimientoID", "Ref", ref="MAN_Mantenimientos", obligatoria=True, es_parte_de=True),
-            col("Tipo", "Enum", obligatoria=True, nota="Antes, Despues, Novedad"),
+            col("Tipo", "Enum", obligatoria=True, valores=["Antes", "Despues", "Novedad"]),
             col("Archivo", "Image", obligatoria=True,
                 nota="Calidad baja, 600 px. La camara debe forzarse en la app: si permite elegir "
                      "de la galeria, toda la cadena de evidencia pierde valor"),
@@ -387,7 +398,8 @@ MODELO = {
         columnas=[
             col("FirmaID", "Text", pk=True),
             col("MantenimientoID", "Ref", ref="MAN_Mantenimientos", obligatoria=True, es_parte_de=True),
-            col("TipoFirma", "Enum", obligatoria=True, nota="Tecnico"),
+            col("TipoFirma", "Enum", obligatoria=True, valores=["Tecnico"],
+                nota="Solo Tecnico. La firma del supervisor no se captura en campo"),
             col("Imagen", "Signature", obligatoria=True),
             col("FechaHora", "ChangeTimestamp"),
         ]),
@@ -420,7 +432,8 @@ MODELO = {
             col("RespuestaTexto", "LongText"),
             col("RespuestaNumero", "Decimal"),
             col("RespuestaBoolean", "Yes/No"),
-            col("RespuestaLista", "Enum"),
+            col("RespuestaLista", "Enum",
+                nota="Los valores salen de LST_ValoresLista por pregunta, no de una lista fija"),
             col("Contestada", "Yes/No", valor_inicial="FALSE"),
             col("Observacion", "LongText"),
         ]),
@@ -676,9 +689,11 @@ RETIPADOS = {
     },
     "TIP_TiposActivo": {
         "FormularioID": ("Text", "Ref", "FRM_Formularios",
-                         "Poblado en los 18 tipos de la hoja de produccion con valores FRM_SOS a "
-                         "FRM_SUBE, y en los 27 de la plantilla. Todos existen en FRM_Formularios: "
-                         "la conversion no produce huerfanos en ninguna de las dos."),
+                         "Poblado en las dos hojas vivas: 18 de 18 en la de produccion, con "
+                         "valores FRM_SOS a FRM_SUBE, y 27 de 27 en la plantilla. Estuvo vacio en "
+                         "la hoja de la aplicacion abandonada, que es de donde viene ese aviso en "
+                         "documentos antiguos. Todos los valores existen en FRM_Formularios: la "
+                         "conversion no produce huerfanos en ninguna de las dos."),
     },
     "LST_ValoresLista": {
         "PreguntaID": ("Text", "Ref", "FRM_Preguntas",

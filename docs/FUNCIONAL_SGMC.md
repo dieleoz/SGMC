@@ -47,7 +47,17 @@ sea **defendible ante la interventoría**, no solo cierta.
 
 ## 2. Qué se mantiene
 
-24 tipos de equipo. **355 activos contables**, más lo que no se cuenta por unidades:
+**El Plan Maestro lista 24 tipos de equipo.** De esos, **18 se cuentan por unidades y son los que
+se visitan: suman los 355 activos contables**, y son los 18 que aparecen en el bloque de abajo. Los
+seis restantes no se cuentan en unidades: la fibra troncal va en kilómetros, e internet, antivirus,
+licencias, radios y certificados SSL no se visitan porque no tienen coordenada.
+
+> **Y `TIP_TiposActivo` tiene 27, que es otra lista.** No es el catálogo del inventario sino **el de
+> checklists**: un tipo por cada formulario. Son los 18 de arriba más nueve equipos que existen en el
+> corredor y el Plan Maestro no cuenta por unidades —fibra óptica, generador, video wall, router,
+> firewall, UPS, NAS, subestación y báscula estática—, que hasta el 2026-08-09 colgaban del checklist
+> de otro equipo. **Dos listas del mismo dominio no son la misma lista**: la correspondencia vive en
+> `scripts/catalogo_tipos.py` y la comprueba `comprobar()`.
 
 ```
 Vía          postes SOS 54 · CCTV 26 · PMV fijos 11 · PMV móviles 19

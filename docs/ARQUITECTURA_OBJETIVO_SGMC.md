@@ -9,9 +9,12 @@ referencias y reglas. Lo que la hoja tiene hoy, columna a columna, está en `bd.
 generado; para qué sirve cada pieza y quién la usa, en `FUNCIONAL_SGMC.md`. Los tres se
 complementan y ninguno sustituye a los otros dos.
 
-**El modelo describe datos, no interfaz.** No hay aquí vistas, acciones ni slices: no existen en
-`modelo_objetivo.py`. Mientras no se declaren, el paso de vistas de cualquier manual se queda en
-«se construye sola», que es la clase de instrucción que este proyecto tiene prohibida.
+**El modelo describe datos, no interfaz.** No hay aquí vistas, acciones ni slices: `VISTAS`,
+`ACCIONES` y `SLICES` no existen en `modelo_objetivo.py`. Lo único que AppSheet construye solo son
+las columnas virtuales `Related`, que salen de las referencias. Las pantallas no, y por eso el
+paso de vistas de los manuales generados **declara que no está especificado y pide anotar lo que
+se haga**, en vez de decir «se construye sola» — que es la clase de instrucción que este proyecto
+tiene prohibida.
 
 **28 tablas · 202 columnas · 38 referencias · 20 reglas**
 
@@ -155,7 +158,7 @@ Los nombres actuales se verificaron el 2026-08-07 leyendo `BD/Modelo de Datos (2
 | `CHD_ChecklistDetalle` | `PreguntaID` | Text | **Ref** | `FRM_Preguntas` | Produccion ya la llama PreguntaID, pero LST_ValoresLista guarda ahi el TEXTO 'Estado encontrado' en vez de la clave. Confirmar antes de convertir. |
 | `USR_Usuarios` | `RolID` | Number | **Ref** | `ROL_Roles` | Guarda enteros 2 a 5. Por confirmar el tipo. |
 | `USR_Usuarios` | `SedeID` | Number | **Ref** | `SED_Sedes` | Guarda 1 en los 11 usuarios. |
-| `TIP_TiposActivo` | `FormularioID` | Text | **Ref** | `FRM_Formularios` | Poblado en los 18 tipos de la hoja de produccion con valores FRM_SOS a FRM_SUBE, y en los 27 de la plantilla. Todos existen en FRM_Formularios: la conversion no produce huerfanos en ninguna de las dos. |
+| `TIP_TiposActivo` | `FormularioID` | Text | **Ref** | `FRM_Formularios` | Poblado en las dos hojas vivas: 18 de 18 en la de produccion, con valores FRM_SOS a FRM_SUBE, y 27 de 27 en la plantilla. Estuvo vacio en la hoja de la aplicacion abandonada, que es de donde viene ese aviso en documentos antiguos. Todos los valores existen en FRM_Formularios: la conversion no produce huerfanos en ninguna de las dos. |
 | `LST_ValoresLista` | `PreguntaID` | Text | **Ref** | `FRM_Preguntas` | PELIGRO: sus 4 filas guardan el TEXTO 'Estado encontrado', no una clave. Convertir a Ref las deja huerfanas a las cuatro. Corregir los valores antes, o dejarla como Text y anotarlo como deuda. |
 | `FRM_Preguntas` | `FormularioID` | Text | **Ref** | `FRM_Formularios` | Por confirmar el tipo. |
 | `FRM_Preguntas` | `SeccionID` | Number | **Ref** | `FRM_Secciones` | Por confirmar el tipo. |
@@ -319,8 +322,8 @@ Taxonomia de activos. Determina que checklist abre la aplicacion.
 |---|---|---|---|---|---|
 | `TipoActivoID` | Text | PK |  |  |  |
 | `Nombre` | Text |  |  | Sí |  |
-| `Categoria` | Enum |  |  |  | ITS, Electrico, Comunicaciones, TI |
-| `FormularioID` | Ref |  | `FRM_Formularios` | Sí | Sin este mapeo no hay checklist dinamico. Estuvo vacio en la hoja heredada |
+| `Categoria` | Enum |  |  |  |  |
+| `FormularioID` | Ref |  | `FRM_Formularios` | Sí | Sin este mapeo no hay checklist dinamico. Estuvo vacio en la hoja de la aplicacion abandonada SGMC-886843353, y de ahi viene el aviso. HOY ESTA POBLADO EN LAS DOS HOJAS VIVAS: 18 de 18 en la de produccion y 27 de 27 en la plantilla |
 | `TieneQR` | Yes/No |  |  |  | Valor inicial: `TRUE` |
 | `RequiereGPS` | Yes/No |  |  |  | Valor inicial: `TRUE` |
 | `RadioGeofencingKm` | Decimal |  |  |  | Supuesto D-02: radio por tipo, no un numero unico. El catalogo (scripts/catalogo_tipos.py) lo fija por tipo y la plantilla lo trae poblado en los 27; el valor inicial solo aplica a un tipo nuevo. Valor inicial: `0.2` |
@@ -346,7 +349,7 @@ Ciclo de vida de la orden segun el supuesto D-06. Declararlo como catalogo, y no
 | `EstadoOrdenID` | Text | PK |  |  |  |
 | `Nombre` | Text |  |  | Sí | Programada, Asignada, En ejecucion, En revision, Cerrada, Suspendida, Vencida |
 | `Orden` | Number |  |  |  |  |
-| `QuienCambia` | Enum |  |  |  | Sistema, Tecnico, Supervisor |
+| `QuienCambia` | Enum |  |  |  |  |
 | `EsFinal` | Yes/No |  |  |  | Valor inicial: `FALSE` |
 | `Activo` | Yes/No |  |  |  | Valor inicial: `TRUE` |
 
@@ -415,7 +418,7 @@ Taxonomia de fallas por tipo de activo. Sin clasificar la falla no hay ingenieri
 | `TipoActivoID` | Ref |  | `TIP_TiposActivo` | Sí |  |
 | `Nombre` | Text |  |  | Sí |  |
 | `Componente` | Text |  |  |  |  |
-| `Criticidad` | Enum |  |  |  | Alta, Media, Baja |
+| `Criticidad` | Enum |  |  |  |  |
 | `Activo` | Yes/No |  |  |  | Valor inicial: `TRUE` |
 
 ### 4.2 Maestras (1)
@@ -438,9 +441,9 @@ Inventario de los activos del corredor. Es el eje del sistema.
 | `EstadoActivoID` | Ref |  | `EST_Activo` | Sí |  |
 | `CodigoQR` | Text |  |  |  | Configurada como Searchable y Scan |
 | `FrecuenciaID` | Ref |  | `FRE_Frecuencias` |  |  |
-| `Criticidad` | Enum |  |  |  | Alta, Media, Baja. Pondera la disponibilidad de D-13 |
+| `Criticidad` | Enum |  |  |  | Pondera la disponibilidad de D-13 |
 | `FechaBaja` | Date |  |  |  | Cuando se dio de baja. Sin ella el historico no puede explicar por que el activo dejo de recibir mantenimiento, y esa pregunta la hace la interventoria |
-| `MotivoBaja` | Enum |  |  |  | Obsolescencia, Dano irreparable, Robo o vandalismo, Reemplazo, Retiro por obra |
+| `MotivoBaja` | Enum |  |  |  |  |
 | `Activo` | Yes/No |  |  |  | NO se edita a mano: se deriva del estado. Tener dos formas de decir 'dado de baja' garantiza que algun dia se contradigan |
 | `Observaciones` | LongText |  |  |  |  |
 
@@ -456,7 +459,7 @@ Trabajo programado o levantado sobre un activo.
 | `ActivoID` | Ref |  | `ACT_Activos` | Sí |  |
 | `TecnicoID` | Ref |  | `USR_Usuarios` | Sí | Rol en la orden: quien ejecuta |
 | `SupervisorID` | Ref |  | `USR_Usuarios` | Sí | Rol en la orden: quien supervisa |
-| `Tipo` | Enum |  |  | Sí | Preventivo, Correctivo |
+| `Tipo` | Enum |  |  | Sí |  |
 | `FechaProgramada` | DateTime |  |  | Sí |  |
 | `EstadoOrdenID` | Ref |  | `EOT_EstadosOrden` | Sí |  |
 | `OTOrigenID` | Ref |  | `OT_OrdenesTrabajo` |  | Orden que la origino, cuando es seguimiento de una segunda visita. Autorreferencia: la orden que origino esta |
@@ -476,7 +479,7 @@ Ejecucion real en campo. Cuelga de la orden y es padre de la evidencia.
 | `TecnicoID` | Ref |  | `USR_Usuarios` | Sí | Valor inicial: `LOOKUP(USEREMAIL(), "USR_Usuarios", "Correo", "UsuarioID")`. Rol: quien ejecuta |
 | `FechaHoraInicio` | DateTime |  |  | Sí | Valor inicial: `NOW()` |
 | `FechaHoraFin` | DateTime |  |  |  |  |
-| `OrigenApertura` | Enum |  |  | Sí | QR o Lista. Abrir por lista no prueba presencia; se marca para poder exigir QR donde importe y para medir cuantos cierres carecen de escaneo. Valor inicial: `QR` |
+| `OrigenApertura` | Enum |  |  |  | Abrir por lista no prueba presencia; se marca para poder exigir QR donde importe y para medir cuantos cierres carecen de escaneo. El QR esta fuera de alcance desde el 2026-08-07, asi que hoy el valor inicial es Lista. Valor inicial: `Lista` |
 | `UbicacionEscaneo` | LatLong |  |  |  | Donde estaba el tecnico al escanear. Junto con Coordenadas_Cierre permite comprobar que llego y se quedo, no que paso cerca |
 | `FechaHoraEscaneo` | DateTime |  |  |  | Con FechaHoraFin da la duracion real de la intervencion |
 | `EstadoActivoID` | Ref |  | `EST_Activo` | Sí | Estado en que queda el activo tras la intervencion. No existe en produccion: se crea. El Excel local tiene 'Estado Final', que produccion no tiene |
@@ -503,12 +506,12 @@ Hallazgos del tecnico en ruta: activos no inventariados o fallas fuera de progra
 |---|---|---|---|---|---|
 | `NovedadID` | Text | PK |  |  |  |
 | `UsuarioID` | Ref |  | `USR_Usuarios` | Sí | Valor inicial: `LOOKUP(USEREMAIL(), "USR_Usuarios", "Correo", "UsuarioID")` |
-| `Tipo` | Enum |  |  | Sí | Activo no inventariado, Falla detectada |
+| `Tipo` | Enum |  |  | Sí |  |
 | `Descripcion` | LongText |  |  | Sí |  |
 | `Ubicacion` | LatLong |  |  | Sí | Valor inicial: `HERE()` |
 | `Fotografia` | Image |  |  | Sí |  |
 | `ActivoID` | Ref |  | `ACT_Activos` |  | Solo si la novedad es sobre uno existente |
-| `Estado` | Enum |  |  |  | Reportada, Aceptada, Descartada. Valor inicial: `Reportada` |
+| `Estado` | Enum |  |  |  | Valor inicial: `Reportada` |
 | `FechaHora` | ChangeTimestamp |  |  |  |  |
 
 #### `PLA_PlanMantenimiento` · **NUEVA**
@@ -535,7 +538,7 @@ Fotografias del mantenimiento. Supuesto D-10: minimo 3, maximo 6, tipificadas. S
 |---|---|---|---|---|---|
 | `FotoID` | Text | PK |  |  |  |
 | `MantenimientoID` | Ref |  | `MAN_Mantenimientos` · IsPartOf | Sí |  |
-| `Tipo` | Enum |  |  | Sí | Antes, Despues, Novedad |
+| `Tipo` | Enum |  |  | Sí |  |
 | `Archivo` | Image |  |  | Sí | Calidad baja, 600 px. La camara debe forzarse en la app: si permite elegir de la galeria, toda la cadena de evidencia pierde valor |
 | `Ubicacion` | LatLong |  |  | Sí | Coordenada de CADA fotografia. La compresion a 600 px descarta el EXIF, asi que la geolocalizacion debe guardarse como dato, no confiarse a la imagen. Valor inicial: `HERE()` |
 | `PrecisionGPS` | Number |  |  |  | Valor inicial: `USERLOCATIONACCURACY()` |
@@ -550,7 +553,7 @@ Firma manuscrita. Supuesto D-10: firma el tecnico en campo; el supervisor valida
 |---|---|---|---|---|---|
 | `FirmaID` | Text | PK |  |  |  |
 | `MantenimientoID` | Ref |  | `MAN_Mantenimientos` · IsPartOf | Sí |  |
-| `TipoFirma` | Enum |  |  | Sí | Tecnico |
+| `TipoFirma` | Enum |  |  | Sí | Solo Tecnico. La firma del supervisor no se captura en campo |
 | `Imagen` | Signature |  |  | Sí |  |
 | `FechaHora` | ChangeTimestamp |  |  |  |  |
 
@@ -582,7 +585,7 @@ Respuesta a cada pregunta. Referencia la pregunta por su clave, no por su texto:
 | `RespuestaTexto` | LongText |  |  |  |  |
 | `RespuestaNumero` | Decimal |  |  |  |  |
 | `RespuestaBoolean` | Yes/No |  |  |  |  |
-| `RespuestaLista` | Enum |  |  |  |  |
+| `RespuestaLista` | Enum |  |  |  | Los valores salen de LST_ValoresLista por pregunta, no de una lista fija |
 | `Contestada` | Yes/No |  |  |  | Valor inicial: `FALSE` |
 | `Observacion` | LongText |  |  |  |  |
 

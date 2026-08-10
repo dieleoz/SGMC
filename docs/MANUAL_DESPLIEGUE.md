@@ -304,6 +304,10 @@ error**.
 
 ## Paso 6 — Tres columnas que AppSheet convierte solo, y estan mal
 
+> **Este paso es solo para la hoja de produccion heredada, `Modelo_Datos_09082026`.** Sobre
+> `BD/Modelo_Datos_PLANTILLA.xlsx` estas tres columnas **no existen**, asi que no hay nada que
+> deshacer: saltese el paso entero. Lo mismo vale para las marcas `OCULTAR` del anexo.
+
 Son columnas muertas que siguen en la hoja **y se llaman igual que la clave de otra tabla**.
 AppSheet infiere referencias por coincidencia de nombre, asi que las convierte sin que nadie se lo
 pida.
@@ -432,17 +436,28 @@ quitar `Deletes`. Configurar el `IsPartOf` sin esto deja la cascada abierta.
 
 ## Paso 8 — Las vistas
 
-**La mayor parte se construye sola al poner las referencias.** AppSheet crea las columnas
-virtuales `Related ...` y con ellas la navegacion padre-hijo: al abrir un mantenimiento se ven sus
-fotografias y su firma; al abrir un activo, sus ordenes.
+**Este manual no especifica las vistas, y hay que saberlo antes de empezar el paso.** El modelo
+declara datos, no interfaz: `VISTAS`, `ACCIONES` y `SLICES` **no existen** en
+`scripts/modelo_objetivo.py`. Por eso aqui no hay ficha columna por columna como en los pasos
+anteriores, y por eso lo que decida en este paso es lo unico que no queda escrito en ninguna parte.
 
-Lo que hay que configurar a mano son las vistas principales:
+**Lo unico que AppSheet crea solo son las columnas virtuales `Related ...`**, que aparecen al poner
+las referencias del paso 5 y traen con ellas la navegacion padre-hijo: al abrir un mantenimiento se
+ven sus fotografias y su firma; al abrir un activo, sus ordenes. **Eso es todo lo que se construye
+solo.** Las pantallas no.
+
+**Y no se configuran a ojo.** Las tres de abajo van con el tipo y la tabla que dice la ficha; si
+una no encaja, no la improvise: **anote que falta y siga**. Una vista inventada aqui es
+configuracion activa que nadie declaro y que el siguiente que reconstruya la aplicacion no podra
+reproducir.
 
 | Vista | Tipo | Sobre | Nota |
 |---|---|---|---|
 | Mapa de activos | `Map` | `ACT_Activos` | Columna de mapa: `Ubicacion` |
 | Mis ordenes | `Deck` | `OT_OrdenesTrabajo` | Es la pantalla de trabajo del tecnico |
 | Mantenimientos | `Table` | `MAN_Mantenimientos` | |
+
+**Anote lo que haga.** Es la unica constancia que va a quedar de este paso.
 
 ## Paso 9 — Verificar antes de publicar
 
@@ -461,12 +476,13 @@ antigua de 15 no incluia.
 
 **Cuente las referencias.** Las columnas de tipo `Ref` deben sumar **38**.
 
-**Y los tres verificadores del repositorio:**
+**Y los cuatro verificadores del repositorio:**
 
 ```bash
 python scripts/validar_modelo.py          # el modelo consigo mismo
 python scripts/verificar_faseA.py "..."   # el modelo contra la hoja
 python scripts/verificar_documentos.py    # la prosa contra el modelo
+python scripts/verificar_enlaces.py       # que todo enlace entre documentos resuelve
 ```
 
 **Ninguno mira la aplicacion.** Para eso estan las pruebas de aceptacion de
@@ -526,6 +542,31 @@ falsificar cueste mas que hacer el trabajo, no que sea imposible.
 **Columna por columna, sin nada que deducir.** Esta es la referencia contra la que se configura y
 contra la que se valida. Si una columna no aparece aqui, no deberia estar visible en la app.
 
+> ## Antes de usar este anexo: contra que hoja esta escrito
+>
+> **Las marcas `OCULTAR` describen la hoja de produccion heredada, `Modelo_Datos_09082026`, y
+> solo esa.** Son las columnas que ese libro arrastra y el modelo no declara.
+>
+> **Sobre `BD/Modelo_Datos_PLANTILLA.xlsx` esas columnas no existen**, asi que ahi no hay nada que
+> ocultar y ninguna marca `OCULTAR` de este anexo aplica. La plantilla se genera del modelo con
+> `python scripts/generar_plantilla.py` y sale con las columnas que el modelo declara, ni una mas.
+> Se comprueba con la regla `F-19`:
+>
+> ```bash
+> python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"
+> ```
+>
+> ```
+> ok Hoja limpia: ninguna de las 43 columnas retiradas existe ya. No hay nada que ocultar
+> ```
+>
+> **Lo mismo vale para las tres `TRAMPA` del paso 6:** son columnas de la hoja heredada, y sobre la
+> plantilla no estan, asi que AppSheet no tiene nada que convertir solo.
+>
+> **Y ocultarlas ya no es trabajo de nadie.** La decision del 2026-08-09 fue migrar a la hoja
+> limpia; el procedimiento esta en `MIGRACION_HOJA_LIMPIA.md`. Este anexo se conserva porque es la
+> lista por nombre que esa migracion necesita para borrarlas, **no para esconderlas**.
+
 Leyenda:
 
 - **CLAVE** — casilla `KEY` marcada, tipo `Text`
@@ -553,7 +594,7 @@ Inventario de los activos del corredor. Es el eje del sistema.
 | `EstadoActivoID` | `Ref` | `Ref` -> `EST_Activo` · IsPartOf desmarcado |
 | `CodigoQR` | `Text` |  |
 | `FrecuenciaID` | `Ref` | `Ref` -> `FRE_Frecuencias` · IsPartOf desmarcado |
-| `Criticidad` | `Enum` | Valores: `Alta` · `Media` · `Baja. Pondera la disponibilidad de D-13` |
+| `Criticidad` | `Enum` | Valores: `Alta` · `Media` · `Baja` |
 | `FechaBaja` | `Date` |  |
 | `MotivoBaja` | `Enum` | Valores: `Obsolescencia` · `Dano irreparable` · `Robo o vandalismo` · `Reemplazo` · `Retiro por obra` |
 | `Activo` | `Yes/No` |  |
@@ -592,7 +633,7 @@ Respuesta a cada pregunta. Referencia la pregunta por su clave, no por su texto:
 | `RespuestaTexto` | `LongText` |  |
 | `RespuestaNumero` | `Decimal` |  |
 | `RespuestaBoolean` | `Yes/No` |  |
-| `RespuestaLista` | `Enum` |  |
+| `RespuestaLista` | `Enum` | **Valores sin declarar en el modelo.** No los invente: pregunte antes de crear la columna |
 | `Contestada` | `Yes/No` | `Initial value` = `FALSE` |
 | `Observacion` | `LongText` |  |
 
@@ -810,7 +851,7 @@ Ejecucion real en campo. Cuelga de la orden y es padre de la evidencia.
 | `TecnicoID` | `Ref` | `Ref` -> `USR_Usuarios` · IsPartOf desmarcado · `Initial value` = `LOOKUP(USEREMAIL(), "USR_Usuarios", "Correo", "UsuarioID")` |
 | `FechaHoraInicio` | `DateTime` | `Initial value` = `NOW()` |
 | `FechaHoraFin` | `DateTime` |  |
-| `OrigenApertura` | `Enum` | Valores: `QR o Lista. Abrir por lista no prueba presencia; se marca para poder exigir QR donde importe y para medir cuantos cierres carecen de escaneo` · `Initial value` = `QR` |
+| `OrigenApertura` | `Enum` | Valores: `QR` · `Lista` · `Initial value` = `Lista` |
 | `UbicacionEscaneo` | `LatLong` |  |
 | `FechaHoraEscaneo` | `DateTime` |  |
 | `EstadoActivoID` | `Ref` | `Ref` -> `EST_Activo` · IsPartOf desmarcado |

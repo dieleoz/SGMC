@@ -226,13 +226,14 @@ El método vigente es SDD, descrito en [`docs/SDD_PIPELINE_SGMC.md`](docs/SDD_PI
 especificar, probar y aprobar antes de tocar producción. Los cinco agentes están en
 `.claude/agents/`, y **`python scripts/validar_modelo.py` en 0 errores es el único gate objetivo**.
 
-Los tres verificadores, que no se sustituyen entre sí:
+Los cuatro verificadores, que no se sustituyen entre sí:
 
 | Script | Mide |
 |---|---|
 | [`scripts/validar_modelo.py`](scripts/validar_modelo.py) | El modelo consigo mismo |
 | [`scripts/verificar_faseA.py`](scripts/verificar_faseA.py) | El modelo contra la hoja descargada |
 | [`scripts/verificar_documentos.py`](scripts/verificar_documentos.py) | La prosa contra el modelo |
+| [`scripts/verificar_enlaces.py`](scripts/verificar_enlaces.py) | Que todo enlace relativo entre documentos resuelve |
 
 ## 8. Organización del repositorio
 
@@ -247,7 +248,7 @@ docs/          Documentación técnica y funcional
   historico/   Documentos retirados. No usar como fuente
   images/      Figuras de los documentos
   prompts/     Directivas para agentes
-  sdd/         Artefactos del pipeline: ESPEC, PRUEBA, ORDEN y ACTA
+  sdd/         Artefactos del pipeline: ESPEC, PRUEBA y ACTA
 Manuales/      Manual de usuario
 entregables/   Word y Excel listos para enviar al cliente
 scripts/       Fuente del modelo, validadores y generadores
@@ -292,7 +293,7 @@ archivo/       Material de origen, no versionado
 
 ## 9. Enlaces
 
-- Aplicación AppSheet `SISGA`: [abrir](https://www.appsheet.com/template/appdef?appId=9e947fce-c445-4477-af20-a6c6c984bd1e)
+- Aplicación AppSheet `SISGA`: se entra por el listado de [appsheet.com](https://www.appsheet.com). **El enlace directo con `appId=9e947fce-…` no resuelve** — ver [`ESTADO.md`](ESTADO.md)
 - Backend Google Sheets `Modelo_Datos_09082026`, 32 pestañas, propiedad de la Concesión:
   [abrir](https://docs.google.com/spreadsheets/d/1LGabjn1iNDKiJNP7CUD4_LwCH2BGXC8oTBfXmuuAkFs)
 - Repositorio: [github.com/dieleoz/SGMC](https://github.com/dieleoz/SGMC)

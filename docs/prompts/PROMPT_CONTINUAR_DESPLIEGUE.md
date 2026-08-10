@@ -4,11 +4,31 @@ Autocontenido. Cópialo íntegro desde la línea siguiente.
 
 ---
 
-Estás terminando de configurar la aplicación **SISGA** en Google AppSheet. Las 38 referencias ya
-están puestas y los filtros de seguridad también. Quedan **seis cosas**, y la primera hay que
-hacerla antes que ninguna otra.
+Estás terminando de configurar la aplicación **SISGA** en Google AppSheet.
 
-## 1. URGENTE — Deshacer `MAN_Mantenimientos.Diagnostico`
+> ## Quedan dos cosas, no seis
+>
+> **Revisado el 2026-08-10 contra `ESTADO.md` §2.** Este guion se escribió con seis apartados y hoy
+> solo dos siguen vivos:
+>
+> | Apartado | Estado |
+> |---|---|
+> | 1. Deshacer `MAN_Mantenimientos.Diagnostico` | **Hecho.** Se conserva como constancia de qué se aplicó y por qué |
+> | **2. La regla del umbral de GPS** | **PENDIENTE. Es lo primero** |
+> | 3. Retirar el borrado | **Hecho** en las dos tablas |
+> | 4. Los cuatro `ChangeTimestamp` | **Hechos** |
+> | 5. Ocultar las 47 columnas retiradas | **FUERA DEL PLAN.** No lo haga — ver abajo |
+> | **6. Las tres expresiones de prueba** | **PENDIENTE** |
+>
+> **El apartado 5 salió del plan el 2026-08-09**, cuando se decidió migrar a la hoja limpia: esas
+> columnas **desaparecen del archivo**, con las tres trampas dentro. Ocultarlas ahora es una hora de
+> trabajo que se tira. La lista se conserva porque sigue valiendo para quien tenga que operar sobre
+> `Modelo_Datos_09082026` mientras no se migre.
+>
+> Los apartados 1, 3 y 4 se conservan sin tocar: describen lo que se aplicó y por qué, que es lo
+> que hace falta para no repetir el error que los motivó.
+
+## 1. HECHO — Deshacer `MAN_Mantenimientos.Diagnostico`
 
 Durante las pruebas, esa columna quedó así:
 
@@ -38,7 +58,7 @@ columna `Diagnostico`, machacando lo que hubiera. No da error y no avisa.
 > **La lección, para no repetirla:** una expresión se prueba en el **Asistente de Expresiones**, que
 > solo la evalúa. Escribirla dentro de una columna la convierte en configuración activa.
 
-## 2. Completar la regla del umbral de GPS
+## 2. PENDIENTE — Completar la regla del umbral de GPS
 
 En `MAN_Mantenimientos.CierreConExcepcion`, la `App formula` actual está incompleta. Sustitúyela por
 esta, entera:
@@ -51,7 +71,7 @@ OR(ISBLANK(LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor")), [Pre
 **todos los cierres salgan limpios y nadie se entere**. Con el `ISBLANK`, si el umbral no se puede
 leer, el cierre se marca como excepcional. Falla hacia el lado seguro.
 
-## 3. Retirar el borrado — esto faltaba y es lo más importante
+## 3. HECHO — Retirar el borrado
 
 En *Data → Tables → `OT_OrdenesTrabajo` → Are updates allowed*:
 
@@ -70,7 +90,7 @@ quitar `Deletes`.
 
 Tal como está la aplicación ahora mismo, la cascada está creada y la protección no.
 
-## 4. Las cuatro marcas de tiempo del servidor
+## 4. HECHO — Las cuatro marcas de tiempo del servidor
 
 Estas cuatro columnas tienen que ser de tipo **`ChangeTimestamp`**. AppSheet no lo infiere nunca:
 llegan como texto.
@@ -86,7 +106,14 @@ NOV_Novedades.FechaHora
 usuario puede cambiar la hora del teléfono. Sin esto, **la hora de cada fotografía y de cada firma
 no prueba nada**, que es justo lo que el sistema existe para sostener.
 
-## 5. Ocultar las columnas retiradas — la lista completa
+## 5. FUERA DEL PLAN — Ocultar las columnas retiradas
+
+> **No ejecute este apartado.** Salió del plan el 2026-08-09 al decidirse la migración a la hoja
+> limpia: en `BD/Modelo_Datos_PLANTILLA.xlsx` esas 47 columnas **no existen**, así que no hay nada
+> que ocultar ni ninguna trampa que deshacer. La lista se conserva para quien tenga que operar
+> sobre `Modelo_Datos_09082026` mientras la migración no se ejecute.
+
+### La lista completa, si opera sobre la hoja heredada
 
 Son **47 columnas**. Estan en la hoja, el modelo no las declara, y al dar de alta las tablas
 entraron con `Show?` marcado: aparecen en el formulario del tecnico junto a las buenas.
@@ -191,7 +218,7 @@ UltimaSincronizacion
 `MotivoPendienteID`, `Firma_Tecnico` junto a la tabla `FIR_Firmas`, `Imagen_Inicio` e `Imagen_Final`
 junto a `FOT_Fotografias`.
 
-## 6. Las pruebas, y esta vez en el sitio correcto
+## 6. PENDIENTE — Las pruebas, y esta vez en el sitio correcto
 
 **En el Asistente de Expresiones**, que evalúa sin guardar nada. Se abre desde el icono de la
 probeta en cualquier campo de fórmula — **y se cierra sin dar a `Done`**.
@@ -218,12 +245,13 @@ diligencia o por casualidad.
 
 ## Cuando termines, reporta
 
-1. **`Diagnostico`**: tipo final, si tenía fórmula, y si había coordenadas escritas en la hoja.
-2. **La regla del umbral**: pegada entera, con el `ISBLANK`.
-3. **`Deletes`**: desmarcado en las dos tablas.
-4. **Los cuatro `ChangeTimestamp`**: puestos.
-5. **Cuántas columnas ocultaste** por tabla.
-6. **Las tres expresiones**, con lo que dijo el Asistente en cada una.
+**Solo hay dos cosas que reportar**, porque solo dos estaban pendientes:
+
+1. **La regla del umbral**: pegada entera, con el `ISBLANK`.
+2. **Las tres expresiones**, con lo que dijo el Asistente en cada una.
+
+Y si al pasar ves que algo de los apartados 1, 3 o 4 **no** está como dicen, dilo: se dan por
+hechos y conviene saber si no lo están.
 
 ## Lo que NO debes hacer
 

@@ -257,39 +257,31 @@ Las dos en verde. **Se cierra sin dar a `Done`.**
 > `App formula` escribiendo la coordenada del activo dentro de una columna retirada, y una
 > `App formula` **escribe en la hoja** cada vez que se modifica la fila.
 
-# Etapa 6 — Ocultar lo que el modelo no usa
+# Etapa 6 — RETIRADA. Ya no hay nada que ocultar
 
-**Duracion:** 1 hora. Tediosa y sin misterio.
+**Duracion:** 0. **No la haga.** Se conserva numerada para que quien tenga una copia antigua de
+esta guia sepa que este trabajo salio del plan y no crea que se le olvido.
 
-La hoja arrastra columnas que el modelo no declara. Al dar de alta las tablas entraron con
-`Show?` marcado y **aparecen en el formulario del tecnico junto a las buenas**.
+Esta etapa mandaba ocultar, una por una, las columnas que el modelo no declara: la hoja heredada
+las arrastraba y entraban con `Show?` marcado. **Eso desaparecio al generar la hoja del modelo.**
+En `BD/Modelo_Datos_PLANTILLA.xlsx` esas columnas no existen, asi que no hay nada que esconder, y
+con ellas se fueron las tres que AppSheet convertia en `Ref` sola.
 
-**Para cada una: tipo `Text`, `Show?` desmarcado, sin formula. No se borran.**
+**Compruebelo usted, no lo de por bueno:**
 
-La lista completa, tabla por tabla, esta en `docs/prompts/PROMPT_CONTINUAR_DESPLIEGUE.md` §5 y en
-el anexo de `MANUAL_DESPLIEGUE.md`. **Las dos se derivan del archivo.**
-
-### Las que AppSheet convierte solo
-
-Tres se llaman igual que la clave de otra tabla, asi que **AppSheet las convierte en `Ref` sin que
-nadie se lo pida**. Si las ve como `Ref`, deshagalo:
-
-```
-CHK_Checklists.ActivoID
-CHD_ChecklistDetalle.TipoRespuestaID
-OT_OrdenesTrabajo.FormularioID
+```bash
+python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"
 ```
 
-### COMPROBACION de la etapa 6
+Entre los conformes tiene que salir esta linea, que es la regla `F-19`:
 
-| Que | Como se ve |
-|---|---|
-| Ninguna visible | Recorra el formulario de cada tabla en la vista previa |
-| Las tres trampa en `Text` | Ninguna como `Ref` |
-| Ninguna borrada | El numero de columnas de la hoja no cambio |
+```
+ok Hoja limpia: ninguna de las 43 columnas retiradas existe ya. No hay nada que ocultar
+```
 
-> **El aviso *was set to be unsearchable because it is Hidden* es normal y sale una vez por
-> columna.** Confirma que funciono. No es un error.
+> **Si esta trabajando sobre la hoja de produccion `Modelo_Datos_09082026`, ahi si siguen.** No
+> las oculte: la decision del 2026-08-09 fue **migrar a la hoja limpia**, y ocultarlas seria
+> trabajo que la migracion tira. El procedimiento esta en `docs/MIGRACION_HOJA_LIMPIA.md`.
 
 # Etapa 7 — Las reglas
 
@@ -362,9 +354,20 @@ inventario entero al telefono.
 
 **Duracion:** 30 minutos.
 
-**La mayor parte se construye sola** al poner las referencias: AppSheet crea las columnas
-virtuales `Related ...` y con ellas la navegacion padre-hijo. Al abrir un mantenimiento se ven sus
-fotografias y su firma; al abrir un activo, sus ordenes.
+**Esta guia no especifica las vistas, y conviene saberlo antes de abrir la etapa.** El modelo
+declara datos, no interfaz: `VISTAS`, `ACCIONES` y `SLICES` **no existen** en
+`scripts/modelo_objetivo.py`. De las etapas anteriores puede fiarse porque salen del modelo; de
+esta no, porque no hay de donde sacarla.
+
+**Lo unico que AppSheet crea solo son las columnas virtuales `Related ...`**, que aparecen al poner
+las referencias de la etapa 5 y traen con ellas la navegacion padre-hijo: al abrir un mantenimiento
+se ven sus fotografias y su firma; al abrir un activo, sus ordenes. **Eso es todo lo que se
+construye solo.** Las pantallas no.
+
+**Y las pantallas no se configuran a ojo.** Las tres de abajo van con el tipo y la tabla que dice
+la tabla; si algo no encaja, **no lo improvise: anotelo como pendiente y siga**. Una vista
+inventada aqui es configuracion activa que nadie declaro, y quien reconstruya la aplicacion no
+podra reproducirla.
 
 ### El caso que engana
 
@@ -478,8 +481,8 @@ Etapa 5   referencias puestas .................... [  ]   cuantas de 38:
           [OTID].[ActivoID].[Ubicacion] .......... [  ]   salida:
           [OTID].[TecnicoID].[Correo] ............ [  ]   salida:
 
-Etapa 6   columnas ocultas ....................... [  ]   cuantas por tabla:
-          las tres trampa en Text ................ [  ]
+Etapa 6   RETIRADA. No se ejecuta: sobre la plantilla no hay columnas que ocultar
+          F-19 en verde .......................... [  ]   salida:
 
 Etapa 7   reglas puestas ......................... [  ]   cuantas de 20:
           Deletes quitado en OT y MAN ............ [  ]

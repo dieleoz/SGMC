@@ -7,22 +7,42 @@ Actualizado el 2026-08-10.
 ## Los dos enlaces
 
 ```
-Aplicación   SISGA
-             https://www.appsheet.com   ->   entrar por el listado de aplicaciones
+Aplicación   SISGA_-323965761-26-08-10     appId d180a1b5-19ca-448e-a44c-f985396dce12
+             https://www.appsheet.com/template/appdef?appId=d180a1b5-19ca-448e-a44c-f985396dce12
 
-Datos        Modelo_Datos_09082026   ·   32 pestañas   ·   0 ocultas
-             https://docs.google.com/spreadsheets/d/1LGabjn1iNDKiJNP7CUD4_LwCH2BGXC8oTBfXmuuAkFs
+Datos        Modelo_Datos_10082026        Hoja de cálculo de Google, generada del modelo
+             https://docs.google.com/spreadsheets/d/1h9kyCYGK6esRL1UiTcPXHlSmDQcPb13fNZ0hBznYOa0
 ```
 
-> **El enlace directo a la aplicación que había aquí daba 404**, y también `/Home/MyApps`. El
-> `appId=9e947fce-...` no resuelve. `SISGA` sí existe y aparece en el listado de
-> `https://www.appsheet.com`, junto a `SGMC2` y al `SGMC` de la cuenta anterior, los dos con aviso
-> de error. **Hasta tener el identificador bueno, se entra por el listado**, no por enlace directo.
+> **Se reconstruyó sobre hoja limpia el 2026-08-10**, con las 28 tablas dadas de alta sobre
+> `Modelo_Datos_10082026`.
+>
+> **En la cuenta hay cinco aplicaciones y solo una es el sistema.** Las otras cuatro no se borran
+> —son la traza de cómo se llegó hasta aquí— pero **ninguna es el SGMC**:
+>
+> | Aplicación | Qué es |
+> |---|---|
+> | **`SISGA_-323965761-26-08-10`** (`d180a1b5…`) | **EL SISTEMA.** 28 tablas sobre la hoja limpia |
+> | `SISGA_-323965761` (`7cc0b0eb…`) | Intento previo del mismo día. La de arriba es su copia |
+> | `SISGA` | Leía `Modelo_Datos_09082026`. Respaldo del estado anterior a la hoja limpia |
+> | `SGMC2` | Con aviso de error. Abandonada |
+> | `SGMC-886843353` | De la cuenta del Propietario anterior. Abandonada el 2026-08-09 |
+>
+> **Si alguien le pasa un enlace que no sea el `d180a1b5…`, no es este sistema.**
+>
+> **Por qué hay dos y no una migración en sitio.** Lo barato habría sido reemplazar el contenido de
+> la hoja de producción conservando su identificador —*Archivo → Importar → Reemplazar hoja de
+> cálculo*—, y entonces solo cambiaban 8 tablas de 28. Al crear archivo nuevo, la aplicación no
+> puede seguirlo: **hay que dar de alta las 28 y reponer las 38 referencias y las 20 reglas**. El
+> procedimiento entero está en [`docs/MANUAL_DESPLIEGUE.md`](docs/MANUAL_DESPLIEGUE.md), que es
+> exactamente eso, de cero a aplicación desplegada.
+>
+> **El `appId=9e947fce-...` que estuvo aquí no resolvía**, daba 404. Este sí.
 
 ## En una frase
 
-**La aplicación está reconstruida y cableada. Falta terminar cuatro ajustes, probarla, y cargar las
-coordenadas reales antes de que salga a campo.**
+**La aplicación está reconstruida y cableada. Faltan dos ajustes en el editor, probarla, y cargar
+las coordenadas reales antes de que salga a campo.**
 
 ---
 
@@ -81,25 +101,33 @@ La 1 y la 3 siguen pendientes, en
 
 ```
 28 pestañas de datos más _LEEME · 202 columnas · ninguna de sobra
-ACT_Activos:     389 filas = 34 reales (ID 1-34) + 355 sintéticos (ID 1001-1355)
-TIP_TiposActivo:  27 tipos, con RadioGeofencingKm poblado en los 27
-FRM_Formularios:  27 filas, uno por tipo
-0 referencias rotas de las 38 · FASE A CERRADA, 61 conformes
+ACT_Activos:      368 activos, un solo inventario, codigos SOS-001 / SWIT-001
+TIP_TiposActivo:   27 tipos, con RadioGeofencingKm poblado en los 27
+FRM_Formularios:   27 filas, uno por tipo
+FRM_Preguntas:    333 preguntas, los 27 formularios con checklist
+Sin registros de prueba · 0 referencias rotas · FASE A CERRADA, 61 conformes
 ```
 
-**Los 34 reales se conservan intactos** y las seis órdenes existentes siguen apuntando a su equipo:
-`FO-001` la fibra, `CCTV-002` la cámara, `VW-001` el videowall.
+**Un solo inventario, con el código de operación.** Cada familia suma exactamente lo que dice el
+Plan Maestro —54 postes SOS, 142 switches, 26 cámaras— completando lo que ya había en la hoja. Los
+**13 equipos que el Plan Maestro no cuenta por unidades** se conservan: la fibra, el generador, el
+video wall, el router, el firewall, la UPS, el NAS, la subestación y la báscula estática. Sin ellos,
+nueve de los 27 tipos se quedarían sin un solo activo con el que probar su checklist.
 
-**Los 355 sintéticos** llevan los códigos del Plan Maestro —`SOS_1` a `SOS_54`, `SWIT_1` a
-`SWIT_142`— repartidos por los 137 km del corredor. **Cada fila dice en `Observaciones`:
-`ACTIVO SINTETICO DE PRUEBA - NO ES INVENTARIO REAL`.**
+**Cada fila dice en `Observaciones`: `ACTIVO SINTETICO DE PRUEBA - NO ES INVENTARIO REAL`.**
 
-Sirven para ejercitar el filtro por zona, la navegación y el volumen de sincronización.
+**Los 27 checklists tienen preguntas.** 45 estaban acordadas —SOS, CCTV y PMVF—, y dos de ellas se
+recuperaron de pestañas retiradas donde se estaban perdiendo. Las otras 288 son borrador y lo dicen
+de sí mismas: llevan `[BORRADOR: validar con operacion]` en su ayuda. **Buscar esa marca en la hoja
+dice exactamente qué queda por revisar**, y el día que no aparezca ninguna, el banco está cerrado.
 
-> **Lo que NO desbloquean: la prueba del geofencing.** Los registros de prueba tienen su coordenada
-> en Bogotá y el activo sintético más cercano queda a 60 km. Así que **`P-08` —el cierre legítimo que
-> debe aceptarse— pasa a ser imposible sin desplazarse**, y `P-09` se vuelve trivial. El par deja de
-> discriminar. Antes era al revés.
+**Sin registros de prueba.** Se retiraron las órdenes, mantenimientos, checklists, fotografías y
+firmas de ensayo: no son dato del funcional, son ruido que tendría que distinguir y borrar.
+
+> **Lo que se llevó por delante retirar los registros de prueba: los fixtures de `P-08` y `P-09`.**
+> No es pérdida. Una fila de mantenimiento escrita a mano en la hoja no prueba que la aplicación
+> sepa crearla; hay que rehacerlos **desde la aplicación**, que es lo que esa prueba mide en
+> realidad.
 
 > **Y un hallazgo del arquitecto que cambia una decisión:** con 355 activos, el radio de 1 km mete
 > **8 activos de media dentro de cada geofence**, con un máximo de 13. Ninguno de los 355 queda
@@ -149,7 +177,7 @@ tipo equivocado**, comprobado sobre el archivo generado y no sobre el informe de
 De paso desaparecieron dos cosas que venían de la hoja heredada: el nombre de la subestación con la
 tilde rota, y la mezcla de tipos en las claves —el fixture guardaba `'1'` como texto y los generados
 salían como número—. **Las claves y las 38 referencias viajan todas como texto**, que es como el
-modelo las declara. Son 2.424 celdas, y la regla se deriva del modelo, no se decide archivo a
+modelo las declara. Son 2.929 celdas, y la regla se deriva del modelo, no se decide archivo a
 archivo.
 
 ## 4. Qué leer, según lo que necesite
@@ -167,15 +195,18 @@ archivo.
 | **Cómo se mantiene el corredor de verdad** | [`docs/CONTEXTO_OPERACION.md`](docs/CONTEXTO_OPERACION.md) |
 | **Qué decirle al dueño de la app anterior** | [`docs/COMUNICACION_PROPIETARIO_APP.md`](docs/COMUNICACION_PROPIETARIO_APP.md) |
 
-**El manual de usuario NO se entrega.** Describe una versión anterior y tiene nueve afirmaciones
-falsas. Está marcado en su cabecera.
+**El manual de usuario todavía no se entrega, pero no porque esté equivocado.** Eso decía aquí y era
+falso: se reescribió el 2026-08-07 contra `FUNCIONAL_SGMC.md` y su cabecera lleva el cuadro de qué
+está montado y qué no. **La versión que describía un sistema inexistente es la anterior**, y está en
+`docs/historico/`. Se entrega el día que dejen de existir los recuadros de «Estado:» de su interior.
 
 ---
 
 ## 5. Lo que viene después, en orden
 
 ### Ahora — cerrar y probar
-Los cuatro puntos del apartado 2, y correr `PRUEBA-003`. **Un día.**
+Los dos puntos vivos del apartado 2 —la regla del umbral y las tres expresiones—, y correr
+`PRUEBA-003`. **Un día.**
 
 ### Después — dos frentes, y hay que elegir
 
@@ -205,7 +236,7 @@ una tabla que ya existe, sin tocar ninguna regla.
 | Qué | Estado |
 |---|---|
 | `ESPEC-003` — modelo de dominio | **BLOQUEADA.** 14 condiciones del arquitecto sin resolver |
-| `MANUAL_DESPLIEGUE` | Bloqueado, con 10 de 14 condiciones aplicadas. Faltan cuatro, ninguna urgente |
+| `MANUAL_DESPLIEGUE` | Vigente y generado. Se rehace con `python scripts/generar_manual_despliegue.py` |
 | Salida a campo | **Bloqueada por D-01**: las coordenadas reales |
 | Generación automática de órdenes | **No cabe en el plan gratuito.** Decisión de licenciamiento |
 
@@ -238,4 +269,5 @@ ahora los documentos llevan la lista completa, generada.
 ---
 
 *Todo lo de este repositorio se genera de `scripts/modelo_objetivo.py`. Si algo no cuadra, manda el*
-*modelo. Se comprueba con `validar_modelo.py`, `verificar_faseA.py` y `verificar_documentos.py`.*
+*modelo. Se comprueba con `validar_modelo.py`, `verificar_faseA.py`, `verificar_documentos.py` y*
+*`verificar_enlaces.py`.*
