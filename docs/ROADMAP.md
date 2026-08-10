@@ -61,7 +61,7 @@ De ahí salen tres clases, y el orden entre ellas no es negociable:
 
 | # | Paso | Contenido | Depende de |
 |---|---|---|---|
-| **0** | **Fase B — cableado de referencias** | **38 referencias** sobre una app reconstruida desde la hoja | En ejecucion. Ver el prompt del agente |
+| **0** | **Fase B — cableado de referencias** | **38 referencias** sobre una app reconstruida desde la hoja | En ejecucion. Ver `MANUAL_DESPLIEGUE.md` |
 | **1** | **Esquema completo** | `TAR_Tareas` · poblar `ROL_Roles` con los 12 · jerarquía de ubicación · columnas de tiempo en la orden · retirar `ACT.FrecuenciaID` y `TIP.FormularioID` | `ESPEC-003` y su veredicto |
 | **2** | **Carga del inventario** | 355 activos con `CodigoActivo`, sin coordenadas | Paso 1 |
 | **3** | **Reglas de integridad** | Imponer `QuienCambia` · estado de rechazo · valores de `TipoFirma` | Paso 1 |
@@ -90,7 +90,7 @@ que llega solo con tiempo, y no llega — llega con la decisión de licenciamien
 | Sprint 0. Definición funcional | **Enviado, esperando respuesta** | Respuesta del líder funcional a las 14 decisiones, o supuesto declarado por vencimiento |
 | Fase 0.5. Reconciliación de modelos | **Cerrada** el 2026-08-07 | `modelo_objetivo.py` es la fuente única; los documentos se generan de él |
 | **Fase A. Estructura y datos en la hoja** | **CERRADA** el 2026-08-07 | `verificar_faseA.py` sobre `Modelo de Datos (11).xlsx`: 59 conformes, 0 fallos. Ver `ACTA-004` |
-| **Fase B. Cableado de referencias** | **En ejecucion**, sobre app reconstruida | Las **38** referencias del modelo puestas y las 19 pruebas de `PRUEBA-002` revisadas |
+| **Fase B. Cableado de referencias** | **En ejecucion**, sobre app reconstruida | Las **38** referencias puestas, las retiradas ocultas, y `PRUEBA-003` pasada |
 | Fase 1. Datos maestros | Bloqueada por Sprint 0 y Fase 0.5 | Coordenadas reales cargadas, columnas de GPS presentes en producción, sedes realineadas, bancos priorizados construidos |
 | Fase 2. Configuración | Bloqueada por Fase 1 | Reglas, filtro, formularios, bots y reportes configurados y verificados en la app |
 | Fase 3. Prueba controlada | Bloqueada por Fase 2 | Registros reales en `MAN_Mantenimientos` y en las tablas de evidencia, verificados leyendo el archivo |

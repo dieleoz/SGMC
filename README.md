@@ -14,7 +14,7 @@ sesión con su cuenta corporativa.
 >   conformes y 0 fallos sobre `BD/Modelo de Datos (11).xlsx`. Ver [`ACTA-004`](docs/sdd/ACTA-004-cierre-de-formatos.md)
 > - **Fase B** —cableado de referencias— **en ejecucion sobre una aplicacion reconstruida**.
 >   Son **38**, no 15: las 15 de `ESPEC-002` valian para convertir la app existente, donde otras
->   23 ya estaban puestas. Ver [`MANUAL_DESPLIEGUE.md`](docs/MANUAL_DESPLIEGUE.md)
+>   23 ya estaban puestas. Ver [`MANUAL_DESPLIEGUE.md`](docs/MANUAL_DESPLIEGUE.md), con la ficha de las 28 tablas
 > - **El alcance creció** al incorporar el contexto operativo real: varias tareas por tipo de
 >   equipo, cuatro clases de mantenimiento, correctivo con tiempos contractuales. Por eso la
 >   implementación pasa a ser progresiva, con **orden explícito** en el [ROADMAP](docs/ROADMAP.md#2-orden-de-implementación)

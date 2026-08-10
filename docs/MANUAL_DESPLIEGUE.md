@@ -310,9 +310,14 @@ pida.
 
 | Tabla | Columna | Adonde apunta sola | Por que esta mal |
 |---|---|---|---|
-| `CHK_Checklists` | `ActivoID` | `ACT_Activos` | El checklist cuelga del mantenimiento, no del activo |
-| `CHD_ChecklistDetalle` | `TipoRespuestaID` | `TPR_TiposRespuesta` | El tipo de respuesta lo da la pregunta |
-| `OT_OrdenesTrabajo` | `FormularioID` | `FRM_Formularios` | El formulario lo determina el tipo del activo |
+| `ACT_Activos` | `SedeID` | `SED_Sedes` | Se sustituye por UnidadFuncionalID. Mezclar donde trabaja la persona con donde esta el activo es lo que dejo a los usuarios en la sede 1 y a los activos en las sedes 7 a 10, es decir en conjuntos disjuntos. |
+| `CHD_ChecklistDetalle` | `TipoRespuestaID` | `TPR_TiposRespuesta` | Se alcanza por [PreguntaID].[TipoRespuestaID]. |
+| `CHK_Checklists` | `ActivoID` | `ACT_Activos` | Se alcanza por [MantenimientoID].[OTID].[ActivoID]. |
+| `MAN_Mantenimientos` | `ActivoID` | `ACT_Activos` | El activo se alcanza por [OTID].[ActivoID]. Guardarlo tambien aqui permite que la ejecucion diga un activo y su orden diga otro, y no hay forma de saber cual miente. Existe en el Excel local; AppSheet confirmo que en produccion no esta. |
+| `OT_OrdenesTrabajo` | `FormularioID` | `FRM_Formularios` | El formulario lo determina el tipo del activo, no la orden. |
+
+**Son 5, derivadas del archivo y no escritas a mano.** Estan tambien en la ficha de cada tabla,
+marcadas como TRAMPA.
 
 **Dejelas en `Text` y desmarque `Show?`.** Si se quedan como `Ref`, dibujan rutas de navegacion
 que el modelo prohibe y aparecen en la aplicacion como si fueran buenas.
@@ -511,3 +516,511 @@ falsificar cueste mas que hacer el trabajo, no que sea imposible.
 ---
 *Generado de `scripts/modelo_objetivo.py` por `scripts/generar_manual_despliegue.py`.*
 *Para actualizarlo, cambie el modelo y vuelva a generar.*
+---
+
+# Anexo — Ficha de cada tabla
+
+**Columna por columna, sin nada que deducir.** Esta es la referencia contra la que se configura y
+contra la que se valida. Si una columna no aparece aqui, no deberia estar visible en la app.
+
+Leyenda:
+
+- **CLAVE** — casilla `KEY` marcada, tipo `Text`
+- **`Ref` -> Tabla** — tipo `Ref` con esa tabla como *Source table*
+- **IsPartOf** — ademas, casilla `Is a part of` marcada
+- **OCULTAR** — retirada del modelo: tipo `Text`, `Show?` desmarcado, sin formula
+- **TRAMPA** — AppSheet la convierte a `Ref` sola por coincidencia de nombre. **Deshagalo**
+- **SIN DECIDIR** — esta en la hoja y el modelo no la declara
+
+## `ACT_Activos`
+
+Inventario de los activos del corredor. Es el eje del sistema.
+
+| Columna | Tipo | Que hacer |
+|---|---|---|
+| `ActivoID` | `Text` | **CLAVE** |
+| `CodigoActivo` | `Text` |  |
+| `Nombre` | `Text` |  |
+| `TipoActivoID` | `Ref` | `Ref` -> `TIP_TiposActivo` · IsPartOf desmarcado |
+| `UnidadFuncionalID` | `Ref` | `Ref` -> `UNF_UnidadesFuncionales` · IsPartOf desmarcado |
+| `PR` | `Text` |  |
+| `CalzadaID` | `Ref` | `Ref` -> `CAL_Calzadas` · IsPartOf desmarcado |
+| `SentidoID` | `Ref` | `Ref` -> `SEN_Sentidos` · IsPartOf desmarcado |
+| `Ubicacion` | `LatLong` |  |
+| `EstadoActivoID` | `Ref` | `Ref` -> `EST_Activo` · IsPartOf desmarcado |
+| `CodigoQR` | `Text` |  |
+| `FrecuenciaID` | `Ref` | `Ref` -> `FRE_Frecuencias` · IsPartOf desmarcado |
+| `Criticidad` | `Enum` | Valores: `Alta` · `Media` · `Baja. Pondera la disponibilidad de D-13` |
+| `FechaBaja` | `Date` |  |
+| `MotivoBaja` | `Enum` | Valores: `Obsolescencia` · `Dano irreparable` · `Robo o vandalismo` · `Reemplazo` · `Retiro por obra` |
+| `Activo` | `Yes/No` |  |
+| `Observaciones` | `LongText` |  |
+
+**Y estas, que estan en la hoja y NO se usan:**
+
+| Columna | Que hacer | Por que |
+|---|---|---|
+| `SedeID` | **OCULTAR** · **TRAMPA: AppSheet la pone `Ref` sola hacia `SED_Sedes`** | Se sustituye por UnidadFuncionalID. Mezclar donde trabaja la persona con donde esta el activo es lo que dejo a los usuarios en la sede 1 y a los activos en las sedes 7 a 10, es decir en conjuntos disjuntos. |
+
+## `ASG_AsignacionZona`
+
+Que unidades funcionales atiende cada tecnico. Resuelve el supuesto D-03: un tecnico puede tener varias, de modo que la relacion es de muchos a muchos y no cabe como columna en USR_Usuarios.
+
+| Columna | Tipo | Que hacer |
+|---|---|---|
+| `AsignacionID` | `Text` | **CLAVE** |
+| `UsuarioID` | `Ref` | `Ref` -> `USR_Usuarios` · IsPartOf desmarcado |
+| `UnidadFuncionalID` | `Ref` | `Ref` -> `UNF_UnidadesFuncionales` · IsPartOf desmarcado |
+| `Activo` | `Yes/No` | `Initial value` = `TRUE` |
+
+## `CAL_Calzadas`
+
+Calzadas del corredor.
+
+| Columna | Tipo | Que hacer |
+|---|---|---|
+| `CalzadaID` | `Text` | **CLAVE** |
+| `Nombre` | `Text` |  |
+| `Activo` | `Yes/No` | `Initial value` = `TRUE` |
+
+## `CHD_ChecklistDetalle`
+
+Respuesta a cada pregunta. Referencia la pregunta por su clave, no por su texto: sin eso no hay comparacion historica posible.
+
+| Columna | Tipo | Que hacer |
+|---|---|---|
+| `DetalleID` | `Text` | **CLAVE** |
+| `ChecklistID` | `Ref` | `Ref` -> `CHK_Checklists` · **IsPartOf** |
+| `PreguntaID` | `Ref` | `Ref` -> `FRM_Preguntas` · IsPartOf desmarcado |
+| `RespuestaTexto` | `LongText` |  |
+| `RespuestaNumero` | `Decimal` |  |
+| `RespuestaBoolean` | `Yes/No` |  |
+| `RespuestaLista` | `Enum` |  |
+| `Contestada` | `Yes/No` | `Initial value` = `FALSE` |
+| `Observacion` | `LongText` |  |
+
+**Y estas, que estan en la hoja y NO se usan:**
+
+| Columna | Que hacer | Por que |
+|---|---|---|
+| `Activo` | **OCULTAR** | El detalle es parte de su checklist: no se desactiva por separado. |
+| `EstadoPregunta` | **OCULTAR** | Redundante con Contestada. |
+| `FechaRespuesta` | **OCULTAR** | Se deriva del ChangeTimestamp del mantenimiento. |
+| `Orden` | **OCULTAR** | Se alcanza por [PreguntaID].[Orden]. |
+| `PreguntaActual` | **OCULTAR** | Estado de la interfaz, no dato. |
+| `RespuestaFecha` | **OCULTAR** | Fuera de alcance: ninguna pregunta usa tipo fecha. |
+| `RespuestaFirma` | **OCULTAR** | Sustituido por FIR_Firmas. |
+| `RespuestaFoto` | **OCULTAR** | Sustituido por FOT_Fotografias. |
+| `RespuestaGPS` | **OCULTAR** | La coordenada es del mantenimiento y de cada fotografia. |
+| `RespuestaHora` | **OCULTAR** | Fuera de alcance: ninguna pregunta usa tipo hora. |
+| `TipoRespuestaID` | **OCULTAR** · **TRAMPA: AppSheet la pone `Ref` sola hacia `TPR_TiposRespuesta`** | Se alcanza por [PreguntaID].[TipoRespuestaID]. |
+| `TotalPreguntas` | **OCULTAR** | No es del detalle sino del encabezado, y ademas se cuenta. |
+
+## `CHK_Checklists`
+
+Encabezado de la inspeccion. Cuelga del mantenimiento, no de la orden: la inspeccion es parte de la ejecucion.
+
+| Columna | Tipo | Que hacer |
+|---|---|---|
+| `ChecklistID` | `Text` | **CLAVE** |
+| `MantenimientoID` | `Ref` | `Ref` -> `MAN_Mantenimientos` · **IsPartOf** |
+| `FormularioID` | `Ref` | `Ref` -> `FRM_Formularios` · IsPartOf desmarcado |
+| `VersionFormulario` | `Number` |  |
+| `FechaInicio` | `DateTime` | `Initial value` = `NOW()` |
+| `FechaFin` | `DateTime` |  |
+| `Finalizado` | `Yes/No` | `Initial value` = `FALSE` |
+
+**Y estas, que estan en la hoja y NO se usan:**
+
+| Columna | Que hacer | Por que |
+|---|---|---|
+| `Activo` | **OCULTAR** | El checklist es parte de su mantenimiento: no se desactiva por separado. |
+| `ActivoID` | **OCULTAR** · **TRAMPA: AppSheet la pone `Ref` sola hacia `ACT_Activos`** | Se alcanza por [MantenimientoID].[OTID].[ActivoID]. |
+| `Estado` | **OCULTAR** | Sustituido por Finalizado, que produccion ya tiene. |
+| `FechaCreacion` | **OCULTAR** | Redundante con FechaInicio. |
+| `FechaEnvioCorreo` | **OCULTAR** | Es traza del bot, no del checklist. |
+| `FirmaSupervisor` | **OCULTAR** | El supervisor aprueba en el portal, no firma. Supuesto D-10. |
+| `FirmaTecnico` | **OCULTAR** | Sustituido por FIR_Firmas. |
+| `GPSFin` | **OCULTAR** | Idem. |
+| `GPSInicio` | **OCULTAR** | La coordenada es del mantenimiento y de cada fotografia, no del checklist. |
+| `Observaciones` | **OCULTAR** | La observacion es de la ejecucion o de la respuesta, no del encabezado. |
+| `PDF` | **OCULTAR** | El informe se genera al enviarlo, no se almacena en la fila. |
+| `Porcentaje` | **OCULTAR** | Se calcula. Guardarlo permite que contradiga al detalle. |
+| `PreguntaActual` | **OCULTAR** | Estado de la interfaz, no dato. Se deriva de las respuestas. |
+| `TecnicoID` | **OCULTAR** | Se alcanza por [MantenimientoID].[TecnicoID]. Es el campo donde el dato de prueba dejo 'Santiago Moreno' en lugar de un identificador. |
+| `TotalPreguntas` | **OCULTAR** | Se cuenta de FRM_Preguntas. |
+
+## `EOT_EstadosOrden`
+
+Ciclo de vida de la orden segun el supuesto D-06. Declararlo como catalogo, y no como texto libre, es lo que permite medir cumplimiento.
+
+| Columna | Tipo | Que hacer |
+|---|---|---|
+| `EstadoOrdenID` | `Text` | **CLAVE** |
+| `Nombre` | `Text` |  |
+| `Orden` | `Number` |  |
+| `QuienCambia` | `Enum` | Valores: `Sistema` · `Tecnico` · `Supervisor` |
+| `EsFinal` | `Yes/No` | `Initial value` = `FALSE` |
+| `Activo` | `Yes/No` | `Initial value` = `TRUE` |
+
+## `EST_Activo`
+
+Estados del activo: Operativo, En mantenimiento, Fuera de servicio, Retirado.
+
+| Columna | Tipo | Que hacer |
+|---|---|---|
+| `EstadoActivoID` | `Text` | **CLAVE** |
+| `Nombre` | `Text` |  |
+| `GeneraAlerta` | `Yes/No` | `Initial value` = `FALSE` |
+| `Activo` | `Yes/No` | `Initial value` = `TRUE` |
+
+## `FAL_ModosFalla`
+
+Taxonomia de fallas por tipo de activo. Sin clasificar la falla no hay ingenieria de mantenimiento posible: no se puede calcular tiempo medio entre fallas, ni saber que componente falla mas, ni pasar de correctivo a predictivo.
+
+| Columna | Tipo | Que hacer |
+|---|---|---|
+| `ModoFallaID` | `Text` | **CLAVE** |
+| `TipoActivoID` | `Ref` | `Ref` -> `TIP_TiposActivo` · IsPartOf desmarcado |
+| `Nombre` | `Text` |  |
+| `Componente` | `Text` |  |
+| `Criticidad` | `Enum` | Valores: `Alta` · `Media` · `Baja` |
+| `Activo` | `Yes/No` | `Initial value` = `TRUE` |
+
+## `FIR_Firmas`
+
+Firma manuscrita. Supuesto D-10: firma el tecnico en campo; el supervisor valida aprobando en el portal, no firmando.
+
+| Columna | Tipo | Que hacer |
+|---|---|---|
+| `FirmaID` | `Text` | **CLAVE** |
+| `MantenimientoID` | `Ref` | `Ref` -> `MAN_Mantenimientos` · **IsPartOf** |
+| `TipoFirma` | `Enum` | Valores: `Tecnico` |
+| `Imagen` | `Signature` |  |
+| `FechaHora` | `ChangeTimestamp` |  |
+
+## `FOT_Fotografias`
+
+Fotografias del mantenimiento. Supuesto D-10: minimo 3, maximo 6, tipificadas. Se elige tabla hija y se retiran los campos de imagen embebidos en MAN.
+
+| Columna | Tipo | Que hacer |
+|---|---|---|
+| `FotoID` | `Text` | **CLAVE** |
+| `MantenimientoID` | `Ref` | `Ref` -> `MAN_Mantenimientos` · **IsPartOf** |
+| `Tipo` | `Enum` | Valores: `Antes` · `Despues` · `Novedad` |
+| `Archivo` | `Image` |  |
+| `Ubicacion` | `LatLong` | `Initial value` = `HERE()` |
+| `PrecisionGPS` | `Number` | `Initial value` = `USERLOCATIONACCURACY()` |
+| `FechaHora` | `ChangeTimestamp` |  |
+| `Usuario` | `Text` | `Initial value` = `USEREMAIL()` |
+
+**Y estas, que estan en la hoja y NO se usan:**
+
+| Columna | Que hacer | Por que |
+|---|---|---|
+| `Fecha` | **OCULTAR** · SIN DECIDIR | El modelo no la declara |
+
+## `FRE_Frecuencias`
+
+Periodicidad del mantenimiento preventivo.
+
+| Columna | Tipo | Que hacer |
+|---|---|---|
+| `FrecuenciaID` | `Text` | **CLAVE** |
+| `Nombre` | `Text` |  |
+| `Dias` | `Number` |  |
+| `Activo` | `Yes/No` | `Initial value` = `TRUE` |
+
+## `FRM_Formularios`
+
+Registro maestro de los 18 checklists, uno por tipo de activo.
+
+| Columna | Tipo | Que hacer |
+|---|---|---|
+| `FormularioID` | `Text` | **CLAVE** |
+| `Nombre` | `Text` |  |
+| `Descripcion` | `Text` |  |
+| `Version` | `Number` | `Initial value` = `1` |
+| `Activo` | `Yes/No` | `Initial value` = `TRUE` |
+
+**Y estas, que estan en la hoja y NO se usan:**
+
+| Columna | Que hacer | Por que |
+|---|---|---|
+| `Orden` | **OCULTAR** · SIN DECIDIR | El modelo no la declara |
+
+## `FRM_Preguntas`
+
+Banco unico de preguntas. Es el motor: se retiran las hojas planas FRM_SOS, FRM_CCTV y FRM_PMVF, que eran una arquitectura paralela con otro esquema.
+
+| Columna | Tipo | Que hacer |
+|---|---|---|
+| `PreguntaID` | `Text` | **CLAVE** |
+| `FormularioID` | `Ref` | `Ref` -> `FRM_Formularios` · IsPartOf desmarcado |
+| `SeccionID` | `Ref` | `Ref` -> `FRM_Secciones` · IsPartOf desmarcado |
+| `Orden` | `Number` |  |
+| `Pregunta` | `Text` |  |
+| `TipoRespuestaID` | `Ref` | `Ref` -> `TPR_TiposRespuesta` · IsPartOf desmarcado |
+| `Obligatoria` | `Yes/No` | `Initial value` = `TRUE` |
+| `ValorMinimo` | `Decimal` |  |
+| `ValorMaximo` | `Decimal` |  |
+| `Unidad` | `Text` |  |
+| `Ayuda` | `Text` |  |
+| `VisibleSi` | `Text` |  |
+| `RequiereFoto` | `Yes/No` | `Initial value` = `FALSE` |
+| `Version` | `Number` | `Initial value` = `1` |
+| `Activo` | `Yes/No` | `Initial value` = `TRUE` |
+
+**Y estas, que estan en la hoja y NO se usan:**
+
+| Columna | Que hacer | Por que |
+|---|---|---|
+| `RequiereFirma` | **OCULTAR** · SIN DECIDIR | El modelo no la declara |
+| `RequiereGPS` | **OCULTAR** · SIN DECIDIR | El modelo no la declara |
+| `ValorDefecto` | **OCULTAR** · SIN DECIDIR | El modelo no la declara |
+
+## `FRM_Secciones`
+
+Agrupacion de preguntas dentro del formulario.
+
+| Columna | Tipo | Que hacer |
+|---|---|---|
+| `SeccionID` | `Text` | **CLAVE** |
+| `Nombre` | `Text` |  |
+| `Orden` | `Number` |  |
+| `Activo` | `Yes/No` | `Initial value` = `TRUE` |
+
+## `LST_ValoresLista`
+
+Opciones de las preguntas de tipo lista.
+
+| Columna | Tipo | Que hacer |
+|---|---|---|
+| `ValorListaID` | `Text` | **CLAVE** |
+| `PreguntaID` | `Ref` | `Ref` -> `FRM_Preguntas` · IsPartOf desmarcado |
+| `Valor` | `Text` |  |
+| `Orden` | `Number` |  |
+| `Activo` | `Yes/No` | `Initial value` = `TRUE` |
+
+## `MAN_Mantenimientos`
+
+Ejecucion real en campo. Cuelga de la orden y es padre de la evidencia.
+
+| Columna | Tipo | Que hacer |
+|---|---|---|
+| `MantenimientoID` | `Text` | **CLAVE** |
+| `OTID` | `Ref` | `Ref` -> `OT_OrdenesTrabajo` · IsPartOf desmarcado |
+| `TecnicoID` | `Ref` | `Ref` -> `USR_Usuarios` · IsPartOf desmarcado · `Initial value` = `LOOKUP(USEREMAIL(), "USR_Usuarios", "Correo", "UsuarioID")` |
+| `FechaHoraInicio` | `DateTime` | `Initial value` = `NOW()` |
+| `FechaHoraFin` | `DateTime` |  |
+| `OrigenApertura` | `Enum` | Valores: `QR o Lista. Abrir por lista no prueba presencia; se marca para poder exigir QR donde importe y para medir cuantos cierres carecen de escaneo` · `Initial value` = `QR` |
+| `UbicacionEscaneo` | `LatLong` |  |
+| `FechaHoraEscaneo` | `DateTime` |  |
+| `EstadoActivoID` | `Ref` | `Ref` -> `EST_Activo` · IsPartOf desmarcado |
+| `Coordenadas_Cierre` | `LatLong` | `Initial value` = `HERE()` |
+| `Precision_GPS` | `Number` | `Initial value` = `USERLOCATIONACCURACY()` |
+| `CierreConExcepcion` | `Yes/No` |  |
+| `MotivoExcepcion` | `LongText` |  |
+| `RequiereSegundaVisita` | `Yes/No` | `Initial value` = `FALSE` |
+| `MotivoPendienteID` | `Ref` | `Ref` -> `MOT_MotivosPendiente` · IsPartOf desmarcado |
+| `ModoFallaID` | `Ref` | `Ref` -> `FAL_ModosFalla` · IsPartOf desmarcado |
+| `Observaciones` | `LongText` |  |
+| `AprobadoSupervisor` | `Yes/No` | `Initial value` = `FALSE` |
+| `FechaAprobacion` | `DateTime` |  |
+| `ObservacionRechazo` | `LongText` |  |
+| `UsuarioRegistro` | `Text` | `Initial value` = `USEREMAIL()` |
+| `FechaHoraRegistro` | `ChangeTimestamp` |  |
+| `Activo` | `Yes/No` | `Initial value` = `TRUE` |
+
+**Y estas, que estan en la hoja y NO se usan:**
+
+| Columna | Que hacer | Por que |
+|---|---|---|
+| `ActivoID` | **OCULTAR** · **TRAMPA: AppSheet la pone `Ref` sola hacia `ACT_Activos`** | El activo se alcanza por [OTID].[ActivoID]. Guardarlo tambien aqui permite que la ejecucion diga un activo y su orden diga otro, y no hay forma de saber cual miente. Existe en el Excel local; AppSheet confirmo que en produccion no esta. |
+| `Diagnostico` | **OCULTAR** | Se responde en el checklist, no en campo libre. |
+| `Duracion_Minutos` | **OCULTAR** | Se calcula de FechaHoraInicio y FechaHoraFin. |
+| `Estado_Intervencion` | **OCULTAR** | Redundante con el estado de la orden. |
+| `Fecha` | **OCULTAR** | Redundante con FechaHoraInicio. |
+| `Firma_Supervisor` | **OCULTAR** | El supervisor aprueba en el portal, no firma. Supuesto D-10. |
+| `Firma_Tecnico` | **OCULTAR** | Sustituido por FIR_Firmas. |
+| `Imagen_Final` | **OCULTAR** | Sustituido por FOT_Fotografias con Tipo=Despues. |
+| `Imagen_Inicio` | **OCULTAR** | Sustituido por FOT_Fotografias con Tipo=Antes. |
+| `Localizacion` | **OCULTAR** | Ambiguo y redundante con Coordenadas_Cierre. |
+| `Repuestos_Utilizados` | **OCULTAR** | Gestion de repuestos esta fuera de alcance. |
+| `Requiere_Repuesto` | **OCULTAR** | Se cubre con MotivoPendienteID = Falta de repuesto. |
+| `Tipo` | **OCULTAR** | El tipo es de la orden, no de la ejecucion. |
+| `Trabajo_Realizado` | **OCULTAR** | Se responde en el checklist. |
+
+## `MOT_MotivosPendiente`
+
+Motivos tipificados de trabajo incompleto, supuesto D-07. Si el tecnico no tiene donde declarar por que no pudo terminar, fuerza un cierre falso.
+
+| Columna | Tipo | Que hacer |
+|---|---|---|
+| `MotivoPendienteID` | `Text` | **CLAVE** |
+| `Nombre` | `Text` |  |
+| `GeneraSeguimiento` | `Yes/No` | `Initial value` = `TRUE` |
+| `Activo` | `Yes/No` | `Initial value` = `TRUE` |
+
+## `NOV_Novedades`
+
+Hallazgos del tecnico en ruta: activos no inventariados o fallas fuera de programacion. Supuesto D-08. Sin esta via los hallazgos se pierden o acaban en WhatsApp, que es lo que el sistema viene a reemplazar.
+
+| Columna | Tipo | Que hacer |
+|---|---|---|
+| `NovedadID` | `Text` | **CLAVE** |
+| `UsuarioID` | `Ref` | `Ref` -> `USR_Usuarios` · IsPartOf desmarcado · `Initial value` = `LOOKUP(USEREMAIL(), "USR_Usuarios", "Correo", "UsuarioID")` |
+| `Tipo` | `Enum` | Valores: `Activo no inventariado` · `Falla detectada` |
+| `Descripcion` | `LongText` |  |
+| `Ubicacion` | `LatLong` | `Initial value` = `HERE()` |
+| `Fotografia` | `Image` |  |
+| `ActivoID` | `Ref` | `Ref` -> `ACT_Activos` · IsPartOf desmarcado |
+| `Estado` | `Enum` | Valores: `Reportada` · `Aceptada` · `Descartada` · `Initial value` = `Reportada` |
+| `FechaHora` | `ChangeTimestamp` |  |
+
+## `OT_OrdenesTrabajo`
+
+Trabajo programado o levantado sobre un activo.
+
+| Columna | Tipo | Que hacer |
+|---|---|---|
+| `OTID` | `Text` | **CLAVE** |
+| `ActivoID` | `Ref` | `Ref` -> `ACT_Activos` · IsPartOf desmarcado |
+| `TecnicoID` | `Ref` | `Ref` -> `USR_Usuarios` · IsPartOf desmarcado |
+| `SupervisorID` | `Ref` | `Ref` -> `USR_Usuarios` · IsPartOf desmarcado |
+| `Tipo` | `Enum` | Valores: `Preventivo` · `Correctivo` |
+| `FechaProgramada` | `DateTime` |  |
+| `EstadoOrdenID` | `Ref` | `Ref` -> `EOT_EstadosOrden` · IsPartOf desmarcado |
+| `OTOrigenID` | `Ref` | `Ref` -> `OT_OrdenesTrabajo` · IsPartOf desmarcado |
+| `Observaciones` | `LongText` |  |
+| `FechaCierre` | `DateTime` |  |
+| `CerradaPor` | `Ref` | `Ref` -> `USR_Usuarios` · IsPartOf desmarcado |
+| `Activo` | `Yes/No` | `Initial value` = `TRUE` |
+
+**Y estas, que estan en la hoja y NO se usan:**
+
+| Columna | Que hacer | Por que |
+|---|---|---|
+| `FormularioID` | **OCULTAR** · **TRAMPA: AppSheet la pone `Ref` sola hacia `FRM_Formularios`** | El formulario lo determina el tipo del activo, no la orden. |
+| `Informe_Final` | **OCULTAR** | Se genera del mantenimiento y su checklist, no se transcribe. |
+| `Motivo_Cierre` | **OCULTAR** | Se tipifica en MOT_MotivosPendiente desde la ejecucion. |
+
+## `PAR_Parametros`
+
+Umbrales que el administrador ajusta con las pruebas de campo, sin tocar la configuracion de la aplicacion. Existe porque un numero magico escondido en una expresion no se puede calibrar: hay que abrir el editor, encontrarlo y arriesgarse a romper la regla. Aqui es una celda.
+
+| Columna | Tipo | Que hacer |
+|---|---|---|
+| `ParametroID` | `Text` | **CLAVE** |
+| `Nombre` | `Text` |  |
+| `Valor` | `Decimal` |  |
+| `Unidad` | `Text` |  |
+| `Descripcion` | `LongText` |  |
+| `Activo` | `Yes/No` | `Initial value` = `TRUE` |
+
+## `PLA_PlanMantenimiento`
+
+Que tarea preventiva toca a cada activo y cada cuanto. Es lo que convierte al sistema en gestion de mantenimiento y no en un registro de formularios: de aqui salen las ordenes, en lugar de crearlas a mano una por una.
+
+| Columna | Tipo | Que hacer |
+|---|---|---|
+| `PlanID` | `Text` | **CLAVE** |
+| `ActivoID` | `Ref` | `Ref` -> `ACT_Activos` · IsPartOf desmarcado |
+| `FrecuenciaID` | `Ref` | `Ref` -> `FRE_Frecuencias` · IsPartOf desmarcado |
+| `UltimaEjecucion` | `Date` |  |
+| `ProximaFecha` | `Date` |  |
+| `ResponsableID` | `Ref` | `Ref` -> `USR_Usuarios` · IsPartOf desmarcado |
+| `Activo` | `Yes/No` | `Initial value` = `TRUE` |
+
+## `ROL_Roles`
+
+Perfiles de acceso: Administrador, Supervisor, Tecnico y Consulta.
+
+| Columna | Tipo | Que hacer |
+|---|---|---|
+| `RolID` | `Text` | **CLAVE** |
+| `Nombre` | `Text` |  |
+| `Descripcion` | `Text` |  |
+| `Activo` | `Yes/No` | `Initial value` = `TRUE` |
+
+## `SED_Sedes`
+
+Sedes fisicas donde trabaja el personal: CCO, peajes y basculas.
+
+| Columna | Tipo | Que hacer |
+|---|---|---|
+| `SedeID` | `Text` | **CLAVE** |
+| `Nombre` | `Text` |  |
+| `Ciudad` | `Text` |  |
+| `Activo` | `Yes/No` | `Initial value` = `TRUE` |
+
+## `SEN_Sentidos`
+
+Sentidos de circulacion.
+
+| Columna | Tipo | Que hacer |
+|---|---|---|
+| `SentidoID` | `Text` | **CLAVE** |
+| `Nombre` | `Text` |  |
+| `Activo` | `Yes/No` | `Initial value` = `TRUE` |
+
+## `TIP_TiposActivo`
+
+Taxonomia de activos. Determina que checklist abre la aplicacion.
+
+| Columna | Tipo | Que hacer |
+|---|---|---|
+| `TipoActivoID` | `Text` | **CLAVE** |
+| `Nombre` | `Text` |  |
+| `Categoria` | `Enum` | Valores: `ITS` · `Electrico` · `Comunicaciones` · `TI` |
+| `FormularioID` | `Ref` | `Ref` -> `FRM_Formularios` · IsPartOf desmarcado |
+| `TieneQR` | `Yes/No` | `Initial value` = `TRUE` |
+| `RequiereGPS` | `Yes/No` | `Initial value` = `TRUE` |
+| `RadioGeofencingKm` | `Decimal` | `Initial value` = `0.2` |
+| `Activo` | `Yes/No` | `Initial value` = `TRUE` |
+
+## `TPR_TiposRespuesta`
+
+Tipo de dato esperado en cada respuesta.
+
+| Columna | Tipo | Que hacer |
+|---|---|---|
+| `TipoRespuestaID` | `Text` | **CLAVE** |
+| `Nombre` | `Text` |  |
+| `Activo` | `Yes/No` | `Initial value` = `TRUE` |
+
+## `UNF_UnidadesFuncionales`
+
+Tramos del corredor donde estan los activos. Se separa de SED_Sedes porque son dos conceptos distintos que el modelo anterior mezclaba en una sola columna, dejando usuarios y activos en conjuntos disjuntos.
+
+| Columna | Tipo | Que hacer |
+|---|---|---|
+| `UnidadFuncionalID` | `Text` | **CLAVE** |
+| `Nombre` | `Text` |  |
+| `PRInicial` | `Text` |  |
+| `PRFinal` | `Text` |  |
+| `Activo` | `Yes/No` | `Initial value` = `TRUE` |
+
+## `USR_Usuarios`
+
+Personas del sistema. El correo resuelve la sesion contra USEREMAIL().
+
+| Columna | Tipo | Que hacer |
+|---|---|---|
+| `UsuarioID` | `Text` | **CLAVE** |
+| `Nombres` | `Text` |  |
+| `Correo` | `Email` |  |
+| `Cargo` | `Text` |  |
+| `Iniciales` | `Text` |  |
+| `RolID` | `Ref` | `Ref` -> `ROL_Roles` · IsPartOf desmarcado |
+| `SedeID` | `Ref` | `Ref` -> `SED_Sedes` · IsPartOf desmarcado |
+| `Telefono` | `Phone` |  |
+| `FechaIngreso` | `Date` |  |
+| `Activo` | `Yes/No` | `Initial value` = `TRUE` |
+
+**Y estas, que estan en la hoja y NO se usan:**
+
+| Columna | Que hacer | Por que |
+|---|---|---|
+| `UltimaSincronizacion` | **OCULTAR** · SIN DECIDIR | El modelo no la declara |
+

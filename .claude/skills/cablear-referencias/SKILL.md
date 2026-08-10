@@ -27,6 +27,21 @@ Léela otra vez antes de seguir. Casi todos los errores de esta clase salen de i
 - Una conversión `Text` a `Ref` conserva **solo** las filas cuyo valor coincide con la clave. Las
   demás quedan huérfanas, y AppSheet no lo anuncia.
 
+## Si vas a dar instrucciones a alguien que configure AppSheet
+
+**No escribas «las columnas retiradas» ni «las columnas trampa».** Quien lo ejecuta no tiene el
+modelo delante y va a deducir. El 2026-08-09 eso produjo dos errores: se cableo
+`CHK_Checklists.ActivoID` como referencia —es una trampa, habia que ocultarla— y se inventaron los
+valores de un `Enum` que el modelo ya declaraba.
+
+**Usa la ficha de cada tabla** del anexo de `docs/MANUAL_DESPLIEGUE.md`: columna por columna, con su
+tipo, su destino, si lleva `IsPartOf` y si se oculta. Se genera del modelo, asi que no puede
+desviarse.
+
+**Y las trampas se derivan, no se enumeran.** Son las columnas retiradas cuyo nombre coincide con la
+clave de otra tabla: AppSheet las convierte a `Ref` sola. Contadas de memoria salian tres; derivadas
+del archivo son **siete**.
+
 ## Antes de proponer nada: cuatro comprobaciones
 
 Ninguna es opcional, y las cuatro se hacen contra el archivo, no contra la memoria ni contra la

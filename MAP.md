@@ -193,7 +193,9 @@ D:\@Proyect\Sisga\
 | [`docs/BASE_CONOCIMIENTO_APPSHEET.md`](docs/BASE_CONOCIMIENTO_APPSHEET.md) | 12 comportamientos verificados. §11 y §12 son los que cambiaron el plan |
 | [`docs/CONTEXTO_OPERACION.md`](docs/CONTEXTO_OPERACION.md) | Como se mantiene el corredor de verdad |
 
-| [`docs/MANUAL_DESPLIEGUE.md`](docs/MANUAL_DESPLIEGUE.md) | **El manual vigente.** De cero a app desplegada, en 10 pasos. Generado del modelo |
+| [`docs/MANUAL_DESPLIEGUE.md`](docs/MANUAL_DESPLIEGUE.md) | **El manual vigente.** De cero a app desplegada en 10 pasos, mas **ficha de las 28 tablas** columna por columna. Generado del modelo |
+| [`docs/prompts/PROMPT_CONTINUAR_DESPLIEGUE.md`](docs/prompts/PROMPT_CONTINUAR_DESPLIEGUE.md) | Correcciones pendientes para el agente que esta en el editor |
+| [`docs/sdd/PRUEBA-003-despliegue.md`](docs/sdd/PRUEBA-003-despliegue.md) | Las pruebas del despliegue. `P-27` es la quinta innegociable |
 
 **Retirado a `docs/historico/`:** `ENTREGA_TECNICA_SGMC.md`, que describia reparar la app vieja
 tabla por tabla. Ese camino se abandono.

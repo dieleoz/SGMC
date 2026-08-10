@@ -14,7 +14,8 @@ import sys
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(RAIZ, "scripts"))
-from modelo_objetivo import MODELO, REGLAS, RETIRADAS, CLAVE_GENERADA
+from modelo_objetivo import (MODELO, REGLAS, RETIRADAS, CLAVE_GENERADA,
+                             CAMPOS_RETIRADOS, COLUMNAS_SIN_DECIDIR)
 
 # Orden de construccion. Cada nivel solo referencia tablas de niveles anteriores
 # o del suyo propio con el destino antes. Verificado topologicamente.
@@ -249,10 +250,21 @@ w("Son columnas muertas que siguen en la hoja **y se llaman igual que la clave d
 w("AppSheet infiere referencias por coincidencia de nombre, asi que las convierte sin que nadie se lo")
 w("pida.")
 w("")
+_cl = {}
+for _t, _d in MODELO.items():
+    for _c in _d["columnas"]:
+        if _c.get("pk"):
+            _cl[_c["nombre"]] = _t
+_trampas = [(t, c, _cl[c], campos[c])
+            for t, campos in sorted(CAMPOS_RETIRADOS.items())
+            for c in sorted(campos) if c in _cl and _cl[c] != t]
 w("| Tabla | Columna | Adonde apunta sola | Por que esta mal |")
 w("|---|---|---|---|")
-for t, c, destino, motivo in TRAMPAS:
+for t, c, destino, motivo in _trampas:
     w("| `%s` | `%s` | `%s` | %s |" % (t, c, destino, motivo))
+w("")
+w("**Son %d, derivadas del archivo y no escritas a mano.** Estan tambien en la ficha de cada tabla," % len(_trampas))
+w("marcadas como TRAMPA.")
 w("")
 w("**Dejelas en `Text` y desmarque `Show?`.** Si se quedan como `Ref`, dibujan rutas de navegacion")
 w("que el modelo prohibe y aparecen en la aplicacion como si fueran buenas.")
@@ -435,6 +447,66 @@ w("")
 w("---")
 w("*Generado de `scripts/modelo_objetivo.py` por `scripts/generar_manual_despliegue.py`.*")
 w("*Para actualizarlo, cambie el modelo y vuelva a generar.*")
+
+
+# ------------------------------------------------------------------ ANEXO
+_claves = {}
+for _t, _d in MODELO.items():
+    for _c in _d["columnas"]:
+        if _c.get("pk"):
+            _claves[_c["nombre"]] = _t
+
+w("---")
+w("")
+w("# Anexo — Ficha de cada tabla")
+w("")
+w("**Columna por columna, sin nada que deducir.** Esta es la referencia contra la que se configura y")
+w("contra la que se valida. Si una columna no aparece aqui, no deberia estar visible en la app.")
+w("")
+w("Leyenda:")
+w("")
+w("- **CLAVE** — casilla `KEY` marcada, tipo `Text`")
+w("- **`Ref` -> Tabla** — tipo `Ref` con esa tabla como *Source table*")
+w("- **IsPartOf** — ademas, casilla `Is a part of` marcada")
+w("- **OCULTAR** — retirada del modelo: tipo `Text`, `Show?` desmarcado, sin formula")
+w("- **TRAMPA** — AppSheet la convierte a `Ref` sola por coincidencia de nombre. **Deshagalo**")
+w("- **SIN DECIDIR** — esta en la hoja y el modelo no la declara")
+w("")
+
+for tabla in sorted(MODELO):
+    d = MODELO[tabla]
+    w("## `%s`" % tabla)
+    w("")
+    w(d["proposito"])
+    w("")
+    w("| Columna | Tipo | Que hacer |")
+    w("|---|---|---|")
+    for c in d["columnas"]:
+        acc = []
+        if c.get("pk"):
+            acc.append("**CLAVE**")
+        if c.get("ref"):
+            acc.append("`Ref` -> `%s`" % c["ref"])
+            acc.append("**IsPartOf**" if c.get("es_parte_de") else "IsPartOf desmarcado")
+        if c["tipo"] == "Enum" and c.get("nota"):
+            acc.append("Valores: " + " · ".join("`%s`" % v.strip() for v in c["nota"].split(",")))
+        if c.get("valor_inicial"):
+            acc.append("`Initial value` = `%s`" % c["valor_inicial"])
+        w("| `%s` | `%s` | %s |" % (c["nombre"], c["tipo"], " · ".join(acc)))
+    ret = CAMPOS_RETIRADOS.get(tabla, {})
+    sind = [c for (t2, c) in COLUMNAS_SIN_DECIDIR if t2 == tabla]
+    if ret or sind:
+        w("")
+        w("**Y estas, que estan en la hoja y NO se usan:**")
+        w("")
+        w("| Columna | Que hacer | Por que |")
+        w("|---|---|---|")
+        for c, motivo in sorted(ret.items()):
+            tr = " · **TRAMPA: AppSheet la pone `Ref` sola hacia `%s`**" % _claves[c] if c in _claves else ""
+            w("| `%s` | **OCULTAR**%s | %s |" % (c, tr, motivo))
+        for c in sorted(sind):
+            w("| `%s` | **OCULTAR** · SIN DECIDIR | El modelo no la declara |" % c)
+    w("")
 
 salida = os.path.join(RAIZ, "docs", "MANUAL_DESPLIEGUE.md")
 with open(salida, "w", encoding="utf-8") as f:
