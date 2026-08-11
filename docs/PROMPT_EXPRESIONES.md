@@ -93,6 +93,42 @@ dice. Las que **escriben en la hoja** van al final a propósito.
 > ni `instantanea.py` ni `auditar_cableado.py` pueden volver a comprobar nada ahí. Ponerlos
 > antes es apagar la luz de la habitación en la que estás trabajando.
 
+## Los 5 bots no van en una columna, y esto es lo que faltaba
+
+Las otras 16 se ponen en una propiedad de una columna o de una tabla. **Un bot no.** Vive en
+`Automation > Bots` —el icono del rayo— y tiene tres partes, no una expresión suelta:
+
+```
+Event       cuando se dispara:  la tabla + Adds / Updates / Adds and Updates,
+                                o Schedule si es programado
+Condition   una expresion que decide si sigue
+Step        lo que hace
+```
+
+La tabla de arriba da el **Event** en la columna de la expresión y la **Condition** en el detalle.
+El `Step` lo dice la descripción de cada regla.
+
+### La trampa: un bot que AÑADE UNA FILA se hace en dos sitios
+
+Si el `Step` es *añadir una fila a otra tabla*, **no se configura dentro del bot**. AppSheet
+interpreta que quieres generar un documento y te pide una plantilla PDF y valores de retorno, y
+ahí es donde se atasca todo el mundo.
+
+El orden es este:
+
+1. **`Data > Actions` → `Add Action`.** Ahí se define *qué fila se crea y con qué valores*:
+   `For a record of this table` = la tabla de origen, y `Do this` = **`Data: add a new row to
+   another table using values from this row`**.
+2. **`Automation > Bots` → tu bot → `Add a step` → `Run a data action`**, y eliges la que
+   acabas de crear.
+
+Afecta a `RG-10` y a `RG-12`, que son los dos que crean órdenes.
+
+> **Y un aviso que vale más que el procedimiento:** un bot que crea filas en `OT_OrdenesTrabajo`
+> tiene hoy un problema abierto. `OTID` es clave legible y **nadie la genera**, así que la fila
+> nacería sin identificador y AppSheet la descarta sin decir nada. Está en el pipeline. **No
+> pongas `RG-10` ni `RG-12` en producción hasta que se resuelva.**
+
 ## Las expresiones, enteras
 
 **Cópialas de aquí. No las escribas de memoria ni las adaptes.**

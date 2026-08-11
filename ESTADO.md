@@ -28,8 +28,22 @@ Datos        Modelo_Datos_10082026   ·   Hoja de cálculo de Google
 
 ## En una frase
 
-**La hoja de datos está terminada y verificada. La aplicación tiene sus 28 tablas y las 39
-referencias puestas. Falta la Fase C: las 21 reglas de negocio.**
+**La hoja de datos está terminada. Las 28 tablas y las 39 referencias están puestas y auditadas. La
+Fase C está a medias, y lo que falta no es teclear: es que tres reglas del modelo no pueden
+funcionar como están declaradas y hay dos especificaciones abiertas para resolverlo.**
+
+```
+FASE A   hoja generada, 28 tablas, 211 columnas         CERRADA
+FASE B   39 referencias, auditor en 0 correcciones      CERRADA
+FASE C   18 configurables · 9 cotejadas · 3 imposibles  EN CURSO
+CLAVES   8 tablas con clave a ciegas, 5 sin aviso       ABIERTO
+TIPOS    107 columnas que nadie pone si no se ponen     ABIERTO
+LABEL    17 tablas                                       ABIERTO
+```
+
+> **Lo que bloquea el piloto no ha cambiado en todo el día:** las 368 coordenadas se derivan del
+> `PK` sobre el trazado y **ninguna se midió en campo**. El geofencing puede quedar perfecto y estar
+> midiendo distancias a puntos inventados.
 
 ---
 

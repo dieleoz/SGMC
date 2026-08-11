@@ -134,6 +134,28 @@ if _vacias:
           "sí, %d referencias la apuntan" % _n if _n
           else "**no. Nadie la referencia, así que falla en silencio**"))
     w("")
+    w("**AppSheet no te va a dejar marcar `Key` sin más.** Sobre una tabla vacía exige que la columna")
+    w("tenga un `Initial value` que genere la clave; si no, asume que las filas nuevas nacerían sin")
+    w("identificador y se aferra a `_RowNumber`. Así que primero el valor, después la casilla:")
+    w("")
+    _gen = [x for x in _vacias if x[0] in CLAVE_GENERADA]
+    _leg = [x for x in _vacias if x[0] not in CLAVE_GENERADA]
+    w("En estas %d, `Initial value` = **`UNIQUEID()`**, y luego marca `Key`:" % len(_gen))
+    w("")
+    for _t, _pk, _n in _gen:
+        w("- `%s.%s`" % (_t, _pk))
+    w("")
+    if _leg:
+        w("**Y estas %d, PARA.** Su clave es legible y **el modelo no declara quién la genera**:"
+          % len(_leg))
+        w("")
+        for _t, _pk, _n in _leg:
+            w("- `%s.%s`" % (_t, _pk))
+        w("")
+        w("No es una casilla que falte: es una decisión de modelo que está en el pipeline. Y no es")
+        w("teórica —`RG-10` y `RG-12` son bots que **crean órdenes**, y si nadie genera `OTID` la fila")
+        w("nace sin clave y AppSheet la descarta sin decir nada—.")
+        w("")
     w("> **Solo %d de las %d avisan.** AppSheet protesta cuando una tabla referenciada tiene clave"
       % (sum(1 for _, _, n in _vacias if n), len(_vacias)))
     w("> inestable; de las que nadie referencia no dice nada. Hazlas las %d de una vez, o las cinco"

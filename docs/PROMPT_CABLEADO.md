@@ -73,6 +73,28 @@ En *Data > Columns*, marca **`Key`** en la columna que dice la tabla y **desmarc
 | `OT_OrdenesTrabajo` | **`OTID`** | sí, 2 referencias la apuntan |
 | `PLA_PlanMantenimiento` | **`PlanID`** | **no. Nadie la referencia, así que falla en silencio** |
 
+**AppSheet no te va a dejar marcar `Key` sin más.** Sobre una tabla vacía exige que la columna
+tenga un `Initial value` que genere la clave; si no, asume que las filas nuevas nacerían sin
+identificador y se aferra a `_RowNumber`. Así que primero el valor, después la casilla:
+
+En estas 6, `Initial value` = **`UNIQUEID()`**, y luego marca `Key`:
+
+- `CHD_ChecklistDetalle.DetalleID`
+- `CHK_Checklists.ChecklistID`
+- `FIR_Firmas.FirmaID`
+- `FOT_Fotografias.FotoID`
+- `MAN_Mantenimientos.MantenimientoID`
+- `NOV_Novedades.NovedadID`
+
+**Y estas 2, PARA.** Su clave es legible y **el modelo no declara quién la genera**:
+
+- `OT_OrdenesTrabajo.OTID`
+- `PLA_PlanMantenimiento.PlanID`
+
+No es una casilla que falte: es una decisión de modelo que está en el pipeline. Y no es
+teórica —`RG-10` y `RG-12` son bots que **crean órdenes**, y si nadie genera `OTID` la fila
+nace sin clave y AppSheet la descarta sin decir nada—.
+
 > **Solo 3 de las 8 avisan.** AppSheet protesta cuando una tabla referenciada tiene clave
 > inestable; de las que nadie referencia no dice nada. Hazlas las 8 de una vez, o las cinco
 > restantes se descubrirán de una en una, cuando alguien intente usarlas.
@@ -350,25 +372,25 @@ En *Data > Columns*, marca la casilla **`Label`** de estas columnas:
 | Tabla | Referencias que la apuntan | `Label` |
 |---|---|---|
 | `USR_Usuarios` | 7 | **`Nombres`** |
-| `MAN_Mantenimientos` | 3 | *ninguna: la clave la identifica, y está decidido así* |
-| `ACT_Activos` | 3 | **`Nombre`** |
-| `UNF_UnidadesFuncionales` | 3 | **`Nombre`** |
 | `FRM_Formularios` | 3 | **`Nombre`** |
+| `MAN_Mantenimientos` | 3 | *ninguna: la clave la identifica, y está decidido así* |
+| `UNF_UnidadesFuncionales` | 3 | **`Nombre`** |
+| `ACT_Activos` | 3 | **`Nombre`** |
 | `FRM_Preguntas` | 2 | **`Pregunta`** |
-| `OT_OrdenesTrabajo` | 2 | *ninguna: la clave la identifica, y está decidido así* |
-| `EST_Activo` | 2 | **`Nombre`** |
 | `TIP_TiposActivo` | 2 | **`Nombre`** |
+| `OT_OrdenesTrabajo` | 2 | *ninguna: la clave la identifica, y está decidido así* |
 | `FRE_Frecuencias` | 2 | **`Nombre`** |
-| `TPR_TiposRespuesta` | 1 | **`Nombre`** |
-| `MOT_MotivosPendiente` | 1 | **`Nombre`** |
-| `SEN_Sentidos` | 1 | **`Nombre`** |
-| `ROL_Roles` | 1 | **`Nombre`** |
-| `FAL_ModosFalla` | 1 | **`Nombre`** |
+| `EST_Activo` | 2 | **`Nombre`** |
 | `CAL_Calzadas` | 1 | **`Nombre`** |
 | `FRM_Secciones` | 1 | **`Nombre`** |
-| `CHK_Checklists` | 1 | *ninguna: la clave la identifica, y está decidido así* |
 | `EOT_EstadosOrden` | 1 | **`Nombre`** |
+| `TPR_TiposRespuesta` | 1 | **`Nombre`** |
+| `MOT_MotivosPendiente` | 1 | **`Nombre`** |
 | `SED_Sedes` | 1 | **`Nombre`** |
+| `CHK_Checklists` | 1 | *ninguna: la clave la identifica, y está decidido así* |
+| `ROL_Roles` | 1 | **`Nombre`** |
+| `SEN_Sentidos` | 1 | **`Nombre`** |
+| `FAL_ModosFalla` | 1 | **`Nombre`** |
 
 > Las tres sin etiqueta **no son un hueco**: una orden se identifica por su número y su fecha,
 > una ejecución por su orden y su hora. Está decidido, no olvidado.
