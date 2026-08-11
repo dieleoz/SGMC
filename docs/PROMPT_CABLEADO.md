@@ -430,25 +430,25 @@ En *Data > Columns*, marca la casilla **`Label`** de estas columnas:
 | Tabla | Referencias que la apuntan | `Label` |
 |---|---|---|
 | `USR_Usuarios` | 7 | **`Nombres`** |
-| `ACT_Activos` | 3 | **`Nombre`** |
 | `UNF_UnidadesFuncionales` | 3 | **`Nombre`** |
-| `MAN_Mantenimientos` | 3 | *ninguna: la clave la identifica, y está decidido así* |
 | `FRM_Formularios` | 3 | **`Nombre`** |
-| `FRE_Frecuencias` | 2 | **`Nombre`** |
-| `TIP_TiposActivo` | 2 | **`Nombre`** |
+| `ACT_Activos` | 3 | **`Nombre`** |
+| `MAN_Mantenimientos` | 3 | *ninguna: la clave la identifica, y está decidido así* |
 | `OT_OrdenesTrabajo` | 2 | *ninguna: la clave la identifica, y está decidido así* |
-| `FRM_Preguntas` | 2 | **`Pregunta`** |
+| `TIP_TiposActivo` | 2 | **`Nombre`** |
+| `FRE_Frecuencias` | 2 | **`Nombre`** |
 | `EST_Activo` | 2 | **`Nombre`** |
-| `MOT_MotivosPendiente` | 1 | **`Nombre`** |
-| `EOT_EstadosOrden` | 1 | **`Nombre`** |
-| `SEN_Sentidos` | 1 | **`Nombre`** |
-| `CHK_Checklists` | 1 | *ninguna: la clave la identifica, y está decidido así* |
-| `TPR_TiposRespuesta` | 1 | **`Nombre`** |
-| `SED_Sedes` | 1 | **`Nombre`** |
-| `CAL_Calzadas` | 1 | **`Nombre`** |
-| `FAL_ModosFalla` | 1 | **`Nombre`** |
-| `FRM_Secciones` | 1 | **`Nombre`** |
+| `FRM_Preguntas` | 2 | **`Pregunta`** |
 | `ROL_Roles` | 1 | **`Nombre`** |
+| `EOT_EstadosOrden` | 1 | **`Nombre`** |
+| `SED_Sedes` | 1 | **`Nombre`** |
+| `TPR_TiposRespuesta` | 1 | **`Nombre`** |
+| `MOT_MotivosPendiente` | 1 | **`Nombre`** |
+| `FRM_Secciones` | 1 | **`Nombre`** |
+| `FAL_ModosFalla` | 1 | **`Nombre`** |
+| `CHK_Checklists` | 1 | *ninguna: la clave la identifica, y está decidido así* |
+| `SEN_Sentidos` | 1 | **`Nombre`** |
+| `CAL_Calzadas` | 1 | **`Nombre`** |
 
 > Las 3 sin etiqueta **no son un hueco**: se identifican por su clave y su fecha. Está
 > decidido, no olvidado.

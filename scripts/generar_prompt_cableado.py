@@ -332,8 +332,20 @@ w("Están **enteras y sin cortar** en [`sdd/RECONSTRUCCION_EXPRESIONES.md`](sdd/
 w("con su tabla, su columna y su tipo —`Valid_If`, `Initial value`, `App formula`, bot—. Cópialas de")
 w("ahí. **No las escribas de memoria ni las adaptes.**")
 w("")
-w("La que más se olvida es **RG-19**, el umbral de GPS con su `OR(ISBLANK(...))`: sin ese `ISBLANK`,")
-w("si alguien borra la fila del parámetro **todos los cierres salen limpios y nadie se entera**.")
+# Esta advertencia nombraba RG-19 con texto fijo, y eso la habria sobrevivido:
+# ESPEC-004 propone retirar esa regla, y regenerar el documento habria vuelto a
+# emitir la instruccion de cablearla. Se deriva de REGLAS, asi que desaparece
+# sola el dia que la regla no este.
+#
+# Y el modo de fallo del hallazgo importa mas que el arreglo: el barrido que
+# buscaba los generadores afectados uso `grep Precision_GPS`, y esta linea
+# nombra la REGLA sin nombrar la COLUMNA. Una busqueda por un solo termino no
+# encuentra lo que se refiere a la misma cosa por otro nombre.
+_rg19 = next((r for r in REGLAS if r["id"] == "RG-19"), None)
+if _rg19 and "ISBLANK" in (_rg19.get("expresion") or ""):
+    w("La que más se olvida es **%s**, el umbral de GPS con su `OR(ISBLANK(...))`: sin ese `ISBLANK`,"
+      % _rg19["id"])
+    w("si alguien borra la fila del parámetro **todos los cierres salen limpios y nadie se entera**.")
 w("")
 
 w(paso("Comprobar, y aquí está lo que solo se puede ver ahora"))

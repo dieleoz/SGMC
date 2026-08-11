@@ -132,3 +132,29 @@ FILTROS_AL_FINAL = (
     "volver a mirarlas: no porque fallen, sino porque el filtro hace su trabajo "
     "tambien con ellos.")
 
+
+# ------------------- el volcado local es CIEGO a las ocho tablas de movimiento
+#
+# `generar_plantilla.py` **vacia a proposito** OT_OrdenesTrabajo,
+# MAN_Mantenimientos, CHK_Checklists, CHD_ChecklistDetalle, FOT_Fotografias,
+# FIR_Firmas, NOV_Novedades y PLA_PlanMantenimiento cada vez que corre: son
+# registros de prueba, y la plantilla es lo que recibe el funcional.
+#
+# La consecuencia no estaba escrita en ninguna parte, y anula pruebas enteras:
+#
+#   verificar_faseA.py y verificar_datos.py leen BD/Modelo_Datos_PLANTILLA.xlsx
+#   por defecto. Una fila creada en la APLICACION -un fixture de prueba, una
+#   orden real- **nunca llega a ese archivo**. Cualquier comprobacion que espere
+#   verla ahi no puede dispararse jamas, y pasa en verde por no ejercitarse.
+#
+# Lo encontro el arquitecto el 2026-08-10 sobre PRUEBA-004: dos de sus pruebas
+# esperaban que el fixture apareciera en el volcado, y era imposible.
+#
+# **Para mirar datos de movimiento hay que usar instantanea.py**, que lee por
+# API, o descargar el Sheets a un archivo aparte y pasarselo por argumento a los
+# verificadores. El volcado sirve para estructura y catalogos, no para esto.
+VOLCADO_CIEGO_A = (
+    "OT_OrdenesTrabajo", "MAN_Mantenimientos", "CHK_Checklists",
+    "CHD_ChecklistDetalle", "FOT_Fotografias", "FIR_Firmas",
+    "NOV_Novedades", "PLA_PlanMantenimiento")
+

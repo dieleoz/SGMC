@@ -49,6 +49,7 @@ except ImportError:
 
 from modelo_objetivo import MODELO
 from alcance_reglas import por_columna
+from lectura_de_vuelta import VOLCADO_CIEGO_A
 from sistema import VOLCADO
 
 ARCHIVO = sys.argv[1] if len(sys.argv) > 1 else VOLCADO
@@ -126,6 +127,10 @@ for t in MODELO:
         linea = ("%s llego VACIA, asi que AppSheet eligio el tipo de sus %d "
                  "columnas sin un solo dato. Ninguna esta confirmada en el "
                  "editor" % (t, cuantas))
+        if t in VOLCADO_CIEGO_A:
+            linea += (". Y OJO: este archivo la vacia POR DISENO, asi que aqui "
+                      "saldra vacia aunque la aplicacion tenga filas. Para "
+                      "mirarla de verdad, instantanea.py")
         (fallos if vencido else avisos).append(
             "[G-04] %s%s" % (linea, ". El plazo vencio el %s" % LIMITE_TIPOS_A_CIEGAS
                              if vencido else " (hasta el %s)" % LIMITE_TIPOS_A_CIEGAS))
