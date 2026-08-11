@@ -331,7 +331,7 @@ en código no puede divergir en silencio de otro, porque solo hay uno.
 | `IsPartOf` sobre `MAN_Mantenimientos.OTID` | **Va sin él.** La ejecución es el registro histórico y sobrevive a su orden |
 | Borrado del histórico | Se retira `Deletes` en `OT_OrdenesTrabajo` y `MAN_Mantenimientos` (RG-14 y RG-15). Un error se corrige con `Activo = FALSE` |
 | Reportes históricos | RG-18: un histórico nunca filtra por el estado actual del activo, o al dar de baja uno desaparecen sus mantenimientos pasados |
-| Creación de órdenes desde la app | **Aplazada, no descartada.** `OT_OrdenesTrabajo` no admite `Adds` mientras `OTID` haga de clave y de etiqueta legible a la vez. Mientras tanto las órdenes se crean en el Sheets, que **se salta todas las validaciones**: es aceptable en el piloto por volumen, no como procedimiento |
+| Creación de órdenes desde la app | **Desbloqueada, pendiente de aplicar.** El motivo del aplazamiento era que `OTID` hacía de clave y de etiqueta legible a la vez; `ESPEC-005` lo separa —clave con `UNIQUEID()`, columna `Etiqueta` aparte— y `RG-14` ya declara `Updates, Adds`. Hasta que se aplique, las órdenes se crean en el Sheets, que **se salta todas las validaciones**: aceptable en el piloto por volumen, no como procedimiento |
 | Quién edita el Sheets | **Sin resolver.** Sigue sin haber una regla escrita, y hay dos cuentas con permiso |
 
 Las actas que cerraron esta fase, `ACTA-001` a `ACTA-004`, y las especificaciones que las produjeron

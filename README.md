@@ -238,6 +238,14 @@ técnico marque la excepción en vez de que la calcule una fórmula inexistente�
 [`docs/sdd/ESPEC-004-cierre-excepcion-manual.md`](docs/sdd/ESPEC-004-cierre-excepcion-manual.md),
 todavía sin probar ni aprobar.
 
+**Y `OTID` y `PlanID` son claves legibles sin generador declarado.** Las otras seis tablas
+transaccionales vacías resuelven su clave con `UNIQUEID()`; estas dos no, y los bots `RG-10` y
+`RG-12` crean órdenes sin asignarla, así que la fila nace sin clave y AppSheet la descarta sin
+avisar. La propuesta —`UNIQUEID()` para ambas más una columna `Etiqueta` para que la orden se
+identifique ante el técnico— está en
+[`docs/sdd/ESPEC-005-clave-otid-planid.md`](docs/sdd/ESPEC-005-clave-otid-planid.md), también sin
+probar ni aprobar.
+
 ## 6. Estado, hallazgos y bloqueantes
 
 Todos en [`ESTADO.md`](ESTADO.md), que se actualiza; aquí no, para que no se contradigan.
@@ -325,7 +333,7 @@ archivo/       Material de origen, no versionado
 | [docs/CONTEXTO_OPERACION.md](docs/CONTEXTO_OPERACION.md) | Cómo se mantiene el corredor, y la procedencia de cada documento de contexto |
 | [docs/COMUNICACION_PROPIETARIO_APP.md](docs/COMUNICACION_PROPIETARIO_APP.md) | Qué decirle al dueño de la aplicación anterior |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Fases con criterio de cierre verificable |
-| [docs/sdd/](docs/sdd/) | Especificaciones y pruebas del pipeline (`ESPEC-003`, `PRUEBA-003`, `RECONSTRUCCION_EXPRESIONES`, `ESPEC-004`) |
+| [docs/sdd/](docs/sdd/) | Especificaciones y pruebas del pipeline (`ESPEC-003`, `PRUEBA-003`, `RECONSTRUCCION_EXPRESIONES`, `ESPEC-004`, `ESPEC-005`) |
 | [Manuales/MANUAL_DE_USUARIO.md](Manuales/MANUAL_DE_USUARIO.md) | Guía de operación por rol. **No se entrega todavía**: describe funciones que aún no están montadas, y lo dice en su cabecera |
 | [MAP.md](MAP.md) | Índice maestro y referencias cruzadas |
 | [CLAUDE.md](CLAUDE.md) | Reglas de trabajo para agentes sobre este repositorio |

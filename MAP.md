@@ -51,7 +51,8 @@ D:\@Proyect\Sisga\
 │   │                               auditar_cableado.py contra la aplicación en vivo
 │   ├── images/                    fig_01 a fig_07, figuras de los documentos
 │   └── sdd/                       Artefactos vigentes del pipeline: ESPEC-003 (bloqueada),
-│                                   PRUEBA-003, RECONSTRUCCION_EXPRESIONES y ESPEC-004
+│                                   PRUEBA-003, RECONSTRUCCION_EXPRESIONES, ESPEC-004
+│                                   (especificada, pendiente de prueba y arquitecto) y ESPEC-005
 │                                   (especificada, pendiente de prueba y arquitecto)
 │
 ├── Manuales/                     Manual de usuario
@@ -139,6 +140,7 @@ D:\@Proyect\Sisga\
 | [docs/sdd/RECONSTRUCCION_EXPRESIONES.md](docs/sdd/RECONSTRUCCION_EXPRESIONES.md) | Los nombres renombrados y las 21 reglas a reponer, sin cortar | Vigente |
 | [docs/sdd/PRUEBA-003-despliegue.md](docs/sdd/PRUEBA-003-despliegue.md) | Las pruebas de aceptación del despliegue reconstruido | Vigente |
 | [docs/sdd/ESPEC-004-cierre-excepcion-manual.md](docs/sdd/ESPEC-004-cierre-excepcion-manual.md) | `RG-02`/`RG-19` dependen de `USERLOCATIONACCURACY()`, que no existe en AppSheet: `CierreConExcepcion` nunca se dispara. Corrige a que el técnico la marque | **Especificada. Pendiente de `PRUEBA-004` y del arquitecto**; nada de esto está aplicado aún en `scripts/modelo_objetivo.py` ni en el editor |
+| [docs/sdd/ESPEC-005-clave-otid-planid.md](docs/sdd/ESPEC-005-clave-otid-planid.md) | `OTID` y `PlanID` son claves legibles sin generador declarado; `RG-10` y `RG-12` crean filas en `OT_OrdenesTrabajo` sin asignarlo. Propone `UNIQUEID()` para ambas y una columna `Etiqueta` para que la orden se identifique ante el técnico | **Especificada. Pendiente de `PRUEBA-005` y del arquitecto**; nada de esto está aplicado aún en `scripts/modelo_objetivo.py`, `scripts/inferencia.py` ni en el editor |
 
 ### Plataforma
 
