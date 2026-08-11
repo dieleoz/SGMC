@@ -1,15 +1,36 @@
 # ESPEC-006 — `RG-08` y `RG-12` dejan de ser bots programados
 
-<!-- verificar_documentos: ignorar OT_OrdenesTrabajo.EstaVencida -->
+<!-- verificar_documentos: ignorar OT_OrdenesTrabajo.EstaVencida, DRY_RUN -->
 <!-- D-03 compara Tabla.Columna contra MODELO, y EstaVencida a propósito NUNCA entra en MODELO:
      es una columna virtual declarada solo en REGLAS (RG-37, §4), siguiendo el mismo mecanismo
      que RG-35/RG-36 de ESPEC-005. Citarla en prosa como Tabla.Columna es legítimo -es como se
-     documenta una virtual-, no un hueco del modelo. -->
+     documenta una virtual-, no un hueco del modelo.
+     DRY_RUN no es una tabla: es la bandera booleana de scripts/faseA_sheets.gs (§2.2). D-01 la
+     detecta como candidata a tabla por el patrón MAYUSCULAS_Palabra; se ignora aquí, a proposito. -->
 
 **No aplicada.** Este documento es del especificador. No toca `scripts/modelo_objetivo.py`, el
-Sheets de producción ni el editor de AppSheet. Escrita contra el commit `9188b25`. Hay un ejecutor
-cerrando `ESPEC-005` en paralelo; ninguno de los archivos que edita esa especificación
-(`ESPEC-005-clave-otid-planid.md`, `ORDEN-005-*`, `ACTA-005-*`) se toca aquí.
+Sheets de producción ni el editor de AppSheet.
+
+**Rehecha el 2026-08-11 tras bloqueo del arquitecto.** La versión anterior recibió diez hallazgos.
+Tres eran defectos de código míos y ya están aplicados en el repositorio, fuera de esta
+especificación (commit `f790c91`): la heurística *"toda columna virtual `App formula` sobre
+`(tabla)` se llama `Etiqueta` y lleva `Label`"* —que la versión anterior de este documento ya había
+encontrado y corregido en `generar_reconstruccion.py` y `generar_prompt_cableado.py`, en el mismo
+commit que la introdujo (`0d3d641`)— seguía viva en un **tercer** generador que nadie había mirado,
+`generar_encargo_ventana.py`, y con `RG-37` declarada habría emitido dos filas llamadas `Etiqueta`
+sobre la misma tabla; ahora los tres consultan `inferencia.py`
+(`columnas_virtuales()`/`etiquetas_virtuales()`) en vez de suponerlo de la forma de la regla.
+Además, `generar_prompt_expresiones.py` deja de clasificar una columna virtual entre las que
+escriben en la hoja (`_escribe()`); y el conteo de `CLAUDE.md` §7.17 cuenta etiquetas virtuales, no
+toda columna `App formula`. Los siete restantes son de documento y se atienden aquí, cada uno con el
+comando que lo verifica, no reescrito desde la memoria de la versión anterior.
+
+**Lo que cambió desde el bloqueo, y afloja una de las siete condiciones.** `P-09` de `PRUEBA-005`
+—la que deja `OTID` y `PlanID` con `Initial value = UNIQUEID()` y `Key` marcada— se ejecutó y se
+registró en `docs/sdd/ACTA-005-pruebas.md` (commit `7a6e750`), con transcripción literal del
+editor. Sigue habiendo un ejecutor trabajando en paralelo sobre `ESPEC-005`/`PRUEBA-005`; ninguno de
+esos archivos (`ESPEC-005-clave-otid-planid.md`, `ORDEN-005-*`, `ACTA-005-*`) se toca aquí, se leen
+solo para verificar lo que ya está registrado.
 
 ## 1. Qué se quiere y por qué
 
@@ -129,15 +150,30 @@ modelo, no tiene ninguna transición declarada que saque a la orden de ahí — 
 ni ninguna regla que reabra un estado con `EsFinal = TRUE`. El técnico que ejecuta el mantenimiento
 después de que su orden pasó a `Vencida` no tiene dónde registrar lo que hizo.
 
-**Hallazgo colateral, no autoritativo: un artefacto superado contradice el dato vigente.**
-`scripts/faseA_sheets.gs` —el guion de Google Apps Script de cuando la Fase A era trabajo manual
-sobre el Sheets, antes de que `generar_plantilla.py` la generara del modelo— declara la misma fila
-`Vencida` con `EsFinal = false`, no `true`. Ese archivo no está referenciado desde ningún otro
-script del repositorio (`grep -rl faseA_sheets scripts/ docs/` no devuelve nada) y `SDD_PIPELINE_SGMC.md`
-ya declara superada la Fase A manual. No se usa como fuente: el dato vigente es el de arriba, en
-las dos fuentes que sí gobiernan la aplicación hoy. Se deja constancia porque es exactamente el
-tipo de documento que, si alguien lo lee sin saber que está superado, produce una afirmación falsa
-sobre el sistema — la patología que este proyecto existe para evitar.
+**Hallazgo colateral, no autoritativo: un artefacto superado contradice el dato vigente, y hay que
+decidir si se queda en el árbol.** `scripts/faseA_sheets.gs` —el guion de Google Apps Script de
+cuando la Fase A era trabajo manual sobre el Sheets, antes de que `generar_plantilla.py` la
+generara del modelo— declara la misma fila `Vencida` con `EsFinal = false`, no `true`. Ese archivo
+no está referenciado desde ningún otro script del repositorio, verificado hoy de nuevo:
+
+```bash
+grep -rl faseA_sheets scripts/ docs/ MAP.md README.md CLAUDE.md
+```
+Sin salida, salvo este propio documento. `SDD_PIPELINE_SGMC.md` ya declara superada la Fase A
+manual.
+
+**Se queda, no se retira**, y no por descuido: sus primeras veinte líneas son un banner
+`RETIRADO EL 2026-08-07` que explica por qué no tiene trabajo pendiente (la Fase A se cerró a mano,
+`ACTA-002`) y por qué se conserva —"registro de método: el patrón `DRY_RUN`, tener el borrado de
+los datos de prueba en el mismo archivo que los crea, y la verificación separada del que aplica"—,
+verificado leyendo el encabezado completo del archivo antes de escribir esto. Retirarlo borraría ese
+registro sin ganar nada: cero referencias significa que ningún generador ni ningún documento vigente
+lo lee, así que su dato obsoleto no puede propagarse en silencio — solo puede leerlo quien abra el
+archivo directamente, y quien lo haga se encuentra primero con el banner de retiro. No se usa como
+fuente en ningún punto de este documento: el dato vigente es el de arriba, en las dos fuentes que sí
+gobiernan la aplicación hoy. Se deja esta constancia, y ahora esta decisión explícita, porque es
+exactamente el tipo de documento que, si alguien lo lee sin saber que está superado, produce una
+afirmación falsa sobre el sistema — la patología que este proyecto existe para evitar.
 
 ### 2.3 Ningún otro estado library da salida a una orden vencida
 
@@ -149,7 +185,7 @@ print([r['id'] for r in REGLAS if r['tabla']=='OT_OrdenesTrabajo'])
 "
 ```
 ```
-['RG-35', 'RG-08', 'RG-14', 'RG-05', 'RG-07']
+['RG-35', 'RG-05', 'RG-07', 'RG-08', 'RG-14']
 ```
 
 Ninguna es una transición de reapertura. `RG-14` es `Are updates allowed` (`Updates, Adds`, sin
@@ -263,59 +299,182 @@ recorrido de la expresión atribuye las mismas columnas que hoy**: `OT_OrdenesTr
 `columna="(tabla)"`): el conjunto de columnas atribuidas no cambia; lo que cambia es qué `id` de
 regla aparece junto a ellas en `por_columna()` cuando se regenere el reporte.
 
-**Los generadores de expresiones — aquí sí hay un defecto real, no cosmético, verificado
-ejecutándolos.** `scripts/generar_reconstruccion.py` y `scripts/generar_prompt_cableado.py`
-detectan una columna virtual con la condición `r["tipo"] == "App formula" and r.get("columna") ==
-"(tabla)"`, y **los dos asumen que toda regla que cumple esa condición es la etiqueta `Label` y la
-llaman `Etiqueta` de forma literal**:
+**Los generadores de expresiones — la versión anterior de este documento encontró aquí un defecto
+real, no cosmético, y lo corrigió en dos generadores en el mismo commit que la introdujo. El
+arquitecto encontró que la corrección no alcanzaba a un tercero.**
 
+```bash
+grep -n "es_label\|nombre_virtual" scripts/generar_reconstruccion.py scripts/generar_prompt_cableado.py
 ```
-scripts/generar_reconstruccion.py:
-    w("> ... se llama **`Etiqueta`**, lleva esa expresión en su `App formula`, y después
-    >  **`Show?` activo** y **`Label` marcado**.")
-
-scripts/generar_prompt_cableado.py:
-    for _t, _e in sorted(_virtuales):
-        w("| `%s` | **`Etiqueta`** | `%s` |" % (_t, _e))
-    ... instruye marcar Show? y Label sobre esa fila.
+```
+scripts/generar_reconstruccion.py:75:        _nombre = r.get("nombre_virtual", "(sin nombre declarado)")
+scripts/generar_reconstruccion.py:80:        if r.get("es_label"):
+scripts/generar_prompt_cableado.py:291:_virtuales = [(r["tabla"], r.get("nombre_virtual", "?"), r["expresion"]) for r in REGLAS
+scripts/generar_prompt_cableado.py:293:              and r.get("es_label")]
 ```
 
-Esto es correcto hoy porque las dos únicas reglas con esa forma son `RG-35` y `RG-36`, y las dos
-son, en efecto, la etiqueta `Etiqueta`. **Declarar `EstaVencida` con la misma forma —`App formula`
-sobre `columna="(tabla)"`, que es la única forma que `V-10` acepta para una columna virtual (§4)—
-hace que estos dos generadores digan, al regenerarse, que `EstaVencida` "se llama `Etiqueta`" y que
-hay que marcarla `Label`.** Es falso en los dos puntos: no se llama `Etiqueta` y no debe ser
-`Label` — ya hay una `Label` en esa tabla, puesta por `RG-35`, y `Label` solo puede haber una
-(`docs/sdd/RECONSTRUCCION_EXPRESIONES.md`, sección de la propia regla, cita a Google ya incorporada
-en `ESPEC-005` §2.5). Verificado leyendo el código de los dos generadores completo, no solo el
-fragmento: ninguno de los dos consulta el nombre real de la columna virtual en ningún otro sitio,
-porque hasta hoy nunca hizo falta — solo existía un caso.
+`generar_reconstruccion.py` y `generar_prompt_cableado.py` ya no detectan la etiqueta por la forma de
+la regla (`App formula` sobre `"(tabla)"`): preguntan por `es_label`, el campo que este mismo
+documento propone en §4. **Esto se corrigió en el commit `0d3d641`, el que autoría por primera vez
+esta especificación** —verificado con `git show 0d3d641 --stat`: toca esos dos archivos y no toca
+`generar_encargo_ventana.py`—, así que cuando el arquitecto revisó la primera versión de este
+documento, el código ya estaba corregido en esos dos sitios; el defecto seguía descrito en prosa como
+pendiente porque la prosa no se había vuelto a mirar contra el código antes de someterla.
 
-`scripts/generar_prompt_expresiones.py` tiene un defecto distinto, también verificado en el código:
-la sección *"La trampa: un bot que AÑADE UNA FILA se hace en dos sitios"* dice literalmente
-`w("Afecta a `RG-10` y a `RG-12`, que son los dos que crean órdenes.")` y filtra con
-`r["id"] in ("RG-10", "RG-12")` — un identificador citado a mano, no derivado. Si `RG-12`
-desaparece de `REGLAS` (§4), esa frase sigue imprimiéndose con un identificador que ya no existe en
-el modelo, y la propia sección dejaría de ser cierta para el mecanismo que sustituye a `RG-12`: el
-reemplazo no es un bot, así que **no** se configura en dos sitios (`Data > Actions` +
-`Automation > Bots`) — se configura solo en `Data > Actions`, y se expone en una vista (§4). Este
-generador necesita, además de dejar de citar `RG-12`, una sección nueva para el mecanismo de
-`RG-38` que no hable de bots.
+**El arquitecto encontró que la misma heurística seguía viva en un tercer generador que nadie había
+señalado.** `generar_encargo_ventana.py` seguía detectando por la forma y, con `RG-37` declarada,
+habría emitido **dos filas llamadas `Etiqueta`** sobre `OT_OrdenesTrabajo`, una con la expresión de
+`RG-37`. Corregido en el commit `f790c91`, verificado hoy: ahora consulta
+`inferencia.etiquetas_virtuales(REGLAS)`, leyendo `scripts/generar_encargo_ventana.py` línea a línea
+—la lista `virtuales` sale de esa función, no de una condición sobre `tipo`/`columna`—.
 
-**Los tres defectos son de código, no de diseño, y su arreglo es trabajo del ejecutor (`ORDEN-006`),
+**Queda uno, dentro de `scripts/generar_prompt_expresiones.py`, verificado hoy leyendo el archivo
+completo.** La sección *"La trampa: un bot que AÑADE UNA FILA se hace en dos sitios"* sigue
+imprimiendo, literal:
+
+```bash
+grep -n 'Afecta a\|RG-10.*RG-12' scripts/generar_prompt_expresiones.py
+```
+```
+254:w("Afecta a `RG-10` y a `RG-12`, que son los dos que crean órdenes.")
+261:_crean = sorted({r["id"] for r in REGLAS
+263:                 ) or r["id"] in ("RG-10", "RG-12")})
+```
+
+La línea 254 es un literal escrito a mano, no derivado de `REGLAS`: si `RG-12` desaparece del modelo
+(§4), sigue imprimiéndose con un identificador que ya no existe. `_crean` (261-263) sí deriva de
+`REGLAS`, así que ese cálculo se corrige solo en cuanto `RG-12` desaparezca — el problema es solo la
+línea 254. Y falta la sección que el reemplazo necesita: el mecanismo de `RG-38` no es un bot, así
+que **no** se configura en dos sitios (`Data > Actions` + `Automation > Bots`) — se configura solo en
+`Data > Actions`, y se expone en una vista (§4). Este generador necesita **dos correcciones dentro
+del mismo archivo**: dejar de citar `RG-10`/`RG-12` a mano en la línea 254, y una sección nueva,
+separada de "los bots", que explique `Data > Actions` sin el paso de `Automation > Bots` para
+`RG-38`.
+
+**El defecto restante es de código, no de diseño, y su arreglo es trabajo del ejecutor (`ORDEN-006`),
 no de esta especificación** — el mismo tratamiento que `ESPEC-005` dio a los defectos de código que
-encontró en `V-11`, `PROMPT_CABLEADO.md` y `capacidad.py` (ver la cabecera de ese documento). Se
-listan con el detalle necesario para que la orden no tenga que volver a investigarlos (§6).
+encontró en `V-11`, `PROMPT_CABLEADO.md` y `capacidad.py` (ver la cabecera de ese documento), y que
+esta misma especificación ya recibió una vez (commit `f790c91`). Se lista con el detalle necesario
+para que la orden no tenga que volver a investigarlo (§6).
+
+### 2.9 La ventana barata: qué se cerró con `P-09` y qué sigue abierto
+
+`CLAUDE.md` §7.17 la nombra: ocho tablas —`VOLCADO_CIEGO_A`— están en cero filas, y esa vacuidad es
+lo único que hace que corregir un tipo o una clave cueste un clic en vez de una migración. Cualquier
+fixture de esta especificación tiene que decidir con esa cuenta a la vista, no después.
+
+**`P-09` de `PRUEBA-005` ya se ejecutó y quedó registrada, con transcripción literal, no un
+«coincide».**
+
+```bash
+sed -n '144,168p' docs/sdd/ACTA-005-pruebas.md
+```
+```
+#### `P-09` — el registro literal
+
+**Cotejo a ojo en el editor.** No hay comando que lo recupere: la API devuelve filas, no esquema,
+así que esta transcripción es la única evidencia que va a existir. Se copió aunque coincidiera con
+lo esperado, porque «coincide» no es evidencia.
+
+El aviso «A newer version of the app exists» **no apareció**, así que la lectura no es sobre caché.
+
+| | `OT_OrdenesTrabajo` | `PLA_PlanMantenimiento` |
+|---|---|---|
+| Clave | `OTID` | `PlanID` |
+| `App formula` | vacío | vacío |
+| `Initial value` | `= UNIQUEID()` | `= UNIQUEID()` |
+| `Key` | marcado | marcado |
+| `_RowNumber` con `Key` | **no** | **no** |
+
+Y las dos columnas virtuales, que el panel del editor rotula como tales —«`OT_OrdenesTrabajo :
+Etiqueta (virtual)`»—:
+
+| | `App formula` | `Show?` | `Label` | Única con `Label` |
+|---|---|---|---|---|
+| `OT_OrdenesTrabajo.Etiqueta` | `CONCATENATE([ActivoID].[Nombre], " - ", [FechaProgramada])` | sí | sí | sí, de 15 columnas |
+| `PLA_PlanMantenimiento.Etiqueta` | `CONCATENATE([ActivoID].[Nombre], " - ", [FrecuenciaID].[Nombre])` | sí | sí | sí, de 9 columnas |
+```
+
+`OTID` y `PlanID` tienen `Initial value = UNIQUEID()` y `Key` marcada; `_RowNumber` no la tiene; y
+las dos columnas virtuales `Etiqueta` están con `Show?` y `Label` activos, únicas de su tabla. Es la
+condición que el mapeo de columnas de `RG-38` necesita para poder cablearse (§3.3) y que la propia
+`ESPEC-005` §7.1 ya asumía.
+
+**Y fue de solo lectura, verificado con dos instrumentos, no uno.** El acta lo dice —*"Lectura de
+vuelta: `instantanea.py comparar antes-de-la-ventana tras-p09` → NINGUNA CELDA CAMBIO"*— y se
+reconfirma hoy, corriendo el mismo comando otra vez sobre las instantáneas que quedaron en el
+repositorio:
+
+```bash
+python scripts/instantanea.py comparar antes-de-la-ventana tras-p09
+```
+```
+NINGUNA CELDA CAMBIO.
+```
+
+```bash
+python -c "
+import json
+d = json.load(open('BD/instantaneas/tras-p09.json', encoding='utf-8'))
+for t in ['OT_OrdenesTrabajo','MAN_Mantenimientos','CHK_Checklists','CHD_ChecklistDetalle',
+          'FOT_Fotografias','FIR_Firmas','NOV_Novedades','PLA_PlanMantenimiento']:
+    print(t, len(d.get(t, [])))
+"
+```
+```
+OT_OrdenesTrabajo 0
+MAN_Mantenimientos 0
+CHK_Checklists 0
+CHD_ChecklistDetalle 0
+FOT_Fotografias 0
+FIR_Firmas 0
+NOV_Novedades 0
+PLA_PlanMantenimiento 0
+```
+
+**Las ocho tablas siguen en cero.** La ventana barata sigue abierta — `P-09` la usó y no la cerró.
+
+**Lo que `P-09` no cierra es el resto de `ENCARGO_VENTANA.md`.** De las 54 columnas que ese encargo
+lista como pendientes de cotejo «a mano» en las ocho tablas, 9 son de `OT_OrdenesTrabajo`, y siguen
+pendientes hoy — verificado con el mismo instrumento que las contó por primera vez, no con el
+`ENCARGO_VENTANA.md` citado de memoria:
+
+```bash
+python -c "
+import sys;sys.path.insert(0,'scripts')
+from inferencia import clasificar
+for t,c,m in clasificar()['a mano']:
+    if t=='OT_OrdenesTrabajo': print(c['nombre'])
+"
+```
+```
+ActivoID
+TecnicoID
+SupervisorID
+Tipo
+EstadoOrdenID
+OTOrigenID
+Observaciones
+CerradaPor
+Activo
+```
+
+`EstadoOrdenID` está entre las nueve, y de ella depende la desreferencia `[EstadoOrdenID].[EsFinal]`
+de la propia `RG-37`: si el `Ref` no está confirmado, la regla no puede leer `EsFinal` y el fixture
+de §6 fallaría por un motivo que no tiene nada que ver con la expresión que se está probando. Esto
+fija, como precondición y no como recomendación de secuencia, lo que `PRUEBA-006` exige antes de la
+primera fila de cualquier fixture que toque `OT_OrdenesTrabajo` (§6).
 
 ## 3. Qué cambia exactamente
 
 | Mecanismo | Antes | Después | Nota |
 |---|---|---|---|
-| Marcar una orden vencida | `RG-08`, `Bot programado` sobre `OT_OrdenesTrabajo.EstadoOrdenID`. Mueve la orden al estado `Vencida`, que es final | `RG-37`, `App formula` sobre columna **VIRTUAL** `EstaVencida` (`Yes/No`) en `OT_OrdenesTrabajo`. Misma expresión exacta: `AND([EstadoOrdenID].[EsFinal] = FALSE, [FechaProgramada] < TODAY())`. No escribe, no mueve el estado, se recalcula en cada sincronización | El estado de la orden no cambia solo. `EstaVencida` es una lectura, no una decisión |
-| Generar las órdenes de la semana desde el plan | `RG-12`, `Bot programado` sobre `PLA_PlanMantenimiento`. Condición `[ProximaFecha] <= TODAY() + 7` | `RG-38`, `Accion` (nuevo tipo) sobre `PLA_PlanMantenimiento`. Una vista/slice con la condición `AND([Activo] = TRUE, [ProximaFecha] <= TODAY() + 7)`, más una acción `Data: add a new row to another table using values from this row` que el supervisor pulsa —individualmente o en bloque— y crea la fila en `OT_OrdenesTrabajo` | El disparo pasa de automático a manual. Ver §3.2 para el mapeo de columnas |
+| Marcar una orden vencida | `RG-08`, `Bot programado` sobre `OT_OrdenesTrabajo.EstadoOrdenID`. Mueve la orden al estado `Vencida`, que es final | `RG-37`, `App formula` sobre columna **VIRTUAL** `EstaVencida` (`Yes/No`) en `OT_OrdenesTrabajo`. Misma expresión exacta: `AND([EstadoOrdenID].[EsFinal] = FALSE, [FechaProgramada] < TODAY())`. No escribe, no mueve el estado, se recalcula en cada sincronización | El estado de la orden no cambia solo. `EstaVencida` es una lectura, no una decisión. Su consumidor: §3.2 |
+| Generar las órdenes de la semana desde el plan | `RG-12`, `Bot programado` sobre `PLA_PlanMantenimiento`. Condición `[ProximaFecha] <= TODAY() + 7` | `RG-38`, `Accion` (nuevo tipo) sobre `PLA_PlanMantenimiento`. Una vista/slice con la condición `AND([Activo] = TRUE, [ProximaFecha] <= TODAY() + 7)`, más una acción `Data: add a new row to another table using values from this row` que el supervisor pulsa —individualmente o en bloque— y crea la fila en `OT_OrdenesTrabajo` | El disparo pasa de automático a manual. Ver §3.3 para el mapeo de columnas |
 | Estado `Vencida` en `EOT_EstadosOrden` | Fila con `QuienCambia = Sistema`, `EsFinal = Y` | Se conserva la fila y `EsFinal = Y`. Cambia el dato `QuienCambia`, de `Sistema` a `Supervisor` | Ver §3.1. Es un cambio de **dato**, no de columna |
+| Estado `Programada` en `EOT_EstadosOrden` | Fila con `QuienCambia = Sistema` | Se conserva la fila. Cambia el dato `QuienCambia`, de `Sistema` a `Supervisor` | Ver §3.1. Mismo argumento que `Vencida`, misma superficie de aplicación (§6) |
 
-### 3.1 Qué pasa con `Vencida` como estado — la pregunta central de este documento
+### 3.1 Qué pasa con `Vencida` y con `Programada` como estados — la pregunta central de este documento
 
 **No sobra.** Se conserva como una de las siete filas de `EOT_EstadosOrden`, pero cambia lo que
 significa. Hoy es una consecuencia automática del paso del tiempo, escrita por `Sistema`. Sin
@@ -344,7 +503,61 @@ está tarde.
 confirmado. Es corregible: si operación decide que una orden vencida sí debe poder reabrirse, la
 fila y el dato quedan igual y lo que cambia es una regla nueva de reapertura, no esta.
 
-### 3.2 El mapeo de columnas de la acción de `RG-38`, verificado columna por columna contra el modelo
+**El mismo argumento se aplica a `Programada`, y el dictamen lo señaló porque esta especificación
+no lo había nombrado.** Hoy la fila `Programada` de `EOT_EstadosOrden` también dice
+`QuienCambia = Sistema` (§2.2). Antes de `RG-38`, era correcto: `RG-12`, el bot semanal, dejaba la
+orden nueva en `Programada` sin que nadie la tocara. Tras `RG-38`, quien deja una orden en
+`Programada` es **un supervisor pulsando la acción** —el mapeo de §3.3 fija
+`EstadoOrdenID = "Programada"` como el literal que esa acción escribe, y la acción no se dispara
+sola: la dispara una persona—. Dejarlo en `Sistema` sería, con el mismo argumento que ya se usó para
+`Vencida`, *"un campo lleno que describe algo que ya no ocurre"* — y sería incoherente aplicar ese
+argumento a una fila del catálogo y no a la otra.
+
+**Lo único que lo sostiene en parte es `RG-10`.** Sigue siendo un `Bot` por evento —no un
+`Bot programado`, así que sí corre en la cuenta gratuita (§2.1)— y crea una orden de seguimiento
+cuando `RequiereSegundaVisita = TRUE`. Es, en sentido estricto, un mecanismo automático que también
+podría dejar una orden en `Programada`. Pero el modelo no declara qué `EstadoOrdenID` le pone esa
+orden —no hay `Initial value` ni un `Step` documentado en `REGLAS` para `RG-10` más allá del
+disparador (`docs/sdd/RECONSTRUCCION_EXPRESIONES.md`, sección de la propia regla)—, así que no hay
+en el archivo ninguna evidencia de que aterrice en `Programada` y no, por ejemplo, directamente en
+`Asignada` —una orden de seguimiento nace ya sabiendo a qué técnico corresponde, que es
+precisamente la condición para saltarse `Programada`—. **No hay ninguna prueba documental de que
+`RG-10` sea hoy la razón por la que `Programada` dice `Sistema`.**
+
+**Se decide: `QuienCambia` de `Programada` pasa de `Sistema` a `Supervisor`, igual que `Vencida`.**
+El único mecanismo de esta especificación cuyo literal para esa columna está verificado en el
+archivo (§3.3) es humano. Si en el futuro se confirma que `RG-10` también deja órdenes en
+`Programada`, eso no revierte la decisión: seguiría siendo cierto que el camino *principal* hacia
+`Programada` —el volumen semanal del plan, del orden de 80 a 90 órdenes (§2.7), frente a las
+excepcionales de segunda visita— pasó a ser una decisión de una persona, y `QuienCambia` documenta
+quién decide, no una lista de todo lo que técnicamente podría escribir la columna: ninguna otra fila
+del catálogo lo hace así tampoco (`Asignada` dice `Supervisor` aunque un técnico con permisos de
+edición pudiera, en teoría, tocarla a mano).
+
+### 3.2 Dónde ve el supervisor que una orden está vencida — el consumidor de `EstaVencida`
+
+`RG-38` declara su vista dentro de su propia descripción (§4): el supervisor abre `"Vence en 7
+días"` sobre `PLA_PlanMantenimiento` y ahí pulsa la acción. `RG-37`, en la versión anterior de este
+documento, declaraba una columna y nada más — ni vista, ni slice, ni aviso, ni reporte. Es
+exactamente el molde de `CLAUDE.md` §7.13 que esta misma especificación le reprocha a `RG-08`: una
+regla puesta, bien escrita, que no hace nada, porque nadie la mira.
+
+**Se declara un consumidor mínimo, con el mismo mecanismo que ya usa `RG-38` para su propia vista —
+no se modela como una `REGLA` aparte, porque `REGLAS` no tiene un `tipo` para vistas y no hace falta
+crear uno para una sola fila.** Sobre `OT_OrdenesTrabajo`, una vista `"Órdenes vencidas"` con la
+condición `[EstaVencida] = TRUE`, visible para el rol Supervisor. Es de solo lectura: no añade
+ningún botón ni ninguna acción, solo hace visible lo que `EstaVencida` ya calcula. Se declara dentro
+de la propia descripción de `RG-37` en `scripts/modelo_objetivo.py` (§4), no como una regla nueva.
+
+**Esto no cierra el punto por completo, y se dice así.** No hay histórico (§3.4: si la orden se
+cierra tarde, `EstaVencida` vuelve a `FALSE` y la vista deja de listarla) y no hay aviso activo —el
+supervisor tiene que abrir la vista, nada le notifica—. Es la misma limitación que ya tiene `RG-38`
+sin un octavo mecanismo que avise por correo, y no se resuelve aquí: **el alcance de esta
+especificación es que la información exista y sea visible bajo demanda, no que empuje una
+notificación.** Si eso hace falta, es una especificación futura sobre `RG-07` o un bot nuevo, no
+esta.
+
+### 3.3 El mapeo de columnas de la acción de `RG-38`, verificado columna por columna contra el modelo
 
 ```bash
 python -c "
@@ -405,7 +618,7 @@ resuelve aquí: exige que operación mantenga `ResponsableID` poblado en cada fi
 `PLA_PlanMantenimiento` que se vaya a usar con esta acción, y hoy nada lo obliga (no hay
 `Required_If` sobre esa columna).
 
-### 3.3 Qué se pierde con cada alternativa, y quién se queda con lo que falta
+### 3.4 Qué se pierde con cada alternativa, y quién se queda con lo que falta
 
 **`RG-37` (columna virtual en vez de bot programado).**
 - Se pierde el registro histórico de que una orden **estuvo** vencida en algún momento. Si la
@@ -459,8 +672,11 @@ dict(id="RG-37", tabla="OT_OrdenesTrabajo", columna="(tabla)",
                   "toca la hoja. Reemplaza a RG-08. Misma condicion exacta que tenia el bot "
                   "programado, pero como lectura que se recalcula en cada sincronizacion: no "
                   "escribe, no mueve el estado, y el tecnico que llega tarde sigue pudiendo "
-                  "cerrar. No tiene historico: si la orden se cierra tarde, vuelve a FALSE y no "
-                  "queda marca de que estuvo vencida (ver ESPEC-006 3.3).")),
+                  "cerrar. Su consumidor: una vista 'Ordenes vencidas' sobre esta tabla, "
+                  "condicion [EstaVencida] = TRUE, visible para el rol Supervisor (ver "
+                  "ESPEC-006 3.2). No tiene historico: si la orden se cierra tarde, vuelve a "
+                  "FALSE y no queda marca de que estuvo vencida, y la vista deja de listarla "
+                  "(ver ESPEC-006 3.4).")),
 dict(id="RG-38", tabla="PLA_PlanMantenimiento", columna="(tabla)",
      tipo="Accion", cubre="Plan de mantenimiento",
      expresion="AND([Activo] = TRUE, [ProximaFecha] <= TODAY() + 7)",
@@ -469,12 +685,18 @@ dict(id="RG-38", tabla="PLA_PlanMantenimiento", columna="(tabla)",
                   "se expone una accion 'Data: add a new row to another table using values from "
                   "this row' (Data > Actions), que el supervisor pulsa -individual o en bloque, "
                   "ver Actions: The Essentials, seccion Bulk actions- y crea la fila en "
-                  "OT_OrdenesTrabajo. Mapeo de columnas verificado en ESPEC-006 3.2. No usa "
+                  "OT_OrdenesTrabajo. Mapeo de columnas verificado en ESPEC-006 3.3. No usa "
                   "Automation > Bots: no hay Event ni Schedule, es invocacion explicita del "
                   "usuario. No requiere plan de pago (ver ESPEC-006 2.1: la restriccion "
                   "verificada contra la fuente oficial es sobre bots con Schedule event, no "
                   "sobre acciones invocadas por el usuario).")),
 ```
+
+**Dato, no regla: las filas `Vencida` y `Programada` de `EOT_EstadosOrden` cambian `QuienCambia` a
+`Supervisor` (§3.1).** Esto no se declara en `REGLAS` —`QuienCambia` no lo lee ninguna regla, es
+descriptivo (§5)— ni en `MODELO` —la columna ya existe y su tipo no cambia—. Es un cambio de
+**contenido** de una tabla de catálogo, y se aplica y se verifica como tal: a mano, en las dos
+superficies que hoy coinciden, con el gate ligero de Fase A (§6).
 
 **Se añade el campo `es_label=True` a los `dict` de `RG-35` y `RG-36`** (ya aplicados por
 `ESPEC-005`), sin tocar ninguna otra propiedad de esas dos entradas. Es la marca mínima que permite
@@ -500,14 +722,22 @@ column-céntricos en `REGLAS` hoy: `RG-18` es `"Doctrina de reportes"` y su prop
   (`RG-30`). No tiene relación de mecanismo con lo que aquí se decide: es un estado nuevo, no un
   cambio de quién escribe uno existente.
 - **Que `QuienCambia` se imponga con una regla.** Hoy ninguna de las 23 (25 tras esta
-  especificación) la lee. Cambiar el dato de la fila `Vencida` (§3.1, §6) no le da efecto: sigue
-  siendo, como hoy, un dato descriptivo que nadie hace cumplir. Imponerla es el trabajo que
-  `ESPEC-003` ya reserva con `RG-23`/`RG-24`, bloqueada.
-- **Corregir los tres generadores** (`generar_reconstruccion.py`, `generar_prompt_cableado.py`,
-  `generar_prompt_expresiones.py`) que §2.8 encontró rotos. Se documenta el defecto exacto y la
-  causa para que la orden de ejecución no tenga que volver a investigarlo, pero el cambio de código
-  es de la orden, no de esta especificación — mismo reparto que `ESPEC-005` hizo con sus propios
-  defectos de código encontrados en el camino.
+  especificación) la lee. Cambiar el dato de las filas `Vencida` y `Programada` (§3.1, §6) no le da
+  efecto: sigue siendo, como hoy, un dato descriptivo que nadie hace cumplir. Imponerla es el
+  trabajo que `ESPEC-003` ya reserva con `RG-23`/`RG-24`, bloqueada.
+- **Un histórico o un aviso activo para `EstaVencida`.** §3.2 declara una vista de solo lectura,
+  visible bajo demanda; no incluye correo, notificación push ni una columna que recuerde que la
+  orden estuvo vencida después de cerrarse tarde. Es la misma decisión que ya tomó `RG-18` sobre no
+  filtrar histórico por la bandera actual del padre, un nivel más arriba (§3.4).
+- **Corregir el generador que sigue roto** (`generar_prompt_expresiones.py`, §2.8: la línea que cita
+  `RG-10`/`RG-12` a mano, y la sección que falta para `Data > Actions` sin bots). Los otros dos
+  generadores con la misma heurística —`generar_reconstruccion.py` y `generar_prompt_cableado.py`—
+  ya estaban corregidos desde que se autoría esta especificación (commit `0d3d641`), y el tercero
+  (`generar_encargo_ventana.py`) se corrigió después de que el arquitecto lo encontrara (commit
+  `f790c91`), verificado en §2.8; ninguno de los tres vuelve a mandarse aquí. Se documenta el
+  defecto restante con el detalle necesario para que la orden de ejecución no tenga que volver a
+  investigarlo, pero el cambio de código es de la orden, no de esta especificación — mismo reparto
+  que `ESPEC-005` hizo con sus propios defectos de código encontrados en el camino.
 - **Actualizar `docs/ROADMAP.md`, `docs/FUNCIONAL_SGMC.md` §4 y `docs/ALCANCE_Y_SUPUESTOS_SGMC.md`
   D-06** para que dejen de describir `Vencida` como escrita por `Sistema` y `RG-08`/`RG-12` como
   bots pendientes de plan de pago. Es una corrección de redacción derivada de una decisión ya
@@ -521,36 +751,71 @@ column-céntricos en `REGLAS` hoy: `RG-18` es `"Doctrina de reportes"` y su prop
 
 ## 6. Riesgos y dependencias
 
-- **Los tres generadores rotos (§2.8) tienen que corregirse antes de regenerar `PROMPT_CABLEADO.md`,
-  `RECONSTRUCCION_EXPRESIONES.md` o `PROMPT_EXPRESIONES.md`, o esos documentos van a instruir mal
-  al ejecutor de la Fase C.** Concretamente: `generar_reconstruccion.py` y
-  `generar_prompt_cableado.py` deben filtrar sus secciones de "columna virtual = Label" por
-  `r.get("es_label")` en vez de por la forma `tipo == "App formula" and columna == "(tabla)"`, y
-  usar `r.get("nombre_virtual", "Etiqueta")` en vez del literal `"Etiqueta"` para el resto de
-  columnas virtuales sin `es_label`. `generar_prompt_expresiones.py` debe dejar de citar `RG-12`
-  por id fijo en su sección de bots que crean filas, y necesita una sección nueva, separada de "los
-  bots", que explique `Data > Actions` sin el paso de `Automation > Bots` para `RG-38`. Ninguno de
-  los tres cambios toca `scripts/modelo_objetivo.py`; son correcciones de código en los
-  generadores, verificadas y localizadas en §2.8.
-- **`ResponsableID` opcional contra `TecnicoID` obligatoria (§3.2).** La acción de `RG-38` falla al
+- **El generador que sigue roto (§2.8) tiene que corregirse antes de regenerar
+  `PROMPT_EXPRESIONES.md`, o ese documento va a instruir mal al ejecutor de la Fase C.**
+  `generar_prompt_expresiones.py` necesita dos correcciones dentro del mismo archivo: dejar de citar
+  `RG-10`/`RG-12` a mano en la línea de *"Afecta a `RG-10` y a `RG-12`"*, y añadir una sección nueva,
+  separada de "los bots", que explique `Data > Actions` sin el paso de `Automation > Bots` para
+  `RG-38`. No toca `scripts/modelo_objetivo.py`; es una corrección de código en el generador,
+  verificada y localizada en §2.8. Los otros dos generadores con la misma heurística que esta
+  especificación había encontrado (`generar_reconstruccion.py`, `generar_prompt_cableado.py`) ya
+  estaban corregidos desde que se autoría esta especificación (commit `0d3d641`), y el tercero que el
+  arquitecto encontró (`generar_encargo_ventana.py`) se corrigió después (commit `f790c91`); no se
+  listan aquí de nuevo.
+- **Antes de la primera fila de cualquier fixture que toque `OT_OrdenesTrabajo`: `P-09` cerrada y
+  las 9 columnas de esa tabla en `ENCARGO_VENTANA.md` cotejadas — las dos, precondición, no
+  secuencia recomendada (§2.9).** `P-09` ya está cerrada, registrada con transcripción literal en
+  `docs/sdd/ACTA-005-pruebas.md` (commit `7a6e750`): `OTID` y `PlanID` tienen
+  `Initial value = UNIQUEID()` y `Key` marcada. Lo que sigue abierto es el cotejo de las 9 columnas
+  de `OT_OrdenesTrabajo` que `docs/ENCARGO_VENTANA.md` lista, verificado hoy con
+  `inferencia.clasificar()` (§2.9): siguen las 9 pendientes, entre ellas `EstadoOrdenID → Ref
+  EOT_EstadosOrden`, de la que depende la desreferencia `[EstadoOrdenID].[EsFinal]` de la propia
+  `RG-37`. Sin ese cotejo, un fixture que pruebe `RG-37` no distingue "la regla está mal" de "el
+  `Ref` no está confirmado" — la prueba fallaría y apuntaría al sitio equivocado. `PRUEBA-006` lo
+  fija como precondición de su Familia B, no como un paso opcional.
+- **`ResponsableID` opcional contra `TecnicoID` obligatoria (§3.3).** La acción de `RG-38` falla al
   validar si se ejecuta sobre una fila de `PLA_PlanMantenimiento` sin `ResponsableID`. No hay
   ninguna regla que lo exija hoy. Operación tiene que mantenerlo poblado, o se necesita una
   `Required_If` nueva — no incluida aquí porque cambiaría el comportamiento de captura del plan,
   fuera del alcance de esta especificación.
-- **El dato `QuienCambia = Supervisor` en la fila `Vencida` de `EOT_EstadosOrden` es un cambio de
-  dato, no de estructura, y no lo controla ningún generador.** `generar_plantilla.py` preserva el
-  contenido de las tablas de catálogo entre pasadas (comentario `ORIGEN = SALIDA` en el propio
-  script, verificado en el código) y solo completa filas que falten — no reescribe una fila que ya
-  existe. El cambio hay que aplicarlo a mano, en las dos superficies que hoy coinciden: la fila de
-  `BD/Modelo_Datos_PLANTILLA.xlsx` y la fila equivalente del Sheets de producción
+- **El dato `QuienCambia = Supervisor` en las filas `Vencida` y `Programada` de `EOT_EstadosOrden`
+  es un cambio de dato, no de estructura, y no lo controla ningún generador.** Son **dos** filas,
+  no una: §3.1 decide las dos con el mismo argumento. `generar_plantilla.py` preserva el contenido
+  de las tablas de catálogo entre pasadas (comentario `ORIGEN = SALIDA` en el propio script,
+  verificado en el código) y solo completa filas que falten — no reescribe una fila que ya existe.
+  El cambio hay que aplicarlo a mano, en las dos superficies que hoy coinciden: las dos filas de
+  `BD/Modelo_Datos_PLANTILLA.xlsx` y las dos filas equivalentes del Sheets de producción
   `Modelo_Datos_10082026`. Es un cambio de Fase A (la hoja), gate ligero: se verifica leyendo de
-  vuelta, igual que cualquier otro dato.
-- **Dependencia de `ESPEC-005`.** `RG-37` y `RG-38` crean o podrían crear filas en
-  `OT_OrdenesTrabajo`, y esa tabla depende de que `OTID` tenga `Initial value = UNIQUEID()` para no
-  descartar filas sin clave en silencio (`ESPEC-005`, aplicada al modelo el 2026-08-10; falta la
-  mitad que vive en el editor, según `docs/ENCARGO_VENTANA.md`). Esta especificación no crea ese
-  riesgo: lo hereda, y no se puede cablear `RG-38` en el editor hasta que esa mitad esté puesta,
-  igual que ya vale para `RG-10`.
+  vuelta, igual que cualquier otro dato — y con dos filas en vez de una, la lectura de vuelta tiene
+  que confirmar las dos, no solo la que se mire primero.
+- **La ruta de reversión, para la parte que no la tiene.** El punto anterior (`QuienCambia`) se
+  revierte con un `UPDATE` de una celda si hace falta: es dato de catálogo, sin costo. **Poblar
+  `OT_OrdenesTrabajo` y `MAN_Mantenimientos` con el fixture de `PRUEBA-006` no tiene esa reversión.**
+  Las dos son dos de las ocho tablas de `VOLCADO_CIEGO_A` (§2.9, `CLAUDE.md` §7.17): mientras estén
+  en cero, corregir un tipo o una clave mal puesta cuesta un clic; en cuanto entra la primera fila,
+  cuesta una migración, y ese precio no baja después. `PRUEBA-006` `P-60` cierra su fixture marcando
+  `Activo = FALSE`, **nunca `Action: Delete`** —la misma política que ya fijó `PRUEBA-005` §2—, así
+  que después de `P-60` las dos tablas **no vuelven a cero**: la ventana se cerró, y cerrarla con
+  cuidado no es lo mismo que no cerrarla. No hay manera de deshacer eso una vez ejecutado.
+
+  **Por qué se acepta gastarlo ahora, y no después.** El defecto que esta especificación existe
+  para corregir —`RG-08` movía la orden a un estado terminal y le impedía al técnico cerrarla
+  (§2.2)— no se puede dar por corregido sin ejercitarlo: `P-55` es la única prueba que demuestra que
+  `RG-37` no reproduce ese defecto, y no hay forma de correr `P-55` sin que exista al menos una
+  orden real, cerrada, en `OT_OrdenesTrabajo` y `MAN_Mantenimientos`. El costo es acotado y se paga
+  una sola vez —3 filas en `OT_OrdenesTrabajo`, 1 en `MAN_Mantenimientos` (`PRUEBA-006` §2)—, y se
+  paga **después**, no antes, de que la precondición de arriba (`P-09` y el cotejo de los 9 tipos)
+  esté cumplida: así el error que sale caro después de cerrar la ventana —un tipo mal puesto en
+  `EstadoOrdenID`— ya se descartó cuando todavía costaba un clic. La alternativa —no probar `RG-37`
+  con datos reales— dejaría la especificación entera apoyada en que la lectura de la expresión es
+  correcta a ojo, que es exactamente el modo de fallo que documentó la fórmula de geofencing que
+  nunca funcionó (instrucciones de este agente).
+- **Dependencia de `ESPEC-005`, en lo que sigue sin resolver.** `RG-38` crea filas en
+  `OT_OrdenesTrabajo` mediante una acción, y esa acción no se puede cablear en el editor hasta que
+  `OTID` tenga `Initial value = UNIQUEID()` puesto — condición que `P-09` ya cumplió (arriba). Lo
+  que `ESPEC-005`/`PRUEBA-005` no ha cerrado todavía es el resto de su propio fixture (`P-10` a
+  `P-17`, `ACTA-005-pruebas.md`: 9 de 17 siguen `NO EJECUTADA`), y esta especificación no depende de
+  eso — depende solo de `P-09`, ya satisfecha.
 - **Qué pasa el día que se contrate el plan de pago.** No hay vuelta atrás automática ni conviene
   que la haya. `RG-37` sigue siendo estrictamente mejor que un bot programado con el mismo
   propósito **incluso en el plan de pago**, porque el defecto que corrige (`Vencida` bloqueando el
@@ -558,7 +823,7 @@ column-céntricos en `REGLAS` hoy: `RG-18` es `"Doctrina de reportes"` y su prop
   en §2.2 sin relación con §2.1. Reintroducir un bot programado que escriba `Vencida` reintroduciría
   ese defecto con o sin plan pagado. Para `RG-38`, la pregunta sí depende del licenciamiento: con
   plan de pago, generar automáticamente las órdenes de la semana vuelve a ser técnicamente posible,
-  pero el argumento de fondo de §3.3 —que alguien decida generar las órdenes, en un sistema cuyo
+  pero el argumento de fondo de §3.4 —que alguien decida generar las órdenes, en un sistema cuyo
   propósito es la trazabilidad, no es un consuelo menor— no depende del precio de la cuenta. La
   decisión de volver a un disparador automático, si se toma, es una especificación nueva que
   compare explícitamente "automático con dueño verificable" contra "automático sin dueño", no un
@@ -606,3 +871,40 @@ column-céntricos en `REGLAS` hoy: `RG-18` es `"Doctrina de reportes"` y su prop
 6. **El nombre del tipo `"Accion"`, sin acento, en `REGLAS`.** Sigue la convención ASCII que ya usan
    `"Verificacion de evidencia"` y otros tipos existentes en el mismo diccionario, no una decisión
    de estilo nueva.
+7. **Que una columna virtual `App formula` con `Show?` activo se lee por la API, no solo se ve en la
+   app.** De este supuesto dependen cuatro pruebas de `PRUEBA-006` (`P-51` a `P-54`): todas leen
+   `EstaVencida` con `instantanea.py`, que es la API. Lo que está confirmado, y **no es lo mismo**,
+   es que las columnas virtuales *inversas de una `Ref`* (`Related <Tabla>`) viajan en las filas que
+   devuelve la API — `docs/BASE_CONOCIMIENTO_APPSHEET.md` §16, «Observado en la aplicación el
+   2026-08-10» contra `SED_Sedes` y contra el hallazgo de `ACT_Activos.TipoActivoID`. Esa sección no
+   dice nada sobre una columna virtual `App formula` corriente como `EstaVencida` o `Etiqueta`. La
+   verificación más cercana que existe es indirecta y no cierra la pregunta:
+
+   ```bash
+   grep -n "Cotejo a ojo\|API devuelve filas" docs/sdd/ACTA-005-pruebas.md
+   ```
+   ```
+   146:**Cotejo a ojo en el editor.** No hay comando que lo recupere: la API devuelve filas, no esquema,
+   ```
+
+   `P-09` cotejó que `Etiqueta` tiene `Show?` activo **mirando el editor**, no leyéndola de vuelta
+   por API — porque `OT_OrdenesTrabajo` y `PLA_PlanMantenimiento` seguían en cero (§2.9) y una tabla
+   vacía no devuelve ninguna fila con la que probar nada (`docs/BASE_CONOCIMIENTO_APPSHEET.md` §16,
+   "El segundo agujero"). **No hay, en todo el repositorio, un solo caso registrado de una columna
+   virtual `App formula` con `Show?` activo leída con datos reales por `instantanea.py`.** Se adopta
+   como supuesto, no como confirmado, porque es la lectura más razonable de cómo funciona la API v2
+   —devuelve el estado calculado de cada columna visible de la fila, no distingue el origen de esa
+   columna— y porque es la premisa con la que ya se diseñó el fixture de `Etiqueta` en `PRUEBA-005`
+   sin que nadie lo cuestionara entonces. **La consecuencia si es falso:** `P-51` a `P-54` no se
+   pueden ejecutar tal como están escritas —la API no devolvería `EstaVencida` en absoluto, o la
+   devolvería vacía— y el fixture de tres filas en `OT_OrdenesTrabajo` (§6, "la ruta de reversión")
+   se habría gastado sin poder demostrar lo único que existía para demostrar: que `RG-37` calcula
+   `Y`/`N` correctamente. La salida, si eso pasa, es la misma que ya usa `P-61`: cotejar el resultado
+   a ojo en el editor, con fecha y con quién lo miró, degradando la prueba de **verificada** a
+   **mirada** — no descartando el fixture ya sembrado.
+8. **Que `QuienCambia = Supervisor` es correcto para `Programada` aunque `RG-10` (bot por evento,
+   §2.1) también pueda crear órdenes.** Desarrollado en §3.1: el modelo no declara qué
+   `EstadoOrdenID` deja `RG-10` en la orden que crea, así que no hay evidencia documental de que
+   aterrice en `Programada`. Si se confirma que sí, el supuesto no se revierte solo por eso —ver
+   §3.1 para el argumento completo—, pero sería una razón para reabrir la pregunta con datos reales
+   en vez de con lo que dice el archivo.

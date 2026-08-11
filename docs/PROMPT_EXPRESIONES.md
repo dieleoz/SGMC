@@ -186,7 +186,7 @@ El orden es este:
 2. **`Automation > Bots` → tu bot → `Add a step` → `Run a data action`**, y eliges la que
    acabas de crear.
 
-Afecta a `RG-10` y a `RG-12`, que son los dos que crean órdenes.
+Afecta a `RG-10` y a `RG-12`, que son las 2 que crean órdenes.
 
 > **`RG-10` y `RG-12` ya se pueden poner.** `OTID` era clave legible y nadie la generaba, así que la fila
 > nacía sin identificador y AppSheet la descartaba en silencio. `ESPEC-005` lo resolvió:

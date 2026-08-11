@@ -251,16 +251,24 @@ w("   another table using values from this row`**.")
 w("2. **`Automation > Bots` → tu bot → `Add a step` → `Run a data action`**, y eliges la que")
 w("   acabas de crear.")
 w("")
-w("Afecta a `RG-10` y a `RG-12`, que son los dos que crean órdenes.")
-w("")
+# Quienes crean filas se derivan de la descripcion de la regla, no de una lista
+# escrita a mano. La habia -«RG-10 y RG-12»- y ESPEC-006 retira RG-12: el texto
+# habria seguido mandando configurar un bot que ya no existe.
+_crean = sorted(r["id"] for r in REGLAS
+                if r["tipo"].startswith("Bot")
+                and any(x in (r.get("descripcion") or "").lower()
+                        for x in ("genera una orden", "genera las ordenes",
+                                  "crear una orden", "anade una fila")))
+if _crean:
+    w("Afecta a %s, %s." % (" y a ".join("`%s`" % x for x in _crean),
+      "que es la que crea órdenes" if len(_crean) == 1
+      else "que son las %d que crean órdenes" % len(_crean)))
+    w("")
 # Este aviso decia «no pongas RG-10 ni RG-12: OTID no tiene generador». Era
 # cierto, y ESPEC-005 lo resolvio: OTID paso a UNIQUEID(). Estaba escrito a mano,
 # asi que habria sobrevivido a su propia solucion y seguido prohibiendo algo ya
 # permitido. Se deriva.
 from modelo_objetivo import CLAVE_GENERADA as _CG
-_crean = sorted({r["id"] for r in REGLAS
-                 if r["tipo"].startswith("Bot") and "OT_Ordenes" in str(r.get("descripcion", "")
-                 ) or r["id"] in ("RG-10", "RG-12")})
 if "OT_OrdenesTrabajo" not in _CG:
     w("> **Y un aviso que vale más que el procedimiento:** un bot que crea filas en")
     w("> `OT_OrdenesTrabajo` tiene un problema abierto. `OTID` es clave legible y **nadie la**")
@@ -376,4 +384,4 @@ with open(SALIDA, "w", encoding="utf-8") as f:
 
 print("Generado:", SALIDA)
 print("%d reglas · %d atraviesan referencias · %d escriben en la hoja"
-      % (len(REGLAS), len(atraviesan), sum(1 for r in REGLAS if r["tipo"] in ESCRIBEN)))
+      % (len(REGLAS), len(atraviesan), sum(1 for r in REGLAS if _escribe(r))))
