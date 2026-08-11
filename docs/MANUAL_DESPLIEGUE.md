@@ -13,7 +13,7 @@
 | Tablas | **28** |
 | Columnas | **209** |
 | Referencias | **39** |
-| Reglas | **21** |
+| Reglas | **23** |
 
 ## Los cinco documentos, y cual se usa cuando
 
@@ -25,7 +25,7 @@ una parte sin leer el resto. Si el que despliega es usted, le basta con este.
 |---|---|---|---|
 | `MANUAL_DESPLIEGUE.md` | Este. La ruta completa, de cero a aplicacion funcionando | Siempre. Es el camino | el **destino** |
 | [`PROMPT_CABLEADO.md`](PROMPT_CABLEADO.md) | Encargo autocontenido de las 39 referencias y de los tipos | Se copia integro a quien cablee | el **destino** |
-| [`PROMPT_EXPRESIONES.md`](PROMPT_EXPRESIONES.md) | Idem para las 21 reglas, con la **cadena de referencias** que atraviesa cada una | Se copia integro despues del cableado | el **destino** |
+| [`PROMPT_EXPRESIONES.md`](PROMPT_EXPRESIONES.md) | Idem para las 23 reglas, con la **cadena de referencias** que atraviesa cada una | Se copia integro despues del cableado | el **destino** |
 | [`TIPOS_ESPERADOS.md`](TIPOS_ESPERADOS.md) | La lista larga, tabla por tabla | Abierto al lado mientras se recorre *Data > Columns* | el **destino** |
 | [`CORRECCIONES_CABLEADO.md`](CORRECCIONES_CABLEADO.md) | **Generado contra la aplicacion viva** | Antes de empezar, y despues de cada tanda | el **estado de HOY** |
 
@@ -84,7 +84,7 @@ columna la produjo hay que preguntarselo al modelo, que es justo lo que se estab
 vive en el destino, asi que de una referencia cuya tabla destino esta vacia el auditor no puede
 decir nada. No la da por buena: la separa.
 
-La ultima instantanea guardada -`BD/instantaneas/despues-de-cablear.json`- trae **953 filas** repartidas en las
+La ultima instantanea guardada -`BD/instantaneas/despues-de-la-ventana.json`- trae **953 filas** repartidas en las
 28 tablas, y **8 de ellas estan vacias**:
 
 ```
@@ -682,7 +682,7 @@ Si alguna vez aparecen —trabajando sobre una copia antigua del libro—, lo qu
 dejarlas en `Text` y desmarcar `Show?`. Como `Ref` dibujan rutas de navegacion que el modelo
 prohibe y aparecen en la aplicacion como si fueran buenas.
 
-## Paso 7 — Las 21 reglas
+## Paso 7 — Las 23 reglas
 
 Las expresiones enteras, con la **cadena de referencias que atraviesa cada una**, estan en
 [`PROMPT_EXPRESIONES.md`](PROMPT_EXPRESIONES.md) —que es lo que se le pasa a quien las ponga— y
@@ -723,7 +723,7 @@ retirada.
 **Y compruebe en que tabla esta antes de abrir la columna**, por lo que dice el paso 5: el
 mismo nombre es clave en una tabla y referencia en otra.
 
-### Las 21, y las 9 que van al final
+### Las 23, y las 9 que van al final
 
 | # | Regla | Tabla | Columna | Propiedad | Escribe |
 |---|---|---|---|---|---|
@@ -739,15 +739,17 @@ mismo nombre es clave en una tabla y referencia en otra.
 | 10 | RG-20 | `MAN_Mantenimientos` | `(varias)` | Editable_If | no |
 | 11 | RG-34 | `ACT_Activos` | `UnidadFuncionalID` | Valid_If | no |
 | 12 | RG-38 | `PLA_PlanMantenimiento` | `(tabla)` | Accion | no |
-| 13 | RG-06 | `MAN_Mantenimientos` | `(tabla)` | Bot | **SI** |
-| 14 | RG-07 | `OT_OrdenesTrabajo` | `(tabla)` | Bot | **SI** |
-| 15 | RG-09 | `CHK_Checklists` | `VersionFormulario` | Initial value | **SI** |
-| 16 | RG-10 | `MAN_Mantenimientos` | `(tabla)` | Bot | **SI** |
-| 17 | RG-11 | `PLA_PlanMantenimiento` | `ProximaFecha` | App formula | **SI** |
-| 18 | RG-16 | `ACT_Activos` | `Activo` | App formula | **SI** |
-| 19 | RG-35 | `OT_OrdenesTrabajo` | `(tabla)` | App formula | **SI** |
-| 20 | RG-36 | `PLA_PlanMantenimiento` | `(tabla)` | App formula | **SI** |
-| 21 | RG-37 | `OT_OrdenesTrabajo` | `(tabla)` | App formula | **SI** |
+| 13 | RG-39 | `FOT_Fotografias` | `Ubicacion_LatLong` | Editable_If | no |
+| 14 | RG-40 | `NOV_Novedades` | `Ubicacion_LatLong` | Editable_If | no |
+| 15 | RG-06 | `MAN_Mantenimientos` | `(tabla)` | Bot | **SI** |
+| 16 | RG-07 | `OT_OrdenesTrabajo` | `(tabla)` | Bot | **SI** |
+| 17 | RG-09 | `CHK_Checklists` | `VersionFormulario` | Initial value | **SI** |
+| 18 | RG-10 | `MAN_Mantenimientos` | `(tabla)` | Bot | **SI** |
+| 19 | RG-11 | `PLA_PlanMantenimiento` | `ProximaFecha` | App formula | **SI** |
+| 20 | RG-16 | `ACT_Activos` | `Activo` | App formula | **SI** |
+| 21 | RG-35 | `OT_OrdenesTrabajo` | `(tabla)` | App formula | **SI** |
+| 22 | RG-36 | `PLA_PlanMantenimiento` | `(tabla)` | App formula | **SI** |
+| 23 | RG-37 | `OT_OrdenesTrabajo` | `(tabla)` | App formula | **SI** |
 
 ### Las 9 que escriben en la hoja van al final, y antes se toma una instantanea
 

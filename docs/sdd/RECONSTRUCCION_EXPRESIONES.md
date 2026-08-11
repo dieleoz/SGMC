@@ -43,7 +43,7 @@ La Fase A renombro columnas en la hoja. Toda expresion que cite un nombre viejo 
 y `Activo` —la bandera Si/No—. Una formula que diga `Activo` **no da error**: apunta a la bandera
 y devuelve lista vacia.
 
-## 2. Las 21 reglas, con su expresion completa
+## 2. Las 23 reglas, con su expresion completa
 
 ### RG-01 — `MAN_Mantenimientos` · `Coordenadas_Cierre_LatLong`
 
@@ -240,6 +240,22 @@ Updates, Adds
 
 ```
 [RequiereSegundaVisita] = TRUE
+```
+
+### RG-39 — `FOT_Fotografias` · `Ubicacion_LatLong`
+
+**Tipo:** Editable_If · cubre Prueba de presencia
+
+```
+FALSE
+```
+
+### RG-40 — `NOV_Novedades` · `Ubicacion_LatLong`
+
+**Tipo:** Editable_If · cubre Prueba de presencia
+
+```
+FALSE
 ```
 
 ## 3. Las claves, todas `Text`

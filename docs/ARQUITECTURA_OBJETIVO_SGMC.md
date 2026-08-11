@@ -16,7 +16,7 @@ paso de vistas de los manuales generados **declara que no está especificado y p
 se haga**, en vez de decir «se construye sola» — que es la clase de instrucción que este proyecto
 tiene prohibida.
 
-**28 tablas · 209 columnas · 39 referencias · 21 reglas**
+**28 tablas · 209 columnas · 39 referencias · 23 reglas**
 
 ---
 
@@ -904,6 +904,26 @@ Genera una orden de seguimiento enlazada a la original mediante OTOrigenID.
 ```
 
 Cubre: D-07
+
+### RG-39 · Editable_If sobre `FOT_Fotografias`.`Ubicacion_LatLong`
+
+Mismo mecanismo que RG-20: HERE() es Initial value, no App formula, y un Initial value SI es editable. Sin esto la coordenada de la fotografia se dibuja como un pin arrastrable y la evidencia queda donde el tecnico quiera dejarla, no donde tomo la foto. CABLEAR DESPUES del Initial value = HERE(): al reves la columna queda obligatoria, no editable y vacia, y ningun tecnico puede guardar una fotografia. ESPEC-008.
+
+```
+FALSE
+```
+
+Cubre: Prueba de presencia
+
+### RG-40 · Editable_If sobre `NOV_Novedades`.`Ubicacion_LatLong`
+
+Igual que RG-39, sobre la novedad en vez de la fotografia. Sin esto un tecnico registra una novedad en ruta, arrastra el pin y el hallazgo queda georreferenciado donde el quiera. CABLEAR DESPUES del Initial value = HERE(). ESPEC-008.
+
+```
+FALSE
+```
+
+Cubre: Prueba de presencia
 
 ## 6. Validación automática
 

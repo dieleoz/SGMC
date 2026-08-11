@@ -369,7 +369,8 @@ MODELO = {
             col("Tipo", "Enum", obligatoria=True,
                 valores=["Activo no inventariado", "Falla detectada"]),
             col("Descripcion", "LongText", obligatoria=True),
-            col("Ubicacion_LatLong", "LatLong", obligatoria=True, valor_inicial="HERE()"),
+            col("Ubicacion_LatLong", "LatLong", obligatoria=True, valor_inicial="HERE()",
+                editable=False),
             col("Fotografia", "Image", obligatoria=True),
             col("ActivoID", "Ref", ref="ACT_Activos", nota="Solo si la novedad es sobre uno existente"),
             col("Estado", "Enum", valor_inicial="Reportada",
@@ -422,6 +423,7 @@ MODELO = {
                 nota="Calidad baja, 600 px. La camara debe forzarse en la app: si permite elegir "
                      "de la galeria, toda la cadena de evidencia pierde valor"),
             col("Ubicacion_LatLong", "LatLong", obligatoria=True, valor_inicial="HERE()",
+                editable=False,
                 nota="Coordenada de CADA fotografia. La compresion a 600 px descarta el EXIF, "
                      "asi que la geolocalizacion debe guardarse como dato, no confiarse a la imagen"),
             col("FechaHora", "ChangeTimestamp",
@@ -1264,4 +1266,20 @@ REGLAS = [
          tipo="Bot", cubre="D-07",
          expresion='[RequiereSegundaVisita] = TRUE',
          descripcion="Genera una orden de seguimiento enlazada a la original mediante OTOrigenID."),
+    dict(id="RG-39", tabla="FOT_Fotografias", columna="Ubicacion_LatLong",
+         tipo="Editable_If", cubre="Prueba de presencia",
+         expresion="FALSE",
+         descripcion=("Mismo mecanismo que RG-20: HERE() es Initial value, no App formula, y un "
+                      "Initial value SI es editable. Sin esto la coordenada de la fotografia se "
+                      "dibuja como un pin arrastrable y la evidencia queda donde el tecnico quiera "
+                      "dejarla, no donde tomo la foto. CABLEAR DESPUES del Initial value = HERE(): "
+                      "al reves la columna queda obligatoria, no editable y vacia, y ningun "
+                      "tecnico puede guardar una fotografia. ESPEC-008.")),
+    dict(id="RG-40", tabla="NOV_Novedades", columna="Ubicacion_LatLong",
+         tipo="Editable_If", cubre="Prueba de presencia",
+         expresion="FALSE",
+         descripcion=("Igual que RG-39, sobre la novedad en vez de la fotografia. Sin esto un "
+                      "tecnico registra una novedad en ruta, arrastra el pin y el hallazgo queda "
+                      "georreferenciado donde el quiera. CABLEAR DESPUES del Initial value = "
+                      "HERE(). ESPEC-008.")),
 ]

@@ -441,30 +441,30 @@ En *Data > Columns*, marca la casilla **`Label`** de estas columnas:
 | Tabla | Referencias que la apuntan | `Label` |
 |---|---|---|
 | `USR_Usuarios` | 7 | **`Nombres`** |
-| `MAN_Mantenimientos` | 3 | *ninguna: la clave la identifica, y está decidido así* |
-| `FRM_Formularios` | 3 | **`Nombre`** |
 | `UNF_UnidadesFuncionales` | 3 | **`Nombre`** |
+| `FRM_Formularios` | 3 | **`Nombre`** |
 | `ACT_Activos` | 3 | **`Nombre`** |
-| `FRM_Preguntas` | 2 | **`Pregunta`** |
-| `OT_OrdenesTrabajo` | 2 | **`Etiqueta`** |
-| `EST_Activo` | 2 | **`Nombre`** |
+| `MAN_Mantenimientos` | 3 | *ninguna: la clave la identifica, y está decidido así* |
 | `FRE_Frecuencias` | 2 | **`Nombre`** |
+| `EST_Activo` | 2 | **`Nombre`** |
+| `OT_OrdenesTrabajo` | 2 | **`Etiqueta`** |
 | `TIP_TiposActivo` | 2 | **`Nombre`** |
-| `TPR_TiposRespuesta` | 1 | **`Nombre`** |
-| `FAL_ModosFalla` | 1 | **`Nombre`** |
-| `EOT_EstadosOrden` | 1 | **`Nombre`** |
-| `SEN_Sentidos` | 1 | **`Nombre`** |
-| `FRM_Secciones` | 1 | **`Nombre`** |
+| `FRM_Preguntas` | 2 | **`Pregunta`** |
 | `ROL_Roles` | 1 | **`Nombre`** |
-| `MOT_MotivosPendiente` | 1 | **`Nombre`** |
-| `SED_Sedes` | 1 | **`Nombre`** |
-| `CAL_Calzadas` | 1 | **`Nombre`** |
+| `EOT_EstadosOrden` | 1 | **`Nombre`** |
 | `CHK_Checklists` | 1 | *ninguna: la clave la identifica, y está decidido así* |
+| `SEN_Sentidos` | 1 | **`Nombre`** |
+| `MOT_MotivosPendiente` | 1 | **`Nombre`** |
+| `FRM_Secciones` | 1 | **`Nombre`** |
+| `FAL_ModosFalla` | 1 | **`Nombre`** |
+| `TPR_TiposRespuesta` | 1 | **`Nombre`** |
+| `CAL_Calzadas` | 1 | **`Nombre`** |
+| `SED_Sedes` | 1 | **`Nombre`** |
 
 > Las 2 sin etiqueta **no son un hueco**: se identifican por su clave y su fecha. Está
 > decidido, no olvidado.
 
-## Paso 6 — Las 48 expresiones que no son reglas, y por eso no salen en ningún otro sitio
+## Paso 6 — Las 49 expresiones que no son reglas, y por eso no salen en ningún otro sitio
 
 El modelo las declara en la columna, **sin `REGLA` propia**. Y los documentos de expresiones
 —`RECONSTRUCCION_EXPRESIONES.md` y `PROMPT_EXPRESIONES.md`— se generan recorriendo `REGLAS`,
@@ -501,6 +501,7 @@ una fotografía. Esas nacen vacías y nadie lo nota.
 | `LST_ValoresLista` | `Activo` | `Initial value` | `TRUE` |
 | `MAN_Mantenimientos` | `Activo` | `Initial value` | `TRUE` |
 | `MAN_Mantenimientos` | `AprobadoSupervisor` | `Initial value` | `FALSE` |
+| `MAN_Mantenimientos` | `Coordenadas_Cierre_LatLong` | `Initial value` | `HERE()` |
 | `MAN_Mantenimientos` | `FechaHoraInicio` | `Initial value` | `NOW()` |
 | `MAN_Mantenimientos` | `OrigenApertura` | `Initial value` | `Lista` |
 | `MAN_Mantenimientos` | `RequiereSegundaVisita` | `Initial value` | `FALSE` |
@@ -525,7 +526,7 @@ una fotografía. Esas nacen vacías y nadie lo nota.
 | `UNF_UnidadesFuncionales` | `Activo` | `Initial value` | `TRUE` |
 | `USR_Usuarios` | `Activo` | `Initial value` | `TRUE` |
 
-## Paso 7 — Las 21 reglas
+## Paso 7 — Las 23 reglas
 
 Están **enteras y sin cortar** en [`sdd/RECONSTRUCCION_EXPRESIONES.md`](sdd/RECONSTRUCCION_EXPRESIONES.md),
 con su tabla, su columna y su tipo —`Valid_If`, `Initial value`, `App formula`, bot—. Cópialas de

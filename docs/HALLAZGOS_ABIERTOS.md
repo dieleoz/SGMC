@@ -108,3 +108,40 @@ dos expresiones y se cablean; hasta entonces, especificarlo sería escribir alre
 Con una salvedad que sí conviene tener presente: **`RG-10` es la que crea la orden de seguimiento**, y
 `PRUEBA-005` `P-11` y `P-12` prueban justo que la crea o no la crea. Esas dos pruebas no pueden pasar
 hoy por una razón distinta de la que declaran.
+
+## `docs/sdd/RECONSTRUCCION_EXPRESIONES.md` no propaga `descripcion` — la advertencia de `RG-39`/`RG-40` no llega por ese canal
+
+`ESPEC-008` §4 afirma: *«El campo `descripcion` se propaga solo a los tres documentos generados; la
+prosa de una especificación, no»* — y usa esa propagación como el motivo para poner la instrucción
+«CABLEAR DESPUES del Initial value» dentro de `descripcion` en vez de solo en la prosa de la
+especificación. **Es descripción incompleta de lo que hace el código, verificada al aplicar
+`ORDEN-008`:**
+
+```bash
+grep -rn '"descripcion"' scripts/generar_*.py
+```
+
+Solo dos generadores leen `r["descripcion"]`: `generar_doc_arquitectura.py` (→
+`docs/ARQUITECTURA_OBJETIVO_SGMC.md`) y `generar_prompt_expresiones.py` (→
+`docs/PROMPT_EXPRESIONES.md`). **`generar_reconstruccion.py` no lo hace** — comprobado con
+`grep -c descripcion scripts/generar_reconstruccion.py` → `0`. Y `docs/sdd/RECONSTRUCCION_EXPRESIONES.md`
+es, según el propio §4 de `ESPEC-008`, **el documento que nombra como canal del riesgo**: *«`RG-39`
+llega a quien cablea a través de `docs/sdd/RECONSTRUCCION_EXPRESIONES.md`, y allí aparece como «Tipo:
+`Editable_If` · `FALSE`»»*. Verificado tras aplicar `ORDEN-008`:
+
+```bash
+grep -A6 "RG-39" docs/sdd/RECONSTRUCCION_EXPRESIONES.md
+```
+
+Sigue mostrando solo `Tipo` y la expresión `FALSE`, sin ninguna mención a `Initial value` — exactamente
+el riesgo que `ESPEC-008` §4 describe, sin cerrar, para el documento que el propio §4 nombra como el
+peligroso. La instrucción sí llega por `PROMPT_EXPRESIONES.md` y `ARQUITECTURA_OBJETIVO_SGMC.md`
+(verificado, ambos la traen completa), así que el riesgo está parcialmente mitigado, no del todo
+abierto.
+
+**Por qué no se corrige en `ORDEN-008`.** El único cambio de código que `ESPEC-008` autoriza es
+`scripts/generar_prompt_cableado.py:327-331` (§4, verificado con diff). Tocar
+`generar_reconstruccion.py` no está en ese alcance, y `ORDEN-008` no puede ampliar lo que el
+arquitecto aprobó. Queda aquí para que la corrección —añadir la misma línea `w(r["descripcion"])` que
+ya usan los otros dos generadores, condicionada a que exista— se decida con su propia especificación
+o se sume a la próxima que toque `generar_reconstruccion.py`.

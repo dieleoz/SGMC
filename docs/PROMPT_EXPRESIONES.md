@@ -7,7 +7,7 @@ las cadenas de referencias salen de `scripts/modelo_objetivo.py`.
 
 ---
 
-Vas a poner **21 reglas** en la aplicación **`_SISGA_-323965761`** de Google AppSheet.
+Vas a poner **23 reglas** en la aplicación **`_SISGA_-323965761`** de Google AppSheet.
 Las 39 referencias son el paso anterior. **Este documento no sabe si están puestas** —sale del
 modelo, así que describe el destino—. Compruébalo antes de empezar:
 
@@ -118,7 +118,7 @@ contains a cyclical table reference to 'EST_Activo'.
 Ya pasó el 2026-08-10. **Antes de tocar una columna, comprueba en qué tabla estás.** Cada regla
 de abajo dice la suya, y no es negociable: la misma columna en otra tabla es otra cosa.
 
-## Las 21 reglas
+## Las 23 reglas
 
 Cada una: entra a la **tabla**, abre la **columna**, y pon la expresión en la **propiedad** que
 dice. Las que **escriben en la hoja** van al final a propósito.
@@ -138,14 +138,16 @@ dice. Las que **escriben en la hoja** van al final a propósito.
 | 11 | `RG-36` | `PLA_PlanMantenimiento` | `(tabla)` | `App formula` | `ACT_Activos` · `FRE_Frecuencias` |
 | 12 | `RG-37` | `OT_OrdenesTrabajo` | `(tabla)` | `App formula` | `EOT_EstadosOrden` |
 | 13 | `RG-38` | `PLA_PlanMantenimiento` | `(tabla)` | `Accion` | — |
-| 14 | `RG-06` | `MAN_Mantenimientos` | `(tabla)` | `Bot` | `EST_Activo` |
-| 15 | `RG-07` | `OT_OrdenesTrabajo` | `(tabla)` | `Bot` | — |
-| 16 | `RG-09` | `CHK_Checklists` | `VersionFormulario` | `Initial value` | `FRM_Formularios` |
-| 17 | `RG-10` | `MAN_Mantenimientos` | `(tabla)` | `Bot` | — |
-| 18 | `RG-11` | `PLA_PlanMantenimiento` | `ProximaFecha` | `App formula` | `FRE_Frecuencias` |
-| 19 | `RG-16` | `ACT_Activos` | `Activo` | `App formula` | `EST_Activo` |
-| 20 | `RG-04` | `ACT_Activos` | `(tabla)` | `Security Filter` | `USR_Usuarios` |
-| 21 | `RG-05` | `OT_OrdenesTrabajo` | `(tabla)` | `Security Filter` | `USR_Usuarios` · `USR_Usuarios` |
+| 14 | `RG-39` | `FOT_Fotografias` | `Ubicacion_LatLong` | `Editable_If` | — |
+| 15 | `RG-40` | `NOV_Novedades` | `Ubicacion_LatLong` | `Editable_If` | — |
+| 16 | `RG-06` | `MAN_Mantenimientos` | `(tabla)` | `Bot` | `EST_Activo` |
+| 17 | `RG-07` | `OT_OrdenesTrabajo` | `(tabla)` | `Bot` | — |
+| 18 | `RG-09` | `CHK_Checklists` | `VersionFormulario` | `Initial value` | `FRM_Formularios` |
+| 19 | `RG-10` | `MAN_Mantenimientos` | `(tabla)` | `Bot` | — |
+| 20 | `RG-11` | `PLA_PlanMantenimiento` | `ProximaFecha` | `App formula` | `FRE_Frecuencias` |
+| 21 | `RG-16` | `ACT_Activos` | `Activo` | `App formula` | `EST_Activo` |
+| 22 | `RG-04` | `ACT_Activos` | `(tabla)` | `Security Filter` | `USR_Usuarios` |
+| 23 | `RG-05` | `OT_OrdenesTrabajo` | `(tabla)` | `Security Filter` | `USR_Usuarios` · `USR_Usuarios` |
 
 > Las de `App formula`, `Initial value` y las de tipo bot **escriben**. Ponerlas antes de haber
 > comprobado las demás significa soltarlas sobre el inventario entero sin saber qué escriben.
@@ -157,7 +159,7 @@ dice. Las que **escriben en la hoja** van al final a propósito.
 
 ## Los 3 bots no van en una columna, y esto es lo que faltaba
 
-Las otras 18 se ponen en una propiedad de una columna o de una tabla. **Un bot no.** Vive en
+Las otras 20 se ponen en una propiedad de una columna o de una tabla. **Un bot no.** Vive en
 `Automation > Bots` —el icono del rayo— y tiene tres partes, no una expresión suelta:
 
 ```
@@ -396,6 +398,26 @@ AND([Activo] = TRUE, [ProximaFecha] <= TODAY() + 7)
 ```
 
 Reemplaza a RG-12. La expresion de arriba es la condicion de una vista/slice 'Vence en 7 dias' sobre esta tabla -no una regla de columna-. Sobre esa vista se expone una accion 'Data: add a new row to another table using values from this row' (Data > Actions), que el supervisor pulsa -individual o en bloque, ver Actions: The Essentials, seccion Bulk actions- y crea la fila en OT_OrdenesTrabajo. Mapeo de columnas verificado en ESPEC-006 3.3. No usa Automation > Bots: no hay Event ni Schedule, es invocacion explicita del usuario. No requiere plan de pago (ver ESPEC-006 2.1: la restriccion verificada contra la fuente oficial es sobre bots con Schedule event, no sobre acciones invocadas por el usuario).
+
+### RG-39 — `FOT_Fotografias.Ubicacion_LatLong`
+
+**Editable_If** · cubre `Prueba de presencia`
+
+```
+FALSE
+```
+
+Mismo mecanismo que RG-20: HERE() es Initial value, no App formula, y un Initial value SI es editable. Sin esto la coordenada de la fotografia se dibuja como un pin arrastrable y la evidencia queda donde el tecnico quiera dejarla, no donde tomo la foto. CABLEAR DESPUES del Initial value = HERE(): al reves la columna queda obligatoria, no editable y vacia, y ningun tecnico puede guardar una fotografia. ESPEC-008.
+
+### RG-40 — `NOV_Novedades.Ubicacion_LatLong`
+
+**Editable_If** · cubre `Prueba de presencia`
+
+```
+FALSE
+```
+
+Igual que RG-39, sobre la novedad en vez de la fotografia. Sin esto un tecnico registra una novedad en ruta, arrastra el pin y el hallazgo queda georreferenciado donde el quiera. CABLEAR DESPUES del Initial value = HERE(). ESPEC-008.
 
 ### RG-06 — `MAN_Mantenimientos.(tabla)`
 

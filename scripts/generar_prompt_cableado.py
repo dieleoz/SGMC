@@ -324,11 +324,13 @@ if _sin:
     w("> decidido, no olvidado.")
 w("")
 
+_MAPA_TIPO_REGLA = {"valor_inicial": "Initial value", "formula": "App formula",
+                    "valid_if": "Valid_If"}
+_cubiertas_por_tipo = {(r["tabla"], r.get("columna"), r["tipo"]) for r in REGLAS}
 _huerfanas = [(t, c["nombre"], k, c[k])
               for t in MODELO for c in MODELO[t]["columnas"]
               for k in ("valor_inicial", "formula", "valid_if")
-              if c.get(k) and (t, c["nombre"]) not in {(r["tabla"], r.get("columna"))
-                                                       for r in REGLAS}]
+              if c.get(k) and (t, c["nombre"], _MAPA_TIPO_REGLA[k]) not in _cubiertas_por_tipo]
 if _huerfanas:
     _NOMBRE = {"valor_inicial": "Initial value", "formula": "App formula",
                "valid_if": "Valid If"}

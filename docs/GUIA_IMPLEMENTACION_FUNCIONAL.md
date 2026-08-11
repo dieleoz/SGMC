@@ -300,7 +300,7 @@ ok Hoja limpia: ninguna de las 50 columnas retiradas existe ya. No hay nada que 
 
 **Duracion:** 45 minutos. **Aqui esta el valor del sistema.**
 
-Son 21. Las expresiones completas, sin truncar, en
+Son 23. Las expresiones completas, sin truncar, en
 `docs/sdd/RECONSTRUCCION_EXPRESIONES.md` §2.
 
 ### 7.1 El geofencing, y por que sin `Editable_If` no vale nada
@@ -380,7 +380,7 @@ inventario entero al telefono.
 |---|---|
 | Ninguna en rojo | El panel de errores del editor, vacio |
 | `Deletes` quitado | En las dos tablas |
-| Las no editables | `Editable_If = FALSE`. Hoy son 3, en 1 tabla: `MAN_Mantenimientos` |
+| Las no editables | `Editable_If = FALSE`. Hoy son 5, en 3 tablas: `FOT_Fotografias`, `MAN_Mantenimientos`, `NOV_Novedades` |
 | El umbral con `ISBLANK` | Leala entera, no de por hecho que se pego bien |
 
 # Etapa 8 — Las vistas
@@ -519,7 +519,7 @@ Etapa 5   referencias puestas .................... [  ]   cuantas de 39:
 Etapa 6   RETIRADA. No se ejecuta: la hoja vigente no trae columnas que ocultar
           F-19 en verde .......................... [  ]   salida:
 
-Etapa 7   reglas puestas ......................... [  ]   cuantas de 21:
+Etapa 7   reglas puestas ......................... [  ]   cuantas de 23:
           Deletes quitado en OT y MAN ............ [  ]
           umbral con ISBLANK ..................... [  ]
 
