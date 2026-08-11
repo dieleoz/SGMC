@@ -157,7 +157,7 @@ nace sin clave y AppSheet la descarta sin decir nada—.
 > inestable; de las que nadie referencia no dice nada. Hazlas las 8 de una vez, o las cinco
 > restantes se descubrirán de una en una, cuando alguien intente usarlas.
 
-## Paso 2 — Las 39 referencias
+## Paso 3 — Las 39 referencias
 
 **Cómo se lee de vuelta:**
 
@@ -240,7 +240,7 @@ así que el parecido se rompe. Hay que ponerlas las 39.
 > llevarlo por simetría con las otras, y no. Con `IsPartOf`, borrar una orden se llevaría el
 > mantenimiento entero y con él toda su evidencia.
 
-## Paso 3bis — Los tipos. **Las 211, no una lista de excepciones**
+## Paso 4 — Los tipos. **Las 211, no una lista de excepciones**
 
 **Este paso se llamaba «los tipos que no se infieren» y enumeraba 61 columnas.** Era una lista
 blanca de excepciones sobre un default que se presumía bueno: las otras 150 se daban por
@@ -409,7 +409,7 @@ por tabla, está en [`TIPOS_ESPERADOS.md`](TIPOS_ESPERADOS.md).
 > real y representativo, `5607`, y AppSheet la tipó **`Number`**. El modelo dice `Text`, y el día
 > que operación escriba `55CN03` no cabrá. Tener el dato correcto no basta.
 
-## Paso 4 — La etiqueta de cada tabla, que no la declaraba nadie
+## Paso 5 — La etiqueta de cada tabla, que no la declaraba nadie
 
 **Cómo se lee de vuelta: NADIE, salvo tú.**
 
@@ -430,30 +430,30 @@ En *Data > Columns*, marca la casilla **`Label`** de estas columnas:
 | Tabla | Referencias que la apuntan | `Label` |
 |---|---|---|
 | `USR_Usuarios` | 7 | **`Nombres`** |
-| `UNF_UnidadesFuncionales` | 3 | **`Nombre`** |
-| `FRM_Formularios` | 3 | **`Nombre`** |
 | `ACT_Activos` | 3 | **`Nombre`** |
+| `UNF_UnidadesFuncionales` | 3 | **`Nombre`** |
 | `MAN_Mantenimientos` | 3 | *ninguna: la clave la identifica, y está decidido así* |
+| `FRM_Formularios` | 3 | **`Nombre`** |
+| `FRE_Frecuencias` | 2 | **`Nombre`** |
 | `TIP_TiposActivo` | 2 | **`Nombre`** |
 | `OT_OrdenesTrabajo` | 2 | *ninguna: la clave la identifica, y está decidido así* |
-| `EST_Activo` | 2 | **`Nombre`** |
-| `FRE_Frecuencias` | 2 | **`Nombre`** |
 | `FRM_Preguntas` | 2 | **`Pregunta`** |
-| `CAL_Calzadas` | 1 | **`Nombre`** |
-| `ROL_Roles` | 1 | **`Nombre`** |
+| `EST_Activo` | 2 | **`Nombre`** |
+| `MOT_MotivosPendiente` | 1 | **`Nombre`** |
+| `EOT_EstadosOrden` | 1 | **`Nombre`** |
+| `SEN_Sentidos` | 1 | **`Nombre`** |
 | `CHK_Checklists` | 1 | *ninguna: la clave la identifica, y está decidido así* |
 | `TPR_TiposRespuesta` | 1 | **`Nombre`** |
+| `SED_Sedes` | 1 | **`Nombre`** |
+| `CAL_Calzadas` | 1 | **`Nombre`** |
 | `FAL_ModosFalla` | 1 | **`Nombre`** |
 | `FRM_Secciones` | 1 | **`Nombre`** |
-| `SED_Sedes` | 1 | **`Nombre`** |
-| `SEN_Sentidos` | 1 | **`Nombre`** |
-| `EOT_EstadosOrden` | 1 | **`Nombre`** |
-| `MOT_MotivosPendiente` | 1 | **`Nombre`** |
+| `ROL_Roles` | 1 | **`Nombre`** |
 
 > Las 3 sin etiqueta **no son un hueco**: se identifican por su clave y su fecha. Está
 > decidido, no olvidado.
 
-## Paso 5 — Las 49 expresiones que no son reglas, y por eso no salen en ningún otro sitio
+## Paso 6 — Las 49 expresiones que no son reglas, y por eso no salen en ningún otro sitio
 
 El modelo las declara en la columna, **sin `REGLA` propia**. Y los documentos de expresiones
 —`RECONSTRUCCION_EXPRESIONES.md` y `PROMPT_EXPRESIONES.md`— se generan recorriendo `REGLAS`,
@@ -515,7 +515,7 @@ una fotografía. Esas nacen vacías y nadie lo nota.
 | `UNF_UnidadesFuncionales` | `Activo` | `Initial value` | `TRUE` |
 | `USR_Usuarios` | `Activo` | `Initial value` | `TRUE` |
 
-## Paso 5 — Las 21 reglas
+## Paso 7 — Las 21 reglas
 
 Están **enteras y sin cortar** en [`sdd/RECONSTRUCCION_EXPRESIONES.md`](sdd/RECONSTRUCCION_EXPRESIONES.md),
 con su tabla, su columna y su tipo —`Valid_If`, `Initial value`, `App formula`, bot—. Cópialas de
@@ -524,7 +524,7 @@ ahí. **No las escribas de memoria ni las adaptes.**
 La que más se olvida es **RG-19**, el umbral de GPS con su `OR(ISBLANK(...))`: sin ese `ISBLANK`,
 si alguien borra la fila del parámetro **todos los cierres salen limpios y nadie se entera**.
 
-## Paso 6 — Comprobar, y aquí está lo que solo se puede ver ahora
+## Paso 8 — Comprobar, y aquí está lo que solo se puede ver ahora
 
 **Las 6 tablas que llegaron vacías eligieron su clave a ciegas**, porque AppSheet la infiere de
 los datos y no había. Y son justo las que generan clave con `UNIQUEID()`, es decir alfanumérica:

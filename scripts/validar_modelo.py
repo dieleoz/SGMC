@@ -153,7 +153,35 @@ def validar_ruta(regla_id, tabla_origen, ruta):
 
 
 import re
-for r in REGLAS:
+
+
+def _expresiones_a_validar():
+    """Toda expresion del modelo, venga de REGLAS o de una columna.
+
+    V-11 solo recorria REGLAS. V-17, dos secciones mas abajo, si recorre ademas
+    las columnas -y esa asimetria era el agujero-: una expresion escrita en el
+    `formula` o el `valid_if` de una columna **no se validaba en absoluto**.
+
+    Lo demostro el arquitecto el 2026-08-10 metiendo en una columna la peor
+    expresion posible -desreferenciar un Yes/No y nombrar una columna que no
+    existe, los dos defectos que V-11 nacio para cazar-. El validador respondio
+    APTO PARA DESPLEGAR. La misma expresion dentro de REGLAS daba dos errores.
+
+    Hoy no hay ninguna columna con `formula` ni `valid_if` sin regla propia, asi
+    que esto no caza nada: entra ANTES de que la haya. ESPEC-005 propone crear
+    las dos primeras.
+    """
+    for r in REGLAS:
+        yield r["id"], r["tabla"], r["expresion"]
+    for tabla, d in MODELO.items():
+        for c in d["columnas"]:
+            for campo in ("valid_if", "formula", "valor_inicial"):
+                if c.get(campo):
+                    yield "%s.%s (%s)" % (tabla, c["nombre"], campo), tabla, c[campo]
+
+
+for _ident, _tabla, _expresion in _expresiones_a_validar():
+    r = {"id": _ident, "tabla": _tabla, "expresion": _expresion}
     if r["tabla"] not in MODELO:
         continue
     expr = r["expresion"]

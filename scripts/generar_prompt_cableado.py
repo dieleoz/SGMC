@@ -51,6 +51,18 @@ SALIDA = os.path.join(RAIZ, "docs", "PROMPT_CABLEADO.md")
 L = []
 w = L.append
 
+# Los pasos se numeran solos. Estaban escritos a mano y al ir anadiendo -las
+# claves, la etiqueta, las expresiones sin regla- salieron dos «Paso 2», dos
+# «Paso 5» y un «Paso 3bis» huerfano. El ejecutor acababa mandado a un ancla
+# ambigua, y es el mismo defecto de la prosa fija: un numero dentro de una frase
+# que nadie recalcula.
+_CONTADOR_PASO = [0]
+
+
+def paso(titulo):
+    _CONTADOR_PASO[0] += 1
+    return "## Paso %d — %s" % (_CONTADOR_PASO[0], titulo)
+
 refs = [(t, c["nombre"], c["ref"], bool(c.get("es_parte_de")))
         for t in MODELO for c in MODELO[t]["columnas"] if c.get("ref")]
 partes = [r for r in refs if r[3]]
@@ -100,7 +112,7 @@ w("**Guarda al terminar cada tabla, no al final.** La interfaz deja de protegert
 w("automatizas: un valor equivocado aplicado en serie se aplica en serie.")
 w("")
 
-w("## Paso 1 — Retirar el borrado. ANTES que las referencias")
+w(paso("Retirar el borrado. ANTES que las referencias"))
 w("")
 w(bloque("permisos"))
 w("")
@@ -118,7 +130,7 @@ w("el momento en que se marca la primera; la protección tiene que estar puesta 
 w("")
 
 if _vacias:
-    w("## Paso 2 — Las claves de las %d tablas que llegaron vacías" % len(_vacias))
+    w(paso("Las claves de las %d tablas que llegaron vacías" % len(_vacias)))
     w("")
     w("**Sin un solo dato, AppSheet elige la clave a ciegas — y elige `_RowNumber`.** Contra una")
     w("clave que no es la declarada, ninguna referencia resuelve de forma estable, y el error que")
@@ -166,7 +178,7 @@ if _vacias:
     w("> restantes se descubrirán de una en una, cuando alguien intente usarlas.")
     w("")
 
-w("## Paso 2 — Las %d referencias" % len(refs))
+w(paso("Las %d referencias" % len(refs)))
 w("")
 w(bloque("referencias"))
 w("")
@@ -207,7 +219,7 @@ w("> llevarlo por simetría con las otras, y no. Con `IsPartOf`, borrar una orde
 w("> mantenimiento entero y con él toda su evidencia.")
 w("")
 
-w("## Paso 3bis — Los tipos. **Las %d, no una lista de excepciones**" % sum(len(MODELO[t]["columnas"]) for t in MODELO))
+w(paso("Los tipos. **Las %d, no una lista de excepciones**" % sum(len(MODELO[t]["columnas"]) for t in MODELO)))
 w("")
 w("**Este paso se llamaba «los tipos que no se infieren» y enumeraba 61 columnas.** Era una lista")
 w("blanca de excepciones sobre un default que se presumía bueno: las otras 150 se daban por")
@@ -263,7 +275,7 @@ w("> real y representativo, `5607`, y AppSheet la tipó **`Number`**. El modelo 
 w("> que operación escriba `55CN03` no cabrá. Tener el dato correcto no basta.")
 w("")
 
-w("## Paso 4 — La etiqueta de cada tabla, que no la declaraba nadie")
+w(paso("La etiqueta de cada tabla, que no la declaraba nadie"))
 w("")
 w(bloque("etiqueta"))
 w("")
@@ -297,8 +309,8 @@ _huerfanas = [(t, c["nombre"], k, c[k])
 if _huerfanas:
     _NOMBRE = {"valor_inicial": "Initial value", "formula": "App formula",
                "valid_if": "Valid If"}
-    w("## Paso 5 — Las %d expresiones que no son reglas, y por eso no salen en ningún otro sitio"
-      % len(_huerfanas))
+    w(paso("Las %d expresiones que no son reglas, y por eso no salen en ningún otro sitio"
+           % len(_huerfanas)))
     w("")
     w("El modelo las declara en la columna, **sin `REGLA` propia**. Y los documentos de expresiones")
     w("—`RECONSTRUCCION_EXPRESIONES.md` y `PROMPT_EXPRESIONES.md`— se generan recorriendo `REGLAS`,")
@@ -314,7 +326,7 @@ if _huerfanas:
         w("| `%s` | `%s` | `%s` | `%s` |" % (_t, _c, _NOMBRE[_k], _v))
     w("")
 
-w("## Paso 5 — Las %d reglas" % len(REGLAS))
+w(paso("Las %d reglas" % len(REGLAS)))
 w("")
 w("Están **enteras y sin cortar** en [`sdd/RECONSTRUCCION_EXPRESIONES.md`](sdd/RECONSTRUCCION_EXPRESIONES.md),")
 w("con su tabla, su columna y su tipo —`Valid_If`, `Initial value`, `App formula`, bot—. Cópialas de")
@@ -324,7 +336,7 @@ w("La que más se olvida es **RG-19**, el umbral de GPS con su `OR(ISBLANK(...))
 w("si alguien borra la fila del parámetro **todos los cierres salen limpios y nadie se entera**.")
 w("")
 
-w("## Paso 6 — Comprobar, y aquí está lo que solo se puede ver ahora")
+w(paso("Comprobar, y aquí está lo que solo se puede ver ahora"))
 w("")
 w("**Las %d tablas que llegaron vacías eligieron su clave a ciegas**, porque AppSheet la infiere de"
   % len(CLAVE_GENERADA))

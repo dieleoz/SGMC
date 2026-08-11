@@ -12,8 +12,18 @@ Limites de plataforma (verificados 2026-08-06):
 """
 
 # ------------------------------------------------------------------ supuestos
+try:
+    import openpyxl as _ox
+    _ACTIVOS_HOY = _ox.load_workbook(
+        os.path.join(RAIZ, "BD", "Modelo_Datos_PLANTILLA.xlsx"),
+        read_only=True)["ACT_Activos"].max_row - 1
+except Exception:
+    _ACTIVOS_HOY = 368
+
 ESCENARIOS = {
-    "Hoy": dict(activos=34, mantenimientos_activo_anio=12),
+    # Eran 34 cuando se escribio y hoy son 368: un literal que envejecio en
+    # silencio dentro del escenario que sirve para decidir si algo se agota.
+    "Hoy": dict(activos=_ACTIVOS_HOY, mantenimientos_activo_anio=12),
     "Inventario real estimado": dict(activos=150, mantenimientos_activo_anio=12),
     # 355 = las filas cuya unidad es Und en el Plan Maestro. Es el numero que
     # citan CONTEXTO_OPERACION.md, MODELO_EVOLUCION_FASE_2.md y la plantilla, y
