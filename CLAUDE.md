@@ -734,6 +734,47 @@ una trampa aunque hoy solo tenga cargados los numericos. Al declararla, dejar di
 que —lo hace `MANUAL_DESPLIEGUE.md`, ficha por tabla— y comprobarlo en el editor, columna a columna,
 porque **el defecto no se ve en la hoja: se ve en la aplicacion**.
 
+## 7.13 Una regla puede estar puesta y no hacer nada (regla nueva, 2026-08-10)
+
+Es lo que más veces ha fallado, y siempre en silencio. **Configurada, bien escrita, sin dar un solo
+error, y sin efecto.** Tres casos el mismo día, cada uno por un motivo distinto:
+
+| | Por qué no hacía nada |
+|---|---|
+| `RG-03` | su columna era `Text` y comparaba contra el booleano `TRUE` |
+| `RG-06` | `EST_Activo.GeneraAlerta` estaba vacía en los cuatro estados |
+| `RG-02` | `USERLOCATIONACCURACY()` **no existe en AppSheet** |
+
+**`verificar_datos.py` caza el segundo caso** desde que existe `G-05`: cruza el alcance real de las
+21 reglas —por `(tabla, columna)`, con `scripts/alcance_reglas.py`— contra los datos, y dice cuáles
+leen una columna vacía.
+
+Los otros dos **solo se ven mirando**. El tipo vive en el editor y la API v2 devuelve filas, no
+esquema; la función es un hecho de la plataforma. No se anuncian como cubiertos.
+
+**La consecuencia práctica:** «la puse» no es «hace algo». Antes de contar una regla como hecha,
+`python scripts/verificar_datos.py` y el cotejo del tipo de las columnas que toca.
+
+## 7.14 Declaramos atributos que la plataforma decide (regla nueva, 2026-08-10)
+
+`MODELO` guarda `nombre`, `tipo`, `pk`, `ref`, `obligatoria`, `editable` y —hasta hoy— ni siquiera
+`Label`, todos con la misma apariencia. **No son lo mismo.** `nombre` se cumple solo, porque
+`generar_plantilla.py` lo escribe en la cabecera de la hoja. Los demás son deseos que alguien tiene
+que ir a instalar a mano en el editor.
+
+Cada vez que se escribe un atributo en `MODELO` **sin escribir al lado quién lo hace cumplir**, se
+ha declarado un deseo y se ha guardado donde se guardan los hechos. Las tres facturas del día:
+
+- **`tipo`**: 107 columnas necesitan mano, y el encargo nombraba 61. Lo resuelve
+  `scripts/inferencia.py`, que clasifica las 211 por quién consigue el tipo.
+- **`pk`**: las 8 tablas vacías se quedaron con `_RowNumber` de clave, y solo 3 avisan —las que
+  tienen hijas—. Las otras 5 fallan en silencio.
+- **`Label`**: no lo declaraba nadie. Es lo que el técnico ve en los 39 desplegables, y AppSheet
+  elegía la primera columna de texto, que casi siempre es la clave.
+
+`scripts/lectura_de_vuelta.py` dice, por clase de cambio, quién lo comprueba: **tres tienen comando
+y cuatro no tiene nadie**. Un paso sin comprobación declarada se lee como comprobado.
+
 ## 8. Deriva documental: ahora es mecanica
 
 Este archivo llevaba una lista escrita a mano de contradicciones conocidas entre documentos. Esa

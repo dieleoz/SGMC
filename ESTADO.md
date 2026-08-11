@@ -41,6 +41,18 @@ TIPOS    107 columnas que nadie pone si no se ponen     ABIERTO
 LABEL    17 tablas                                       ABIERTO
 ```
 
+### Dos decisiones abiertas, y hasta que se cierren la Fase C no acaba
+
+Ninguna de las dos es teclear. Las dos están en el pipeline, con su especificación escrita.
+
+| | Qué pasa | Qué bloquea |
+|---|---|---|
+| [`ESPEC-004`](docs/sdd/ESPEC-004-cierre-excepcion-manual.md) | `RG-02` usa `USERLOCATIONACCURACY()`, que **no existe en AppSheet**. Sin ella `Precision_GPS` nunca se puebla, `RG-19` compara blanco y `RG-03` no pide nunca el motivo | `RG-02` · `RG-19` · `RG-03` |
+| [`ESPEC-005`](docs/sdd/ESPEC-005-clave-otid-planid.md) | `OTID` y `PlanID` son claves legibles que **nadie genera**, y `RG-10` y `RG-12` son bots que crean filas ahí. Nacerían sin clave, y AppSheet las descarta sin decir nada | `RG-10` · `RG-12` · crear órdenes desde la app |
+
+**No se aplican hasta que el arquitecto las tumbe o las deje pasar.** Es la regla que nos saltamos
+el 2026-08-10 por la mañana, y costó un dictamen de veinte observaciones.
+
 > **Lo que bloquea el piloto no ha cambiado en todo el día:** las 368 coordenadas se derivan del
 > `PK` sobre el trazado y **ninguna se midió en campo**. El geofencing puede quedar perfecto y estar
 > midiendo distancias a puntos inventados.

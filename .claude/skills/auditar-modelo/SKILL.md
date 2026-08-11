@@ -122,6 +122,10 @@ distinto: el **tipo** de su columna (`RG-03`, `Text` comparado contra el boolean
 de la columna que lee (`RG-06`, con `GeneraAlerta` vacía en los cuatro estados) y una **función que
 no existe** (`RG-02`, `USERLOCATIONACCURACY()`).
 
+Y hay dos reglas que **no se pueden poner hoy**, así que no las reportes como pendientes de
+teclear: `RG-02` usa una función inexistente y `RG-10`/`RG-12` crearían órdenes sin clave. Están en
+`ESPEC-004` y `ESPEC-005`, en el pipeline.
+
 Antes de reportar una regla como puesta, corre `python scripts/verificar_datos.py`: su comprobación
 **G-05** cruza el alcance real de las 21 reglas contra los datos y dice cuáles leen una columna
 vacía. No cubre los otros dos casos —el tipo vive en el editor, la función es un hecho de la

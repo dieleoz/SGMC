@@ -166,6 +166,18 @@ la mesa de trabajo, no antes.
 ## 3.1 Lo que sí está construido
 
 Verificado el 2026-08-10 contra `scripts/modelo_objetivo.py` y `BD/Modelo_Datos_PLANTILLA.xlsx`.
+> ### Lo que falta de la Fase C no es teclear
+>
+> Dos decisiones abiertas, las dos con especificación escrita y en el pipeline:
+>
+> - [`ESPEC-004`](sdd/ESPEC-004-cierre-excepcion-manual.md) — `RG-02` usa una función que **no
+>   existe en AppSheet**, y deja inertes a `RG-19` y `RG-03`.
+> - [`ESPEC-005`](sdd/ESPEC-005-clave-otid-planid.md) — `OTID` y `PlanID` son claves legibles que
+>   **nadie genera**, así que los bots `RG-10` y `RG-12` crearían filas sin identificador. Al
+>   resolverlo se desbloquea además **crear órdenes desde la aplicación**.
+>
+> Ninguna se aplica hasta que pase por el arquitecto.
+
 > ### Una regla puede estar puesta y no hacer nada
 >
 > Es lo que más veces ha pasado, y siempre en silencio. Tres casos el 2026-08-10, cada uno por un
