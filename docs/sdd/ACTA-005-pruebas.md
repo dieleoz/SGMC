@@ -134,12 +134,43 @@ Ejecutado el 2026-08-11 sobre modelo del repositorio (volcado en `BD/Modelo_Dato
 
 | Prueba | Resultado | Motivo de bloqueo |
 |--------|-----------|-------------------|
-| P-09 | NO EJECUTADA | Requiere acceso al editor AppSheet para marcar `Key` en `OTID` y `PlanID` con `Initial value = UNIQUEID()`. Editor no disponible en este contexto. |
+| P-09 | **PASA** | Cotejada a ojo en el editor. Ver el registro debajo de esta tabla |
 | P-10 | NO EJECUTADA | Depende de P-09. Requiere crear 2 filas de prueba en `OT_OrdenesTrabajo` desde la app. |
 | P-11 | NO EJECUTADA | Depende de P-10. Requiere ejecutar `RG-10` en la app para crear orden de seguimiento. |
 | P-12 | NO EJECUTADA | Depende de P-11. Prueba negativa de `RG-10`. |
 | P-15 | NO EJECUTADA | Depende de P-13 (que depende de P-12). Requiere verificar visual en AppSheet. |
 | P-16 | NO EJECUTADA | Depende de P-06 estructural. Requiere verificar que `Etiqueta` no es editable en formulario. |
+
+#### `P-09` — el registro literal
+
+**Cotejo a ojo en el editor.** No hay comando que lo recupere: la API devuelve filas, no esquema,
+así que esta transcripción es la única evidencia que va a existir. Se copió aunque coincidiera con
+lo esperado, porque «coincide» no es evidencia.
+
+El aviso «A newer version of the app exists» **no apareció**, así que la lectura no es sobre caché.
+
+| | `OT_OrdenesTrabajo` | `PLA_PlanMantenimiento` |
+|---|---|---|
+| Clave | `OTID` | `PlanID` |
+| `App formula` | vacío | vacío |
+| `Initial value` | `= UNIQUEID()` | `= UNIQUEID()` |
+| `Key` | marcado | marcado |
+| `_RowNumber` con `Key` | **no** | **no** |
+
+Y las dos columnas virtuales, que el panel del editor rotula como tales —«`OT_OrdenesTrabajo :
+Etiqueta (virtual)`»—:
+
+| | `App formula` | `Show?` | `Label` | Única con `Label` |
+|---|---|---|---|---|
+| `OT_OrdenesTrabajo.Etiqueta` | `CONCATENATE([ActivoID].[Nombre], " - ", [FechaProgramada])` | sí | sí | sí, de 15 columnas |
+| `PLA_PlanMantenimiento.Etiqueta` | `CONCATENATE([ActivoID].[Nombre], " - ", [FrecuenciaID].[Nombre])` | sí | sí | sí, de 9 columnas |
+
+Con esto quedan cubiertas también las partes de configuración de `P-15` y `P-17`. Lo que sigue sin
+ejecutar de esas dos es lo que exige un formulario abierto, no el editor.
+
+**Lectura de vuelta:** `instantanea.py comparar antes-de-la-ventana tras-p09` → `NINGUNA CELDA
+CAMBIO`. Era una tarea de solo lectura, y se comportó como tal.
+
 
 ### Familia C — Datos (Sheets): P-13, P-14
 
