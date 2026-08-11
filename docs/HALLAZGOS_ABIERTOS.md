@@ -233,6 +233,49 @@ filas, no esquema. Hay que mirarlas a ojo, y el orden lo da la gravedad, no el a
 De las 3 del bloqueo duro, las tres se miraron el 2026-08-11 y **las tres estaban mal**. De las otras
 46, ninguna.
 
+## La cuenta que abre la app **no está en `USR_Usuarios`**, y eso vacía tres expresiones
+
+```bash
+python -c "import json,glob,os;f=max(glob.glob('BD/instantaneas/despues-*.json'),key=os.path.getmtime);d=json.load(open(f,encoding='utf-8'));print([r.get('Correo') for r in d['USR_Usuarios']])"
+```
+
+Los once usuarios son `@concesiondelsisga.com.co`. **`dieleoz@gmail.com`, que es la cuenta dueña de
+la aplicación y con la que se entra al editor, no figura.**
+
+`LOOKUP(USEREMAIL(), "USR_Usuarios", "Correo", "UsuarioID")` devuelve **vacío** cuando el correo
+logueado no está en esa lista. Y de esa expresión dependen:
+
+| Columna | Obligatoria | Qué pasa si el `LOOKUP` sale vacío |
+|---|---|---|
+| `MAN_Mantenimientos.TecnicoID` | **sí** | el mantenimiento **no se puede guardar** |
+| `NOV_Novedades.UsuarioID` | **sí** | la novedad **no se puede guardar** |
+| `MAN_Mantenimientos.UsuarioRegistro` | no | queda en blanco |
+| `FOT_Fotografias.Usuario` | no | queda en blanco |
+
+**Y alcanza a algo que se cabló hoy.** La acción de `RG-38` mapea `OT_OrdenesTrabajo.SupervisorID`
+—que es **obligatoria**— con ese mismo `LOOKUP`. Si el supervisor que pulsa el botón no está en
+`USR_Usuarios`, **la acción falla al validar** y no crea la orden.
+
+### Por qué importa más de lo que parece
+
+`ESPEC-009` propone congelar esas columnas con `Editable_If = FALSE`, y su orden de cableado
+—`Initial value` primero— **no protege contra esto**: la expresión puede estar perfectamente puesta
+y devolver vacío igual. Es una **segunda vía al mismo bloqueo** que ya nos mordió con
+`Coordenadas_Cierre_LatLong`, y por un motivo distinto.
+
+Lo destapó el arquitecto de `ESPEC-009` y se verificó contra los datos el 2026-08-11.
+
+### Qué hacer, y es una decisión, no un arreglo
+
+1. **Añadir el correo de quien prueba a `USR_Usuarios`** — lo más simple, pero mete una cuenta que
+   no es un técnico real en la tabla de técnicos.
+2. **Probar siempre logueado como un usuario de la lista.** Es lo que `PRUEBA-005` ya hace con
+   `USR-002` (`ivan.salcedo@`).
+3. **Dar un valor por defecto al `LOOKUP`** para que nunca salga vacío.
+
+Lo urgente no es elegir: es **saberlo antes de congelar nada**, porque después el síntoma es «no se
+puede guardar un mantenimiento» y la causa parece el cableado cuando no lo es.
+
 ## Si una columna `Signature` se puede capturar sin cobertura
 
 La documentación de offline trata `Image` explícitamente —se captura offline y sincroniza después— y
