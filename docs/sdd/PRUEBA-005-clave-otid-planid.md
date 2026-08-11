@@ -462,7 +462,7 @@ físicamente junto al activo o la prueba pasa a `BLOQUEADA POR`, sin inventar un
 
 - **Por qué esta y no otra.** `ESPEC-005` no añade ningún `Valid_If` ni `Required_If` nuevo —no
   hay, en sentido estricto, «algo que deba ser rechazado con un mensaje». Lo que sí hay es el mismo
-  patrón que `PRUEBA-003` ya nombró (`P-30`, citado también en `PRUEBA-004` §1, P-07) y que aplica
+  patrón que `PRUEBA-003` ya nombró (`P-30`, citado también en `PRUEBA-004`, prueba negativa) y que aplica
   igual a un bot que a una validación: **`P-11` por sí sola no puede distinguir un `RG-10` que
   funciona de uno mal configurado que crea una orden en cada actualización de
   `MAN_Mantenimientos`, dispare o no la condición.** Sin el caso negativo, un `RG-10` roto de esa
