@@ -226,9 +226,9 @@ la columna `TYPE` contra la ficha del anexo de `MANUAL_DESPLIEGUE.md`**. No hay 
 | `IsPartOf` | 4 | Es una decisión de borrado en cascada, no un tipo |
 | Valores de `Enum` | 12 columnas | AppSheet no sabe qué valores son válidos |
 | `ChangeTimestamp` | 4 | Nunca se infiere; llega como texto |
-| Expresiones | 21 reglas | `Valid_If`, `Editable_If`, `Initial value`, bots |
+| Expresiones | 23 reglas | `Valid_If`, `Editable_If`, `Initial value`, bots |
 
-**Y una trampa propia de las tablas vacías.** Las 6 que llegan sin filas —las de movimiento—
+**Y una trampa propia de las tablas vacías.** Las 8 que llegan sin filas —las de movimiento—
 no le dan a AppSheet ningún dato del que inferir la clave, así que la elige a ciegas. Son las
 mismas que generan su clave con `UNIQUEID()`, es decir alfanumérica: **si alguna quedó `Number`,
 cada fila que cree un técnico se perderá igual que se perdió aquel usuario.**
@@ -239,6 +239,8 @@ cada fila que cree un técnico se perderá igual que se perdió aquel usuario.**
 - `FOT_Fotografias`
 - `MAN_Mantenimientos`
 - `NOV_Novedades`
+- `OT_OrdenesTrabajo`
+- `PLA_PlanMantenimiento`
 
 **Se puede sondear sin abrir el editor**: insertar por API una fila con clave alfanumerica y
 **leerla de vuelta** antes de borrarla. Si regresa literal, la columna es `Text`. Metodo y sus

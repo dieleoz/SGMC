@@ -16,7 +16,7 @@ paso de vistas de los manuales generados **declara que no está especificado y p
 se haga**, en vez de decir «se construye sola» — que es la clase de instrucción que este proyecto
 tiene prohibida.
 
-**28 tablas · 211 columnas · 39 referencias · 21 reglas**
+**28 tablas · 211 columnas · 39 referencias · 23 reglas**
 
 ---
 
@@ -704,6 +704,26 @@ DISTANCE([Coordenadas_Cierre_LatLong], [OTID].[ActivoID].[Ubicacion_LatLong]) <=
 ```
 
 Cubre: RF-012
+
+### RG-35 · App formula sobre `OT_OrdenesTrabajo`
+
+Etiqueta, columna VIRTUAL (no en MODELO: F-02 no la exige, no toca la hoja). Reemplaza a OTID como Label ahora que OTID es UNIQUEID().
+
+```
+CONCATENATE([ActivoID].[Nombre], " - ", [FechaProgramada])
+```
+
+Cubre: Identificacion legible ante el tecnico
+
+### RG-36 · App formula sobre `PLA_PlanMantenimiento`
+
+Etiqueta, columna VIRTUAL. Mismo mecanismo que RG-35.
+
+```
+CONCATENATE([ActivoID].[Nombre], " - ", [FrecuenciaID].[Nombre])
+```
+
+Cubre: Identificacion legible ante operacion
 
 ### RG-34 · Valid_If sobre `ACT_Activos`.`UnidadFuncionalID`
 

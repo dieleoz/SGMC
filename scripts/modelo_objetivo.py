@@ -815,7 +815,7 @@ PARAMETROS = {
 # Derivado del dato el 2026-08-07 sobre BD/Modelo de Datos (7).xlsx, no de una
 # impresion. Si una tabla cambia de clave numerica a legible, se actualiza aqui.
 CLAVE_LEGIBLE = {
-    "OT_OrdenesTrabajo",       # OT-0001
+          # OT-0001
     "EOT_EstadosOrden",        # Asignada, Cerrada, Suspendida
     "MOT_MotivosPendiente",    # MOT-01
     "FAL_ModosFalla",          # FAL-01
@@ -823,7 +823,7 @@ CLAVE_LEGIBLE = {
     "SEN_Sentidos",            # SA, AS
     "FRM_Formularios",         # FRM_SOS
     "FRM_Preguntas",           # SOS001
-    "PLA_PlanMantenimiento",   # PLA-001
+      # PLA-001
     "PAR_Parametros",          # UMBRAL_GPS
     # Las once que se resembraron el 2026-08-10. Tenian clave numerica heredada
     # de la hoja vieja, y AppSheet la tipaba Number aunque el modelo dijera Text:
@@ -891,6 +891,9 @@ CLAVE_GENERADA = {
     "FOT_Fotografias",
     "FIR_Firmas",
     "NOV_Novedades",
+    # ESPEC-005: su clave era legible y NADIE la generaba, y RG-10 y RG-12
+    # crean filas ahi. Una fila sin clave AppSheet la descarta sin decirlo.
+    "OT_OrdenesTrabajo", "PLA_PlanMantenimiento",
 }
 
 # ------------------------------------------ tablas PROPUESTAS que aun no existen
@@ -1102,6 +1105,15 @@ REGLAS = [
          expresion="DISTANCE([Coordenadas_Cierre_LatLong], [OTID].[ActivoID].[Ubicacion_LatLong]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]",
          descripcion=("Impide cerrar lejos del activo, con radio por tipo. La ruta atraviesa dos "
                       "referencias, de ahi que cablearlas sea el primer paso de todo.")),
+    dict(id="RG-35", tabla="OT_OrdenesTrabajo", columna="(tabla)",
+         tipo="App formula", cubre="Identificacion legible ante el tecnico",
+         expresion='CONCATENATE([ActivoID].[Nombre], " - ", [FechaProgramada])',
+         descripcion="Etiqueta, columna VIRTUAL (no en MODELO: F-02 no la exige, no toca "
+                     "la hoja). Reemplaza a OTID como Label ahora que OTID es UNIQUEID()."),
+    dict(id="RG-36", tabla="PLA_PlanMantenimiento", columna="(tabla)",
+         tipo="App formula", cubre="Identificacion legible ante operacion",
+         expresion='CONCATENATE([ActivoID].[Nombre], " - ", [FrecuenciaID].[Nombre])',
+         descripcion="Etiqueta, columna VIRTUAL. Mismo mecanismo que RG-35."),
     dict(id="RG-34", tabla="ACT_Activos", columna="UnidadFuncionalID",
          tipo="Valid_If", cubre="RF-002",
          expresion='OR(ISBLANK([SedeID]), [UnidadFuncionalID] = [SedeID].[UnidadFuncionalID])',

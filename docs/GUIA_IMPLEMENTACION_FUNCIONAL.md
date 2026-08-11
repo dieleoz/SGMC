@@ -153,7 +153,7 @@ La lista de las 28 claves esta en `MANUAL_DESPLIEGUE.md` paso 3.
 
 ### 3.4 Clave automatica para filas nuevas
 
-Estas 6 tablas crean filas desde la aplicacion. Sin `Initial value = UNIQUEID()` no sabe que
+Estas 8 tablas crean filas desde la aplicacion. Sin `Initial value = UNIQUEID()` no sabe que
 identificador poner:
 
 ```
@@ -163,6 +163,8 @@ FIR_Firmas               FirmaID
 FOT_Fotografias          FotoID
 MAN_Mantenimientos       MantenimientoID
 NOV_Novedades            NovedadID
+OT_OrdenesTrabajo        OTID
+PLA_PlanMantenimiento    PlanID
 ```
 
 ### COMPROBACION de la etapa 3
@@ -172,7 +174,7 @@ NOV_Novedades            NovedadID
 | Una sola `KEY` por tabla | Recorra las 28. Si hay dos marcadas, quite la sobrante |
 | Ninguna compuesta | Si el editor muestra la clave como combinacion de columnas, corrijala |
 | Todas `Text` | Ninguna en `Number` |
-| Las 6 con `UNIQUEID()` | Compruebe el `Initial value` de cada una |
+| Las 8 con `UNIQUEID()` | Compruebe el `Initial value` de cada una |
 
 # Etapa 4 — Los tipos que AppSheet no adivina
 
@@ -298,7 +300,7 @@ ok Hoja limpia: ninguna de las 48 columnas retiradas existe ya. No hay nada que 
 
 **Duracion:** 45 minutos. **Aqui esta el valor del sistema.**
 
-Son 21. Las expresiones completas, sin truncar, en
+Son 23. Las expresiones completas, sin truncar, en
 `docs/sdd/RECONSTRUCCION_EXPRESIONES.md` §2.
 
 ### 7.1 El geofencing, y por que sin `Editable_If` no vale nada
@@ -511,7 +513,7 @@ Etapa 5   referencias puestas .................... [  ]   cuantas de 39:
 Etapa 6   RETIRADA. No se ejecuta: la hoja vigente no trae columnas que ocultar
           F-19 en verde .......................... [  ]   salida:
 
-Etapa 7   reglas puestas ......................... [  ]   cuantas de 21:
+Etapa 7   reglas puestas ......................... [  ]   cuantas de 23:
           Deletes quitado en OT y MAN ............ [  ]
           umbral con ISBLANK ..................... [  ]
 

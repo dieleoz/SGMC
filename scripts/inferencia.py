@@ -171,15 +171,34 @@ ETIQUETAS = ("Nombre", "Nombres", "Pregunta", "Descripcion")
 # Las transaccionales NO tienen etiqueta natural, y no es un hueco: una orden o
 # un mantenimiento se identifican por su clave y su fecha, no por un nombre. Se
 # declaran aqui para que quede dicho que se decidio, no que se olvido.
+# ESPEC-005: OT_OrdenesTrabajo sale de aqui. Su motivo era «se identifica por su
+# numero», y ese numero paso a ser un UNIQUEID(): dejo de identificar nada ante
+# una persona.
 SIN_ETIQUETA_NATURAL = {
-    "OT_OrdenesTrabajo": "una orden se identifica por su numero y su fecha",
     "MAN_Mantenimientos": "una ejecucion se identifica por su orden y su hora",
     "CHK_Checklists": "un checklist se identifica por su mantenimiento",
     }
 
 
+# La etiqueta que NO es una columna de la hoja, sino una columna virtual que
+# AppSheet calcula. Es la salida que documenta Google para una etiqueta
+# compuesta de varias columnas -«Add a virtual column… enter a CONCATENATE()
+# expression»- y la que ESPEC-005 adopta.
+#
+# Va en un diccionario aparte y no en ETIQUETAS a proposito: se probo anadir
+# "Etiqueta" a esa tupla y NO FUNCIONA, porque etiqueta_de() solo mira MODELO y
+# una columna virtual no esta ahi. El plan original se corrigio por ejecucion,
+# no por lectura.
+ETIQUETA_VIRTUAL = {
+    "OT_OrdenesTrabajo": "Etiqueta",
+    "PLA_PlanMantenimiento": "Etiqueta",
+    }
+
+
 def etiqueta_de(tabla):
     """Que columna deberia ser el Label. None si su clave es la identificacion."""
+    if tabla in ETIQUETA_VIRTUAL:
+        return ETIQUETA_VIRTUAL[tabla]
     if tabla in SIN_ETIQUETA_NATURAL:
         return None
     cols = [c["nombre"] for c in MODELO[tabla]["columnas"]]

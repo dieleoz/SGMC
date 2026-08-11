@@ -135,7 +135,7 @@ En *Data > Columns*, marca **`Key`** en la columna que dice la tabla y **desmarc
 tenga un `Initial value` que genere la clave; si no, asume que las filas nuevas nacerían sin
 identificador y se aferra a `_RowNumber`. Así que primero el valor, después la casilla:
 
-En estas 6, `Initial value` = **`UNIQUEID()`**, y luego marca `Key`:
+En estas 8, `Initial value` = **`UNIQUEID()`**, y luego marca `Key`:
 
 - `CHD_ChecklistDetalle.DetalleID`
 - `CHK_Checklists.ChecklistID`
@@ -143,15 +143,8 @@ En estas 6, `Initial value` = **`UNIQUEID()`**, y luego marca `Key`:
 - `FOT_Fotografias.FotoID`
 - `MAN_Mantenimientos.MantenimientoID`
 - `NOV_Novedades.NovedadID`
-
-**Y estas 2, PARA.** Su clave es legible y **el modelo no declara quién la genera**:
-
 - `OT_OrdenesTrabajo.OTID`
 - `PLA_PlanMantenimiento.PlanID`
-
-No es una casilla que falte: es una decisión de modelo que está en el pipeline. Y no es
-teórica —`RG-10` y `RG-12` son bots que **crean órdenes**, y si nadie genera `OTID` la fila
-nace sin clave y AppSheet la descarta sin decir nada—.
 
 > **Solo 3 de las 8 avisan.** AppSheet protesta cuando una tabla referenciada tiene clave
 > inestable; de las que nadie referencia no dice nada. Hazlas las 8 de una vez, o las cinco
@@ -265,6 +258,8 @@ trabajo: una columna mal tipada sin regla encima molesta al usuario; con una reg
 | `ACT_Activos` | `UnidadFuncionalID` | **`Ref`** → `UNF_UnidadesFuncionales` | `RG-04`, `RG-34` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `MAN_Mantenimientos` | `CierreConExcepcion` | **`Yes/No`** | `RG-03`, `RG-19` | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
 | `MAN_Mantenimientos` | `Precision_GPS` | **`Number`** | `RG-02`, `RG-19` | su nombre dispara la inferencia a LatLong y NO lo es (observado: Precision_GPS salio LatLong el 2026-08-10 estando su tabla VACIA: no pudo ser el contenido) |
+| `OT_OrdenesTrabajo` | `ActivoID` | **`Ref`** → `ACT_Activos` | `RG-01`, `RG-35` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `PLA_PlanMantenimiento` | `FrecuenciaID` | **`Ref`** → `FRE_Frecuencias` | `RG-11`, `RG-36` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `ACT_Activos` | `Activo` | **`Yes/No`** | `RG-16` | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
 | `ACT_Activos` | `SedeID` | **`Ref`** → `SED_Sedes` | `RG-34` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `ACT_Activos` | `TipoActivoID` | **`Ref`** → `TIP_TiposActivo` | `RG-01` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
@@ -278,11 +273,10 @@ trabajo: una columna mal tipada sin regla encima molesta al usuario; con una reg
 | `MAN_Mantenimientos` | `MotivoExcepcion` | **`LongText`** | `RG-03` | indistinguible de Text por contenido |
 | `MAN_Mantenimientos` | `OTID` | **`Ref`** → `OT_OrdenesTrabajo` | `RG-01` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `MAN_Mantenimientos` | `RequiereSegundaVisita` | **`Yes/No`** | `RG-10` | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
-| `OT_OrdenesTrabajo` | `ActivoID` | **`Ref`** → `ACT_Activos` | `RG-01` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `OT_OrdenesTrabajo` | `EstadoOrdenID` | **`Ref`** → `EOT_EstadosOrden` | `RG-08` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `OT_OrdenesTrabajo` | `SupervisorID` | **`Ref`** → `USR_Usuarios` | `RG-05` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `OT_OrdenesTrabajo` | `TecnicoID` | **`Ref`** → `USR_Usuarios` | `RG-05` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
-| `PLA_PlanMantenimiento` | `FrecuenciaID` | **`Ref`** → `FRE_Frecuencias` | `RG-11` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `PLA_PlanMantenimiento` | `ActivoID` | **`Ref`** → `ACT_Activos` | `RG-36` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `SED_Sedes` | `UnidadFuncionalID` | **`Ref`** → `UNF_UnidadesFuncionales` | `RG-34` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `ACT_Activos` | `CalzadaID` | **`Ref`** → `CAL_Calzadas` | — | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `ACT_Activos` | `Criticidad` | **`Enum`** · valores: `Alta` · `Media` · `Baja` | — | el contenido no declara el conjunto de valores permitidos |
@@ -354,7 +348,6 @@ trabajo: una columna mal tipada sin regla encima molesta al usuario; con una reg
 | `PAR_Parametros` | `Activo` | **`Yes/No`** | — | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
 | `PAR_Parametros` | `Descripcion` | **`LongText`** | — | indistinguible de Text por contenido |
 | `PLA_PlanMantenimiento` | `Activo` | **`Yes/No`** | — | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
-| `PLA_PlanMantenimiento` | `ActivoID` | **`Ref`** → `ACT_Activos` | — | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `PLA_PlanMantenimiento` | `ResponsableID` | **`Ref`** → `USR_Usuarios` | — | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `ROL_Roles` | `Activo` | **`Yes/No`** | — | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
 | `SED_Sedes` | `Activo` | **`Yes/No`** | — | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
@@ -425,32 +418,48 @@ casi siempre es la clave.
 No rompe nada, y por eso nadie lo miraba. Lo que pasa es que el técnico abre el desplegable para
 asignar una orden y ve **`USR-001`, `USR-004`** en vez de los nombres.
 
+### Antes de marcar nada: 2 de esas etiquetas **hay que crearlas**
+
+No son columnas de la hoja. Son **columnas virtuales**: las calcula AppSheet y no se guardan
+en el Sheets. Es lo que Google documenta para una etiqueta compuesta de varias columnas.
+
+En *Data > Columns > la tabla*, **`Add virtual column`**, y así:
+
+| Tabla | Nombre | `App formula` |
+|---|---|---|
+| `OT_OrdenesTrabajo` | **`Etiqueta`** | `CONCATENATE([ActivoID].[Nombre], " - ", [FechaProgramada])` |
+| `PLA_PlanMantenimiento` | **`Etiqueta`** | `CONCATENATE([ActivoID].[Nombre], " - ", [FrecuenciaID].[Nombre])` |
+
+Y después, en esa misma columna virtual: **`Show?` activo** —sin eso AppSheet no acepta que
+sea etiqueta— y **`Label` marcado**. Si la tabla ya tenía otra columna con `Label`,
+**desmárcala primero**: solo puede haber una.
+
 En *Data > Columns*, marca la casilla **`Label`** de estas columnas:
 
 | Tabla | Referencias que la apuntan | `Label` |
 |---|---|---|
 | `USR_Usuarios` | 7 | **`Nombres`** |
 | `UNF_UnidadesFuncionales` | 3 | **`Nombre`** |
-| `FRM_Formularios` | 3 | **`Nombre`** |
 | `ACT_Activos` | 3 | **`Nombre`** |
 | `MAN_Mantenimientos` | 3 | *ninguna: la clave la identifica, y está decidido así* |
-| `OT_OrdenesTrabajo` | 2 | *ninguna: la clave la identifica, y está decidido así* |
+| `FRM_Formularios` | 3 | **`Nombre`** |
+| `FRM_Preguntas` | 2 | **`Pregunta`** |
+| `OT_OrdenesTrabajo` | 2 | **`Etiqueta`** |
+| `EST_Activo` | 2 | **`Nombre`** |
 | `TIP_TiposActivo` | 2 | **`Nombre`** |
 | `FRE_Frecuencias` | 2 | **`Nombre`** |
-| `EST_Activo` | 2 | **`Nombre`** |
-| `FRM_Preguntas` | 2 | **`Pregunta`** |
-| `ROL_Roles` | 1 | **`Nombre`** |
-| `EOT_EstadosOrden` | 1 | **`Nombre`** |
-| `SED_Sedes` | 1 | **`Nombre`** |
-| `TPR_TiposRespuesta` | 1 | **`Nombre`** |
-| `MOT_MotivosPendiente` | 1 | **`Nombre`** |
 | `FRM_Secciones` | 1 | **`Nombre`** |
+| `SED_Sedes` | 1 | **`Nombre`** |
+| `CAL_Calzadas` | 1 | **`Nombre`** |
+| `EOT_EstadosOrden` | 1 | **`Nombre`** |
 | `FAL_ModosFalla` | 1 | **`Nombre`** |
 | `CHK_Checklists` | 1 | *ninguna: la clave la identifica, y está decidido así* |
+| `TPR_TiposRespuesta` | 1 | **`Nombre`** |
 | `SEN_Sentidos` | 1 | **`Nombre`** |
-| `CAL_Calzadas` | 1 | **`Nombre`** |
+| `MOT_MotivosPendiente` | 1 | **`Nombre`** |
+| `ROL_Roles` | 1 | **`Nombre`** |
 
-> Las 3 sin etiqueta **no son un hueco**: se identifican por su clave y su fecha. Está
+> Las 2 sin etiqueta **no son un hueco**: se identifican por su clave y su fecha. Está
 > decidido, no olvidado.
 
 ## Paso 6 — Las 49 expresiones que no son reglas, y por eso no salen en ningún otro sitio
@@ -515,7 +524,7 @@ una fotografía. Esas nacen vacías y nadie lo nota.
 | `UNF_UnidadesFuncionales` | `Activo` | `Initial value` | `TRUE` |
 | `USR_Usuarios` | `Activo` | `Initial value` | `TRUE` |
 
-## Paso 7 — Las 21 reglas
+## Paso 7 — Las 23 reglas
 
 Están **enteras y sin cortar** en [`sdd/RECONSTRUCCION_EXPRESIONES.md`](sdd/RECONSTRUCCION_EXPRESIONES.md),
 con su tabla, su columna y su tipo —`Valid_If`, `Initial value`, `App formula`, bot—. Cópialas de
@@ -526,7 +535,7 @@ si alguien borra la fila del parámetro **todos los cierres salen limpios y nadi
 
 ## Paso 8 — Comprobar, y aquí está lo que solo se puede ver ahora
 
-**Las 6 tablas que llegaron vacías eligieron su clave a ciegas**, porque AppSheet la infiere de
+**Las 8 tablas que llegaron vacías eligieron su clave a ciegas**, porque AppSheet la infiere de
 los datos y no había. Y son justo las que generan clave con `UNIQUEID()`, es decir alfanumérica:
 **si alguna quedó `Number`, cada fila que cree un técnico se perderá sin aviso.**
 
@@ -536,6 +545,8 @@ los datos y no había. Y son justo las que generan clave con `UNIQUEID()`, es de
 - `FOT_Fotografias`
 - `MAN_Mantenimientos`
 - `NOV_Novedades`
+- `OT_OrdenesTrabajo`
+- `PLA_PlanMantenimiento`
 
 Abre cada una y confirma que su clave es **`Text`**.
 
@@ -546,7 +557,7 @@ Después, las pruebas de [`sdd/PRUEBA-003-despliegue.md`](sdd/PRUEBA-003-desplie
 1. **Cuántas referencias pusiste**, y si alguna no te dejó.
 2. **Las 4 de `IsPartOf`**, y confirmación de que `MAN_Mantenimientos.OTID` quedó DESMARCADA.
 3. **`Deletes` retirado** en las dos tablas.
-4. **Las claves de las 6 tablas vacías**: qué tipo tenía cada una.
+4. **Las claves de las 8 tablas vacías**: qué tipo tenía cada una.
 5. **Cualquier tipo que encontraras distinto** del que dice este documento. Eso es un hallazgo,
    no un estorbo: significa que la inferencia hizo algo que no esperábamos.
 

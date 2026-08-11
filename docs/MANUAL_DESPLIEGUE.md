@@ -13,7 +13,7 @@
 | Tablas | **28** |
 | Columnas | **211** |
 | Referencias | **39** |
-| Reglas | **21** |
+| Reglas | **23** |
 
 ## Los cinco documentos, y cual se usa cuando
 
@@ -25,7 +25,7 @@ una parte sin leer el resto. Si el que despliega es usted, le basta con este.
 |---|---|---|---|
 | `MANUAL_DESPLIEGUE.md` | Este. La ruta completa, de cero a aplicacion funcionando | Siempre. Es el camino | el **destino** |
 | [`PROMPT_CABLEADO.md`](PROMPT_CABLEADO.md) | Encargo autocontenido de las 39 referencias y de los tipos | Se copia integro a quien cablee | el **destino** |
-| [`PROMPT_EXPRESIONES.md`](PROMPT_EXPRESIONES.md) | Idem para las 21 reglas, con la **cadena de referencias** que atraviesa cada una | Se copia integro despues del cableado | el **destino** |
+| [`PROMPT_EXPRESIONES.md`](PROMPT_EXPRESIONES.md) | Idem para las 23 reglas, con la **cadena de referencias** que atraviesa cada una | Se copia integro despues del cableado | el **destino** |
 | [`TIPOS_ESPERADOS.md`](TIPOS_ESPERADOS.md) | La lista larga, tabla por tabla | Abierto al lado mientras se recorre *Data > Columns* | el **destino** |
 | [`CORRECCIONES_CABLEADO.md`](CORRECCIONES_CABLEADO.md) | **Generado contra la aplicacion viva** | Antes de empezar, y despues de cada tanda | el **estado de HOY** |
 
@@ -84,16 +84,16 @@ columna la produjo hay que preguntarselo al modelo, que es justo lo que se estab
 vive en el destino, asi que de una referencia cuya tabla destino esta vacia el auditor no puede
 decir nada. No la da por buena: la separa.
 
-La ultima instantanea guardada -`BD/instantaneas/despues-de-los-tres.json`- trae **585 filas** repartidas en las
-28 tablas, y **9 de ellas estan vacias**:
+La ultima instantanea guardada -`BD/instantaneas/tras-tipos.json`- trae **953 filas** repartidas en las
+28 tablas, y **8 de ellas estan vacias**:
 
 ```
-  ACT_Activos              CHD_ChecklistDetalle     CHK_Checklists
-  FIR_Firmas               FOT_Fotografias          MAN_Mantenimientos
-  NOV_Novedades            OT_OrdenesTrabajo        PLA_PlanMantenimiento
+  CHD_ChecklistDetalle     CHK_Checklists           FIR_Firmas
+  FOT_Fotografias          MAN_Mantenimientos       NOV_Novedades
+  OT_OrdenesTrabajo        PLA_PlanMantenimiento
 ```
 
-**De esas 9 salen dos cosas a la vez:** sus referencias no son medibles, y sus columnas se
+**De esas 8 salen dos cosas a la vez:** sus referencias no son medibles, y sus columnas se
 tiparon a ciegas -sin contenido que leer, AppSheet cae en `Text`-. Las dos vuelven en el
 paso 4.
 
@@ -294,7 +294,7 @@ sintoma es que falla todo el paso 5 sin decir por que.
 
 ### Clave automatica para las filas nuevas
 
-Estas 6 tablas crean filas desde la aplicacion. Sin esto, no sabe que identificador poner:
+Estas 8 tablas crean filas desde la aplicacion. Sin esto, no sabe que identificador poner:
 
 | Tabla | Columna | `Initial value` |
 |---|---|---|
@@ -304,6 +304,8 @@ Estas 6 tablas crean filas desde la aplicacion. Sin esto, no sabe que identifica
 | `FOT_Fotografias` | `FotoID` | `UNIQUEID()` |
 | `MAN_Mantenimientos` | `MantenimientoID` | `UNIQUEID()` |
 | `NOV_Novedades` | `NovedadID` | `UNIQUEID()` |
+| `OT_OrdenesTrabajo` | `OTID` | `UNIQUEID()` |
+| `PLA_PlanMantenimiento` | `PlanID` | `UNIQUEID()` |
 
 ## Paso 4 — El tipo de las 211 columnas
 
@@ -354,7 +356,7 @@ Por tipo: **39** `Ref` · **38** `Yes/No` · **12** `Enum` · **9** `LongText` �
 
 **Estan ordenadas por cuantas reglas dependen de cada una**, que es lo que ordena el trabajo:
 una columna mal tipada **sin** regla encima molesta al usuario; **con** una regla encima
-**rompe la regla en silencio**, que es lo que paso con `RG-03`. Las 23 primeras llevan regla.
+**rompe la regla en silencio**, que es lo que paso con `RG-03`. Las 24 primeras llevan regla.
 
 | Tabla | Columna | `TYPE` | Reglas | Por que no se consigue sola |
 |---|---|---|---|---|
@@ -362,6 +364,8 @@ una columna mal tipada **sin** regla encima molesta al usuario; **con** una regl
 | `ACT_Activos` | `UnidadFuncionalID` | **`Ref`** → `UNF_UnidadesFuncionales` | `RG-04`, `RG-34` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `MAN_Mantenimientos` | `CierreConExcepcion` | **`Yes/No`** | `RG-03`, `RG-19` | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
 | `MAN_Mantenimientos` | `Precision_GPS` | **`Number`** | `RG-02`, `RG-19` | su nombre dispara la inferencia a LatLong y NO lo es (observado: Precision_GPS salio LatLong el 2026-08-10 estando su tabla VACIA: no pudo ser el contenido) |
+| `OT_OrdenesTrabajo` | `ActivoID` | **`Ref`** → `ACT_Activos` | `RG-01`, `RG-35` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `PLA_PlanMantenimiento` | `FrecuenciaID` | **`Ref`** → `FRE_Frecuencias` | `RG-11`, `RG-36` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `ACT_Activos` | `Activo` | **`Yes/No`** | `RG-16` | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
 | `ACT_Activos` | `SedeID` | **`Ref`** → `SED_Sedes` | `RG-34` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `ACT_Activos` | `TipoActivoID` | **`Ref`** → `TIP_TiposActivo` | `RG-01` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
@@ -375,11 +379,10 @@ una columna mal tipada **sin** regla encima molesta al usuario; **con** una regl
 | `MAN_Mantenimientos` | `MotivoExcepcion` | **`LongText`** | `RG-03` | indistinguible de Text por contenido |
 | `MAN_Mantenimientos` | `OTID` | **`Ref`** → `OT_OrdenesTrabajo` | `RG-01` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `MAN_Mantenimientos` | `RequiereSegundaVisita` | **`Yes/No`** | `RG-10` | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
-| `OT_OrdenesTrabajo` | `ActivoID` | **`Ref`** → `ACT_Activos` | `RG-01` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `OT_OrdenesTrabajo` | `EstadoOrdenID` | **`Ref`** → `EOT_EstadosOrden` | `RG-08` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `OT_OrdenesTrabajo` | `SupervisorID` | **`Ref`** → `USR_Usuarios` | `RG-05` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `OT_OrdenesTrabajo` | `TecnicoID` | **`Ref`** → `USR_Usuarios` | `RG-05` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
-| `PLA_PlanMantenimiento` | `FrecuenciaID` | **`Ref`** → `FRE_Frecuencias` | `RG-11` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `PLA_PlanMantenimiento` | `ActivoID` | **`Ref`** → `ACT_Activos` | `RG-36` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `SED_Sedes` | `UnidadFuncionalID` | **`Ref`** → `UNF_UnidadesFuncionales` | `RG-34` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `ACT_Activos` | `CalzadaID` | **`Ref`** → `CAL_Calzadas` | — | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `ACT_Activos` | `Criticidad` | **`Enum`** · `Alta` · `Media` · `Baja` | — | el contenido no declara el conjunto de valores permitidos |
@@ -451,7 +454,6 @@ una columna mal tipada **sin** regla encima molesta al usuario; **con** una regl
 | `PAR_Parametros` | `Activo` | **`Yes/No`** | — | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
 | `PAR_Parametros` | `Descripcion` | **`LongText`** | — | indistinguible de Text por contenido |
 | `PLA_PlanMantenimiento` | `Activo` | **`Yes/No`** | — | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
-| `PLA_PlanMantenimiento` | `ActivoID` | **`Ref`** → `ACT_Activos` | — | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `PLA_PlanMantenimiento` | `ResponsableID` | **`Ref`** → `USR_Usuarios` | — | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `ROL_Roles` | `Activo` | **`Yes/No`** | — | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
 | `SED_Sedes` | `Activo` | **`Yes/No`** | — | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
@@ -502,7 +504,7 @@ AppSheet deberia acertar leyendo los valores. La lista completa, tabla por tabla
 editor. Aqui van las dos unicas cosas que hay que saber antes de mirarla:
 
 **Una columna vacia no tiene contenido que leer, y cae en `Text`.**
-Son 9 tablas enteras -las de la instantanea- mas cada columna vacia de las pobladas.
+Son 8 tablas enteras -las de la instantanea- mas cada columna vacia de las pobladas.
 
 > **Y el caso que desarma la confianza en el contenido.** Una columna de texto cuyos valores
 > parecen numeros se tipa `Number`. Paso el 2026-08-10 con `SED_Sedes.TramoINVIAS`: el unico
@@ -682,7 +684,7 @@ Si alguna vez aparecen —trabajando sobre una copia antigua del libro—, lo qu
 dejarlas en `Text` y desmarcar `Show?`. Como `Ref` dibujan rutas de navegacion que el modelo
 prohibe y aparecen en la aplicacion como si fueran buenas.
 
-## Paso 7 — Las 21 reglas
+## Paso 7 — Las 23 reglas
 
 Las expresiones enteras, con la **cadena de referencias que atraviesa cada una**, estan en
 [`PROMPT_EXPRESIONES.md`](PROMPT_EXPRESIONES.md) —que es lo que se le pasa a quien las ponga— y
@@ -723,7 +725,7 @@ retirada.
 **Y compruebe en que tabla esta antes de abrir la columna**, por lo que dice el paso 5: el
 mismo nombre es clave en una tabla y referencia en otra.
 
-### Las 21, y las 10 que van al final
+### Las 23, y las 12 que van al final
 
 | # | Regla | Tabla | Columna | Propiedad | Escribe |
 |---|---|---|---|---|---|
@@ -748,8 +750,10 @@ mismo nombre es clave en una tabla y referencia en otra.
 | 19 | RG-12 | `PLA_PlanMantenimiento` | `(tabla)` | Bot programado | **SI** |
 | 20 | RG-16 | `ACT_Activos` | `Activo` | App formula | **SI** |
 | 21 | RG-19 | `MAN_Mantenimientos` | `CierreConExcepcion` | App formula | **SI** |
+| 22 | RG-35 | `OT_OrdenesTrabajo` | `(tabla)` | App formula | **SI** |
+| 23 | RG-36 | `PLA_PlanMantenimiento` | `(tabla)` | App formula | **SI** |
 
-### Las 10 que escriben en la hoja van al final, y antes se toma una instantanea
+### Las 12 que escriben en la hoja van al final, y antes se toma una instantanea
 
 Las de `App formula`, `Initial value` y las de tipo bot **escriben en la hoja**. A diferencia de
 un tipo de columna, **lo que escriben no se revierte cambiando un desplegable**: hay que saber
@@ -757,14 +761,16 @@ que habia antes. Por eso van las ultimas, cuando ya se puede comprobar que escri
 
 ```bash
 python scripts/instantanea.py guardar antes-de-las-que-escriben
-#   ... se ponen las 10 ...
+#   ... se ponen las 12 ...
 python scripts/instantanea.py guardar despues
 python scripts/instantanea.py comparar antes-de-las-que-escriben despues
 ```
 
 **Y no basta con mirar la fila que se espera que cambie.** Una `App formula` se evalua sobre
-**todas** las filas de su tabla, no solo sobre la que se espera que cambie. Si la expresion
-esta mal, escribe en todas y **no da error: da datos**.
+**todas** las filas de su tabla: `RG-16` sola se evalua sobre los **368** activos, no sobre el
+unico que deberia cambiar. Si la expresion esta mal, escribe en todos y **no da error: da
+datos**. Por eso el criterio de cierre no es «la fila esperada quedo bien», es **«no cambio
+ninguna celda»** — y eso exige la fotografia previa.
 
 ### Las cuatro que no pueden faltar
 
@@ -958,7 +964,7 @@ ACT_Activos.TipoActivoID    estaba: Ref -> SED_Sedes     lo dejo: Ref -> TIP_Tip
 SED_Sedes.TramoINVIAS       estaba: Number               lo dejo: Text
 ```
 
-**Y para las 10 reglas que escriben en la hoja, la anotacion no sirve: hace falta la
+**Y para las 12 reglas que escriben en la hoja, la anotacion no sirve: hace falta la
 instantanea.** Lo que escriben no vive en el esquema, vive en el dato, y hay que haberlo
 fotografiado **antes**:
 

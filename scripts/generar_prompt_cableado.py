@@ -286,6 +286,26 @@ w("")
 w("No rompe nada, y por eso nadie lo miraba. Lo que pasa es que el técnico abre el desplegable para")
 w("asignar una orden y ve **`USR-001`, `USR-004`** en vez de los nombres.")
 w("")
+_virtuales = [(r["tabla"], r["expresion"]) for r in REGLAS
+              if r["tipo"] == "App formula" and r.get("columna") == "(tabla)"]
+if _virtuales:
+    w("### Antes de marcar nada: %d de esas etiquetas **hay que crearlas**" % len(_virtuales))
+    w("")
+    w("No son columnas de la hoja. Son **columnas virtuales**: las calcula AppSheet y no se guardan")
+    w("en el Sheets. Es lo que Google documenta para una etiqueta compuesta de varias columnas.")
+    w("")
+    w("En *Data > Columns > la tabla*, **`Add virtual column`**, y así:")
+    w("")
+    w("| Tabla | Nombre | `App formula` |")
+    w("|---|---|---|")
+    for _t, _e in sorted(_virtuales):
+        w("| `%s` | **`Etiqueta`** | `%s` |" % (_t, _e))
+    w("")
+    w("Y después, en esa misma columna virtual: **`Show?` activo** —sin eso AppSheet no acepta que")
+    w("sea etiqueta— y **`Label` marcado**. Si la tabla ya tenía otra columna con `Label`,")
+    w("**desmárcala primero**: solo puede haber una.")
+    w("")
+
 w("En *Data > Columns*, marca la casilla **`Label`** de estas columnas:")
 w("")
 w("| Tabla | Referencias que la apuntan | `Label` |")

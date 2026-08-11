@@ -62,6 +62,17 @@ for r in REGLAS:
     w("")
     w("**Tipo:** %s%s" % (r.get("tipo"), " · cubre %s" % r["cubre"] if r.get("cubre") else ""))
     w("")
+    # Una regla App formula sobre "(tabla)" es una COLUMNA VIRTUAL, y sin decirlo
+    # este documento no sirve para lo que existe: rehacer el cableado tras un
+    # Delete-and-re-add. Emitia el identificador y la expresion, y con eso no se
+    # puede reconstruir nada -falta el nombre de la columna, que sea virtual, y
+    # que lleva el Label-.
+    if r.get("tipo") == "App formula" and r.get("columna") == "(tabla)":
+        w("> **Es una COLUMNA VIRTUAL, no una columna de la hoja.** Se crea con")
+        w("> *Data > Columns > `Add virtual column`*, se llama **`Etiqueta`**, lleva esa expresión")
+        w("> en su `App formula`, y después **`Show?` activo** y **`Label` marcado**. Si la tabla ya")
+        w("> tenía otra columna con `Label`, se desmarca primero: solo puede haber una.")
+        w("")
     exp = str(r.get("expresion", "")).strip()
     if exp:
         w("```")

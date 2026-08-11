@@ -7,7 +7,7 @@ las cadenas de referencias salen de `scripts/modelo_objetivo.py`.
 
 ---
 
-Vas a poner **21 reglas** en la aplicación **`_SISGA_-323965761`** de Google AppSheet.
+Vas a poner **23 reglas** en la aplicación **`_SISGA_-323965761`** de Google AppSheet.
 Las 39 referencias son el paso anterior. **Este documento no sabe si están puestas** —sale del
 modelo, así que describe el destino—. Compruébalo antes de empezar:
 
@@ -114,7 +114,7 @@ contains a cyclical table reference to 'EST_Activo'.
 Ya pasó el 2026-08-10. **Antes de tocar una columna, comprueba en qué tabla estás.** Cada regla
 de abajo dice la suya, y no es negociable: la misma columna en otra tabla es otra cosa.
 
-## Las 21 reglas
+## Las 23 reglas
 
 Cada una: entra a la **tabla**, abre la **columna**, y pon la expresión en la **propiedad** que
 dice. Las que **escriben en la hoja** van al final a propósito.
@@ -140,8 +140,10 @@ dice. Las que **escriben en la hoja** van al final a propósito.
 | 17 | `RG-12` | `PLA_PlanMantenimiento` | `(tabla)` | `Bot programado` | — |
 | 18 | `RG-16` | `ACT_Activos` | `Activo` | `App formula` | `EST_Activo` |
 | 19 | `RG-19` | `MAN_Mantenimientos` | `CierreConExcepcion` | `App formula` | — |
-| 20 | `RG-04` | `ACT_Activos` | `(tabla)` | `Security Filter` | `USR_Usuarios` |
-| 21 | `RG-05` | `OT_OrdenesTrabajo` | `(tabla)` | `Security Filter` | `USR_Usuarios` · `USR_Usuarios` |
+| 20 | `RG-35` | `OT_OrdenesTrabajo` | `(tabla)` | `App formula` | `ACT_Activos` |
+| 21 | `RG-36` | `PLA_PlanMantenimiento` | `(tabla)` | `App formula` | `ACT_Activos` · `FRE_Frecuencias` |
+| 22 | `RG-04` | `ACT_Activos` | `(tabla)` | `Security Filter` | `USR_Usuarios` |
+| 23 | `RG-05` | `OT_OrdenesTrabajo` | `(tabla)` | `Security Filter` | `USR_Usuarios` · `USR_Usuarios` |
 
 > Las de `App formula`, `Initial value` y las de tipo bot **escriben**. Ponerlas antes de haber
 > comprobado las demás significa soltarlas sobre el inventario entero sin saber qué escriben.
@@ -153,7 +155,7 @@ dice. Las que **escriben en la hoja** van al final a propósito.
 
 ## Los 5 bots no van en una columna, y esto es lo que faltaba
 
-Las otras 16 se ponen en una propiedad de una columna o de una tabla. **Un bot no.** Vive en
+Las otras 18 se ponen en una propiedad de una columna o de una tabla. **Un bot no.** Vive en
 `Automation > Bots` —el icono del rayo— y tiene tres partes, no una expresión suelta:
 
 ```
@@ -438,6 +440,41 @@ OR(ISBLANK(LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor")), [Pre
 ```
 
 Marca el cierre como excepcional cuando el error del satelite supera el umbral. Sin ella la columna existe y nadie la puebla: un cierre con 45 m de error seria indistinguible de uno con 8 m, y ahi se cae la cadena de evidencia. EL UMBRAL ES UN PARAMETRO, no un numero en la expresion: se calibra con las pruebas de campo y lo ajusta el administrador en una celda, sin abrir el editor. FALLA DE FORMA RUIDOSA: si el umbral no se puede leer, el OR con ISBLANK marca el cierre COMO EXCEPCIONAL. Sin eso, borrar la fila del parametro haria que todos los cierres saliesen limpios y nadie se enterase, que es la forma exacta del defecto de RG-16. Provisional 40 m, unas ocho veces la precision tipica de un movil a cielo abierto (4,9 m segun GPS.gov) y deja margen para montana y estructuras. D-04 decia 50; se baja a 40 tras comprobar que 45 m ya es nueve veces la norma.
+
+### RG-35 — `OT_OrdenesTrabajo.(tabla)`
+
+**App formula** · cubre `Identificacion legible ante el tecnico`
+
+```
+CONCATENATE([ActivoID].[Nombre], " - ", [FechaProgramada])
+```
+
+Etiqueta, columna VIRTUAL (no en MODELO: F-02 no la exige, no toca la hoja). Reemplaza a OTID como Label ahora que OTID es UNIQUEID().
+
+Atraviesa **1 referencia**:
+
+- `OT_OrdenesTrabajo.ActivoID` → `ACT_Activos`
+
+Si el error nombra una de esas tablas y no es la que toca, el fallo está en ese salto,
+no en la expresión.
+
+### RG-36 — `PLA_PlanMantenimiento.(tabla)`
+
+**App formula** · cubre `Identificacion legible ante operacion`
+
+```
+CONCATENATE([ActivoID].[Nombre], " - ", [FrecuenciaID].[Nombre])
+```
+
+Etiqueta, columna VIRTUAL. Mismo mecanismo que RG-35.
+
+Atraviesa **2 referencias distintas**:
+
+- `PLA_PlanMantenimiento.ActivoID` → `ACT_Activos`
+- `PLA_PlanMantenimiento.FrecuenciaID` → `FRE_Frecuencias`
+
+Si el error nombra una de esas tablas y no es la que toca, el fallo está en ese salto,
+no en la expresión.
 
 ### RG-04 — `ACT_Activos.(tabla)`
 

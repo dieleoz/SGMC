@@ -43,7 +43,7 @@ La Fase A renombro columnas en la hoja. Toda expresion que cite un nombre viejo 
 y `Activo` —la bandera Si/No—. Una formula que diga `Activo` **no da error**: apunta a la bandera
 y devuelve lista vacia.
 
-## 2. Las 21 reglas, con su expresion completa
+## 2. Las 23 reglas, con su expresion completa
 
 ### RG-01 — `MAN_Mantenimientos` · `Coordenadas_Cierre_LatLong`
 
@@ -63,6 +63,32 @@ python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"
 ```
 
 En la hoja vigente estan **poblados los 27**, con 0.05 km en 18 · 0.1 km en 8 · 1.5 km en 1. Un literal en su lugar -por ejemplo `<= 1.0`- hace que el sistema pruebe "estas en el corredor" en vez de "estas frente al equipo", que es su proposito.
+
+### RG-35 — `OT_OrdenesTrabajo` · `(tabla)`
+
+**Tipo:** App formula · cubre Identificacion legible ante el tecnico
+
+> **Es una COLUMNA VIRTUAL, no una columna de la hoja.** Se crea con
+> *Data > Columns > `Add virtual column`*, se llama **`Etiqueta`**, lleva esa expresión
+> en su `App formula`, y después **`Show?` activo** y **`Label` marcado**. Si la tabla ya
+> tenía otra columna con `Label`, se desmarca primero: solo puede haber una.
+
+```
+CONCATENATE([ActivoID].[Nombre], " - ", [FechaProgramada])
+```
+
+### RG-36 — `PLA_PlanMantenimiento` · `(tabla)`
+
+**Tipo:** App formula · cubre Identificacion legible ante operacion
+
+> **Es una COLUMNA VIRTUAL, no una columna de la hoja.** Se crea con
+> *Data > Columns > `Add virtual column`*, se llama **`Etiqueta`**, lleva esa expresión
+> en su `App formula`, y después **`Show?` activo** y **`Label` marcado**. Si la tabla ya
+> tenía otra columna con `Label`, se desmarca primero: solo puede haber una.
+
+```
+CONCATENATE([ActivoID].[Nombre], " - ", [FrecuenciaID].[Nombre])
+```
 
 ### RG-34 — `ACT_Activos` · `UnidadFuncionalID`
 

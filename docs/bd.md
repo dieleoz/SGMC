@@ -17,7 +17,7 @@ forma de que mienta es que mienta el archivo**.
 | Archivo leído | `Modelo_Datos_PLANTILLA.xlsx` |
 | Hojas | **29** |
 | Filas con datos | **1007** |
-| Generado el | 2026-08-10 |
+| Generado el | 2026-08-11 |
 
 ---
 
