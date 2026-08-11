@@ -53,6 +53,8 @@ y devuelve lista vacia.
 DISTANCE([Coordenadas_Cierre_LatLong], [OTID].[ActivoID].[Ubicacion_LatLong]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]
 ```
 
+> Impide cerrar lejos del activo, con radio por tipo. La ruta atraviesa dos referencias, de ahi que cablearlas sea el primer paso de todo.
+
 **Antes de pegarla, compruebe que el radio esta poblado.** Esta regla desreferencia
 `TIP_TiposActivo.RadioGeofencingKm`. **Si esa columna esta vacia, la comparacion se hace
 contra blanco y rechaza tambien el cierre legitimo**: fallarian las dos pruebas del par,
@@ -79,6 +81,8 @@ En la hoja vigente estan **poblados los 27**, con 0.05 km en 18 · 0.1 km en 8 �
 CONCATENATE([ActivoID].[Nombre], " - ", [FechaProgramada])
 ```
 
+> Etiqueta, columna VIRTUAL (no en MODELO: F-02 no la exige, no toca la hoja). Reemplaza a OTID como Label ahora que OTID es UNIQUEID().
+
 ### RG-36 — `PLA_PlanMantenimiento` · `(tabla)`
 
 **Tipo:** App formula · cubre Identificacion legible ante operacion
@@ -94,6 +98,8 @@ CONCATENATE([ActivoID].[Nombre], " - ", [FechaProgramada])
 CONCATENATE([ActivoID].[Nombre], " - ", [FrecuenciaID].[Nombre])
 ```
 
+> Etiqueta, columna VIRTUAL. Mismo mecanismo que RG-35.
+
 ### RG-34 — `ACT_Activos` · `UnidadFuncionalID`
 
 **Tipo:** Valid_If · cubre RF-002
@@ -101,6 +107,8 @@ CONCATENATE([ActivoID].[Nombre], " - ", [FrecuenciaID].[Nombre])
 ```
 OR(ISBLANK([SedeID]), [UnidadFuncionalID] = [SedeID].[UnidadFuncionalID])
 ```
+
+> El equipo bajo techo hereda donde esta de su edificacion. Sin esta regla la unidad funcional se guardaria en dos sitios -en el activo y en su sede- y podrian decir cosas distintas sin que nada protestara. Con ella hay un solo sitio donde mirar: si el activo tiene sede, manda la sede.
 
 ### RG-03 — `MAN_Mantenimientos` · `MotivoExcepcion`
 
@@ -110,6 +118,8 @@ OR(ISBLANK([SedeID]), [UnidadFuncionalID] = [SedeID].[UnidadFuncionalID])
 [CierreConExcepcion] = TRUE
 ```
 
+> Si el tecnico cierra con excepcion por GPS deficiente, debe justificarlo por escrito.
+
 ### RG-04 — `ACT_Activos` · `(tabla)`
 
 **Tipo:** Security Filter · cubre RF-004
@@ -117,6 +127,8 @@ OR(ISBLANK([SedeID]), [UnidadFuncionalID] = [SedeID].[UnidadFuncionalID])
 ```
 IN([UnidadFuncionalID], SELECT(ASG_AsignacionZona[UnidadFuncionalID], AND([UsuarioID].[Correo] = USEREMAIL(), [Activo] = TRUE)))
 ```
+
+> Cada tecnico descarga solo los activos de las unidades funcionales que tiene asignadas. Controla el volumen de sincronizacion, no solo la visibilidad.
 
 ### RG-05 — `OT_OrdenesTrabajo` · `(tabla)`
 
@@ -126,6 +138,8 @@ IN([UnidadFuncionalID], SELECT(ASG_AsignacionZona[UnidadFuncionalID], AND([Usuar
 OR([TecnicoID].[Correo] = USEREMAIL(), [SupervisorID].[Correo] = USEREMAIL())
 ```
 
+> El tecnico ve sus ordenes; el supervisor, las que supervisa.
+
 ### RG-06 — `MAN_Mantenimientos` · `(tabla)`
 
 **Tipo:** Bot · cubre RF-016
@@ -134,6 +148,8 @@ OR([TecnicoID].[Correo] = USEREMAIL(), [SupervisorID].[Correo] = USEREMAIL())
 [EstadoActivoID].[GeneraAlerta] = TRUE
 ```
 
+> Envia correo con informe PDF al CCO y al supervisor cuando el activo queda fuera de servicio.
+
 ### RG-07 — `OT_OrdenesTrabajo` · `(tabla)`
 
 **Tipo:** Bot · cubre RF-003
@@ -141,6 +157,8 @@ OR([TecnicoID].[Correo] = USEREMAIL(), [SupervisorID].[Correo] = USEREMAIL())
 ```
 Adds
 ```
+
+> Notifica por correo al tecnico cuando se le asigna una orden.
 
 ### RG-37 — `OT_OrdenesTrabajo` · `(tabla)`
 
@@ -154,6 +172,8 @@ Adds
 AND([EstadoOrdenID].[EsFinal] = FALSE, [FechaProgramada] < TODAY())
 ```
 
+> EstaVencida, columna VIRTUAL (Yes/No), no en MODELO: F-02 no la exige, no toca la hoja. Reemplaza a RG-08. Misma condicion exacta que tenia el bot programado, pero como lectura que se recalcula en cada sincronizacion: no escribe, no mueve el estado, y el tecnico que llega tarde sigue pudiendo cerrar. Su consumidor: una vista 'Ordenes vencidas' sobre esta tabla, condicion [EstaVencida] = TRUE, visible para el rol Supervisor (ver ESPEC-006 3.2). No tiene historico: si la orden se cierra tarde, vuelve a FALSE y no queda marca de que estuvo vencida, y la vista deja de listarla (ver ESPEC-006 3.4).
+
 ### RG-09 — `CHK_Checklists` · `VersionFormulario`
 
 **Tipo:** Initial value · cubre D-11
@@ -161,6 +181,8 @@ AND([EstadoOrdenID].[EsFinal] = FALSE, [FechaProgramada] < TODAY())
 ```
 [FormularioID].[Version]
 ```
+
+> Congela la version del formulario con que se respondio, para comparar historico.
 
 ### RG-11 — `PLA_PlanMantenimiento` · `ProximaFecha`
 
@@ -170,6 +192,8 @@ AND([EstadoOrdenID].[EsFinal] = FALSE, [FechaProgramada] < TODAY())
 [UltimaEjecucion] + [FrecuenciaID].[Dias]
 ```
 
+> Calcula cuando vuelve a tocar el preventivo de ese activo.
+
 ### RG-38 — `PLA_PlanMantenimiento` · `(tabla)`
 
 **Tipo:** Accion · cubre Plan de mantenimiento
@@ -177,6 +201,8 @@ AND([EstadoOrdenID].[EsFinal] = FALSE, [FechaProgramada] < TODAY())
 ```
 AND([Activo] = TRUE, [ProximaFecha] <= TODAY() + 7)
 ```
+
+> Reemplaza a RG-12. La expresion de arriba es la condicion de una vista/slice 'Vence en 7 dias' sobre esta tabla -no una regla de columna-. Sobre esa vista se expone una accion 'Data: add a new row to another table using values from this row' (Data > Actions), que el supervisor pulsa -individual o en bloque, ver Actions: The Essentials, seccion Bulk actions- y crea la fila en OT_OrdenesTrabajo. Mapeo de columnas verificado en ESPEC-006 3.3. No usa Automation > Bots: no hay Event ni Schedule, es invocacion explicita del usuario. No requiere plan de pago (ver ESPEC-006 2.1: la restriccion verificada contra la fuente oficial es sobre bots con Schedule event, no sobre acciones invocadas por el usuario).
 
 ### RG-13 — `MAN_Mantenimientos` · `(tabla)`
 
@@ -186,6 +212,8 @@ AND([Activo] = TRUE, [ProximaFecha] <= TODAY() + 7)
 DISTANCE([UbicacionEscaneo_LatLong], [Coordenadas_Cierre_LatLong]) <= 0.5
 ```
 
+> Contrasta donde escaneo con donde cerro. Una diferencia grande indica que escaneo en un sitio y cerro en otro. No bloquea: se reporta.
+
 ### RG-20 — `MAN_Mantenimientos` · `(varias)`
 
 **Tipo:** Editable_If · cubre Prueba de presencia
@@ -193,6 +221,8 @@ DISTANCE([UbicacionEscaneo_LatLong], [Coordenadas_Cierre_LatLong]) <= 0.5
 ```
 FALSE
 ```
+
+> Sobre Coordenadas_Cierre, UbicacionEscaneo y FechaHoraEscaneo (tres columnas desde ESPEC-004/ORDEN-004: Precision_GPS se retiro del modelo, ver CAMPOS_RETIRADOS). SIN ESTO EL GEOFENCING ES DECORATIVO: HERE() es Initial value, no App formula, y un Initial value SI es editable. Coordenadas_Cierre es un LatLong, que en un formulario AppSheet dibuja como un pin arrastrable sobre un mapa, y la ubicacion del activo esta visible en la app: el tecnico arrastra el pin encima del activo y RG-01 valida sin protestar. La regla se cumplia y la presencia no quedaba probada.
 
 ### RG-16 — `ACT_Activos` · `Activo`
 
@@ -202,6 +232,8 @@ FALSE
 [EstadoActivoID].[Nombre] <> "Retirado"
 ```
 
+> La bandera se deriva del estado, no se edita. La comparacion va contra [Nombre] y NO contra la columna a secas: EstadoActivoID es un Ref y un Ref guarda la CLAVE del destino, que aqui vale 1 a 4. Comparar la clave con la cadena 'Retirado' es siempre cierto, y como esto es una App formula, ESCRIBE: pondria Activo=TRUE sobre el activo dado de baja. EST_Activo ya tiene el estado Retirado; mantener ademas una bandera independiente es el mismo dato en dos sitios, y algun dia diran cosas distintas sin forma de saber cual miente.
+
 ### RG-17 — `ACT_Activos` · `FechaBaja`
 
 **Tipo:** Required_If · cubre Baja de activos
@@ -209,6 +241,8 @@ FALSE
 ```
 [EstadoActivoID].[Nombre] = "Retirado"
 ```
+
+> Contra [Nombre], no contra la clave. Si se retira un activo hay que decir cuando. Un historico que no puede explicar por que un activo dejo de recibir mantenimiento no es defendible.
 
 ### RG-18 — `ACT_Activos` · `(tabla)`
 
@@ -218,6 +252,8 @@ FALSE
 Ver descripcion: es una prohibicion, no una expresion a configurar
 ```
 
+> NO filtrar los reportes historicos por la bandera Activo del activo padre. Un reporte HISTORICO filtra por la fecha y el estado de la TRANSACCION, nunca por el estado actual del activo padre. Filtrar por [ActivoID].[Activo] hace que al dar de baja un activo desaparezcan retroactivamente todos sus mantenimientos pasados: el informe del ano anterior cambia solo y muestra menos trabajo del que se hizo. Ante interventoria eso no parece un filtro mal puesto, parece que el mantenimiento nunca se ejecuto.
+
 ### RG-14 — `OT_OrdenesTrabajo` · `(tabla)`
 
 **Tipo:** Are updates allowed · cubre Evidencia defendible
@@ -225,6 +261,8 @@ Ver descripcion: es una prohibicion, no una expresion a configurar
 ```
 Updates, Adds
 ```
+
+> Se retira Deletes. Una orden no se borra: se anula con Activo = FALSE, que deja traza de que existio. Si el boton no esta, no hay accidente posible.
 
 ### RG-15 — `MAN_Mantenimientos` · `(tabla)`
 
@@ -234,6 +272,8 @@ Updates, Adds
 Updates, Adds
 ```
 
+> Se retira Deletes. Es la decision central del sistema: la ejecucion es la prueba de que alguien estuvo frente al equipo. Protegido aqui arriba, el IsPartOf de FOT, FIR y CHK nunca llega a dispararse. Nota: esto protege DENTRO de la app; nadie impide borrar la fila a mano en el Sheets, donde hay dos cuentas con permiso de edicion.
+
 ### RG-10 — `MAN_Mantenimientos` · `(tabla)`
 
 **Tipo:** Bot · cubre D-07
@@ -241,6 +281,8 @@ Updates, Adds
 ```
 [RequiereSegundaVisita] = TRUE
 ```
+
+> Genera una orden de seguimiento enlazada a la original mediante OTOrigenID.
 
 ### RG-39 — `FOT_Fotografias` · `Ubicacion_LatLong`
 
@@ -250,6 +292,8 @@ Updates, Adds
 FALSE
 ```
 
+> Mismo mecanismo que RG-20: HERE() es Initial value, no App formula, y un Initial value SI es editable. Sin esto la coordenada de la fotografia se dibuja como un pin arrastrable y la evidencia queda donde el tecnico quiera dejarla, no donde tomo la foto. CABLEAR DESPUES del Initial value = HERE(): al reves la columna queda obligatoria, no editable y vacia, y ningun tecnico puede guardar una fotografia. ESPEC-008.
+
 ### RG-40 — `NOV_Novedades` · `Ubicacion_LatLong`
 
 **Tipo:** Editable_If · cubre Prueba de presencia
@@ -257,6 +301,8 @@ FALSE
 ```
 FALSE
 ```
+
+> Igual que RG-39, sobre la novedad en vez de la fotografia. Sin esto un tecnico registra una novedad en ruta, arrastra el pin y el hallazgo queda georreferenciado donde el quiera. CABLEAR DESPUES del Initial value = HERE(). ESPEC-008.
 
 ## 3. Las claves, todas `Text`
 

@@ -81,6 +81,25 @@ evidencia de qué se tocó son las actas de `docs/sdd/`.
 Es el mismo límite que hace que **11 de los 13 pasos** de `docs/LO_QUE_SE_HACE_A_MANO.md` no tengan
 ningún verificador.
 
+## ~~`RECONSTRUCCION_EXPRESIONES.md` no propagaba la explicación de ninguna regla~~ — corregido
+
+**Lo destapó `ORDEN-008` y se arregló el mismo día.** Se deja escrito porque el modo de fallo es
+instructivo: `generar_reconstruccion.py` emitía el campo `nota` de cada regla, y **ninguna de las 23
+reglas tiene `nota`** —todas usan `descripcion`—. Ese bloque **no se ejecutó nunca desde que existe**,
+y el documento jamás llegó a explicar una sola regla.
+
+```bash
+python -c "import sys;sys.path.insert(0,'scripts');from modelo_objetivo import REGLAS;print('nota:',sum(1 for r in REGLAS if r.get('nota')),'descripcion:',sum(1 for r in REGLAS if r.get('descripcion')))"
+```
+
+**Por qué importó justo ahora:** la condición 1 del dictamen de `ESPEC-008` exigía meter la
+instrucción *«cablear DESPUÉS del `Initial value`»* dentro de `descripcion` **para que llegara a quien
+cablea** — y quien cablea lee justo este documento. La condición se aplicó, el texto se escribió, y
+**no llegaba a su destino**. La regla salía como *«Tipo: `Editable_If` · `FALSE`»* y nada más.
+
+Es el patrón de siempre en su versión más fina: **algo configurado, bien escrito, sin error, y sin
+efecto**. Y esta vez el que no tenía efecto era el arreglo.
+
 ## `RG-06` y `RG-10` están creados y no pueden funcionar como están declarados
 
 Los dos bots se crearon en el editor el 2026-08-11 (`docs/sdd/ACTA-009`) con su tabla, su evento y su

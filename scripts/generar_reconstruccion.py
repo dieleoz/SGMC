@@ -88,8 +88,19 @@ for r in REGLAS:
         w(exp)
         w("```")
         w("")
-    if r.get("nota"):
-        w("> %s" % r["nota"].replace("\n", " "))
+    # Se emite `descripcion` y no solo `nota`, y la diferencia no era cosmetica:
+    # NINGUNA de las 23 reglas tiene `nota` -todas usan `descripcion`-, asi que este
+    # bloque no se ejecuto nunca desde que existe, y este documento jamas llego a
+    # explicar una sola regla.
+    #
+    # Lo destapo ORDEN-008. La condicion 1 de su dictamen exigia meter la instruccion
+    # «cablear DESPUES del Initial value» dentro de `descripcion` PARA QUE LLEGARA A
+    # QUIEN CABLEA, y quien cablea lee justo este documento: aqui la regla salia como
+    # «Tipo: Editable_If, FALSE» y nada mas. Sin esto el operador la pega en Editable?
+    # sin tocar Initial value, y ningun tecnico puede guardar una fotografia.
+    _texto = r.get("descripcion") or r.get("nota")
+    if _texto:
+        w("> %s" % _texto.replace(chr(10), " "))
         w("")
     # RG-01 desreferencia una columna que puede estar vacia, y contra vacio la
     # comparacion rechaza TAMBIEN el cierre legitimo. La expresion es la de
