@@ -54,7 +54,32 @@ espurias. Hay que avisarlo en la orden, para que no se lean como efecto del camb
 No rompe nada en producción. Rompe la confianza en el `diff`, que es peor de lo que suena cuando el
 método entero se apoya en leer de vuelta.
 
-## Qué pasa si `HERE()` no está disponible
+## `HERE()` sin señal escribe `0, 0` — MEDIDO, y salió la peor rama
+
+**Ya no es una duda: está medido** (`docs/sdd/ACTA-011`). En el formulario real, con la
+geolocalización no disponible, `HERE()` escribe el literal `0.000000, 0.000000`. **No deja el campo
+vacío.**
+
+De las dos ramas que `ESPEC-008` §2.9 planteó, salió la mala:
+
+| Si | Consecuencia |
+|---|---|
+| dejara el campo vacío | el técnico no puede guardar — molesto, pero **visible el primer día** |
+| escribe `0, 0` | **evidencia falsa e incorregible**: `Editable_If = FALSE` quita la única vía de corrección |
+
+Con `RG-39` y `RG-40` ya cableadas, un técnico sin señal **registra una fotografía en el golfo de
+Guinea y no puede arreglarlo**. Y esa coordenada **es** la evidencia: la compresión a 600 px descarta
+el EXIF, no hay segunda fuente.
+
+**Sigue abierto porque es una decisión de operación, no técnica.** `MAN_Mantenimientos` tiene válvula
+de escape —`CierreConExcepcion` más `MotivoExcepcion`—; `FOT_Fotografias` y `NOV_Novedades` no tienen
+ninguna. Tres salidas, con su coste, en `ACTA-011` §2: dejarlo, quitar la protección, o darles
+válvula. La tercera es barata **hoy**, con las dos tablas en cero filas.
+
+## ~~Qué pasa si `HERE()` no está disponible~~ — contestado arriba
+
+_Lo que sigue es la entrada original, de cuando era una duda sin medir._
+
 
 Sin señal, o con la ubicación denegada en el dispositivo, no está fijado si `HERE()` deja el campo
 **vacío** o escribe **`0, 0`**. No hay página oficial que lo diga y no lo hemos medido.
@@ -164,3 +189,29 @@ abierto.
 arquitecto aprobó. Queda aquí para que la corrección —añadir la misma línea `w(r["descripcion"])` que
 ya usan los otros dos generadores, condicionada a que exista— se decida con su propia especificación
 o se sume a la próxima que toque `generar_reconstruccion.py`.
+
+## El modelo declara `valor_inicial` y el editor puede no tenerlo
+
+**Tres de tres columnas miradas el 2026-08-11 lo tenían vacío** (`docs/sdd/ACTA-011`), pese a que el
+modelo declara su valor en las tres. Una de ellas —`MAN_Mantenimientos.Coordenadas_Cierre_LatLong`—
+estaba **bloqueando el cierre de mantenimientos en producción**.
+
+La causa está identificada y corregida (`ORDEN-008` parcheó `generar_prompt_cableado.py`), pero
+**quien cableó la app siguió el documento roto**, así que el daño ya estaba hecho y nadie sabe cuánto
+alcanza.
+
+```bash
+python -c "import sys;sys.path.insert(0,'scripts');from modelo_objetivo import MODELO;[print('%-24s %-28s %-45s obl=%s ed=%s' % (t,c['nombre'],c['valor_inicial'],bool(c.get('obligatoria')),c.get('editable'))) for t in MODELO for c in MODELO[t]['columnas'] if c.get('valor_inicial')]"
+```
+
+**49 columnas declaran `valor_inicial`. Ninguna se puede comprobar por comando** — la API devuelve
+filas, no esquema. Hay que mirarlas a ojo, y el orden lo da la gravedad, no el alfabeto:
+
+| Cuántas | Estado | Qué pasa si falta |
+|---|---|---|
+| **3** | obligatorias **y** no editables | **bloqueo duro**: el formulario no se puede guardar |
+| 4 | obligatorias, editables | el técnico lo teclea a mano cada vez |
+| 42 | el resto | el campo llega vacío |
+
+De las 3 del bloqueo duro, las tres se miraron el 2026-08-11 y **las tres estaban mal**. De las otras
+46, ninguna.
