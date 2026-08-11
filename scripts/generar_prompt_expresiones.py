@@ -37,6 +37,7 @@ sys.path.insert(0, os.path.join(RAIZ, "scripts"))
 from modelo_objetivo import MODELO, REGLAS
 from sistema import APP_NOMBRE, APP_URL
 from lectura_de_vuelta import bloque
+from navegacion_editor import mapa_markdown
 
 SALIDA = os.path.join(RAIZ, "docs", "PROMPT_EXPRESIONES.md")
 
@@ -148,6 +149,8 @@ w("%s" % APP_URL)
 w("```")
 w("")
 
+w(mapa_markdown())
+w("")
 w("## Lo primero, porque ya salió mal tres veces")
 w("")
 w("**Una expresión con puntos no falla por estar mal escrita. Falla porque un salto de su cadena no")

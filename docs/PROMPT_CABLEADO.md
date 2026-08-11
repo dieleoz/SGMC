@@ -17,6 +17,64 @@ https://www.appsheet.com/template/appdef?appId=aca92ac5-a6eb-4c73-be81-471a5b3fe
 
 > Si ese enlace da 404, entra por el listado de `https://www.appsheet.com` y abre `_SISGA_-323965761`.
 
+### Dónde está cada cosa en el editor
+
+Los nombres de las reglas **no son** los nombres de los controles. Ahí es donde se pierde
+la gente, y ahí se coló más de un error del 2026-08-10.
+
+| Lo que dice el encargo | Dónde está en pantalla |
+|---|---|
+| `Valid_If` | Data Validity > Valid If — y el mensaje va en `Invalid value error`, justo debajo |
+| `Required_If` | Data Validity > Require? — **no es una casilla que se marque**: hay que pulsar el icono `=` que hay al lado para escribir la expresion. El 2026-08-10 acabo escrita en `Valid If`, que la habria vuelto imposible de guardar |
+| `App formula` | Auto Compute > App formula — **escribe en la hoja** |
+| `Initial value` | Auto Compute > Initial value — solo se aplica a filas NUEVAS; el usuario puede cambiarla despues salvo que `Editable?` lo impida |
+| `Editable_If` | Update Behavior > Editable? — el icono `=` al lado de la casilla |
+| `Label` | Display > Label — exige que `Show?` este activo, y solo puede haber UNA por tabla |
+| `Key` | la casilla `Key` en la lista de columnas, no dentro del panel — sobre una tabla VACIA, AppSheet no deja marcarla si la columna no tiene `Initial value` que genere la clave |
+| `Security Filter` | Data > Tables > <tabla> > Table settings > Security > Security filter |
+| `Are updates allowed` | Data > Tables > <tabla> > Table settings — tres casillas: `Updates`, `Adds`, `Deletes` |
+
+**Dentro del panel de una columna**, las secciones van en este orden:
+
+- **`Show?`** — si la columna se ve en la aplicacion
+- **`Type`** — el tipo. Es un <select> nativo del navegador
+- **`Type Details`** — lo que depende del tipo: `Source table` de una Ref, los valores de un Enum, la longitud de un Text
+- **`Data Validity`** — **`Valid If`**, **`Invalid value error`** y **`Require?`**
+- **`Auto Compute`** — **`App formula`**, **`Initial value`** y `Suggested values`
+- **`Update Behavior`** — **`Editable?`** -que es donde vive `Editable_If`- y `Reset on edit?`
+- **`Display`** — **`Label`**, `Display name` y `Description`
+- **`Other Properties`** — `Searchable`, `Scannable`, `NFC` y `Sensitive data`
+
+### Los bots
+
+`Automation > Bots` → `Create a new Bot`, y tres partes:
+
+  Event       la tabla + `Data change type`: Adds, Updates, Adds and Updates.
+              O `Schedule` si es programado, con su cadencia
+  Condition   una expresion que decide si sigue
+  Step        `Add a step` → lo que hace
+
+**La trampa del `Step`.** Si lo que hace es ANADIR UNA FILA a otra tabla, no se
+configura dentro del bot: AppSheet interpreta que quieres generar un documento y
+pide plantilla PDF y valores de retorno. Van dos sitios, en este orden:
+
+  1. `Data > Actions` → `Add Action`
+       For a record of this table  = la tabla de origen
+       Do this = **Data: add a new row to another table using values from this row**
+       Table to add to = la tabla destino, y los valores de cada columna
+
+  2. `Automation > Bots` → tu bot → `Add a step` → **`Run a data action`**,
+     y eliges la que acabas de crear
+
+### Cómo saber que quedó guardado
+
+**El boton `SAVE` de la cabecera pasa de gris a AZUL** cuando el editor recoge un
+cambio, y vuelve a gris al guardar. Ese ciclo -gris, azul, gris- es la senal.
+
+Si sigue gris, **el cambio no llego al modelo interno** y se pierde al recargar.
+No basta con haber cambiado el valor del control.
+
+
 ## Cómo cambiar un tipo sin morir a base de clics
 
 Los desplegables de la columna `TYPE` en *Data > Columns* son **`<select>` nativos del
@@ -372,25 +430,25 @@ En *Data > Columns*, marca la casilla **`Label`** de estas columnas:
 | Tabla | Referencias que la apuntan | `Label` |
 |---|---|---|
 | `USR_Usuarios` | 7 | **`Nombres`** |
-| `FRM_Formularios` | 3 | **`Nombre`** |
-| `MAN_Mantenimientos` | 3 | *ninguna: la clave la identifica, y está decidido así* |
-| `UNF_UnidadesFuncionales` | 3 | **`Nombre`** |
 | `ACT_Activos` | 3 | **`Nombre`** |
-| `FRM_Preguntas` | 2 | **`Pregunta`** |
-| `TIP_TiposActivo` | 2 | **`Nombre`** |
-| `OT_OrdenesTrabajo` | 2 | *ninguna: la clave la identifica, y está decidido así* |
+| `FRM_Formularios` | 3 | **`Nombre`** |
+| `UNF_UnidadesFuncionales` | 3 | **`Nombre`** |
+| `MAN_Mantenimientos` | 3 | *ninguna: la clave la identifica, y está decidido así* |
 | `FRE_Frecuencias` | 2 | **`Nombre`** |
 | `EST_Activo` | 2 | **`Nombre`** |
-| `CAL_Calzadas` | 1 | **`Nombre`** |
-| `FRM_Secciones` | 1 | **`Nombre`** |
-| `EOT_EstadosOrden` | 1 | **`Nombre`** |
-| `TPR_TiposRespuesta` | 1 | **`Nombre`** |
+| `TIP_TiposActivo` | 2 | **`Nombre`** |
+| `FRM_Preguntas` | 2 | **`Pregunta`** |
+| `OT_OrdenesTrabajo` | 2 | *ninguna: la clave la identifica, y está decidido así* |
 | `MOT_MotivosPendiente` | 1 | **`Nombre`** |
+| `EOT_EstadosOrden` | 1 | **`Nombre`** |
+| `ROL_Roles` | 1 | **`Nombre`** |
+| `TPR_TiposRespuesta` | 1 | **`Nombre`** |
+| `FAL_ModosFalla` | 1 | **`Nombre`** |
+| `FRM_Secciones` | 1 | **`Nombre`** |
 | `SED_Sedes` | 1 | **`Nombre`** |
 | `CHK_Checklists` | 1 | *ninguna: la clave la identifica, y está decidido así* |
-| `ROL_Roles` | 1 | **`Nombre`** |
+| `CAL_Calzadas` | 1 | **`Nombre`** |
 | `SEN_Sentidos` | 1 | **`Nombre`** |
-| `FAL_ModosFalla` | 1 | **`Nombre`** |
 
 > Las tres sin etiqueta **no son un hueco**: una orden se identifica por su número y su fecha,
 > una ejecución por su orden y su hora. Está decidido, no olvidado.

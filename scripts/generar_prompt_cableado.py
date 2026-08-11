@@ -34,6 +34,7 @@ if os.path.exists(_foto):
                 _entra.get(t, 0))
                for t in sorted(MODELO) if not _d.get(t)]
 from lectura_de_vuelta import bloque
+from navegacion_editor import mapa_markdown
 from alcance_reglas import por_columna
 
 clases = clasificar()
@@ -83,6 +84,8 @@ w("> Si ese enlace da 404, entra por el listado de `https://www.appsheet.com` y 
   % APP_NOMBRE)
 w("")
 
+w(mapa_markdown())
+w("")
 w("## Cómo cambiar un tipo sin morir a base de clics")
 w("")
 w("Los desplegables de la columna `TYPE` en *Data > Columns* son **`<select>` nativos del")
