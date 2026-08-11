@@ -633,3 +633,43 @@ tiene 0 filas, la comparación dijo `NINGUNA CELDA CAMBIO`, y la app llevaba un 
 contraste de filas no ve el esquema —por construcción—, así que **lo único que detectó el fallo fue
 el mensaje de error de AppSheet en pantalla**. Por eso los encargos dicen: si AppSheet muestra un
 error, ese error describe algo real; cópialo literal y para.
+
+## 19. En la cuenta gratuita, TODO correo de bot va al creador de la app
+
+**Observado el 2026-08-11**, al crear `RG-06` en `Automation > Bots`. Aviso literal del editor:
+
+```
+The account is free. All emails are therefore being sent to the app creator.
+This email should have gone To 'dieleoz@gmail.com' CC'ed to '' and BCC'ed to ''
+```
+
+No es que el destinatario se ignore si lo dejas vacío: **se ignora siempre**. Se configure a quien se
+configure, el correo aterriza en la cuenta del creador.
+
+### Lo que invalida
+
+Este repositorio llevaba una precaución escrita en varios sitios: que `RG-07` *«manda correos reales
+a `ivan.salcedo@concesiondelsisga.com.co`, una dirección corporativa»*, y por eso `PRUEBA-005` §1.5 y
+`PRUEBA-006` lo fijaban como **precondición común** —desactivarlo antes de cualquier fixture y
+reactivarlo después—.
+
+**Ese riesgo no existe en esta cuenta.** Nadie de la concesión va a recibir un correo sobre una orden
+marcada `TEST`. La precondición no era falsa cuando se escribió: era razonable y nadie la había
+medido. Ahora está medida.
+
+### Lo que NO invalida
+
+- **`RG-07` sigue sin poder probarse de verdad.** Que el correo salga no demuestra que salga *a quien
+  debe*: en esta cuenta es imposible comprobarlo. Es un supuesto que solo cierra el plan de pago.
+- **Reactivar lo que se desactive sigue importando.** No por el destinatario, sino porque un bot
+  desactivado y olvidado es un requisito que deja de cumplirse en silencio.
+- **En cuanto se pague el plan, el riesgo vuelve entero**, y con él la precondición. Quien active el
+  plan tiene que releer esto: es exactamente la clase de nota que se pierde.
+
+### Lo que sostiene
+
+Que la restricción de la cuenta gratuita no es solo *«los bots programados no corren»* (§6). Es una
+familia: **el plan degrada silenciosamente cosas que el editor acepta configurar sin protestar.** Un
+bot con destinatario correcto, guardado sin error, entregando a otra dirección, es el mismo patrón
+que este proyecto persigue desde el principio — configurado, bien escrito, sin error, y haciendo otra
+cosa.

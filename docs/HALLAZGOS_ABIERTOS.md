@@ -80,3 +80,31 @@ evidencia de qué se tocó son las actas de `docs/sdd/`.
 
 Es el mismo límite que hace que **11 de los 13 pasos** de `docs/LO_QUE_SE_HACE_A_MANO.md` no tengan
 ningún verificador.
+
+## `RG-06` y `RG-10` están creados y no pueden funcionar como están declarados
+
+Los dos bots se crearon en el editor el 2026-08-11 (`docs/sdd/ACTA-009`) con su tabla, su evento y su
+condición. **Los dos quedaron incompletos, y por el mismo motivo: el modelo no declara lo que
+AppSheet exige para guardarlos.**
+
+```bash
+python -c "import sys;sys.path.insert(0,'scripts');from modelo_objetivo import REGLAS;[print(r['id'],'|',r['expresion'],'|',r['descripcion']) for r in REGLAS if r['id'] in ('RG-06','RG-10')]"
+```
+
+| | Qué dice el modelo | Qué falta |
+|---|---|---|
+| `RG-06` | *«Envia correo con informe PDF al CCO y al supervisor»* | **Quién es el CCO** y con qué expresión se resuelve el supervisor |
+| `RG-10` | *«Genera una orden de seguimiento enlazada mediante `OTOrigenID`»* | **El mapeo de columnas.** AppSheet lo exige literalmente: `The data action ... does not define a column to set` |
+
+**No se completaron a ojo, y está bien.** Inventar un destinatario o un mapeo es decidir por
+operación en una pantalla, sin registro. `RG-38` sí pudo cablearse porque `ESPEC-006` §3.3 fija su
+mapeo columna por columna; estos dos no tienen equivalente.
+
+**Por qué está aquí y no es una especificación.** No nombra una rotura: son dos reglas que **no
+funcionan todavía**, no dos reglas que hagan daño. Y el contenido que falta no es una decisión de
+diseño —es un dato que operación tiene o no tiene—. Cuando se sepa quién es el CCO, se escriben las
+dos expresiones y se cablean; hasta entonces, especificarlo sería escribir alrededor del hueco.
+
+Con una salvedad que sí conviene tener presente: **`RG-10` es la que crea la orden de seguimiento**, y
+`PRUEBA-005` `P-11` y `P-12` prueban justo que la crea o no la crea. Esas dos pruebas no pueden pasar
+hoy por una razón distinta de la que declaran.
