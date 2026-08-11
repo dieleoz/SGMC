@@ -2,13 +2,31 @@
 
 **Proyecto:** Sistema de Gestión de Mantenimiento en Campo
 **Cliente:** Concesión Transversal del Sisga S.A.S.
-**Actualizado:** 10 de agosto de 2026 | **Versión:** 4.3
+**Actualizado:** 11 de agosto de 2026 | **Versión:** 4.4
 
 > ## Para qué sirve este documento, y para qué no
 >
 > **El estado del proyecto está en [`ESTADO.md`](../ESTADO.md), no aquí.** Este documento es el
 > **orden de implementación**: qué va antes que qué, y por qué ese orden y no otro. Es lo que no
 > cabe en un tablero de estado y lo que más caro sale improvisar.
+>
+> **Qué cambió en la 4.4, del 2026-08-11. Es un cambio de ORDEN, que es lo que este documento
+> decide:**
+>
+> - **Hay una ventana que se cierra sola, y por eso pasa delante de todo lo demás.** Está en §2.1.
+>   Ocho tablas siguen en cero filas, y esa vacuidad **no es un estado neutro**: es lo único que hace
+>   que corregir un tipo o una clave cueste un clic. **El primer registro la cierra para siempre**,
+>   porque las ocho son transaccionales. Lo que cabe dentro está reunido y generado en
+>   [`ENCARGO_VENTANA.md`](ENCARGO_VENTANA.md), con **lo que deja fuera y por qué**.
+> - **`ESPEC-005` está aplicada al modelo, y la hoja de datos NO cambió.** Es contraintuitivo y
+>   conviene que quede escrito: se comparó el `.xlsx` antes y después y salen **29 pestañas, las
+>   mismas, y cero con contenido distinto**. La razón es que `RG-35` y `RG-36` son **columnas
+>   virtuales** y las listas de claves describen el comportamiento del editor, no los datos. Ver §3.1.
+> - **`F-11` dejó de disparar sobre dos tablas**, y es una comprobación menos. Ver §3.1.
+> - **De los 5 bots, 2 no se pueden dar por funcionando en esta cuenta**, y no por estar mal
+>   configurados. Ver §6.
+> - **`Vencida` tiene `EsFinal = Y`, así que una orden que se pasa de fecha no puede cerrarse.** Es
+>   una decisión de operación pendiente, no un defecto de configuración. Ver §6.
 >
 > **Qué cambió en la 4.3, del 2026-08-10 por la tarde:**
 >
@@ -126,6 +144,55 @@ que llega solo con tiempo, y no llega — llega con la decisión de licenciamien
 
 ---
 
+## 2.1 La ventana barata, y por qué es lo más urgente que hay
+
+**Este documento ordena por lo que cuesta hacerlo tarde. Esto es lo único que ahora mismo cuesta
+más cada día que pasa, sin que nada lo anuncie.**
+
+**Ocho tablas están hoy en CERO filas.** Y esa vacuidad no es un estado neutro, aunque se lea como
+«todavía no empezado»: es lo único que hace que corregir un tipo o una clave cueste **un clic**. Con
+una sola fila dentro, cada corrección pasa a ser una **migración**. Entre los dos precios no hay
+ningún evento: ni un error, ni un aviso. **El precio sube solo.**
+
+**Y sube en un solo sentido.** Las ocho son **transaccionales**, así que el primer registro cierra la
+ventana **para siempre**: una vez que entren órdenes y mantenimientos no vuelven a estar vacías
+nunca. No es una ventana que se estreche; es una que desaparece.
+
+Las ocho son `VOLCADO_CIEGO_A` en `scripts/lectura_de_vuelta.py`, y coinciden exactamente con
+`CLAVE_GENERADA`. La cuenta no se cita, se vuelca:
+
+```bash
+python -c "import sys;sys.path.insert(0,'scripts');from inferencia import clasificar;from lectura_de_vuelta import VOLCADO_CIEGO_A;from modelo_objetivo import REGLAS;print(len(VOLCADO_CIEGO_A),'tablas |',sum(1 for t,c,m in clasificar()['a mano'] if t in VOLCADO_CIEGO_A),'tipos a cotejar |',sum(1 for r in REGLAS if r['tipo']=='App formula' and r.get('columna')=='(tabla)'),'columnas virtuales')"
+```
+
+Hoy: **8 tablas · 54 tipos a cotejar · 2 columnas virtuales.**
+
+**Lo que cabe dentro de la ventana está reunido en [`ENCARGO_VENTANA.md`](ENCARGO_VENTANA.md)**,
+generado por `scripts/generar_encargo_ventana.py`. Son dos cosas y nada más: las **2 columnas
+virtuales `Etiqueta`** que deja pendientes `ESPEC-005`, y el **cotejo de los 54 tipos** de esas ocho
+tablas —mirar, no cambiar, y anotar lo que se vea aunque coincida, porque la API devuelve filas y no
+esquema, y esa anotación es la única evidencia que va a existir—.
+
+**Y lo que NO cabe, con su motivo, que es la mitad que impide que la lista se reordene sola:**
+
+| Queda fuera | Por qué |
+|---|---|
+| `UNF_UnidadesFuncionales` y `USR_Usuarios` | **Tienen filas.** Su ventana se cerró hace tiempo, su precio ya está pagado y no vuelve a subir: pueden esperar |
+| Los 5 bots | **No dependen de la ventana.** Se configuran igual con las tablas llenas |
+| `RG-04` y `RG-05`, los `Security Filter` | Van **los últimos**. Al ponerlos, la API deja de devolver las filas de esa tabla y ni `auditar_cableado.py` ni `instantanea.py` pueden volver a mirarla. Apagan los instrumentos |
+| `RG-02`, `RG-19` y `RG-03` | `ESPEC-004` sigue **BLOQUEADA**, y `RG-02` usa una función que no existe en AppSheet |
+
+**La prohibición central del encargo es poblar cualquiera de las ocho**, y no es una precaución
+genérica: es **justo el acto** que acaba con el motivo por el que el encargo existe. Quien la cierra
+casi nunca cree estar decidiendo nada —siembra un fixture, crea una orden para ver si el bot
+dispara—, y ese es exactamente el riesgo. La regla general está en [`CLAUDE.md`](../CLAUDE.md) §7.17.
+
+> **Esto no reordena las fases: se mete delante de todas.** El paso 1 de §2 —esquema completo— sigue
+> siendo el que no admite trocearse, y sigue viviendo dentro de esta misma ventana, con el mismo
+> motivo: `MAN_Mantenimientos` está vacía y añadir hoy cuesta cero.
+
+---
+
 ## 3. Estado por fase
 
 > ### La migración a la hoja limpia, decidida el 2026-08-09 y **ejecutada el 2026-08-10**
@@ -149,7 +216,7 @@ que llega solo con tiempo, y no llega — llega con la decisión de licenciamien
 | **Fase A. La hoja** | **CERRADA** | `verificar_faseA.py` en 0 fallos sobre `BD/Modelo_Datos_PLANTILLA.xlsx`. Hoy: **82 conformes y 4 avisos esperados** |
 | Reconstrucción de la aplicación | **HECHA** el 2026-08-10 | `_SISGA_-323965761`, con las 28 tablas dadas de alta sobre `Modelo_Datos_10082026` |
 | **Fase B. Las 39 referencias** | **HECHA el 2026-08-10.** El auditor sale con **0 correcciones**. De las 39: **4 verificadas** —la aplicación nombra la columna—, **29 compatibles no atribuidas** y **6 no medibles**, estas últimas miradas una a una en el editor y registradas con fecha en `CONFIRMADAS_A_OJO`. El estado **no lo declara este documento**: `python scripts/auditar_cableado.py` | Auditor en 0. Cumplido |
-| **Fase C. Las 23 reglas** | **EN CURSO — marcador real: 20 configurables · 9 cotejadas · 3 imposibles.** Eran 21 hasta que `ESPEC-005` añadió `RG-35` y `RG-36`; las 3 imposibles son `RG-02`, `RG-19` y `RG-03`, que espera `ESPEC-004`. En el editor: **las 6 claves con `UNIQUEID()` puestas**, **tipos y etiquetas de 22 de las 28 tablas** —faltan `UNF_UnidadesFuncionales` y `USR_Usuarios`—, **las 2 columnas virtuales `Etiqueta` sin crear** y **los 5 bots sin empezar**. Encargo en [`PROMPT_EXPRESIONES.md`](PROMPT_EXPRESIONES.md), que trae para cada regla su tabla, su propiedad y **la cadena de referencias que atraviesa** —una expresión con puntos no falla por estar mal escrita, falla porque un salto no está cableado—, y **dónde está cada control en pantalla** con `python scripts/navegacion_editor.py`, porque `Required_If` se llama `Require?` y no es una casilla. Va en dos tandas: primero las que **no escriben**, después las que **sí** | Las 23 puestas, los dos filtros, las cuatro marcas de tiempo, `Deletes` retirado y `PRUEBA-003` pasada. `RG-16` no debe cambiar ninguna de las 368 celdas |
+| **Fase C. Las 23 reglas** | **EN CURSO — marcador real: 20 configurables · 9 cotejadas · 3 imposibles.** Eran 21 hasta que `ESPEC-005` añadió `RG-35` y `RG-36`; las 3 imposibles son `RG-02`, `RG-19` y `RG-03`, que espera `ESPEC-004`. En el editor: **las 6 claves con `UNIQUEID()` puestas**, **tipos y etiquetas de 22 de las 28 tablas** —faltan `UNF_UnidadesFuncionales` y `USR_Usuarios`—, **las 2 columnas virtuales `Etiqueta` sin crear** y **los 5 bots sin empezar** —de los cuales **2, `RG-08` y `RG-12`, no se ejecutarán en esta cuenta por ser programados**, ver §6—. **Lo que hay que hacer ANTES de que entre la primera fila está aparte, en [`ENCARGO_VENTANA.md`](ENCARGO_VENTANA.md)**, porque caduca solo (§2.1). El resto, en [`PROMPT_EXPRESIONES.md`](PROMPT_EXPRESIONES.md), que trae para cada regla su tabla, su propiedad y **la cadena de referencias que atraviesa** —una expresión con puntos no falla por estar mal escrita, falla porque un salto no está cableado—, y **dónde está cada control en pantalla** con `python scripts/navegacion_editor.py`, porque `Required_If` se llama `Require?` y no es una casilla. Va en dos tandas: primero las que **no escriben**, después las que **sí** | Las 23 puestas, los dos filtros, las cuatro marcas de tiempo, `Deletes` retirado y `PRUEBA-003` pasada. `RG-16` no debe cambiar ninguna de las 368 celdas |
 | Fase 1. Datos maestros | Bloqueada por D-01 y D-09 | Coordenadas reales cargadas, sedes realineadas, bancos de preguntas construidos |
 | Fase 2. Configuración de interfaz | Bloqueada por Fase 1 y por declarar vistas | Reportes y pantallas construidos. **Antes hay que declarar la interfaz en el modelo**: hoy no tiene vistas, ni acciones, ni slices |
 | Fase 3. Prueba controlada | Bloqueada por Fase 2 | Registros reales en `MAN_Mantenimientos` y en las tablas de evidencia, verificados leyendo el archivo |
@@ -178,7 +245,35 @@ Verificado el 2026-08-10 contra `scripts/modelo_objetivo.py` y `BD/Modelo_Datos_
 >   `inferencia.ETIQUETA_VIRTUAL`. **Con esto queda desbloqueado crear órdenes desde la
 >   aplicación**, que hoy se hacen en el Sheets saltándose todas las validaciones. **Lo que falta es
 >   la mitad del editor**: crear las dos virtuales, marcarles `Show?` y marcarles `Label`. Encargo
->   en [`PROMPT_CABLEADO.md`](PROMPT_CABLEADO.md), paso 5.
+>   en [`ENCARGO_VENTANA.md`](ENCARGO_VENTANA.md), paso 1 — y también en
+>   [`PROMPT_CABLEADO.md`](PROMPT_CABLEADO.md), paso 5.
+>
+>   **Y aquí está lo contraintuitivo, que conviene dejar escrito: la hoja de datos NO cambió.** Se
+>   comparó el `.xlsx` antes y después de aplicar `ESPEC-005`, y salen **29 pestañas, las mismas, y
+>   cero pestañas con contenido distinto**:
+>
+>   ```bash
+>   python -c "import subprocess,io,openpyxl;a=subprocess.run(['git','show','43b0666:BD/Modelo_Datos_PLANTILLA.xlsx'],capture_output=True).stdout;A=openpyxl.load_workbook(io.BytesIO(a),read_only=True,data_only=True);B=openpyxl.load_workbook('BD/Modelo_Datos_PLANTILLA.xlsx',read_only=True,data_only=True);print(len(A.sheetnames),'pestanas | mismos nombres:',A.sheetnames==B.sheetnames,'|',sum(1 for n in A.sheetnames if [tuple(r) for r in A[n].iter_rows(values_only=True)]!=[tuple(r) for r in B[n].iter_rows(values_only=True)]),'con contenido distinto')"
+>   ```
+>
+>   `43b0666` es el commit anterior a `ESPEC-005`. El archivo binario difiere en **un byte** —metadato
+>   del `.zip`—, así que `git diff --stat` lo marca como cambiado; **por celda no cambió nada**, y
+>   esa es la pregunta que importa.
+>
+>   **La razón:** `RG-35` y `RG-36` son **columnas virtuales** —no existen en el Sheets—, y
+>   `CLAVE_LEGIBLE` y `CLAVE_GENERADA` describen el comportamiento del **editor**, no los datos. **Eso
+>   es justamente lo que hacía atractiva la columna virtual frente a la real**, que sí habría tocado
+>   producción: una `App formula` sobre una columna real escribe en la hoja, y habría cambiado las 368
+>   filas de nadie sabe qué antes de que alguien pudiera revisarlo. Un cambio de modelo que no toca un
+>   solo byte de datos es un cambio que se puede deshacer.
+>
+>   **Y un efecto que resta, no suma: `F-11` dejó de disparar sobre `OT_OrdenesTrabajo` y
+>   `PLA_PlanMantenimiento`.** Esa comprobación de `verificar_faseA.py` —que las listas de claves
+>   digan la verdad sobre la hoja— **exime a `CLAVE_GENERADA` a propósito**, y las dos acaban de
+>   entrar ahí. Es **correcto** —sus claves serán aleatorias en cuanto la aplicación cree la primera
+>   fila—, pero son **dos comprobaciones menos**, y el verde de `verificar_faseA.py` ya no dice nada
+>   de ellas. Que la clave de esas dos esté bien puesta **solo se ve en el editor**, que es lo que
+>   pide el encargo de la ventana.
 > - [`ESPEC-004`](sdd/ESPEC-004-cierre-excepcion-manual.md) — **BLOQUEADA.** `RG-02` usa una función
 >   que **no existe en AppSheet**, y deja inertes a `RG-19` y `RG-03`. Segunda pasada del
 >   arquitecto: **quince hallazgos**. No se aplica.
@@ -271,7 +366,9 @@ generador entre sí.
   15 cada uno— ya estaban acordadas.
 - **Sin un solo registro transaccional.** `OT_OrdenesTrabajo`, `MAN_Mantenimientos`, `CHK_Checklists`,
   `CHD_ChecklistDetalle`, `FOT_Fotografias`, `FIR_Firmas`, `NOV_Novedades` y `PLA_PlanMantenimiento`
-  están vacías. **El ciclo no se ha recorrido de extremo a extremo ni una vez.**
+  están vacías. **El ciclo no se ha recorrido de extremo a extremo ni una vez.** Y eso no es solo una
+  carencia: es la **ventana barata** de §2.1, el activo que se gasta la primera vez que alguien cree
+  una fila en cualquiera de las ocho.
 
 - **Las 368 coordenadas, perdidas y repuestas el 2026-08-10.** Al renombrar `Ubicacion` a
   `Ubicacion_LatLong` la columna nueva nació vacía y la vieja se retiró, y **no lo vio ninguno de los
@@ -497,13 +594,83 @@ Pendiente, y además no declarado todavía en el modelo:
       la lee**, así que hoy nada impide que un técnico ponga «Cerrada» él mismo
 - [ ] Estado de rechazo. `MAN_Mantenimientos.ObservacionRechazo` existe y la orden no tiene a dónde
       volver: falta una fila `Devuelta` en `EOT_EstadosOrden`, que es dato y no esquema
-- [ ] Bots de notificación y de alerta. **No caben en el plan gratuito**: dependen de D-B
+- [ ] Bots de notificación y de alerta. **Dos de los cinco no caben en el plan gratuito**: ver el
+      recuadro de abajo, que corrige la versión anterior de esta línea
 - [ ] **Declarar la interfaz en el modelo** —vistas, acciones y slices—, y generar de ahí el manual
       de pantallas. Mientras no exista, el paso de vistas de cualquier manual dice «se construye
       sola», que es la clase de instrucción que este proyecto tiene prohibida
 - [ ] Reportes y tablero, según D-12 y D-13, encima de lo anterior
 
-**Cierra cuando:** cada regla se demuestra funcionando en la app, no solo configurada.
+> ### Los 5 bots: dos de ellos no se pueden contar como funcionando, y no por estar mal puestos
+>
+> La lista se vuelca, no se cita:
+>
+> ```bash
+> python -c "import sys;sys.path.insert(0,'scripts');from modelo_objetivo import REGLAS;[print(r['id'],'|',r['tipo'],'|',r['tabla']) for r in REGLAS if 'Bot' in r['tipo']]"
+> ```
+>
+> | Bot | Tipo | Se ejecuta en esta cuenta |
+> |---|---|---|
+> | `RG-06` · alerta de activo fuera de servicio | `Bot` por evento | Sí |
+> | `RG-07` · aviso al técnico al asignarle una orden | `Bot` por evento | Sí — **y manda correo real**, ver abajo |
+> | `RG-10` · orden de seguimiento por segunda visita | `Bot` por evento | Sí |
+> | **`RG-08`** · marcar `Vencida` la orden pasada de fecha | **`Bot programado`** | **No** |
+> | **`RG-12`** · generar las órdenes de la semana desde el plan | **`Bot programado`** | **No** |
+>
+> **`RG-08` y `RG-12` son bots PROGRAMADOS, y esta cuenta es gratuita.**
+> [`BASE_CONOCIMIENTO_APPSHEET.md`](BASE_CONOCIMIENTO_APPSHEET.md) §6 lo documenta con cita oficial:
+> *«puedes configurar estas funciones, pero no se ejecutarán como esperas»*, y añade dos matices que
+> importan: depende también de que la app esté **desplegada**, y en cuenta gratuita **los correos de
+> un bot programado van solo al propietario de la app**, no al destinatario que la regla nombra.
+>
+> **Se configuran igual** —hay que dejarlos puestos, y se pueden **ejercitar a mano con `Test`**—,
+> pero **contarlos como funcionando sería falso.** Es la forma de `CLAUDE.md` §7.13: una regla puesta,
+> bien escrita, sin un solo error, que no hace nada. Aquí el motivo no es el tipo ni el dato ni una
+> función inexistente: es el **plan de licenciamiento**, y por eso depende de **D-B** y de nadie del
+> equipo técnico.
+>
+> **Esto corrige la línea anterior de esta fase**, que metía los cinco en el mismo saco. Los tres por
+> evento sí se ejecutan en el plan gratuito, y hay evidencia dura de ello: `PRUEBA-005` tuvo que
+> **desactivar `RG-07` antes de sembrar su fixture** para no disparar tres correos reales.
+>
+> ### `RG-07` manda correos de verdad, a una persona de verdad
+>
+> `RG-07` dispara con **cualquier** fila nueva en `OT_OrdenesTrabajo` —la cree un técnico con el
+> botón `+` o el bot `RG-10`— y notifica por correo al técnico asignado. Hoy eso es
+> **`ivan.salcedo@concesiondelsisga.com.co`**, una dirección corporativa. **Cualquier tanda que cree
+> órdenes le escribe**, incluidas las de prueba, y ya pasó: `PRUEBA-005` habría mandado tres correos
+> sobre órdenes marcadas `TEST`.
+>
+> Se desactiva en `Automation > Bots` → `RG-07` → `Disable`, y se reactiva al terminar. **Pero es una
+> decisión abierta, no un paso de fixture:** hay que decidir si en el piloto el técnico debe recibir
+> ese correo, o si el aviso vive solo dentro de la aplicación. Afecta a toda tanda futura que cree
+> órdenes.
+>
+> ### `Vencida` es un estado FINAL, así que una orden que se pasa de fecha no puede cerrarse
+>
+> `RG-08` marca la orden como `Vencida` cuando su fecha programada pasa sin cerrarse. Y `Vencida`
+> tiene **`EsFinal = Y`**. Es dato, y se comprueba en las dos fuentes:
+>
+> ```bash
+> python -c "import json,io;d=json.load(io.open('BD/instantaneas/antes-de-fase-c.json',encoding='utf-8'));[print(r['EstadoOrdenID'],'EsFinal=',r['EsFinal']) for r in d['EOT_EstadosOrden']]"
+> ```
+>
+> De los 7 estados hay **2 finales**: `Cerrada` y `Vencida`.
+>
+> **La consecuencia es operativa, no técnica: el técnico que llega tarde no puede registrar el
+> mantenimiento que sí hizo.** La orden entra en un estado terminal por el paso del tiempo, y el
+> trabajo real que se ejecutó después no tiene dónde asentarse. **Probablemente no es lo que
+> operación quiere**, y hay al menos tres salidas —que `Vencida` deje de ser final, que exista una
+> transición de reapertura, o que el vencimiento sea una marca y no un estado—. **Está pendiente de
+> decidir con operación, y la decisión va antes de poner `RG-08`**: ponerlo primero significa
+> descubrirlo con la primera orden real encima.
+>
+> Hoy no ha hecho daño porque `RG-08` es de los que no se ejecutan (arriba) y porque
+> `OT_OrdenesTrabajo` está vacía. **Las dos cosas dejan de ser ciertas el mismo día.**
+
+**Cierra cuando:** cada regla se demuestra funcionando en la app, no solo configurada — **y las que
+no puedan demostrarse en esta cuenta se cierran diciendo que no se demostraron, no dándolas por
+buenas.**
 
 ---
 

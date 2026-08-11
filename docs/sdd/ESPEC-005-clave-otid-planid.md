@@ -87,7 +87,7 @@ Todo lo siguiente se leyó de `scripts/modelo_objetivo.py` (el modelo, fuente ú
 directamente. Donde se cita la aplicación en vivo (§2.8), se dice explícitamente: es lectura por
 API, no del volcado.
 
-### 2.1 Las ocho tablas están vacías hoy, en el volcado local
+### 2.1 Las ocho tablas están vacías hoy — y de dónde sale esa afirmación, con cuidado
 
 ```
 python -c "
@@ -101,6 +101,24 @@ for t in ['OT_OrdenesTrabajo','PLA_PlanMantenimiento','MAN_Mantenimientos','CHK_
 "
 ```
 Salida: las ocho en `0`.
+
+**Esta salida, por sí sola, no prueba nada sobre el estado real de la aplicación.** El comando lee
+`BD/Modelo_Datos_PLANTILLA.xlsx`, el volcado local, y ese archivo es **ciego por diseño** a estas
+ocho tablas: `generar_plantilla.py` las vacía en cada pasada porque son registros de movimiento y la
+plantilla es lo que recibe el funcional. `scripts/lectura_de_vuelta.py` lo declara explícitamente en
+`VOLCADO_CIEGO_A` — *"Una fila creada en la APLICACION -un fixture de prueba, una orden real- nunca
+llega a ese archivo. Cualquier comprobacion que espere verla ahi no puede dispararse jamas, y pasa en
+verde por no ejercitarse."* Es decir: este comando daría `0` en las ocho **aunque la aplicación en
+vivo tuviera filas reales**, porque nunca las mira.
+
+La afirmación de la que sí depende esta especificación —que las ocho están en cero **hoy, en la
+aplicación**, no solo en su volcado— se apoya en `PRUEBA-005` §1.1, que lee por API con
+`python scripts/instantanea.py guardar prueba-005-partida` y confirma `0` en las tres tablas que
+importan para el fixture (`OT_OrdenesTrabajo`, `PLA_PlanMantenimiento`, `MAN_Mantenimientos`)
+contra la aplicación viva, no contra el archivo. Las dos verificaciones coinciden hoy, pero por
+motivos distintos y con instrumentos distintos: una es estructural (el generador vacía a propósito),
+la otra es una medición (la API no tiene nada que devolver todavía). Confundirlas sería apoyar una
+especificación sobre producción en un comando que no puede refutarla.
 
 ### 2.2 `python scripts/validar_modelo.py` hoy
 
@@ -426,8 +444,10 @@ A partir de ahí:
   en un estado que `Regenerate` no puede fusionar, el mismo escenario que ya obligó a reconstruir la
   aplicación una vez (`docs/BASE_CONOCIMIENTO_APPSHEET.md` §11, `docs/COMUNICACION_PROPIETARIO_APP.md`)—,
   **eso solo lo puede ejecutar el propietario de la aplicación**: *"Quien crea la aplicacion es su
-  propietario (...) un coautor no puede dar de alta tablas"* (`docs/MANUAL_DESPLIEGUE.md:174-175`),
-  y `Add data` está reservado a esa cuenta (`docs/BASE_CONOCIMIENTO_APPSHEET.md:228-229`). Hoy la
+  propietario (...) un coautor no puede dar de alta tablas"* (`docs/MANUAL_DESPLIEGUE.md`, sección
+  «Paso 1 — Crear la aplicacion» — citado por título, no por línea, porque es un documento generado y
+  sus líneas se mueven: ver §8), y `Add data` está reservado a esa cuenta
+  (`docs/BASE_CONOCIMIENTO_APPSHEET.md:228-229`). Hoy la
   propietaria de la hoja de producción es la Concesión (`CLAUDE.md` §2.1); quién es exactamente el
   propietario de la aplicación `_SISGA_-323965761` no está verificado desde el repositorio — hay que
   mirarlo en AppSheet, no inferirlo. `Delete and re-add` además borra toda la configuración de esa
@@ -526,6 +546,22 @@ No es `modelo_objetivo.py` porque la etiqueta de una columna nunca vivió ahí: 
   sigue siendo `OT_OrdenesTrabajo`** (no hay forma de medirlo por API mientras la tabla siga vacía).
   En cuanto `PRUEBA-005` deje filas reales en `OT_OrdenesTrabajo`, correr `auditar_cableado.py` de
   verdad para convertir esa confirmación visual en una medición.
+- **`RG-05` (Security Filter sobre `OT_OrdenesTrabajo`) no puede estar aplicado mientras dure esta
+  tanda, y eso no es una preferencia de orden: es la única forma de que la medición de arriba pueda
+  hacerse alguna vez.** `scripts/lectura_de_vuelta.py` (`FILTROS_AL_FINAL`) documenta, con el
+  precedente ya ocurrido de `RG-04` sobre `ACT_Activos`, que un `Security Filter` se evalúa con
+  `USEREMAIL()` en blanco cuando la API llama sin usuario, y la API pasa a devolver **cero filas** de
+  esa tabla — no porque estén filtradas por error, sino porque el filtro hace exactamente su trabajo
+  también contra el instrumento de lectura. En cuanto `RG-05` se ponga en el editor,
+  `auditar_cableado.py` deja de poder ver `OT_OrdenesTrabajo` y las dos referencias que la apuntan
+  (`MAN_Mantenimientos.OTID`, `OT_OrdenesTrabajo.OTOrigenID`) vuelven a caer en "NO SE PUEDEN JUZGAR"
+  — **para siempre**, no de forma temporal: no hay ventana posterior en la que la API vuelva a ver
+  esa tabla sin usuario. `ESTADO.md` ya fija que los dos `Security Filter` (`RG-04` y `RG-05`) "van
+  los últimos", después de todo lo demás, precisamente por esto. **`P-14` de `PRUEBA-005` es, por lo
+  tanto, la única oportunidad que va a existir de medir esas dos referencias**: antes de `ORDEN-005`
+  no hay filas que medir (§2.8), y después de aplicar `RG-05` no hay instrumento que pueda volver a
+  mirar. Si `P-14` se salta o se corre después de aplicar `RG-05`, esas dos referencias quedan
+  confirmadas solo "a ojo" —como hoy— de manera permanente.
 - **`RG-07` (bot, `OT_OrdenesTrabajo`, evento `Adds`, notifica por correo al técnico) dispara con
   cada fila nueva, la cree un técnico o un bot.** No está mencionado en ninguna versión anterior de
   esta especificación ni de `PRUEBA-005`, y **cualquier fixture de prueba que cree filas en
@@ -596,11 +632,15 @@ verificó contra la documentación oficial de Google (§2.5) y se retira de la l
 
 ## 8. Nota de método: cómo se cita este documento a `docs/PROMPT_CABLEADO.md`
 
-`docs/PROMPT_CABLEADO.md`, `docs/sdd/RECONSTRUCCION_EXPRESIONES.md` y `docs/PROMPT_EXPRESIONES.md`
-son **generados**: sus números de línea se mueven cada vez que el modelo cambia, y sus números de
-paso se derivan de recuentos (`len(REGLAS)`, `len(SIN_ETIQUETA_NATURAL)`, etc.) que también cambian.
-Toda cita a esos tres documentos en esta especificación se hace **por título de sección**, nunca por
-número de línea. Donde la versión anterior citaba líneas (76-78, 80-87, 372-393), esas líneas ya no
-corresponden a lo citado —verificado hoy: la cita textual del §1 existe, pero en otra línea y dentro
-de otro paso ("Paso 2", no "Paso 1")—. El contenido citado se revisó contra el archivo actual en
-cada punto de este documento; el número de línea nunca se usó como identificador.
+`docs/PROMPT_CABLEADO.md`, `docs/sdd/RECONSTRUCCION_EXPRESIONES.md`, `docs/PROMPT_EXPRESIONES.md` y
+**`docs/MANUAL_DESPLIEGUE.md`** son **generados**: sus números de línea se mueven cada vez que el
+modelo cambia, y sus números de paso se derivan de recuentos (`len(REGLAS)`, `len(SIN_ETIQUETA_NATURAL)`,
+etc.) que también cambian. `docs/MANUAL_DESPLIEGUE.md` lo genera `scripts/generar_manual_despliegue.py`
+igual que los otros tres se generan por su script correspondiente; se añade a esta lista en esta misma
+versión porque §3.4 lo citaba por línea (`:174-175`) y esa cita ya se corrigió a título de sección
+(«Paso 1 — Crear la aplicacion»). Toda cita a estos cuatro documentos en esta especificación se hace
+**por título de sección**, nunca por número de línea. Donde la versión anterior citaba líneas (76-78,
+80-87, 372-393), esas líneas ya no corresponden a lo citado —verificado hoy: la cita textual del §1
+existe, pero en otra línea y dentro de otro paso ("Paso 2", no "Paso 1")—. El contenido citado se
+revisó contra el archivo actual en cada punto de este documento; el número de línea nunca se usó como
+identificador.

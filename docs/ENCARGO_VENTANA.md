@@ -238,7 +238,9 @@ otra cosa, para y reporta la salida entera.
 ## Lo que no puedes hacer
 
 - **No pobles ninguna de las 8 tablas.** Es justo lo que cerraría la ventana.
-- **No toques ninguna referencia.** Las 39 están puestas y auditadas.
+- **No toques ninguna referencia.** Están puestas: el auditor sale con 0 correcciones. Pero
+  «puestas» no es «auditadas» —de las 39, solo unas pocas están **verificadas** y el resto son
+  **compatibles no atribuidas**—, así que si ves algo raro, repórtalo en vez de corregirlo.
 - **No pongas los `Security Filter`.** Apagan los instrumentos sobre esa tabla.
 - **No pulses `Regenerate Structure`.** Fusiona, no reemplaza, y no se deshace.
 - **No ejecutes ningún `.js` de `scripts/`.** Son experimentos abandonados que hacen clic a

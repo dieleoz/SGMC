@@ -877,6 +877,56 @@ python -c "import sys;sys.path.insert(0,'scripts');from modelo_objetivo import M
 en una columna tienen todos su regla, así que ya se validaban. **Entró antes de que hubiera qué
 cazar.** Una comprobación que se añade después del primer defecto llega tarde por definición.
 
+## 7.17 La vacuidad de una tabla es un activo que se gasta (regla nueva, 2026-08-11)
+
+**Hay decisiones que solo son baratas mientras algo esté vacío, y nadie avisa cuando dejan de
+serlo.** No es una particularidad de este proyecto: es la forma. Un cambio cuesta un clic mientras
+no haya nada detrás y una migración en cuanto lo haya, y **entre los dos precios no hay ningún
+evento**. Ni un error, ni un aviso, ni una línea de log. El precio sube solo.
+
+**Ocho tablas están hoy en cero filas**, y esa vacuidad no es un estado neutro: es lo único que hace
+que corregir un tipo o una clave siga siendo gratis. Las ocho son `VOLCADO_CIEGO_A` en
+`scripts/lectura_de_vuelta.py`, y coinciden exactamente con `CLAVE_GENERADA`. Se cuenta lo que hay
+dentro de la ventana, no se cita:
+
+```bash
+python -c "import sys;sys.path.insert(0,'scripts');from inferencia import clasificar;from lectura_de_vuelta import VOLCADO_CIEGO_A;from modelo_objetivo import REGLAS;print(len(VOLCADO_CIEGO_A),'tablas |',sum(1 for t,c,m in clasificar()['a mano'] if t in VOLCADO_CIEGO_A),'tipos a cotejar |',sum(1 for r in REGLAS if r['tipo']=='App formula' and r.get('columna')=='(tabla)'),'columnas virtuales')"
+```
+
+**Lo que vuelve peligrosa a esta ventana concreta es que se cierra en un solo sentido.** Las ocho son
+**transaccionales**: en cuanto entren órdenes y mantenimientos no vuelven a estar vacías nunca. No es
+una ventana que se estreche, es una que **desaparece**. `UNF_UnidadesFuncionales` y `USR_Usuarios`
+están al otro lado —tienen filas, su ventana ya se cerró— y por eso pueden esperar: **su precio ya
+está pagado y no vuelve a subir.**
+
+**Y quien la cierra no está decidiendo nada.** Ese es el nervio de la regla. La cierra quien siembra
+un fixture de prueba, quien crea una orden para ver si el bot dispara, quien pulsa `+` una vez. Nadie
+de ellos cree estar gastando un activo, porque el activo **no se parece a un activo**: se parece a
+una tabla vacía, que es lo que todo el mundo lee como «todavía no empezado».
+
+**La regla, en cuatro partes:**
+
+1. **Cuando encuentres una ventana así, nómbrala.** Un coste que sube solo y no tiene nombre no entra
+   en ninguna conversación de prioridades: pierde siempre contra lo que sí tiene nombre y fecha.
+2. **Escribe qué está dentro y qué está fuera, con el motivo de cada exclusión.** Una lista de
+   pendientes sin frontera se lee como un backlog, y un backlog se reordena. Lo que está fuera de
+   `docs/ENCARGO_VENTANA.md` lo está por un motivo escrito —`UNF` y `USR` ya tienen filas, los bots
+   no dependen de la ventana, los `Security Filter` van los últimos porque apagan los instrumentos—,
+   y ese motivo es lo que impide que alguien lo vuelva a meter dentro.
+3. **Genérala, no la redactes.** `scripts/generar_encargo_ventana.py` la emite del modelo, así que
+   **caduca sola**: el día que las ocho dejen de estar vacías, el encargo dejará de tener sentido y
+   volverlo a generar lo dirá. Un encargo escrito a mano sobrevive a su propia ventana y manda a
+   hacer barato lo que ya cuesta caro.
+4. **Quien vaya a cerrarla tiene que saber que la está cerrando.** Por eso el encargo prohíbe
+   explícitamente poblar las ocho tablas, y no como una precaución genérica: es **justo el acto** que
+   acaba con el motivo por el que existe el encargo.
+
+**Es la misma familia que 7.15**, y conviene ver el parentesco: allí un instrumento callaba y su
+silencio se leía como acierto; aquí un coste sube y su subida no se lee en absoluto. En los dos
+casos el defecto no es de nadie que se equivoque, es de que **el sistema no emite el hecho**. La
+única defensa que ha funcionado en este proyecto es la misma en los dos: **que lo diga el propio
+artefacto, generado, y no una persona que se acuerde.**
+
 ## 8. Deriva documental: ahora es mecanica
 
 Este archivo llevaba una lista escrita a mano de contradicciones conocidas entre documentos. Esa

@@ -184,10 +184,12 @@ El orden es este:
 
 Afecta a `RG-10` y a `RG-12`, que son los dos que crean órdenes.
 
-> **Y un aviso que vale más que el procedimiento:** un bot que crea filas en `OT_OrdenesTrabajo`
-> tiene hoy un problema abierto. `OTID` es clave legible y **nadie la genera**, así que la fila
-> nacería sin identificador y AppSheet la descarta sin decir nada. Está en el pipeline. **No
-> pongas `RG-10` ni `RG-12` en producción hasta que se resuelva.**
+> **`RG-10` y `RG-12` ya se pueden poner.** `OTID` era clave legible y nadie la generaba, así que la fila
+> nacía sin identificador y AppSheet la descartaba en silencio. `ESPEC-005` lo resolvió:
+> `OT_OrdenesTrabajo` está en `CLAVE_GENERADA` y su clave sale de `UNIQUEID()`.
+>
+> Lo que sí sigue abierto es **cuándo dispararlos**: crean órdenes, y con eso pueblan una
+> tabla que hoy está en cero. Ver `ENCARGO_VENTANA.md`.
 
 ## Las expresiones, enteras
 

@@ -2,7 +2,7 @@
 
 **Proyecto:** Sistema de Gestión de Mantenimiento en Campo (SGMC)
 **Cliente:** Concesión Transversal del Sisga S.A.S.
-**Actualizado:** 10 de agosto de 2026
+**Actualizado:** 11 de agosto de 2026
 **Propósito:** Mapa de navegación del repositorio. Dónde está cada cosa y qué contiene.
 
 > **Este archivo dice dónde está cada cosa, no en qué punto va el proyecto.**
@@ -21,6 +21,7 @@
 | Ver la arquitectura que se va a construir | [docs/ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) |
 | Construir o configurar la aplicación | [docs/MANUAL_DESPLIEGUE.md](docs/MANUAL_DESPLIEGUE.md) |
 | Cablear la aplicación en el editor | [docs/PROMPT_CABLEADO.md](docs/PROMPT_CABLEADO.md) |
+| **Saber qué hay que cerrar ANTES de que entre la primera fila** | [docs/ENCARGO_VENTANA.md](docs/ENCARGO_VENTANA.md), generado. Ocho tablas están en cero filas y eso caduca solo |
 | Saber qué queda mal cableado hoy, y qué no se puede ver | [docs/CORRECCIONES_CABLEADO.md](docs/CORRECCIONES_CABLEADO.md), generado |
 | Saber qué expresión va en cada sitio | [docs/sdd/RECONSTRUCCION_EXPRESIONES.md](docs/sdd/RECONSTRUCCION_EXPRESIONES.md) |
 | Probar que el despliegue funciona | [docs/sdd/PRUEBA-003-despliegue.md](docs/sdd/PRUEBA-003-despliegue.md) |
@@ -49,12 +50,17 @@ D:\@Proyect\Sisga\
 ├── docs/                         Documentación técnica y funcional
 │   ├── CORRECCIONES_CABLEADO.md   Lo que falta cablear en el editor. GENERADO por
 │   │                               auditar_cableado.py contra la aplicación en vivo
+│   ├── ENCARGO_VENTANA.md         Lo único que hay que cerrar mientras las ocho tablas
+│   │                               de movimiento sigan en cero filas. GENERADO por
+│   │                               generar_encargo_ventana.py. Caduca solo: el primer
+│   │                               registro cierra la ventana para siempre
 │   ├── images/                    fig_01 a fig_07, figuras de los documentos
 │   └── sdd/                       Artefactos vigentes del pipeline: ESPEC-003 (bloqueada),
 │                                   PRUEBA-003, RECONSTRUCCION_EXPRESIONES, ESPEC-004
 │                                   (rehecha tras bloqueo del arquitecto, pendiente de nuevo
 │                                   dictamen; asume ESPEC-005 aplicada primero) y ESPEC-005
-│                                   (especificada, pendiente de prueba y arquitecto — va primero)
+│                                   (APLICADA al modelo el 2026-08-10; le falta la mitad
+│                                   que vive en el editor, que es el ENCARGO_VENTANA)
 │
 ├── Manuales/                     Manual de usuario
 │   └── MANUAL_DE_USUARIO.md
@@ -90,10 +96,15 @@ D:\@Proyect\Sisga\
 │   ├── inferencia.py              Quién consigue el tipo de cada columna: a mano, el
 │   │                               nombre o el contenido. 107 / 17 / 87
 │   ├── alcance_reglas.py          Qué columnas toca de verdad cada regla, con su tabla.
-│   │                               Atribuir por nombre suelto daba 94 donde hay 36
+│   │                               Atribuir por nombre suelto daba 94 donde hay 39
 │   ├── lectura_de_vuelta.py       Quién comprueba cada clase de cambio. Tres tienen
 │   │                               comando; **cuatro no tiene nadie**
-│   └── generar_*.py               Generadores de la plantilla y de los documentos
+│   ├── navegacion_editor.py       Dónde está cada control en pantalla. El nombre de la
+│   │                               regla NO es el del control: Required_If es Require?
+│   ├── generar_encargo_ventana.py Emite docs/ENCARGO_VENTANA.md desde el modelo: las 2
+│   │                               columnas virtuales Etiqueta y los 54 tipos a cotejar
+│   │                               en las 8 tablas vacías, más lo que deja fuera y por qué
+│   └── generar_*.py               El resto de generadores de la plantilla y los documentos
 │
 ├── contexto/                     Material de contexto operativo, no versionado. No es la vara.
 │   └── SISGA Contrato/            Cinco PDF del contrato de ESTA Concesión. Sin catalogar,
@@ -134,6 +145,7 @@ D:\@Proyect\Sisga\
 |---|---|---|
 | [docs/ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) | Modelo objetivo: 28 tablas, 211 columnas, 39 referencias, 23 reglas | Vigente. **Se regenera, no se edita** |
 | [docs/PROMPT_CABLEADO.md](docs/PROMPT_CABLEADO.md) | El encargo de cableado, autocontenido: las 39 referencias, los tipos y el orden | Vigente. **Se regenera, no se edita** |
+| [docs/ENCARGO_VENTANA.md](docs/ENCARGO_VENTANA.md) | El encargo de la **ventana barata**, autocontenido: las 2 columnas virtuales `Etiqueta` y el cotejo de 54 tipos en las 8 tablas que siguen en cero filas. Y **lo que deja fuera, con su motivo** | Vigente. **Se regenera, no se edita.** Vale mientras las ocho sigan vacías: el primer registro lo caduca entero |
 | [docs/REGLAS_DEL_MODELO_DE_DATOS.md](docs/REGLAS_DEL_MODELO_DE_DATOS.md) | Las diez reglas que manda el motor de datos, con el fallo del que salió cada una | Vigente. **Se regenera, no se edita** |
 | [docs/bd.md](docs/bd.md) | Diccionario As-Built: lo que la hoja tiene hoy, columna a columna | Vigente. **Se regenera, no se edita** |
 | [docs/MANUAL_DESPLIEGUE.md](docs/MANUAL_DESPLIEGUE.md) | De cero a app desplegada, con la ficha de las 28 tablas columna por columna | Vigente. Generado |
@@ -141,7 +153,7 @@ D:\@Proyect\Sisga\
 | [docs/sdd/RECONSTRUCCION_EXPRESIONES.md](docs/sdd/RECONSTRUCCION_EXPRESIONES.md) | Los nombres renombrados y las 23 reglas a reponer, sin cortar | Vigente |
 | [docs/sdd/PRUEBA-003-despliegue.md](docs/sdd/PRUEBA-003-despliegue.md) | Las pruebas de aceptación del despliegue reconstruido | Vigente |
 | [docs/sdd/ESPEC-004-cierre-excepcion-manual.md](docs/sdd/ESPEC-004-cierre-excepcion-manual.md) | `RG-02`/`RG-19` dependen de `USERLOCATIONACCURACY()`, que no existe en AppSheet: `CierreConExcepcion` nunca se dispara. Corrige a que el técnico la marque | **Rehecha el 2026-08-10 tras bloqueo del arquitecto** (12 condiciones, 1 ya aplicada en el modelo; las otras 11 atendidas en esta versión). Pendiente de nuevo dictamen. Asume `ESPEC-005` aplicada primero. Nada de esto está aplicado aún en `scripts/modelo_objetivo.py` ni en el editor |
-| [docs/sdd/ESPEC-005-clave-otid-planid.md](docs/sdd/ESPEC-005-clave-otid-planid.md) | `OTID` y `PlanID` son claves legibles sin generador declarado; `RG-10` y `RG-12` crean filas en `OT_OrdenesTrabajo` sin asignarlo. Propone `UNIQUEID()` para ambas y una columna `Etiqueta` **virtual** (`RG-35`/`RG-36`, no `App formula` sobre columna real) para que la orden se identifique ante el técnico | **Rehecha el 2026-08-10 tras bloqueo del arquitecto** (catorce hallazgos: tres de código ya aplicados fuera de esta especificación, once atendidos en esta versión, incluida la condición que vuelve `Etiqueta` virtual). Pendiente de nuevo dictamen. Nada de esto está aplicado aún en `scripts/modelo_objetivo.py`, `scripts/inferencia.py` ni en el editor |
+| [docs/sdd/ESPEC-005-clave-otid-planid.md](docs/sdd/ESPEC-005-clave-otid-planid.md) | `OTID` y `PlanID` son claves legibles sin generador declarado; `RG-10` y `RG-12` crean filas en `OT_OrdenesTrabajo` sin asignarlo. Propone `UNIQUEID()` para ambas y una columna `Etiqueta` **virtual** (`RG-35`/`RG-36`, no `App formula` sobre columna real) para que la orden se identifique ante el técnico | **APLICADA AL MODELO el 2026-08-10**, tras pasar el gate del arquitecto en segunda pasada. `CLAVE_LEGIBLE` bajó de 22 a 20 tablas y `CLAVE_GENERADA` subió de 6 a 8; se comprueba volcando las dos listas de `scripts/modelo_objetivo.py`. **Falta la mitad que vive en el editor** —las dos virtuales, con `Show?` y `Label`—, que es el paso 1 de [ENCARGO_VENTANA.md](docs/ENCARGO_VENTANA.md) |
 
 ### Plataforma
 
@@ -178,6 +190,8 @@ D:\@Proyect\Sisga\
 | Enlaces rotos entre documentos | — | `python scripts/verificar_enlaces.py` |
 | Columnas obligatorias vacías y referencias huérfanas en los datos | [CLAUDE.md](CLAUDE.md) sección 7.4 | `python scripts/verificar_datos.py` |
 | Cableado real de la aplicación contra el declarado | [docs/BASE_CONOCIMIENTO_APPSHEET.md](docs/BASE_CONOCIMIENTO_APPSHEET.md) §16 | `python scripts/auditar_cableado.py`, que emite [docs/CORRECCIONES_CABLEADO.md](docs/CORRECCIONES_CABLEADO.md) |
+| Lo que solo es barato mientras las ocho tablas sigan vacías | [CLAUDE.md](CLAUDE.md) sección 7.17 | `python scripts/generar_encargo_ventana.py`, que emite [docs/ENCARGO_VENTANA.md](docs/ENCARGO_VENTANA.md); las filas vivas, con `python scripts/instantanea.py` |
+| Dónde está cada control del editor en pantalla | [docs/ENCARGO_VENTANA.md](docs/ENCARGO_VENTANA.md) | `python scripts/navegacion_editor.py` |
 | Capacidad y crecimiento | — | `python scripts/capacidad.py` |
 
 ---

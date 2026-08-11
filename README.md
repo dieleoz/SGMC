@@ -18,6 +18,25 @@ eléctrica y de TI del corredor vial de la **Concesión Transversal del Sisga S.
 > **`ESPEC-005` es el primer dictamen del pipeline que pasa el gate**, y ya está aplicada al modelo:
 > `OTID` y `PlanID` se generan con `UNIQUEID()`. `ESPEC-004` sigue bloqueada.
 >
+> ## Y hay una ventana que se cierra sola
+>
+> **Ocho tablas están hoy en cero filas, y eso no es «todavía no empezado»: es lo único que hace que
+> corregir un tipo o una clave cueste un clic.** Con una sola fila dentro, cada corrección pasa a ser
+> una migración. Las ocho son **transaccionales**, así que **el primer registro cierra la ventana
+> para siempre** — no se estrecha, desaparece.
+>
+> **Nada avisa cuando eso pasa.** No hay error, ni aviso, ni log: el precio sube solo, y lo sube quien
+> siembra un fixture creyendo que no decide nada. Lo que cabe hacer dentro de la ventana está reunido
+> y generado en **[`docs/ENCARGO_VENTANA.md`](docs/ENCARGO_VENTANA.md)** —las 2 columnas virtuales
+> `Etiqueta` y el cotejo de 54 tipos—, con **lo que deja fuera y por qué**. El porqué del orden está
+> en [`docs/ROADMAP.md`](docs/ROADMAP.md) §2.1, y la regla general en [`CLAUDE.md`](CLAUDE.md) §7.17.
+>
+> ```bash
+> python -c "import sys;sys.path.insert(0,'scripts');from inferencia import clasificar;from lectura_de_vuelta import VOLCADO_CIEGO_A;from modelo_objetivo import REGLAS;print(len(VOLCADO_CIEGO_A),'tablas |',sum(1 for t,c,m in clasificar()['a mano'] if t in VOLCADO_CIEGO_A),'tipos a cotejar |',sum(1 for r in REGLAS if r['tipo']=='App formula' and r.get('columna')=='(tabla)'),'columnas virtuales')"
+> ```
+>
+> **Si esa cuenta ya no dice 8 tablas, la ventana se cerró y este párrafo caducó.**
+>
 > **Dónde está el Excel:** [`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTILLA.xlsx). La
 > plantilla sale entera de `python scripts/generar_plantilla.py` y es el mismo archivo publicado como
 > `Modelo_Datos_10082026`, que es la hoja que la aplicación lee. **No se edita a mano.**
@@ -266,7 +285,19 @@ modelo**: las dos pasan a `UNIQUEID()` —`CLAVE_LEGIBLE` de 22 a 20 tablas, `CL
 **Con eso queda desbloqueado crear órdenes desde la aplicación**, que hasta hoy se hacen en el
 Sheets saltándose todas las validaciones. **Lo que falta es la mitad que vive en el editor**: crear
 las dos virtuales, marcarles `Show?` y marcarles `Label`, según
+[`docs/ENCARGO_VENTANA.md`](docs/ENCARGO_VENTANA.md) y
 [`docs/PROMPT_CABLEADO.md`](docs/PROMPT_CABLEADO.md).
+
+> **Y la hoja de datos no cambió, aunque cambiara el modelo.** Comparando el `.xlsx` antes y después
+> salen **29 pestañas, las mismas, y cero con contenido distinto**. La razón es que `RG-35` y `RG-36`
+> son **columnas virtuales** —no existen en el Sheets— y las listas de claves describen el
+> comportamiento del **editor**, no los datos. **Eso es justo lo que hacía atractiva la columna
+> virtual frente a la real**, que sí habría escrito en producción. La comprobación entera, con su
+> comando, está en [`docs/ROADMAP.md`](docs/ROADMAP.md) §3.1.
+>
+> **Y hay una comprobación menos:** `F-11` de `verificar_faseA.py` exime a `CLAVE_GENERADA`, así que
+> **dejó de mirar `OT_OrdenesTrabajo` y `PLA_PlanMantenimiento`**. Es correcto, pero su verde ya no
+> dice nada de esas dos: la clave de ambas solo se ve en el editor.
 
 ## 6. Estado, hallazgos y bloqueantes
 
@@ -276,6 +307,7 @@ Todos en [`ESTADO.md`](ESTADO.md), que se actualiza; aquí no, para que no se co
 |---|---|
 | Qué está hecho y qué falta hoy | [`ESTADO.md`](ESTADO.md) |
 | **Qué está cableado en la aplicación** | `python scripts/auditar_cableado.py`. **No lo sabe ningún documento**; su salida queda en [`docs/CORRECCIONES_CABLEADO.md`](docs/CORRECCIONES_CABLEADO.md) |
+| **Qué hay que cerrar antes de que entre la primera fila** | [`docs/ENCARGO_VENTANA.md`](docs/ENCARGO_VENTANA.md), generado. Caduca solo |
 | Qué le toca a usted según su rol | [`docs/INDICACIONES_POR_ROL.md`](docs/INDICACIONES_POR_ROL.md) |
 | Qué hace el sistema, para quién y cómo | [`docs/FUNCIONAL_SGMC.md`](docs/FUNCIONAL_SGMC.md) |
 | Cómo se construye o configura la app | [`docs/MANUAL_DESPLIEGUE.md`](docs/MANUAL_DESPLIEGUE.md) |
@@ -363,7 +395,8 @@ archivo/       Material de origen, no versionado
 | [docs/ALCANCE_Y_SUPUESTOS_SGMC.md](docs/ALCANCE_Y_SUPUESTOS_SGMC.md) | Alcance del sistema y los 14 supuestos adoptados |
 | [docs/CONTEXTO_OPERACION.md](docs/CONTEXTO_OPERACION.md) | Cómo se mantiene el corredor, y la procedencia de cada documento de contexto |
 | [docs/COMUNICACION_PROPIETARIO_APP.md](docs/COMUNICACION_PROPIETARIO_APP.md) | Qué decirle al dueño de la aplicación anterior |
-| [docs/ROADMAP.md](docs/ROADMAP.md) | Fases con criterio de cierre verificable |
+| [docs/ROADMAP.md](docs/ROADMAP.md) | Fases con criterio de cierre verificable. Su §2.1 es **la ventana barata**: lo que solo es gratis mientras ocho tablas sigan vacías |
+| [docs/ENCARGO_VENTANA.md](docs/ENCARGO_VENTANA.md) | El encargo autocontenido de esa ventana, generado del modelo. **Y lo que deja fuera, con su motivo** |
 | [docs/sdd/](docs/sdd/) | Especificaciones y pruebas del pipeline (`ESPEC-003`, `PRUEBA-003`, `RECONSTRUCCION_EXPRESIONES`, `ESPEC-004`, `ESPEC-005`) |
 | [Manuales/MANUAL_DE_USUARIO.md](Manuales/MANUAL_DE_USUARIO.md) | Guía de operación por rol. **No se entrega todavía**: describe funciones que aún no están montadas, y lo dice en su cabecera |
 | [MAP.md](MAP.md) | Índice maestro y referencias cruzadas |

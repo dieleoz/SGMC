@@ -243,10 +243,27 @@ w("   acabas de crear.")
 w("")
 w("Afecta a `RG-10` y a `RG-12`, que son los dos que crean órdenes.")
 w("")
-w("> **Y un aviso que vale más que el procedimiento:** un bot que crea filas en `OT_OrdenesTrabajo`")
-w("> tiene hoy un problema abierto. `OTID` es clave legible y **nadie la genera**, así que la fila")
-w("> nacería sin identificador y AppSheet la descarta sin decir nada. Está en el pipeline. **No")
-w("> pongas `RG-10` ni `RG-12` en producción hasta que se resuelva.**")
+# Este aviso decia «no pongas RG-10 ni RG-12: OTID no tiene generador». Era
+# cierto, y ESPEC-005 lo resolvio: OTID paso a UNIQUEID(). Estaba escrito a mano,
+# asi que habria sobrevivido a su propia solucion y seguido prohibiendo algo ya
+# permitido. Se deriva.
+from modelo_objetivo import CLAVE_GENERADA as _CG
+_crean = sorted({r["id"] for r in REGLAS
+                 if r["tipo"].startswith("Bot") and "OT_Ordenes" in str(r.get("descripcion", "")
+                 ) or r["id"] in ("RG-10", "RG-12")})
+if "OT_OrdenesTrabajo" not in _CG:
+    w("> **Y un aviso que vale más que el procedimiento:** un bot que crea filas en")
+    w("> `OT_OrdenesTrabajo` tiene un problema abierto. `OTID` es clave legible y **nadie la**")
+    w("> **genera**, así que la fila nacería sin identificador y AppSheet la descarta sin decir")
+    w("> nada. **No pongas %s en producción hasta que se resuelva.**" % " ni ".join("`%s`" % x for x in _crean))
+else:
+    w("> **`%s` ya se pueden poner.** `OTID` era clave legible y nadie la generaba, así que la fila"
+      % "` y `".join(_crean))
+    w("> nacía sin identificador y AppSheet la descartaba en silencio. `ESPEC-005` lo resolvió:")
+    w("> `OT_OrdenesTrabajo` está en `CLAVE_GENERADA` y su clave sale de `UNIQUEID()`.")
+    w(">")
+    w("> Lo que sí sigue abierto es **cuándo dispararlos**: crean órdenes, y con eso pueblan una")
+    w("> tabla que hoy está en cero. Ver `ENCARGO_VENTANA.md`.")
 w("")
 
 w("## Las expresiones, enteras")

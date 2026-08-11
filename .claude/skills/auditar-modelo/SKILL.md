@@ -119,6 +119,22 @@ que la tabla exista no significa que el flujo se haya ejercitado.
   `CLAVE_LEGIBLE` son **20** tablas y `CLAVE_GENERADA` **8**. Comparar un `Ref` a una de esas ocho
   contra un literal de texto es **siempre** un error. Vuelca `scripts/modelo_objetivo.py` antes de
   asumir cuál es la clave de cada tabla: ya cambió más de una vez en este proyecto.
+- **Y eso te dejó dos comprobaciones menos, que es lo que hay que saber al leer el verde.** `F-11` de
+  `verificar_faseA.py` —la que comprueba que las listas de claves dicen la verdad sobre la hoja—
+  **exime a `CLAVE_GENERADA` a propósito**, así que desde `ESPEC-005` **ya no mira
+  `OT_OrdenesTrabajo` ni `PLA_PlanMantenimiento`**. Antes sí las recorría, y sobre la plantilla —que
+  las trae vacías— emitía su aviso de «está vacía en la hoja: no se puede decidir». Hoy ni eso: pasa
+  de largo en silencio. **Es correcto** —sus claves serán aleatorias en cuanto la aplicación cree la
+  primera fila, y meterlas en `CLAVE_LEGIBLE` apagaría `V-17`—, pero **no lo reportes como que `F-11`
+  las aprobó**: no las miró. Se comprueba de un vistazo:
+
+  ```bash
+  python -c "import sys;sys.path.insert(0,'scripts');from modelo_objetivo import MODELO,CLAVE_GENERADA;print('F-11 evalua',len([t for t in MODELO if t not in CLAVE_GENERADA]),'tablas y exime',len(CLAVE_GENERADA),'|',sorted(CLAVE_GENERADA))"
+  ```
+
+  La forma es la de `CLAUDE.md` §7.15: **una comprobación que deja de dispararse pasa en verde por no
+  ejercitarse**, y el verde se lee igual. Si vas a decir que la clave de esas dos está bien, la miras
+  en el editor.
 - Tablas de movimiento sin registros: **compruébalo por API o en el Sheets, nunca en el volcado.**
   Las ocho de `VOLCADO_CIEGO_A` salen vacías ahí siempre. Si lo confirmas contra la fuente buena y
   siguen sin filas, entonces sí: el ciclo de mantenimiento nunca se ha ejecutado y nada está
@@ -127,8 +143,12 @@ que la tabla exista no significa que el flujo se haya ejercitado.
   que un cambio de tipo o de clave **no arrastra ni una fila**. `MAN_Mantenimientos.OTID` está
   declarada `Ref` en el modelo y **sigue `Text` en el editor** —conversión pendiente de
   `ESPEC-003`—, y mientras sea `Text` **no hay referencia real**: toda la cadena
-  `[OTID].[ActivoID].[…]` del geofencing no existe. **El primer fixture cierra esa ventana** para
-  `OT_OrdenesTrabajo`, `MAN_Mantenimientos` y `PLA_PlanMantenimiento`, y no vuelve a abrirse.
+  `[OTID].[ActivoID].[…]` del geofencing no existe. **El primer fixture cierra esa ventana** —para
+  las **ocho**, no solo para las tres que se nombran al hablar del geofencing— y no vuelve a abrirse:
+  son transaccionales. Lo que hay que hacer dentro de ella está reunido y generado en
+  `docs/ENCARGO_VENTANA.md`; la regla que lo gobierna, en `CLAUDE.md` §7.17. **Si en una auditoría
+  encuentras las ocho todavía vacías, eso no es un pendiente: es el activo que queda por gastar, y se
+  reporta como tal.**
 - Datos de prueba sin limpiar: nombres donde deberían ir identificadores, `NOW()` como texto.
 
 ## Lo que la lectura de datos NO puede decirte
