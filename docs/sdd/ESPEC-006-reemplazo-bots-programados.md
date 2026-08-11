@@ -766,13 +766,19 @@ column-céntricos en `REGLAS` hoy: `RG-18` es `"Doctrina de reportes"` y su prop
   las 9 columnas de esa tabla en `ENCARGO_VENTANA.md` cotejadas — las dos, precondición, no
   secuencia recomendada (§2.9).** `P-09` ya está cerrada, registrada con transcripción literal en
   `docs/sdd/ACTA-005-pruebas.md` (commit `7a6e750`): `OTID` y `PlanID` tienen
-  `Initial value = UNIQUEID()` y `Key` marcada. Lo que sigue abierto es el cotejo de las 9 columnas
-  de `OT_OrdenesTrabajo` que `docs/ENCARGO_VENTANA.md` lista, verificado hoy con
-  `inferencia.clasificar()` (§2.9): siguen las 9 pendientes, entre ellas `EstadoOrdenID → Ref
-  EOT_EstadosOrden`, de la que depende la desreferencia `[EstadoOrdenID].[EsFinal]` de la propia
-  `RG-37`. Sin ese cotejo, un fixture que pruebe `RG-37` no distingue "la regla está mal" de "el
-  `Ref` no está confirmado" — la prueba fallaría y apuntaría al sitio equivocado. `PRUEBA-006` lo
-  fija como precondición de su Familia B, no como un paso opcional.
+  `Initial value = UNIQUEID()` y `Key` marcada. **El cotejo de las 9 columnas también está cerrado**,
+  con transcripción literal en `docs/sdd/ACTA-006-cotejo-y-supuesto.md` §1 y con `Ctrl+Shift+R`
+  previo —una sesión anterior vio esas mismas nueve como `Text` cuando ya estaban puestas, y era
+  caché—: las nueve coinciden con lo esperado, incluida `EstadoOrdenID → Ref EOT_EstadosOrden`, de
+  la que depende la desreferencia `[EstadoOrdenID].[EsFinal]` de la propia `RG-37`. Sin ese cotejo,
+  un fixture que probara `RG-37` no habría distinguido "la regla está mal" de "el `Ref` no está
+  confirmado", y habría apuntado al sitio equivocado.
+
+  **`inferencia.clasificar()` las sigue listando como pendientes, y no es una contradicción.**
+  Clasifica por **quién consigue el tipo** —responde *«esta columna necesita mano»*— y no tiene forma
+  de saber si esa mano ya pasó: la API devuelve filas, no esquema. La evidencia de estado es el
+  acta, no el clasificador. Tomar el uno por el otro fue el hallazgo 2 del dictamen.
+
 - **`ResponsableID` opcional contra `TecnicoID` obligatoria (§3.3).** La acción de `RG-38` falla al
   validar si se ejecuta sobre una fila de `PLA_PlanMantenimiento` sin `ResponsableID`. No hay
   ninguna regla que lo exija hoy. Operación tiene que mantenerlo poblado, o se necesita una
@@ -871,40 +877,84 @@ column-céntricos en `REGLAS` hoy: `RG-18` es `"Doctrina de reportes"` y su prop
 6. **El nombre del tipo `"Accion"`, sin acento, en `REGLAS`.** Sigue la convención ASCII que ya usan
    `"Verificacion de evidencia"` y otros tipos existentes en el mismo diccionario, no una decisión
    de estilo nueva.
-7. **Que una columna virtual `App formula` con `Show?` activo se lee por la API, no solo se ve en la
-   app.** De este supuesto dependen cuatro pruebas de `PRUEBA-006` (`P-51` a `P-54`): todas leen
-   `EstaVencida` con `instantanea.py`, que es la API. Lo que está confirmado, y **no es lo mismo**,
-   es que las columnas virtuales *inversas de una `Ref`* (`Related <Tabla>`) viajan en las filas que
-   devuelve la API — `docs/BASE_CONOCIMIENTO_APPSHEET.md` §16, «Observado en la aplicación el
-   2026-08-10» contra `SED_Sedes` y contra el hallazgo de `ACT_Activos.TipoActivoID`. Esa sección no
-   dice nada sobre una columna virtual `App formula` corriente como `EstaVencida` o `Etiqueta`. La
-   verificación más cercana que existe es indirecta y no cierra la pregunta:
+7. **Que una columna virtual `App formula` con `Show?` activo se lee por la API — medido, ya no es
+   supuesto.** De él dependían cuatro pruebas (`P-51` a `P-54`), que leen `EstaVencida` con
+   `instantanea.py`, que es la API. Estaba anotado como supuesto porque lo confirmado era otra cosa:
+   que las virtuales **inversas de una `Ref`** (`Related <Tabla>`) viajan en las filas
+   (`docs/BASE_CONOCIMIENTO_APPSHEET.md` §16). De una `App formula` corriente no había ni cita ni
+   observación en todo el repositorio.
 
-   ```bash
-   grep -n "Cotejo a ojo\|API devuelve filas" docs/sdd/ACTA-005-pruebas.md
+   **Se midió en vez de razonarse**, sobre `PAR_Parametros` —3 filas, fuera de las ocho tablas de
+   movimiento, así que la prueba no cerró ninguna ventana— y las columnas virtuales sí tienen
+   papelera. Acta en `docs/sdd/ACTA-006-cotejo-y-supuesto.md` §2. Lo que devolvió la API:
+
    ```
-   ```
-   146:**Cotejo a ojo en el editor.** No hay comando que lo recupere: la API devuelve filas, no esquema,
+   ['Activo', 'Descripcion', 'Nombre', 'ParametroID', 'PruebaVirtual', 'Unidad', 'Valor', '_RowNumber']
    ```
 
-   `P-09` cotejó que `Etiqueta` tiene `Show?` activo **mirando el editor**, no leyéndola de vuelta
-   por API — porque `OT_OrdenesTrabajo` y `PLA_PlanMantenimiento` seguían en cero (§2.9) y una tabla
-   vacía no devuelve ninguna fila con la que probar nada (`docs/BASE_CONOCIMIENTO_APPSHEET.md` §16,
-   "El segundo agujero"). **No hay, en todo el repositorio, un solo caso registrado de una columna
-   virtual `App formula` con `Show?` activo leída con datos reales por `instantanea.py`.** Se adopta
-   como supuesto, no como confirmado, porque es la lectura más razonable de cómo funciona la API v2
-   —devuelve el estado calculado de cada columna visible de la fila, no distingue el origen de esa
-   columna— y porque es la premisa con la que ya se diseñó el fixture de `Etiqueta` en `PRUEBA-005`
-   sin que nadie lo cuestionara entonces. **La consecuencia si es falso:** `P-51` a `P-54` no se
-   pueden ejecutar tal como están escritas —la API no devolvería `EstaVencida` en absoluto, o la
-   devolvería vacía— y el fixture de tres filas en `OT_OrdenesTrabajo` (§6, "la ruta de reversión")
-   se habría gastado sin poder demostrar lo único que existía para demostrar: que `RG-37` calcula
-   `Y`/`N` correctamente. La salida, si eso pasa, es la misma que ya usa `P-61`: cotejar el resultado
-   a ojo en el editor, con fecha y con quién lo miró, degradando la prueba de **verificada** a
-   **mirada** — no descartando el fixture ya sembrado.
+   **`PruebaVirtual` aparece.** Las cuatro pruebas son ejecutables, y el fixture de tres filas de
+   `OT_OrdenesTrabajo` ya no se gasta sobre una apuesta. La salida degradada que este supuesto
+   proveía —cotejar a ojo y bajar la prueba de *verificada* a *mirada*— deja de hacer falta.
+
+   Se deja escrito porque medirlo costó cinco minutos y equivocarse costaba la ventana entera. Es
+   la forma que debería tener cualquier supuesto que se pueda medir barato.
+
 8. **Que `QuienCambia = Supervisor` es correcto para `Programada` aunque `RG-10` (bot por evento,
    §2.1) también pueda crear órdenes.** Desarrollado en §3.1: el modelo no declara qué
    `EstadoOrdenID` deja `RG-10` en la orden que crea, así que no hay evidencia documental de que
    aterrice en `Programada`. Si se confirma que sí, el supuesto no se revierte solo por eso —ver
    §3.1 para el argumento completo—, pero sería una razón para reabrir la pregunta con datos reales
    en vez de con lo que dice el archivo.
+
+---
+
+## 8. Cierre — qué se acepta como riesgo y qué queda cerrado
+
+**Esta especificación se cierra en su tercera pasada de arquitecto, por la regla de `CLAUDE.md`
+§7.18**, y no porque no queden objeciones: quedan, y aquí están con nombre. La regla dice que **un
+hallazgo bloquea solo si nombra qué se rompe en producción**, y que a la tercera pasada lo que
+sobreviva se escribe como riesgo aceptado en vez de dar otra vuelta.
+
+Las tres pasadas costaron 911 líneas de reescritura. La cuarta habría costado otro tanto para
+mover prosa, mientras la única pregunta con consecuencia real —¿de qué tipo es `EstadoOrdenID`?—
+seguía sin que nadie abriera el editor. El propio arquitecto lo dijo al bloquear:
+
+> *No hagas una cuarta ronda de reescritura sobre estas 911 líneas. Cierra primero la condición 1
+> —una sesión de editor, con recarga en duro y transcripción— porque es un hecho del mundo, no de
+> documento.*
+
+### Lo que se cerró midiendo, no escribiendo
+
+| | Cómo |
+|---|---|
+| Las 9 columnas de `OT_OrdenesTrabajo` | `ACTA-006` §1 — editor, `Ctrl+Shift+R`, transcripción literal |
+| El supuesto 7, la virtual por API | `ACTA-006` §2 — `PruebaVirtual` sobre `PAR_Parametros`, y aparece |
+| `clasificar()` como evidencia de estado | Retirado: clasifica quién consigue el tipo, no si ya se hizo |
+| El dueño de la precondición | Cerrado aquí, no delegado a `PRUEBA-006` |
+
+### Riesgos aceptados — 2026-08-11
+
+1. **La prosa de esta especificación es larga y en partes redundante.** Tres reescrituras dejaron
+   argumentos repetidos entre §2.9, §6 y §7. Nadie va a leer 911 líneas de corrido. **Se acepta**
+   porque acortarla es reescribir, y reescribir es lo que esta regla existe para parar. Si alguien
+   la resume algún día, que sea al ejecutarla, con lo aprendido.
+
+2. **`RG-38` decide una ventana de 7 días sin haber preguntado a operación.** Es el método
+   declarado del proyecto (`ALCANCE_Y_SUPUESTOS_SGMC.md` §1) y está escrito como supuesto
+   refutable. **Se acepta.** Lo que romperá si está mal es visible y barato: el supervisor verá que
+   la acción no se le ofrece cuando la esperaba, y el número se cambia en un campo.
+
+3. **`QuienCambia = Supervisor` para `Programada` puede quedar mal si `RG-10` deja ahí sus
+   órdenes** (supuesto 8). **Se acepta**: es un dato en dos filas de `EOT_EstadosOrden`, se cambia
+   sin migración, y hoy no hay forma de saberlo sin ejecutar `RG-10`.
+
+4. **Nueve de las diecisiete pruebas no se han ejecutado**, incluida `P-55` — la que demostraría
+   que una orden vencida **sí se puede cerrar**, que es la razón de ser de este documento. No están
+   bloqueadas: están **esperando la decisión de gastar la ventana barata**. **Se acepta como riesgo
+   explícito**, y es el que más importa nombrar: dentro de un mes esto se leerá como «estaba
+   probado» si nadie lo escribe. No lo estaba. Está especificado y validado; no ejecutado.
+
+### Qué significa que esté cerrada
+
+Que entra en la fase 0 —**especificada y validada, no ejecutada**— y que no vuelve al arquitecto.
+Lo siguiente que le pase será una `ORDEN-006` y un ejecutor, o nada.

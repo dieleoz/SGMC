@@ -357,40 +357,39 @@ cambió respecto de la versión anterior de este documento.** `OT_OrdenesTrabajo
 reales exige crear filas ahí, lo que cierra la ventana barata para siempre — igual que ya advirtió
 `ESPEC-005`/`PRUEBA-005` sobre las mismas dos tablas.
 
-**La versión anterior aplazaba solo `RG-38`, por depender de `P-09`. Esa dependencia ya no existe:
-`P-09` está cerrada (`§1.2`).** Lo que la sustituye es una precondición **nueva y compartida por las
-dos reglas**, que `ESPEC-006` §2.9/§6 encontró al mirar el resto de `ENCARGO_VENTANA.md`: las 9
-columnas de `OT_OrdenesTrabajo` siguen sin cotejar, `EstadoOrdenID → Ref` entre ellas (`§1.2`). Esa
+**Las dos precondiciones que bloqueaban esta familia están cerradas.** `P-09` lo estaba ya (`§1.2`).
+El cotejo de las 9 columnas de `OT_OrdenesTrabajo` —que `ESPEC-006` §2.9/§6 levantó al mirar el resto
+de `ENCARGO_VENTANA.md`, con `EstadoOrdenID → Ref` entre ellas— se cerró en `ACTA-006` §1. Esa
 columna es la que `RG-37` desreferencia (`[EstadoOrdenID].[EsFinal]`) y la que `RG-38` mapea
-(`ESPEC-006` §3.3) — así que **ninguna de las dos reglas puede fiarse hoy** de que un fixture las
-esté probando a ellas y no a un `Ref` sin confirmar.
+(`ESPEC-006` §3.3), así que su cotejo desbloquea a las dos por igual.
 
-- **`RG-37` (`P-51` a `P-55`, `P-61`) y `RG-38` (`P-56`, `P-57`, `P-62`) se escriben las dos
-  completas, con los cinco campos, y las dos se marcan `BLOQUEADA POR` el mismo motivo (`§3`): el
-  cotejo de las 9 columnas de `OT_OrdenesTrabajo` en `ENCARGO_VENTANA.md`, pendiente hoy (`§1.2`).**
-  No es una diferencia de fondo entre las dos reglas —`RG-37` sigue siendo de solo lectura, `RG-38`
-  sigue escribiendo—, es que la precondición que las bloqueaba de forma distinta ya se cumplió para
-  las dos por igual, y la que queda es una sola, compartida.
-- **Recomendación de secuencia, no una prueba:** en cuanto el cotejo de `ENCARGO_VENTANA.md` se
-  cierre, conviene ejecutar en la misma sesión de editor el cableado de `RG-37` (una columna virtual)
-  y el de `RG-38` (una vista más una acción) — las dos exigen la misma sesión de `USR-002` o de
-  operación, la misma desactivación de `RG-07`, y las dos van a cerrar la misma ventana de las mismas
-  dos tablas. Cablearlas por separado duplica el costo de sesión sin necesidad. `RG-37` es el cableado
-  más simple de los dos (una sola columna virtual, sin `Data > Actions`), así que si solo hay tiempo
-  para uno, es el que menos fricción tiene.
+**Lo que sigue frenando a esta familia no es una duda técnica: es el precio.** Cualquier prueba con
+datos reales de `RG-37` o `RG-38` crea filas en `OT_OrdenesTrabajo` y `PLA_PlanMantenimiento`, y eso
+**cierra la ventana barata para siempre**. Es una decisión de cuándo gastarla, no un bloqueo por
+falta de información —y a diferencia de antes, hoy se gastaría sabiendo que el instrumento que va a
+leer el resultado funciona.
+
+- **`RG-37` (`P-51` a `P-55`, `P-61`) y `RG-38` (`P-56`, `P-57`, `P-62`) quedan las dos escritas y
+  ejecutables, a la espera de la decisión de gastar la ventana.** Ya no dicen `BLOQUEADA POR` un
+  cotejo pendiente: el cotejo está hecho.
+- **Recomendación de secuencia, no una prueba:** conviene ejecutar en la misma sesión de editor el
+  cableado de `RG-37` (una columna virtual) y el de `RG-38` (una vista más una acción) — las dos
+  exigen la misma sesión de `USR-002`, la misma desactivación de `RG-07`, y las dos cierran la misma
+  ventana de las mismas dos tablas. Cablearlas por separado duplica el costo de sesión sin
+  necesidad. `RG-37` es el cableado más simple (una sola columna virtual, sin `Data > Actions`), así
+  que si solo hay tiempo para uno, es el que menos fricción tiene.
+
 
 **Precondición común a toda la Familia B, en el orden en que se cumple:**
 
-0. **Las 9 columnas de `OT_OrdenesTrabajo` de `docs/ENCARGO_VENTANA.md` cotejadas una por una contra
-   ese documento — precondición, no secuencia recomendada.** Hoy no está cumplida (`§1.2`). Sin esto,
-   ninguna prueba de esta familia arranca: un fallo de `RG-37` no distinguiría "la regla está mal" de
-   "el `Ref` no está confirmado", y `RG-38` fallaría al mapear una columna que nadie verificó.
+0. **Las 9 columnas de `OT_OrdenesTrabajo` cotejadas contra `docs/ENCARGO_VENTANA.md` — CUMPLIDA.**
+   `docs/sdd/ACTA-006-cotejo-y-supuesto.md` §1 las transcribe una por una, con `Ctrl+Shift+R` previo.
+   Las nueve coinciden, incluida `EstadoOrdenID → Ref EOT_EstadosOrden`. Sin esto, un fallo de
+   `RG-37` no habría distinguido "la regla está mal" de "el `Ref` no está confirmado".
 1. `RG-37` cableada en el editor: columna virtual `EstaVencida` (`Yes/No`), `App formula` con la
-   expresión de `RG-37`, `Show?` activo. **Esto último se adopta como necesario para que la columna
-   se lea por la API — es un supuesto, no un hecho confirmado (`ESPEC-006` §7, supuesto 7): no hay,
-   en este repositorio, un caso registrado de una columna virtual `App formula` con datos reales leída
-   por `instantanea.py`.** Si resulta falso, `P-51` a `P-54` no se pueden ejecutar tal como están
-   escritas (ver la nota de cada una).
+   expresión de `RG-37`, `Show?` activo. **Que eso baste para que la API la devuelva ya no es un
+   supuesto: está medido** (`ACTA-006` §2). Se creó una virtual de prueba sobre `PAR_Parametros` y
+   `instantanea.py` la devolvió en la fila. `P-51` a `P-54` se ejecutan tal como están escritas.
 2. Sesión iniciada como `USR-002` (`ivan.salcedo@concesiondelsisga.com.co`, técnico, `ROL-03`,
    confirmado hoy contra `USR_Usuarios`).
 3. **`RG-07` (bot, `OT_OrdenesTrabajo`, evento `Adds`) se desactiva antes de crear la primera fila.**
@@ -407,7 +406,7 @@ esté probando a ellas y no a un `Ref` sin confirmar.
    AppSheet, no se teclea. La fila se identifica por `Observaciones` conteniendo `"PRUEBA-006"`, igual
    que `PRUEBA-005` §1.1 hace para su propio fixture.
 
-#### P-51 — `RG-37` positiva: orden vencida ("fecha pasada y sin cerrar", tal cual pide el encargo) — BLOQUEADA POR el cotejo de `OT_OrdenesTrabajo` (§2, Familia B, precondición 0)
+#### P-51 — `RG-37` positiva: orden vencida ("fecha pasada y sin cerrar", tal cual pide el encargo) — EJECUTABLE, a la espera de gastar la ventana (§2, Familia B)
 
 - **Qué comprueba:** que una orden con `FechaProgramada` pasada y `EstadoOrdenID` no final sale
   `EstaVencida = Y`.
@@ -428,7 +427,7 @@ esté probando a ellas y no a un `Ref` sin confirmar.
 - **Cómo se distingue el fallo:** `EstaVencida` sale `N`, vacía, o no aparece en absoluto en el `Find`
   — esta última señal indica que `Show?` no está activo (precondición 1, no cableada).
 
-#### P-52 — `RG-37` negativa: fecha futura — INNEGOCIABLE, BLOQUEADA POR el cotejo de `OT_OrdenesTrabajo` (precondición 0)
+#### P-52 — `RG-37` negativa: fecha futura — INNEGOCIABLE, EJECUTABLE, a la espera de gastar la ventana (§2, Familia B)
 
 - **Qué comprueba:** que una orden con `FechaProgramada` futura, aunque no esté cerrada, **no** sale
   vencida. Sin este caso, una expresión que devolviera `TRUE` siempre pasaría `P-51` igual.
@@ -443,7 +442,7 @@ esté probando a ellas y no a un `Ref` sin confirmar.
 - **Cómo se distingue el fallo:** `EstaVencida` sale `Y` con fecha futura — la comparación
   `[FechaProgramada] < TODAY()` no se está evaluando, o se invirtió el signo.
 
-#### P-53 — `RG-37` negativa: orden ya cerrada — INNEGOCIABLE, BLOQUEADA POR el cotejo de `OT_OrdenesTrabajo` (precondición 0)
+#### P-53 — `RG-37` negativa: orden ya cerrada — INNEGOCIABLE, EJECUTABLE, a la espera de gastar la ventana (§2, Familia B)
 
 - **Qué comprueba:** que una orden en el estado final `Cerrada`, aunque su fecha ya pasó, **no** sale
   vencida — la otra mitad del caso negativo que pide el encargo ("una ya cerrada"), aislada de si
@@ -461,7 +460,7 @@ esté probando a ellas y no a un `Ref` sin confirmar.
 - **Cómo se distingue el fallo:** `EstaVencida` sale `Y` — la expresión no está desreferenciando
   `EsFinal` correctamente, o el `AND` se volvió un `OR`.
 
-#### P-54 — El caso del tipo: `EstaVencida` devuelve `Y`/`N`, no `Text` — INNEGOCIABLE, BLOQUEADA POR el cotejo de `OT_OrdenesTrabajo` (precondición 0)
+#### P-54 — El caso del tipo: `EstaVencida` devuelve `Y`/`N`, no `Text` — INNEGOCIABLE, EJECUTABLE, a la espera de gastar la ventana (§2, Familia B)
 
 - **Qué comprueba, con el método que ya cazó el mismo defecto una vez.** `docs/ALCANCE_Y_SUPUESTOS_SGMC.md`
   `S-30` documenta que la API devuelve el literal `Y`/`N` para una columna `Yes/No`, y devuelve el
@@ -493,7 +492,7 @@ esté probando a ellas y no a un `Ref` sin confirmar.
   descuidado), pero cualquier `Valid_If`/`Security Filter` futuro que compare `[EstaVencida] = TRUE`
   fallaría siempre y en silencio — exactamente la forma del defecto de `CierreConExcepcion` (`S-30`).
 
-#### P-55 — `RG-37` NO impide cerrar — el defecto que tenía `RG-08` — INNEGOCIABLE, BLOQUEADA POR el cotejo de `OT_OrdenesTrabajo` (precondición 0)
+#### P-55 — `RG-37` NO impide cerrar — el defecto que tenía `RG-08` — INNEGOCIABLE, EJECUTABLE, a la espera de gastar la ventana (§2, Familia B)
 
 - **Qué comprueba:** el punto 2 del encargo. Con `RG-08`, una orden que pasaba de fecha se movía a
   `Vencida` (`EsFinal = Y`) automáticamente, y el técnico que llegaba tarde ya no podía registrar el
@@ -518,7 +517,7 @@ esté probando a ellas y no a un `Ref` sin confirmar.
   `Cerrada` — señal de que algo (una `Valid_If` mal escrita, o un `RG-08` que no se retiró) sigue
   tratando la orden como si estuviera en un estado terminal antes de que el técnico actúe.
 
-#### P-56 — `RG-38` positiva: la acción crea la fila, y sólo esa — BLOQUEADA POR el cotejo de `OT_OrdenesTrabajo` (precondición 0; `PRUEBA-005` `P-09` ya no bloquea, ver §1.2)
+#### P-56 — `RG-38` positiva: la acción crea la fila, y sólo esa — EJECUTABLE, a la espera de gastar la ventana (§2, Familia B)
 
 - **Qué comprueba:** qué escribe la acción de `RG-38`, sobre qué, y que no toca nada más. El mapeo
   exacto está cerrado en `ESPEC-006` §3.3 y se repite aquí para que esta prueba sea autocontenida.
@@ -550,7 +549,7 @@ esté probando a ellas y no a un `Ref` sin confirmar.
   obligatorio vacío (en particular `TecnicoID`, si `ResponsableID` estaba vacío en el plan — riesgo ya
   declarado en `ESPEC-006` §3.3 y §6), o cambió algo en `PLA_PlanMantenimiento` además de lo esperado.
 
-#### P-57 — `RG-38` negativa: fuera de la ventana de 7 días, la acción no se puede disparar — BLOQUEADA POR el cotejo de `OT_OrdenesTrabajo` (precondición 0; `PRUEBA-005` `P-09` ya no bloquea, ver §1.2)
+#### P-57 — `RG-38` negativa: fuera de la ventana de 7 días, la acción no se puede disparar — EJECUTABLE, a la espera de gastar la ventana (§2, Familia B)
 
 - **Qué comprueba:** que la condición del slice sí filtra, y no expone la acción sobre cualquier fila
   del plan.
@@ -673,7 +672,7 @@ esté probando a ellas y no a un `Ref` sin confirmar.
 (contenido, no esquema). Lo que sigue es la categoría `expresiones`, que **no tiene ningún atajo**:
 un `App formula` no viaja por la API bajo ninguna forma, ni siquiera indirecta.
 
-#### P-61 — La `App formula` de `EstaVencida`, copiada literal del editor — BLOQUEADA POR el cotejo de `OT_OrdenesTrabajo` (precondición 0)
+#### P-61 — La `App formula` de `EstaVencida`, copiada literal del editor — EJECUTABLE, a la espera de gastar la ventana (§2, Familia B)
 
 - **Qué comprueba:** que lo que quedó escrito en `Data > Columns > EstaVencida > App formula` es,
   carácter por carácter, la expresión que `RG-37` declara — no una que "hace lo mismo" a ojo. Es la
@@ -691,7 +690,7 @@ un `App formula` no viaja por la API bajo ninguna forma, ni siquiera indirecta.
   salvo que alguno de los fixtures tuviera `FechaProgramada` exactamente igual a hoy, y ninguno lo
   tiene.
 
-#### P-62 — El mapeo de columnas de la acción de `RG-38`, copiado literal del editor — BLOQUEADA POR el cotejo de `OT_OrdenesTrabajo` (precondición 0; `PRUEBA-005` `P-09` ya no bloquea, ver §1.2)
+#### P-62 — El mapeo de columnas de la acción de `RG-38`, copiado literal del editor — EJECUTABLE, a la espera de gastar la ventana (§2, Familia B)
 
 - **Qué comprueba:** lo mismo que `P-61`, para la acción de `RG-38`: que `Set these columns` tiene
   exactamente el mapeo de `ESPEC-006` §3.3, no una aproximación que produjo las filas correctas en
@@ -712,17 +711,14 @@ un `App formula` no viaja por la API bajo ninguna forma, ni siquiera indirecta.
 nadie lea el bloqueo antiguo.** La versión anterior de este documento bloqueaba solo `P-56`, `P-57`
 y `P-62` (todo `RG-38`), por `PRUEBA-005` `P-09` sin ejecutar. **Esa condición ya se cumplió** —`P-09`
 está cerrada, registrada en `docs/sdd/ACTA-005-pruebas.md` (commit `7a6e750`), transcrita en `§1.2`—,
-así que ninguna prueba de esta familia sigue bloqueada por ella. Lo que la sustituye es una
-precondición nueva, compartida por `RG-37` y `RG-38` por igual, y por eso el bloqueo ahora alcanza a
-más pruebas, no a menos:
+así que ninguna prueba de esta familia sigue bloqueada por ella. Y la precondición que la sustituyó
+—el cotejo de las 9 columnas de `OT_OrdenesTrabajo`— también está cerrada, en `ACTA-006` §1.
 
 - **`P-51`, `P-52`, `P-53`, `P-54`, `P-55`, `P-61` (todo `RG-37`) y `P-56`, `P-57`, `P-62` (todo
-  `RG-38`).** **BLOQUEADA POR** que las 9 columnas de `OT_OrdenesTrabajo` en `docs/ENCARGO_VENTANA.md`
-  siguen sin cotejar contra ese documento — verificado hoy con `inferencia.clasificar()` (`§1.2`),
-  `EstadoOrdenID → Ref EOT_EstadosOrden` entre ellas. `ESPEC-006` §2.9/§6 ya declara esta precondición
-  como precondición, no como recomendación de secuencia; esta prueba solo la hereda, no la crea. Se
-  desbloquea en cuanto ese cotejo se cierre y quede registrado, con el mismo estándar de `P-09`:
-  transcripción literal, no un «coincide».
+  `RG-38`) quedan EJECUTABLES.** No las frena ninguna duda técnica: las frena **el precio**. Todas
+  crean filas en `OT_OrdenesTrabajo` o `PLA_PlanMantenimiento`, y la primera fila cierra la ventana
+  barata para siempre. Cuándo gastarla es una decisión, no un hallazgo pendiente — y hoy se gastaría
+  sabiendo que el instrumento que va a leer el resultado funciona (`ACTA-006` §2).
 - **El cotejo exacto del texto de `EstaVencida` (`P-61`) y de la acción de `RG-38` (`P-62`)** hereda
   el mismo bloqueo que el resto de su regla: no se puede copiar el `App formula` ni el `Set these
   columns` de una regla que no se puede cablear todavía sin haber cerrado la precondición de arriba.
