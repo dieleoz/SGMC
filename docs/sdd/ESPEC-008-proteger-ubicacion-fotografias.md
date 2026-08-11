@@ -634,14 +634,23 @@ con el cambio aplicado: mismos `AVISOS (2)` que sin él (§6, evidencia completa
 
 ## 8. Cierre — qué se acepta como riesgo, y qué no entra aquí
 
-**Sin pasar por el arquitecto todavía.** A diferencia de `ESPEC-007` §8 y `ESPEC-006` §8, que cierran
-registrando una aprobación ya ocurrida, este documento se entrega para esa revisión: no hay fecha ni
-pasada de arquitecto que anotar aquí, y escribir una sería exactamente la clase de afirmación que este
-proyecto no se puede permitir. Lo que sigue es la misma disciplina de esas dos secciones —nombrar el
-riesgo, decir por qué se acepta o no, y decir qué queda fuera y adónde va— aplicada por quien escribe
-la especificación, no por quien la aprueba.
+**APROBADA CON RIESGOS ACEPTADOS el 2026-08-11**, en primera pasada. Las **ocho condiciones** del
+dictamen están aplicadas: la instrucción de orden dentro del campo `descripcion` de `RG-39` y
+`RG-40`, `P-73` acotado a la sección de `FOT_Fotografias`, `P-72` con patrón anclado y salidas
+literales, la rama de `HERE()` no disponible en §2.9, §2.8 corregido a 4 columnas en 3 tablas, §2.7
+corregido citando `RG-15`, §0 rebajado de «probado» a «cableado y leído de vuelta», y el literal de
+`generar_guia_funcional.py`. **Y ampliada a `NOV_Novedades` con `RG-40`** por recomendación expresa
+del dictamen: es el mismo defecto, el mismo mecanismo y el mismo arreglo.
 
-### Riesgos que se proponen como aceptables, pendientes de que el arquitecto lo decida
+> **Esta sección decía «sin pasar por el arquitecto todavía» durante horas después de que el
+> arquitecto la aprobara**, porque quien aplicó las ocho condiciones no volvió a tocar el cierre.
+> Mientras tanto `ESTADO.md` y `docs/ROADMAP.md` sí decían «aprobada». **Un ejecutor se negó a aplicar
+> `ORDEN-008` por esa contradicción, y acertó**: le creyó al documento y no al resumen, que es la
+> regla de este proyecto. Queda escrito porque es el modo de fallo más barato de cometer —aplicar lo
+> que un dictamen pide y olvidar registrar que el dictamen existió— y el gate solo funciona si el
+> propio documento lleva su veredicto.
+
+### Riesgos aceptados
 
 1. **El defecto de generador del §2.6 es real, verificado y no es cosmético.** Si `ORDEN-008` aplica
    `RG-39` sin el parche de `generar_prompt_cableado.py`, el resultado no es un documento
