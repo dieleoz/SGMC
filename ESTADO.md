@@ -37,11 +37,17 @@ FASE A   hoja generada, 28 tablas, 210 columnas          CERRADA
 FASE B   39 referencias, auditor en 0 correcciones       CERRADA
 FASE C   21 configurables · 9 cotejadas · 0 imposibles   EN CURSO
 CLAVES   8 con UNIQUEID(): las 8 puestas, Key marcada, verificadas a ojo   EN CURSO
-TIPOS    106 columnas a mano · unas 24 de 28 tablas con tipos corregidos   EN CURSO
-LABEL    Label movido de la clave a la columna legible en unas 14 tablas · las 2 columnas
-         virtuales Etiqueta creadas, con Show? y Label puestos             EN CURSO
-BOTS     Automation > Bots vacío, ningún bot creado · 3 por evento sin empezar
-         (RG-06, RG-10, RG-07 el último) · RG-37/RG-38 por cablear (no son bots)  ABIERTO
+TIPOS    las 8 tablas de la ventana COTEJADAS una por una (ACTA-010) · ~24 de 28
+         corregidas · el '106 a mano' es el TAMANO, no lo pendiente          HECHO
+LABEL    Label movido a la columna legible en unas 14 tablas · las 2 columnas
+         virtuales Etiqueta creadas, con Show? y Label puestos               HECHO
+RG-19    App formula BORRADA de CierreConExcepcion (ACTA-009): la casilla ya
+         es del tecnico. Cierra el defecto de ESPEC-004                      HECHO
+RG-37    columna virtual EstaVencida creada, Show? activo, Label sin marcar   HECHO
+RG-38    slice 'Vence en 7 dias' + accion, mapeo de 6 columnas completo       HECHO
+BOTS     RG-06 y RG-10 CREADOS y los dos INCOMPLETOS: el modelo no dice quien
+         es el CCO ni trae el mapeo de RG-10 (HALLAZGOS_ABIERTOS) · RG-07 sin
+         crear, y su riesgo de correos NO existe en cuenta gratuita (BASE 19) ABIERTO
 ```
 
 **Las cifras de arriba se leen distinto según su origen.** `21 configurables` son las **21 reglas**
@@ -76,7 +82,7 @@ abierto.
 | Los **106 tipos** de columna | En curso. **Unas 24 de las 28 tablas** con tipos corregidos en la sesión del editor | Nada. Es mecánico |
 | El **`Label`**: 18 por marcar (objetivo del modelo) + 2 virtuales | Label movido de la clave a la columna legible en **unas 14 tablas**. **Las 2 columnas virtuales `Etiqueta` están creadas**, con `Show?` y `Label` puestos | Nada. Ya se puede |
 | Los **3 bots por evento** (`RG-06`, `RG-07`, `RG-10`) | **Sin empezar.** `Automation > Bots` está vacío, verificado dos veces (`docs/sdd/ACTA-004-lecturas-editor.md` §4ter). `RG-10` ya no está bloqueado: `OTID` y `PlanID` se generan solos | Nada. Ya se puede. `RG-07` se crea el último, porque manda correo real |
-| `RG-37` (columna virtual `EstaVencida`) y `RG-38` (vista + acción) | **Reemplazan a `RG-08` y `RG-12`** (`ESPEC-006`/`ORDEN-006`, 2026-08-11): esos dos bots programados no corrían en la cuenta gratuita. Ninguno de los dos es un bot: `RG-37` es una columna virtual sobre `OT_OrdenesTrabajo`, `RG-38` es una vista más una acción sobre `PLA_PlanMantenimiento` que pulsa el supervisor. **Sin cablear en el editor** | Nada. Ya se puede |
+| `RG-37` (columna virtual `EstaVencida`) y `RG-38` (vista + acción) | **Reemplazan a `RG-08` y `RG-12`** (`ESPEC-006`/`ORDEN-006`, 2026-08-11): esos dos bots programados no corrían en la cuenta gratuita. Ninguno de los dos es un bot: `RG-37` es una columna virtual sobre `OT_OrdenesTrabajo`, `RG-38` es una vista más una acción sobre `PLA_PlanMantenimiento` que pulsa el supervisor. **CABLEADOS en el editor el 2026-08-11** (`ACTA-009`): `EstaVencida` con `Show?` activo y sin `Label`; el slice `Vence en 7 dias` y la acción `Generar Orden desde Plan` con su mapeo de 6 columnas. Y un supuesto de `ESPEC-006` §3.3 cerrado de paso: **no hizo falta `TEXT()`** para pasar de `Date` a `DateTime` | Nada. Hecho |
 | **Crear órdenes desde la aplicación** | **Desbloqueado por `ESPEC-005`, ya aplicada al editor.** Las órdenes se siguen creando en el Sheets **saltándose todas las validaciones** hasta que la app pueda crearlas | Los 3 bots por evento y los filtros de seguridad |
 | Los **2 `Security Filter`** | Van **los últimos**: al ponerlos, la API deja de ver esa tabla y los dos instrumentos mecánicos se quedan ciegos (`lectura_de_vuelta.FILTROS_AL_FINAL`) | Todo lo anterior |
 | **`MAN_Mantenimientos.OTID`** | **Ya es `Ref → OT_OrdenesTrabajo` en el modelo, y no hay nada que decidir.** Su propia nota lo dice: *«Era `Text`. Ese solo hecho impedia todo el geofencing»*. Lo decidido el 2026-08-07 fue lo contrario —**no** marcarlo `IsPartOf`—, para que borrar una orden no borre su ejecución. Lo abierto es otra cosa: **el auditor no puede comprobar que esté puesto en el editor**, porque `OT_OrdenesTrabajo` está vacía y el método necesita filas en el destino. Sale como `NO SE PUEDEN JUZGAR` | Nada que decidir. Se **mira** en el editor |

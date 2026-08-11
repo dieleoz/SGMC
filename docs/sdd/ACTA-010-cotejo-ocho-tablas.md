@@ -69,9 +69,38 @@ columnas «a mano» después de esta acta, porque responde *qué columnas necesi
 ya pasó alguien*. No es una contradicción: es que ninguna de las dos preguntas se puede contestar con
 la otra.
 
-## 4. Lo que queda pendiente de esta misma sesión
+## 4. La lectura de vuelta — acta cerrada
 
-La comparación de instantáneas y el auditor, que la sesión declaró lanzados y sin salida todavía. **El
-acta no está cerrada hasta que se peguen los dos.** Un cotejo sin lectura de vuelta no descarta que
-alguna conversión de tipo haya escrito en los datos — ya pasó en este proyecto: una conversión a
-`Enum` reescribió una celda añadiéndole un espacio al final.
+```
+antes-de-la-ventana  ->  despues-de-la-ventana
+NINGUNA CELDA CAMBIO.
+```
+
+Cotejar los tipos no escribió en los datos. Importaba comprobarlo: en este proyecto una conversión a
+`Enum` ya reescribió una celda añadiéndole un espacio al final.
+
+```
+0 correcciones en el editor
+De las 39 referencias declaradas:
+     4 VERIFICADAS · 29 compatibles no atribuidas · 6 NO SE PUEDEN JUZGAR
+```
+
+### Las seis siguen sin poder juzgarse, y el propio auditor lo dice mejor que nadie
+
+La sesión que hizo el cotejo concluyó que *«las 6 referencias que no se pueden juzgar son
+exactamente las que acabamos de revisar a ojo, así que estamos cubiertos al 100%»*. **El auditor
+advierte literalmente de lo contrario, en su propia salida:**
+
+```
+Las 6 se miraron en el editor. Eso NO las vuelve verificadas: una
+lectura visual no es una medicion, y por eso se guarda con fecha.
+Para MEDIRLAS: sembrar una fila en la tabla destino y volver a correr.
+```
+
+La distinción no es pedantería: **mirada** y **verificada** son dos niveles distintos de confianza,
+y el registro guarda la fecha y el nombre precisamente porque una lectura visual caduca y una
+medición no. Este cotejo **renueva** esas seis lecturas al 2026-08-11 y añade lo que faltaba
+—`MAN_Mantenimientos.OTID` es `Ref` y sin `Is a part of`—, pero **no las convierte en medidas**.
+
+Medirlas cuesta exactamente lo que cuesta cerrar la ventana barata: sembrar una fila en la tabla
+destino. Es la decisión que sigue siendo del usuario.
