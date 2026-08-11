@@ -18,15 +18,16 @@ sys.path.insert(0, os.path.join(RAIZ, "scripts"))
 from modelo_objetivo import MODELO, REGLAS, CLAVE_GENERADA
 from sistema import APP_NOMBRE, APP_ID, APP_URL, HOJA_NOMBRE
 from inferencia import clasificar
+from alcance_reglas import por_columna
 
 clases = clasificar()
-reglas_de = {}
-import re as _re
-for _r in REGLAS:
-    for _n in _re.findall(r"\[(\w+)\]", _r.get("expresion") or ""):
-        reglas_de.setdefault(_n, set()).add(_r["id"])
-    if _r.get("columna"):
-        reglas_de.setdefault(_r["columna"], set()).add(_r["id"])
+
+# La atribucion va por (tabla, columna), no por nombre suelto. Hacerlo por
+# nombre daba las 23 columnas `Activo` de 23 tablas con RG-04 y RG-16 encima
+# -94 columnas "con regla" donde hay 36-, y esta lista ORDENA el trabajo: una
+# columna mal tipada con una regla encima rompe la regla en silencio, asi que
+# inflarla entierra las que de verdad importan.
+reglas_de = por_columna()
 
 SALIDA = os.path.join(RAIZ, "docs", "PROMPT_CABLEADO.md")
 
@@ -156,8 +157,8 @@ w("")
 w("| Tabla | Columna | `TYPE` | Reglas | Por qué no se consigue sola |")
 w("|---|---|---|---|---|")
 for t, c, motivo in sorted(clases["a mano"],
-                           key=lambda x: (-len(reglas_de.get(x[1]["nombre"], ())), x[0], x[1]["nombre"])):
-    rr = reglas_de.get(c["nombre"], set())
+                           key=lambda x: (-len(reglas_de.get((x[0], x[1]["nombre"]), ())), x[0], x[1]["nombre"])):
+    rr = reglas_de.get((t, c["nombre"]), set())
     detalle = ""
     if c.get("ref"):
         detalle = " → `%s`" % c["ref"]

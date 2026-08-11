@@ -31,14 +31,14 @@ es poco, aquí está donde se concentra el error.
 | Tabla | Columna | Debe ser | Reglas que la usan | Por qué pudo salir mal |
 |---|---|---|---|---|
 | `SED_Sedes` | `PK` | **`Text`** | — | la columna está **vacía en las 6 filas** |
-| `SED_Sedes` | `Ubicacion_LatLong` | **`LatLong`** | `RG-01` | la columna está **vacía en las 6 filas** |
+| `SED_Sedes` | `Ubicacion_LatLong` | **`LatLong`** | — | la columna está **vacía en las 6 filas** |
 | `TIP_TiposActivo` | `RequiereGPS` | **`Yes/No`** | — | su nombre dispara la inferencia a **LatLong**, y no lo es |
 | `EST_Activo` | `GeneraAlerta` | **`Yes/No`** | `RG-06` | la columna está **vacía en las 4 filas** |
 | `ACT_Activos` | `PR` | **`Text`** | — | la columna está **vacía en las 368 filas** |
 | `ACT_Activos` | `TramoINVIAS` | **`Text`** | — | la columna está **vacía en las 368 filas** |
 | `ACT_Activos` | `SedeID` | **`Ref`** | `RG-34` | la columna está **vacía en las 368 filas** |
 | `ACT_Activos` | `Criticidad` | **`Enum`** | — | la columna está **vacía en las 368 filas** |
-| `OT_OrdenesTrabajo` | `OTID` | **`Text`** | `RG-01` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
+| `OT_OrdenesTrabajo` | `OTID` | **`Text`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `OT_OrdenesTrabajo` | `ActivoID` | **`Ref`** | `RG-01` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `OT_OrdenesTrabajo` | `TecnicoID` | **`Ref`** | `RG-05` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `OT_OrdenesTrabajo` | `SupervisorID` | **`Ref`** | `RG-05` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
@@ -49,16 +49,16 @@ es poco, aquí está donde se concentra el error.
 | `OT_OrdenesTrabajo` | `Observaciones` | **`LongText`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `OT_OrdenesTrabajo` | `FechaCierre` | **`DateTime`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `OT_OrdenesTrabajo` | `CerradaPor` | **`Ref`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
-| `OT_OrdenesTrabajo` | `Activo` | **`Yes/No`** | `RG-04`, `RG-16` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
+| `OT_OrdenesTrabajo` | `Activo` | **`Yes/No`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `MAN_Mantenimientos` | `MantenimientoID` | **`Text`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `MAN_Mantenimientos` | `OTID` | **`Ref`** | `RG-01` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
-| `MAN_Mantenimientos` | `TecnicoID` | **`Ref`** | `RG-05` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
+| `MAN_Mantenimientos` | `TecnicoID` | **`Ref`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `MAN_Mantenimientos` | `FechaHoraInicio` | **`DateTime`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `MAN_Mantenimientos` | `FechaHoraFin` | **`DateTime`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `MAN_Mantenimientos` | `OrigenApertura` | **`Enum`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `MAN_Mantenimientos` | `UbicacionEscaneo_LatLong` | **`LatLong`** | `RG-13` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `MAN_Mantenimientos` | `FechaHoraEscaneo` | **`DateTime`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
-| `MAN_Mantenimientos` | `EstadoActivoID` | **`Ref`** | `RG-06`, `RG-16`, `RG-17` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
+| `MAN_Mantenimientos` | `EstadoActivoID` | **`Ref`** | `RG-06` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `MAN_Mantenimientos` | `Coordenadas_Cierre_LatLong` | **`LatLong`** | `RG-01`, `RG-13` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `MAN_Mantenimientos` | `Precision_GPS` | **`Number`** | `RG-02`, `RG-19` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato; su nombre dispara la inferencia a **LatLong**, y no lo es |
 | `MAN_Mantenimientos` | `CierreConExcepcion` | **`Yes/No`** | `RG-03`, `RG-19` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
@@ -72,28 +72,28 @@ es poco, aquí está donde se concentra el error.
 | `MAN_Mantenimientos` | `ObservacionRechazo` | **`LongText`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `MAN_Mantenimientos` | `UsuarioRegistro` | **`Text`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `MAN_Mantenimientos` | `FechaHoraRegistro` | **`ChangeTimestamp`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato; su nombre dispara la inferencia a **Date o DateTime**, y no lo es |
-| `MAN_Mantenimientos` | `Activo` | **`Yes/No`** | `RG-04`, `RG-16` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
+| `MAN_Mantenimientos` | `Activo` | **`Yes/No`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `NOV_Novedades` | `NovedadID` | **`Text`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
-| `NOV_Novedades` | `UsuarioID` | **`Ref`** | `RG-04` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
+| `NOV_Novedades` | `UsuarioID` | **`Ref`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `NOV_Novedades` | `Tipo` | **`Enum`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `NOV_Novedades` | `Descripcion` | **`LongText`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
-| `NOV_Novedades` | `Ubicacion_LatLong` | **`LatLong`** | `RG-01` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
+| `NOV_Novedades` | `Ubicacion_LatLong` | **`LatLong`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `NOV_Novedades` | `Fotografia` | **`Image`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
-| `NOV_Novedades` | `ActivoID` | **`Ref`** | `RG-01` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
+| `NOV_Novedades` | `ActivoID` | **`Ref`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `NOV_Novedades` | `Estado` | **`Enum`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `NOV_Novedades` | `FechaHora` | **`ChangeTimestamp`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato; su nombre dispara la inferencia a **Date o DateTime**, y no lo es |
 | `PLA_PlanMantenimiento` | `PlanID` | **`Text`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
-| `PLA_PlanMantenimiento` | `ActivoID` | **`Ref`** | `RG-01` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
+| `PLA_PlanMantenimiento` | `ActivoID` | **`Ref`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `PLA_PlanMantenimiento` | `FrecuenciaID` | **`Ref`** | `RG-11` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `PLA_PlanMantenimiento` | `UltimaEjecucion` | **`Date`** | `RG-11` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `PLA_PlanMantenimiento` | `ProximaFecha` | **`Date`** | `RG-11`, `RG-12` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `PLA_PlanMantenimiento` | `ResponsableID` | **`Ref`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
-| `PLA_PlanMantenimiento` | `Activo` | **`Yes/No`** | `RG-04`, `RG-16` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
+| `PLA_PlanMantenimiento` | `Activo` | **`Yes/No`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `FOT_Fotografias` | `FotoID` | **`Text`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `FOT_Fotografias` | `MantenimientoID` | **`Ref`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `FOT_Fotografias` | `Tipo` | **`Enum`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `FOT_Fotografias` | `Archivo` | **`Image`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
-| `FOT_Fotografias` | `Ubicacion_LatLong` | **`LatLong`** | `RG-01` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
+| `FOT_Fotografias` | `Ubicacion_LatLong` | **`LatLong`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `FOT_Fotografias` | `PrecisionGPS` | **`Number`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato; su nombre dispara la inferencia a **LatLong**, y no lo es |
 | `FOT_Fotografias` | `FechaHora` | **`ChangeTimestamp`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato; su nombre dispara la inferencia a **Date o DateTime**, y no lo es |
 | `FOT_Fotografias` | `Usuario` | **`Text`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |

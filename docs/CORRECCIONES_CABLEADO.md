@@ -37,17 +37,12 @@ respondio 28/28, `validar_modelo.py` dio APTO y las 368 filas seguian ahi.
 Es la regla **R-04**: *una referencia que resuelve puede apuntar a lo que no es.* Preguntar
 «apunta a algo» nunca contesta «apunta a lo correcto».
 
-## Las 0, en orden
+## No hay nada que corregir
 
-Todas en **`Data > Columns > ACT_Activos`**.
+El cableado que **se puede medir** coincide con el modelo. Eso no es lo mismo que estar
+terminado: mira más abajo lo que este método no alcanza a ver.
 
-Guarda **una sola vez, al final**. No hay columnas que bloqueen el guardado, asi que dentro
-de la sesion el orden da igual.
 
-| # | Columna | Esta asi | Debe quedar |
-|---|---|---|---|
-
-> Las tres primeras van antes que las demas. Son las que bloquean el guardado.
 
 ## Como saber que quedo
 

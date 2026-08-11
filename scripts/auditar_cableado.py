@@ -315,20 +315,32 @@ w("")
 w("Es la regla **R-04**: *una referencia que resuelve puede apuntar a lo que no es.* Preguntar")
 w("«apunta a algo» nunca contesta «apunta a lo correcto».")
 w("")
-w("## Las %d, en orden" % n)
+if n:
+    w("## Las %d, en orden" % n)
+else:
+    # El caso vacio necesita su propio texto, no el mismo con un cero delante.
+    # Antes emitia "Las 0, en orden", una tabla con solo cabeceras y "las tres
+    # primeras van antes que las demas": prosa fija que sobrevivia al caso que
+    # niega. Un documento que se contradice a si mismo se deja de leer entero.
+    w("## No hay nada que corregir")
+    w("")
+    w("El cableado que **se puede medir** coincide con el modelo. Eso no es lo mismo que estar")
+    w("terminado: mira más abajo lo que este método no alcanza a ver.")
+if n:
+    w("")
+    w("Todas en **`Data > Columns > ACT_Activos`**.")
 w("")
-w("Todas en **`Data > Columns > ACT_Activos`**.")
-w("")
-if sobran:
+if n and sobran:
     w("Guarda **una sola vez, al final**. El orden de la tabla importa porque mientras las %d de"
       % len(sobran))
     w("la seccion A esten mal, el editor no deja guardar: hazlas primero dentro de la misma sesion.")
-else:
+elif n:
     w("Guarda **una sola vez, al final**. No hay columnas que bloqueen el guardado, asi que dentro")
     w("de la sesion el orden da igual.")
-w("")
-w("| # | Columna | Esta asi | Debe quedar |")
-w("|---|---|---|---|")
+if n:
+    w("")
+    w("| # | Columna | Esta asi | Debe quedar |")
+    w("|---|---|---|---|")
 i = 0
 for t, c in sorted(sobran):
     i += 1
@@ -342,7 +354,9 @@ for t, c in sorted(faltan):
     i += 1
     w("| %d | `%s` | no es `Ref` | `Ref` -> **`%s`** |" % (i, c, declarado[(t, c)]))
 w("")
-w("> Las tres primeras van antes que las demas. Son las que bloquean el guardado.")
+if sobran:
+    w("> Las %d de la sección A van antes que las demás: son las que bloquean el guardado."
+      % len(sobran))
 w("")
 w("## Como saber que quedo")
 w("")

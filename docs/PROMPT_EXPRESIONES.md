@@ -8,7 +8,15 @@ las cadenas de referencias salen de `scripts/modelo_objetivo.py`.
 ---
 
 Vas a poner **21 reglas** en la aplicación **`_SISGA_-323965761`** de Google AppSheet.
-Las 39 referencias ya están cableadas. Esto es lo que va encima.
+Las 39 referencias son el paso anterior. **Este documento no sabe si están puestas** —sale del
+modelo, así que describe el destino—. Compruébalo antes de empezar:
+
+```bash
+python scripts/auditar_cableado.py
+```
+
+Si no sale con **0 correcciones**, para: una expresión con puntos sobre una referencia sin cablear
+falla, y el error te va a mandar a mirar la expresión en vez del cableado.
 
 ```
 https://www.appsheet.com/template/appdef?appId=aca92ac5-a6eb-4c73-be81-471a5b3fe04e

@@ -88,15 +88,23 @@ GATILLOS_NOMBRE = [
 #
 # 38 columnas Yes/No -el 18% del modelo- y NINGUNA cumple un gatillo documentado:
 # no acaban en `?` ni empiezan por `is`/`has`. Que AppSheet las tipe Yes/No
-# depende de que lea TRUE/FALSE en el contenido, y eso no esta en 13 ni lo hemos
-# visto ocurrir aqui.
+# depende enteramente de que lea TRUE/FALSE en el contenido.
 #
-# Se declara como supuesto en vez de callarlo. 27 de las 38 las nombra alguna
-# regla, y RG-04 y RG-16 solas cabalgan sobre las 24 columnas `Activo`.
+# **Verificado a medias el 2026-08-10** contrastando el .xlsx contra los datos
+# vivos: 28 de las 38 devuelven Y/N por la API, y eso es lo que devuelve una
+# columna Yes/No -una Text devolveria el literal TRUE-. Las 10 restantes estan en
+# tablas VACIAS, asi que no hay contenido del que inferir, y ahi es exactamente
+# donde fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto.
+#
+# Se quedan en "a mano" a proposito. Que 28 hayan salido bien no las convierte en
+# seguras: salieron bien por una heuristica que nadie nos garantiza, y el coste
+# de mirarlas es un vistazo mientras el de equivocarse es una regla decorativa.
 SUPUESTO_BOOLEANO = (
-    "supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no "
-    "esta en la documentacion ni lo hemos observado. Si falla, la columna sale "
-    "Text y toda comparacion contra TRUE es siempre falsa, sin dar error")
+    "no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el "
+    "contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que "
+    "es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas "
+    "vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 "
+    "sin efecto (S-30)")
 
 
 def como_se_consigue(tabla, col):

@@ -65,12 +65,11 @@ if os.path.exists(FOTO):
 
 # Que columnas toca alguna regla: son las que fallan en silencio si el tipo esta
 # mal, porque la expresion sigue siendo valida y devuelve algo.
-tocadas = {}
-for r in REGLAS:
-    for n in re.findall(r"\[(\w+)\]", r.get("expresion") or ""):
-        tocadas.setdefault(n, set()).add(r["id"])
-    if r.get("columna"):
-        tocadas.setdefault(r["columna"], set()).add(r["id"])
+#
+# Por (tabla, columna). Atribuir por nombre suelto daba las 23 columnas `Activo`
+# con RG-04 y RG-16 encima, y esta es la columna que ordena el trabajo.
+from alcance_reglas import por_columna
+tocadas = por_columna()
 
 L = []
 w = L.append
@@ -135,7 +134,7 @@ w("")
 w("| Tabla | Columna | Debe ser | Reglas que la usan | Por qué pudo salir mal |")
 w("|---|---|---|---|---|")
 for t, c, m in sospechosas:
-    reglas = tocadas.get(c["nombre"], set())
+    reglas = tocadas.get((t, c["nombre"]), set())
     w("| `%s` | `%s` | **`%s`** | %s | %s |"
       % (t, c["nombre"], c["tipo"],
          ", ".join("`%s`" % x for x in sorted(reglas)) if reglas else "—",
