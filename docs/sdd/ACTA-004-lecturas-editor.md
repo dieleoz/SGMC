@@ -64,6 +64,66 @@ El encargo de esta sesión pedía `Type`, `Editable_If` y `Description`, y **omi
 importaba**. Queda para la sesión siguiente. Se registra el hueco en vez de taparlo: un acta que
 solo cuenta lo que salió bien es la clase de informe que este proyecto ya tiene cuatro.
 
+## 4bis. El hueco, cerrado en la sesión siguiente: `RG-19` **sí** está viva
+
+Leído del DOM sin activar el icono `=`, para no repetir el incidente de §5. `App formula` de
+`CierreConExcepcion`:
+
+```
+OR(ISBLANK(LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor")), [Precision_GPS] > LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor"))
+```
+
+Coincide **letra por letra** con `RG-19`. `Initial value`: vacío.
+
+**Así que el defecto está vivo entero.** La columna se autocalcula, y una `App formula` gana sobre
+`Editable?`: el técnico **no puede marcar la casilla** aunque `Editable?` esté en `TRUE`. `ESPEC-004`
+no describía un riesgo hipotético.
+
+### En qué valor se queda, que no es un detalle
+
+La sesión que la leyó razonó que `ISBLANK(...)` es `TRUE` y por tanto el `OR` da `TRUE` siempre. **Es
+al revés**, y se comprueba con los datos:
+
+```
+PAR_Parametros -> ParametroID='UMBRAL_GPS', Valor='40'
+```
+
+El parámetro **existe y vale 40**, así que `ISBLANK` da `FALSE`. Y `[Precision_GPS] > 40` con
+`Precision_GPS` siempre vacía da `FALSE`. Luego `OR(FALSE, FALSE)` = **`FALSE` siempre**.
+
+La diferencia importa más de lo que parece:
+
+| Si diera | Lo que pasaría |
+|---|---|
+| `TRUE` siempre | el motivo se pide **en todos los cierres** — molesto, y **visible** el primer día |
+| `FALSE` siempre | **no se pide nunca**, y nadie se entera — que es el defecto real |
+
+## 4ter. No existe ningún bot en la aplicación
+
+`Automation > Bots` muestra el estado vacío de AppSheet: *«Create bots to add automation to your
+project»*, sin una sola fila. Verificado dos veces con recarga en duro.
+
+El modelo declara **cinco** reglas de tipo bot —`RG-06`, `RG-07`, `RG-10` (por evento) y `RG-08`,
+`RG-12` (programados)—. **Ninguna está creada.**
+
+No es «activo vs desactivado»: es que la automatización no existe. Y tiene tres consecuencias que
+tocan documentos vigentes:
+
+- **`RG-07` no puede desactivarse antes de un fixture porque no está.** `PRUEBA-005` §1.5 y
+  `PRUEBA-006` lo fijan como precondición común —*«sin desactivarlo, dispara hasta 3 correos reales a
+  `ivan.salcedo@concesiondelsisga.com.co`, una dirección corporativa»*—. Ese riesgo **no existe hoy**,
+  y la precondición se cae sola. Es una buena noticia que hay que escribir, porque quien lea esas
+  pruebas hoy buscará un bot que no va a encontrar y no sabrá si lo borró alguien.
+- **`RG-10` tampoco existe**, y `PRUEBA-005` `P-11`/`P-12` prueban justo que crea (o no crea) una
+  orden de seguimiento. Esas dos pruebas no pueden pasar hoy por una razón distinta de la que
+  declaran.
+- **`RG-08` y `RG-12` no estaban puestos.** `ESPEC-006` los reemplaza porque **en la cuenta gratuita
+  no se ejecutan nunca**; resultó que además nunca se llegaron a crear. No cambia su decisión —el
+  motivo del reemplazo sigue en pie— pero sí su coste: no hay nada que retirar.
+
+Es otra factura del mismo patrón: **el repositorio declara atributos que decide la plataforma.** El
+modelo dice «cinco bots» y eso no los crea. Lo mismo que pasó con los 107 tipos y con las 8 claves.
+
 ## 5. Incidente — la app dejó de cargar durante la sesión
 
 Al pulsar el **icono de fórmula (`=`)** junto a `Editable?` de `CierreConExcepcion` para comprobar
@@ -96,3 +156,22 @@ python scripts/instantanea.py comparar antes-de-man despues-de-man
 Con la matización que corresponde: `MAN_Mantenimientos` tiene **0 filas**, así que no hay celdas que
 puedan moverse. Los dos cambios de esta sesión son metadatos de esquema, y un contraste de filas no
 los ve **por construcción**. El verde aquí no prueba lo mismo que en una tabla poblada.
+
+
+## 7. Una discrepancia sin resolver, anotada en vez de elegida
+
+Sobre `MAN_Mantenimientos.MotivoExcepcion`, dos sesiones distintas leyeron cosas distintas:
+
+| Sesión | Leyó |
+|---|---|
+| lecturas de §1 | `Required_If` = `[CierreConExcepcion] = TRUE` |
+| lectura de §4bis | `Valid_If` = `[CierreConExcepcion] = TRUE` |
+
+No es lo mismo. `Required_If` **obliga** a rellenar el motivo cuando la casilla está marcada, que es
+lo que `RG-03` quiere. `Valid_If` con esa expresión diría que el motivo **solo es válido** si la
+casilla está marcada — semantica distinta, y si estuviera en `Valid_If` en vez de en `Required_If`,
+`RG-03` no obligaría a nada.
+
+Puede que estén las dos, o que una de las dos lecturas confundiera el campo del panel. **No se elige
+aquí cuál es**: se anota, y se resuelve mirando los dos campos en la misma pantalla y a la vez. Entra
+en la cola de editor.
