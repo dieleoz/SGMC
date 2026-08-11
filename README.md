@@ -227,9 +227,25 @@ la orden al estado `Vencida`, que es final, así que un técnico que llega tarde
 y **aplicada al modelo por `ORDEN-006` el 2026-08-11**, los retiró: `RG-08` y `RG-12` ya no existen en
 `scripts/modelo_objetivo.py`. En su lugar quedan `RG-37`, una columna virtual `EstaVencida` que no
 escribe ni bloquea el cierre, y `RG-38`, una vista más una acción que el supervisor pulsa, sin
-depender de `Automation > Bots`. **Pendiente cablear las dos en el editor** — nadie las ha creado
-todavía: `Automation > Bots` sigue vacío hoy, verificado dos veces
-(`docs/sdd/ACTA-004-lecturas-editor.md` §4ter). El guion paso a paso de esa sesión de editor está en
+depender de `Automation > Bots`. **Las dos están cableadas en el editor desde el 2026-08-11**
+([`ACTA-009`](docs/sdd/ACTA-009-cableado-editor.md)): `EstaVencida` con `Show?` activo y sin
+`Label`, y el slice `Vence en 7 dias` con su acción y el mapeo de seis columnas.
+
+**De los cinco bots que el modelo llegó a declarar, `Automation > Bots` estaba vacío:** ninguno se
+había creado nunca. Hoy hay dos —`RG-06` y `RG-10`— y **los dos están incompletos**, no por un fallo
+de la sesión sino porque **el modelo no declara lo que AppSheet exige**: `RG-06` dice que envía un
+correo *«al CCO y al supervisor»* y no dice quién es el CCO; `RG-10` dice que crea una orden de
+seguimiento y no trae el mapeo de columnas. Están en
+[`docs/HALLAZGOS_ABIERTOS.md`](docs/HALLAZGOS_ABIERTOS.md).
+
+> **Y una precaución de este proyecto que resultó falsa.** Se trataba a `RG-07` con pinzas porque
+> *«manda correos reales a una dirección corporativa»*. El editor avisa literalmente: *«The account is
+> free. All emails are therefore being sent to the app creator»*. **En esta cuenta ningún correo de
+> bot puede salir a nadie más.** No era una precaución falsa cuando se escribió: era razonable y
+> nadie la había medido. Al pagar el plan, el riesgo vuelve entero
+> ([`BASE_CONOCIMIENTO_APPSHEET.md`](docs/BASE_CONOCIMIENTO_APPSHEET.md) §19).
+
+El guion paso a paso de lo que queda por hacer a mano está en
 [`docs/LO_QUE_SE_HACE_A_MANO.md`](docs/LO_QUE_SE_HACE_A_MANO.md).
 
 ## 6. Estado, hallazgos y bloqueantes
@@ -240,7 +256,8 @@ Todos en [`ESTADO.md`](ESTADO.md), que se actualiza; aquí no, para que no se co
 |---|---|
 | Qué está hecho y qué falta hoy | [`ESTADO.md`](ESTADO.md) |
 | **Qué está cableado en la aplicación** | `python scripts/auditar_cableado.py`. **No lo sabe ningún documento**; su salida queda en [`docs/CORRECCIONES_CABLEADO.md`](docs/CORRECCIONES_CABLEADO.md) |
-| **Qué hay que cerrar antes de que entre la primera fila** | [`docs/ENCARGO_VENTANA.md`](docs/ENCARGO_VENTANA.md), generado. Caduca solo |
+| **Qué hay que cerrar antes de que entre la primera fila** | [`docs/ENCARGO_VENTANA.md`](docs/ENCARGO_VENTANA.md), generado. Caduca solo. **Su cotejo está hecho**: las ocho tablas, una por una, en [`ACTA-010`](docs/sdd/ACTA-010-cotejo-ocho-tablas.md) |
+| **Lo que sabemos que está mal y no merece especificación** | [`docs/HALLAZGOS_ABIERTOS.md`](docs/HALLAZGOS_ABIERTOS.md), cada entrada con el comando que la verifica |
 | **Qué se hace a mano en el editor, paso a paso** | [`docs/LO_QUE_SE_HACE_A_MANO.md`](docs/LO_QUE_SE_HACE_A_MANO.md) — 13 pasos, 11 sin ningún comando que los verifique |
 | Qué le toca a usted según su rol | [`docs/INDICACIONES_POR_ROL.md`](docs/INDICACIONES_POR_ROL.md) |
 | Qué hace el sistema, para quién y cómo | [`docs/FUNCIONAL_SGMC.md`](docs/FUNCIONAL_SGMC.md) |
