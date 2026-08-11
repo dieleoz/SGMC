@@ -45,7 +45,7 @@ saltarse:
 - **`Label` marcado** — y si la tabla ya tenía otra columna con `Label`, **desmárcala primero**.
   Solo puede haber una por tabla.
 
-## Paso 2 — Cotejar 53 tipos, y dejar constancia
+## Paso 2 — Cotejar 52 tipos, y dejar constancia
 
 **Esto no es para cambiarlos: es para mirarlos.** Lo más probable es que ya estén, porque una
 sesión anterior recorrió estas tablas. Pero *reportado* no es *verificado*, y de eso este
@@ -83,14 +83,13 @@ devuelve filas, no esquema. Tu anotación es la única evidencia que va a existi
 | `MantenimientoID` | **`Ref`** → `MAN_Mantenimientos` |
 | `TipoFirma` | **`Enum`** · valores: `Tecnico` |
 
-### `FOT_Fotografias` — 5 columnas
+### `FOT_Fotografias` — 4 columnas
 
 | Columna | Debe ser |
 |---|---|
 | `Archivo` | **`Image`** |
 | `FechaHora` | **`ChangeTimestamp`** |
 | `MantenimientoID` | **`Ref`** → `MAN_Mantenimientos` |
-| `PrecisionGPS` | **`Number`** |
 | `Tipo` | **`Enum`** · valores: `Antes` · `Despues` · `Novedad` |
 
 ### `MAN_Mantenimientos` — 14 columnas

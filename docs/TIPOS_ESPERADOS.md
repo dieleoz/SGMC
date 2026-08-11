@@ -23,7 +23,7 @@ Infiere el tipo de **dos** señales, y aquí las dos fallan:
 > `TRUE` es **siempre falso y no da error**: el motivo de excepción no se pide nunca, y el técnico
 > cierra con excepción sin justificar. La regla existe, está bien redactada, y no hace nada.
 
-## Empieza por estas 89
+## Empieza por estas 88
 
 Son las que AppSheet tuvo que adivinar. **El resto también hay que mirarlo**, pero si el tiempo
 es poco, aquí está donde se concentra el error.
@@ -93,7 +93,6 @@ es poco, aquí está donde se concentra el error.
 | `FOT_Fotografias` | `Tipo` | **`Enum`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `FOT_Fotografias` | `Archivo` | **`Image`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `FOT_Fotografias` | `Ubicacion_LatLong` | **`LatLong`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
-| `FOT_Fotografias` | `PrecisionGPS` | **`Number`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato; su nombre dispara la inferencia a **LatLong**, y no lo es |
 | `FOT_Fotografias` | `FechaHora` | **`ChangeTimestamp`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato; su nombre dispara la inferencia a **Date o DateTime**, y no lo es |
 | `FOT_Fotografias` | `Usuario` | **`Text`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `FIR_Firmas` | `FirmaID` | **`Text`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
@@ -244,7 +243,6 @@ es poco, aquí está donde se concentra el error.
 | `Tipo` | **`Enum`** | obligatoria · valores: `Antes` · `Despues` · `Novedad` |
 | `Archivo` | **`Image`** | obligatoria |
 | `Ubicacion_LatLong` | **`LatLong`** | obligatoria |
-| `PrecisionGPS` | **`Number`** |  |
 | `FechaHora` | **`ChangeTimestamp`** |  |
 | `Usuario` | **`Text`** |  |
 

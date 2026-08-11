@@ -324,7 +324,7 @@ anterior; en una construida de cero no sobrevive ninguna.
 
 ## 5. Lo que NO se repone: columnas retiradas
 
-**49 columnas.** Siguen en la hoja a proposito. En la aplicacion: tipo `Text`, `Show?`
+**50 columnas.** Siguen en la hoja a proposito. En la aplicacion: tipo `Text`, `Show?`
 desmarcado, sin formula. **No se borran.**
 
 | Tabla | Columna | Por que | |
@@ -357,6 +357,7 @@ desmarcado, sin formula. **No se borran.**
 | `CHK_Checklists` | `TecnicoID` | Se alcanza por [MantenimientoID].[TecnicoID]. Es el campo donde el dato de prueba dejo 'Santiago Moreno' en lugar de un identificador. |  |
 | `CHK_Checklists` | `TotalPreguntas` | Se cuenta de FRM_Preguntas. |  |
 | `FOT_Fotografias` | `Fecha` | Duplicaba a FechaHora, que es la que vale como evidencia porque la escribe el servidor. Dos fechas para el mismo hecho invitan a discutir cual manda justo cuando hay que probar algo. Retirada el 2026-08-10. |  |
+| `FOT_Fotografias` | `PrecisionGPS` | USERLOCATIONACCURACY() no existe en AppSheet (ESPEC-004 2.1, mismo hallazgo que Precision_GPS de MAN_Mantenimientos). Ninguna regla la leia (ESPEC-007 2.2): a diferencia de MAN, no habia cadena que romper. Retirada por ESPEC-007. Si FOT_Fotografias ya tenia esta columna con Initial value puesto en el editor, hace falta Delete and re-add de la tabla completa (mismo procedimiento de ESPEC-004 2.10); si quedo huerfana sin usar, no hace falta nada (ESPEC-007 2.7, sin confirmar cual rama aplica). |  |
 | `FRM_Formularios` | `Orden` | Ordenaria los formularios en una lista y ninguna vista los ordena. Estaba vacia. Si algun dia se ordenan, se declara entonces con su proposito escrito. Retirada el 2026-08-10. |  |
 | `FRM_Preguntas` | `ValorDefecto` | Precargaria la respuesta antes de que el tecnico conteste. En una evidencia eso es peligroso: una respuesta por defecto que nadie toca parece contestada. Retirada el 2026-08-10. |  |
 | `MAN_Mantenimientos` | `Diagnostico` | Se responde en el checklist, no en campo libre. |  |

@@ -237,7 +237,7 @@ así que el parecido se rompe. Hay que ponerlas las 39.
 > llevarlo por simetría con las otras, y no. Con `IsPartOf`, borrar una orden se llevaría el
 > mantenimiento entero y con él toda su evidencia.
 
-## Paso 4 — Los tipos. **Las 210, no una lista de excepciones**
+## Paso 4 — Los tipos. **Las 209, no una lista de excepciones**
 
 **Este paso se llamaba «los tipos que no se infieren» y enumeraba 61 columnas.** Era una lista
 blanca de excepciones sobre un default que se presumía bueno: las otras 150 se daban por
@@ -249,7 +249,7 @@ de excepción no se pide nunca. La regla existe y es decorativa.
 Y el «qué reportar» cerraba el bucle en falso —«cualquier tipo distinto del que dice este
 documento»—: **nadie puede reportar una diferencia contra un valor que nunca se le dio.**
 
-### Las 106 que NADIE pone si no las pones tú
+### Las 105 que NADIE pone si no las pones tú
 
 Ningún contenido de la hoja las produce, o su propio nombre empuja a AppSheet al tipo
 equivocado. **Están ordenadas por las reglas que dependen de cada una**, que es lo que ordena el
@@ -311,7 +311,6 @@ trabajo: una columna mal tipada sin regla encima molesta al usuario; con una reg
 | `FOT_Fotografias` | `Archivo` | **`Image`** | — | la celda solo lleva un nombre de archivo |
 | `FOT_Fotografias` | `FechaHora` | **`ChangeTimestamp`** | — | lo escribe el servidor; por contenido no se distingue de una fecha cualquiera |
 | `FOT_Fotografias` | `MantenimientoID` | **`Ref`** → `MAN_Mantenimientos` | — | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
-| `FOT_Fotografias` | `PrecisionGPS` | **`Number`** | — | su nombre dispara la inferencia a LatLong y NO lo es (observado: Precision_GPS salio LatLong el 2026-08-10 estando su tabla VACIA: no pudo ser el contenido) |
 | `FOT_Fotografias` | `Tipo` | **`Enum`** · valores: `Antes` · `Despues` · `Novedad` | — | el contenido no declara el conjunto de valores permitidos |
 | `FRE_Frecuencias` | `Activo` | **`Yes/No`** | — | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
 | `FRM_Formularios` | `Activo` | **`Yes/No`** | — | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
@@ -442,30 +441,30 @@ En *Data > Columns*, marca la casilla **`Label`** de estas columnas:
 | Tabla | Referencias que la apuntan | `Label` |
 |---|---|---|
 | `USR_Usuarios` | 7 | **`Nombres`** |
-| `ACT_Activos` | 3 | **`Nombre`** |
-| `FRM_Formularios` | 3 | **`Nombre`** |
 | `MAN_Mantenimientos` | 3 | *ninguna: la clave la identifica, y está decidido así* |
+| `FRM_Formularios` | 3 | **`Nombre`** |
 | `UNF_UnidadesFuncionales` | 3 | **`Nombre`** |
-| `OT_OrdenesTrabajo` | 2 | **`Etiqueta`** |
-| `FRE_Frecuencias` | 2 | **`Nombre`** |
+| `ACT_Activos` | 3 | **`Nombre`** |
 | `FRM_Preguntas` | 2 | **`Pregunta`** |
+| `OT_OrdenesTrabajo` | 2 | **`Etiqueta`** |
 | `EST_Activo` | 2 | **`Nombre`** |
+| `FRE_Frecuencias` | 2 | **`Nombre`** |
 | `TIP_TiposActivo` | 2 | **`Nombre`** |
-| `MOT_MotivosPendiente` | 1 | **`Nombre`** |
-| `EOT_EstadosOrden` | 1 | **`Nombre`** |
 | `TPR_TiposRespuesta` | 1 | **`Nombre`** |
-| `SED_Sedes` | 1 | **`Nombre`** |
-| `CAL_Calzadas` | 1 | **`Nombre`** |
-| `ROL_Roles` | 1 | **`Nombre`** |
+| `FAL_ModosFalla` | 1 | **`Nombre`** |
+| `EOT_EstadosOrden` | 1 | **`Nombre`** |
 | `SEN_Sentidos` | 1 | **`Nombre`** |
 | `FRM_Secciones` | 1 | **`Nombre`** |
+| `ROL_Roles` | 1 | **`Nombre`** |
+| `MOT_MotivosPendiente` | 1 | **`Nombre`** |
+| `SED_Sedes` | 1 | **`Nombre`** |
+| `CAL_Calzadas` | 1 | **`Nombre`** |
 | `CHK_Checklists` | 1 | *ninguna: la clave la identifica, y está decidido así* |
-| `FAL_ModosFalla` | 1 | **`Nombre`** |
 
 > Las 2 sin etiqueta **no son un hueco**: se identifican por su clave y su fecha. Está
 > decidido, no olvidado.
 
-## Paso 6 — Las 49 expresiones que no son reglas, y por eso no salen en ningún otro sitio
+## Paso 6 — Las 48 expresiones que no son reglas, y por eso no salen en ningún otro sitio
 
 El modelo las declara en la columna, **sin `REGLA` propia**. Y los documentos de expresiones
 —`RECONSTRUCCION_EXPRESIONES.md` y `PROMPT_EXPRESIONES.md`— se generan recorriendo `REGLAS`,
@@ -487,7 +486,6 @@ una fotografía. Esas nacen vacías y nadie lo nota.
 | `EST_Activo` | `Activo` | `Initial value` | `TRUE` |
 | `EST_Activo` | `GeneraAlerta` | `Initial value` | `FALSE` |
 | `FAL_ModosFalla` | `Activo` | `Initial value` | `TRUE` |
-| `FOT_Fotografias` | `PrecisionGPS` | `Initial value` | `USERLOCATIONACCURACY()` |
 | `FOT_Fotografias` | `Ubicacion_LatLong` | `Initial value` | `HERE()` |
 | `FOT_Fotografias` | `Usuario` | `Initial value` | `USEREMAIL()` |
 | `FRE_Frecuencias` | `Activo` | `Initial value` | `TRUE` |

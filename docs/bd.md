@@ -26,9 +26,9 @@ forma de que mienta es que mienta el archivo**.
 | Concepto | Cuántos | Dónde se resuelve |
 |---|---|---|
 | Columnas que siguen siendo `Text` y deben ser `Ref` | **14** | Fase B, `ESPEC-002` |
-| Columnas marcadas como retiradas que siguen en la hoja | **49** | Pasada posterior, con datos ya migrados |
+| Columnas marcadas como retiradas que siguen en la hoja | **50** | Pasada posterior, con datos ya migrados |
 | Columnas presentes sin decidir todavía | **0** | Decisión de operación |
-| **Total a ocultar al dar de alta las tablas** | **49** | `MANUAL_DESPLIEGUE.md`, anexo |
+| **Total a ocultar al dar de alta las tablas** | **50** | `MANUAL_DESPLIEGUE.md`, anexo |
 | Tablas marcadas como retiradas que siguen en la hoja | 0 | Idem |
 | Tablas del modelo objetivo que ya existen | 28 de 28 | — |
 
@@ -59,7 +59,7 @@ forma de que mienta es que mienta el archivo**.
 | `NOV_Novedades` | 9 | 0 | Sí · **nueva** |
 | `PLA_PlanMantenimiento` | 7 | 0 | Sí · **nueva** |
 | `FAL_ModosFalla` | 6 | 5 | Sí · **nueva** |
-| `FOT_Fotografias` | 8 | 0 | Sí |
+| `FOT_Fotografias` | 7 | 0 | Sí |
 | `FIR_Firmas` | 5 | 0 | Sí |
 | `CHK_Checklists` | 7 | 0 | Sí |
 | `CHD_ChecklistDetalle` | 9 | 0 | Sí |
@@ -421,7 +421,7 @@ Taxonomia de fallas por tipo de activo. Sin clasificar la falla no hay ingenieri
 
 Fotografias del mantenimiento. Supuesto D-10: minimo 3, maximo 6, tipificadas. Se elige tabla hija y se retiran los campos de imagen embebidos en MAN.
 
-8 columnas · 0 filas · clave: vacía
+7 columnas · 0 filas · clave: vacía
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -430,9 +430,8 @@ Fotografias del mantenimiento. Supuesto D-10: minimo 3, maximo 6, tipificadas. S
 | 3 | `Tipo` | Enum |  |
 | 4 | `Archivo` | Image |  |
 | 5 | `Ubicacion_LatLong` | LatLong |  |
-| 6 | `PrecisionGPS` | Number |  |
-| 7 | `FechaHora` | ChangeTimestamp |  |
-| 8 | `Usuario` | Text |  |
+| 6 | `FechaHora` | ChangeTimestamp |  |
+| 7 | `Usuario` | Text |  |
 
 ### `FIR_Firmas`
 

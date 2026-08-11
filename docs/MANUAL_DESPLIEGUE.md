@@ -11,7 +11,7 @@
 | Plataforma | Google AppSheet sobre Google Sheets |
 | Fuente del modelo | `scripts/modelo_objetivo.py`. Este manual se genera de ahi |
 | Tablas | **28** |
-| Columnas | **210** |
+| Columnas | **209** |
 | Referencias | **39** |
 | Reglas | **21** |
 
@@ -84,7 +84,7 @@ columna la produjo hay que preguntarselo al modelo, que es justo lo que se estab
 vive en el destino, asi que de una referencia cuya tabla destino esta vacia el auditor no puede
 decir nada. No la da por buena: la separa.
 
-La ultima instantanea guardada -`BD/instantaneas/despues-de-rg19.json`- trae **953 filas** repartidas en las
+La ultima instantanea guardada -`BD/instantaneas/despues-de-cablear.json`- trae **953 filas** repartidas en las
 28 tablas, y **8 de ellas estan vacias**:
 
 ```
@@ -307,7 +307,7 @@ Estas 8 tablas crean filas desde la aplicacion. Sin esto, no sabe que identifica
 | `OT_OrdenesTrabajo` | `OTID` | `UNIQUEID()` |
 | `PLA_PlanMantenimiento` | `PlanID` | `UNIQUEID()` |
 
-## Paso 4 — El tipo de las 210 columnas
+## Paso 4 — El tipo de las 209 columnas
 
 **Subir el Excel arregla la hoja, no la aplicacion.** Son dos sitios distintos. El Excel fija
 que columnas hay y que datos tienen; **el tipo de cada columna vive en el esquema de
@@ -341,7 +341,7 @@ python scripts/inferencia.py
 
 | Quien lo consigue | Cuantas | Que significa |
 |---|---|---|
-| **Nadie: a mano** | **106** | ningun contenido de la hoja las produce, o su propio nombre empuja a AppSheet al tipo equivocado |
+| **Nadie: a mano** | **105** | ningun contenido de la hoja las produce, o su propio nombre empuja a AppSheet al tipo equivocado |
 | El **nombre** | 17 | la cabecera lleva una palabra que AppSheet reconoce |
 | El **contenido** | 87 | AppSheet deberia acertar leyendo los valores, **cuando los hay** |
 
@@ -350,9 +350,9 @@ cabecera Y el contenido de las filas**. Las palabras que disparan un tipo son co
 -`latlong` y `geolocation` para una coordenada, `birthday` o `day` para una fecha, una cabecera
 acabada en `?` para un Yes/No-. Ver `BASE_CONOCIMIENTO_APPSHEET.md` seccion 13.
 
-### Las 106 que no consigue nadie si no las pone usted
+### Las 105 que no consigue nadie si no las pone usted
 
-Por tipo: **39** `Ref` · **38** `Yes/No` · **12** `Enum` · **9** `LongText` · **4** `ChangeTimestamp` · **2** `Image` · **1** `Number` · **1** `Signature`.
+Por tipo: **39** `Ref` · **38** `Yes/No` · **12** `Enum` · **9** `LongText` · **4** `ChangeTimestamp` · **2** `Image` · **1** `Signature`.
 
 **Estan ordenadas por cuantas reglas dependen de cada una**, que es lo que ordena el trabajo:
 una columna mal tipada **sin** regla encima molesta al usuario; **con** una regla encima
@@ -413,7 +413,6 @@ una columna mal tipada **sin** regla encima molesta al usuario; **con** una regl
 | `FOT_Fotografias` | `Archivo` | **`Image`** | — | la celda solo lleva un nombre de archivo |
 | `FOT_Fotografias` | `FechaHora` | **`ChangeTimestamp`** | — | lo escribe el servidor; por contenido no se distingue de una fecha cualquiera |
 | `FOT_Fotografias` | `MantenimientoID` | **`Ref`** → `MAN_Mantenimientos` | — | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
-| `FOT_Fotografias` | `PrecisionGPS` | **`Number`** | — | su nombre dispara la inferencia a LatLong y NO lo es (observado: Precision_GPS salio LatLong el 2026-08-10 estando su tabla VACIA: no pudo ser el contenido) |
 | `FOT_Fotografias` | `Tipo` | **`Enum`** · `Antes` · `Despues` · `Novedad` | — | el contenido no declara el conjunto de valores permitidos |
 | `FRE_Frecuencias` | `Activo` | **`Yes/No`** | — | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
 | `FRM_Formularios` | `Activo` | **`Yes/No`** | — | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
@@ -659,7 +658,7 @@ bien puesta hacia el destino equivocado **no avisan**.
 > ```
 >
 > ```
-> ok Hoja limpia: ninguna de las 49 columnas retiradas existe ya. No hay nada que ocultar
+> ok Hoja limpia: ninguna de las 50 columnas retiradas existe ya. No hay nada que ocultar
 > ```
 >
 > **Lo mismo vale para las marcas `OCULTAR` y `TRAMPA` del anexo:** describen una hoja que ya no se
@@ -1019,7 +1018,7 @@ contra la que se valida. Si una columna no aparece aqui, no deberia estar visibl
 > ```
 >
 > ```
-> ok Hoja limpia: ninguna de las 49 columnas retiradas existe ya. No hay nada que ocultar
+> ok Hoja limpia: ninguna de las 50 columnas retiradas existe ya. No hay nada que ocultar
 > ```
 >
 > La plantilla se rehace entera con `python scripts/generar_plantilla.py` y sale con las columnas
@@ -1211,7 +1210,6 @@ Fotografias del mantenimiento. Supuesto D-10: minimo 3, maximo 6, tipificadas. S
 | `Tipo` | `Enum` | Valores: `Antes` · `Despues` · `Novedad` |
 | `Archivo` | `Image` |  |
 | `Ubicacion_LatLong` | `LatLong` | `Initial value` = `HERE()` |
-| `PrecisionGPS` | `Number` | `Initial value` = `USERLOCATIONACCURACY()` |
 | `FechaHora` | `ChangeTimestamp` |  |
 | `Usuario` | `Text` | `Initial value` = `USEREMAIL()` |
 
@@ -1220,6 +1218,7 @@ Fotografias del mantenimiento. Supuesto D-10: minimo 3, maximo 6, tipificadas. S
 | Columna | Que hacer | Por que |
 |---|---|---|
 | `Fecha` | **OCULTAR** | Duplicaba a FechaHora, que es la que vale como evidencia porque la escribe el servidor. Dos fechas para el mismo hecho invitan a discutir cual manda justo cuando hay que probar algo. Retirada el 2026-08-10. |
+| `PrecisionGPS` | **OCULTAR** | USERLOCATIONACCURACY() no existe en AppSheet (ESPEC-004 2.1, mismo hallazgo que Precision_GPS de MAN_Mantenimientos). Ninguna regla la leia (ESPEC-007 2.2): a diferencia de MAN, no habia cadena que romper. Retirada por ESPEC-007. Si FOT_Fotografias ya tenia esta columna con Initial value puesto en el editor, hace falta Delete and re-add de la tabla completa (mismo procedimiento de ESPEC-004 2.10); si quedo huerfana sin usar, no hace falta nada (ESPEC-007 2.7, sin confirmar cual rama aplica). |
 
 ## `FRE_Frecuencias`
 

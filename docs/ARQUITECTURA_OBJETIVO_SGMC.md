@@ -16,7 +16,7 @@ paso de vistas de los manuales generados **declara que no está especificado y p
 se haga**, en vez de decir «se construye sola» — que es la clase de instrucción que este proyecto
 tiene prohibida.
 
-**28 tablas · 210 columnas · 39 referencias · 21 reglas**
+**28 tablas · 209 columnas · 39 referencias · 21 reglas**
 
 ---
 
@@ -102,6 +102,13 @@ resto son campos que guardaban por segunda vez un dato alcanzable por referencia
 | Campo | Motivo |
 |---|---|
 
+**`FOT_Fotografias`**
+
+| Campo | Motivo |
+|---|---|
+| `PrecisionGPS` | USERLOCATIONACCURACY() no existe en AppSheet (ESPEC-004 2.1, mismo hallazgo que Precision_GPS de MAN_Mantenimientos). Ninguna regla la leia (ESPEC-007 2.2): a diferencia de MAN, no habia cadena que romper. Retirada por ESPEC-007. Si FOT_Fotografias ya tenia esta columna con Initial value puesto en el editor, hace falta Delete and re-add de la tabla completa (mismo procedimiento de ESPEC-004 2.10); si quedo huerfana sin usar, no hace falta nada (ESPEC-007 2.7, sin confirmar cual rama aplica). |
+| `Fecha` | Duplicaba a FechaHora, que es la que vale como evidencia porque la escribe el servidor. Dos fechas para el mismo hecho invitan a discutir cual manda justo cuando hay que probar algo. Retirada el 2026-08-10. |
+
 **`CHK_Checklists`**
 
 | Campo | Motivo |
@@ -138,12 +145,6 @@ resto son campos que guardaban por segunda vez un dato alcanzable por referencia
 | `RespuestaGPS` | La coordenada es del mantenimiento y de cada fotografia. |
 | `FechaRespuesta` | Se deriva del ChangeTimestamp del mantenimiento. |
 | `Activo` | El detalle es parte de su checklist: no se desactiva por separado. |
-
-**`FOT_Fotografias`**
-
-| Campo | Motivo |
-|---|---|
-| `Fecha` | Duplicaba a FechaHora, que es la que vale como evidencia porque la escribe el servidor. Dos fechas para el mismo hecho invitan a discutir cual manda justo cuando hay que probar algo. Retirada el 2026-08-10. |
 
 **`FRM_Formularios`**
 
@@ -574,7 +575,6 @@ Fotografias del mantenimiento. Supuesto D-10: minimo 3, maximo 6, tipificadas. S
 | `Tipo` | Enum |  |  | Sí |  |
 | `Archivo` | Image |  |  | Sí | Calidad baja, 600 px. La camara debe forzarse en la app: si permite elegir de la galeria, toda la cadena de evidencia pierde valor |
 | `Ubicacion_LatLong` | LatLong |  |  | Sí | Coordenada de CADA fotografia. La compresion a 600 px descarta el EXIF, asi que la geolocalizacion debe guardarse como dato, no confiarse a la imagen. Valor inicial: `HERE()` |
-| `PrecisionGPS` | Number |  |  |  | Valor inicial: `USERLOCATIONACCURACY()` |
 | `FechaHora` | ChangeTimestamp |  |  |  | Marca del servidor, no del reloj del telefono, que el usuario puede alterar |
 | `Usuario` | Text |  |  |  | Valor inicial: `USEREMAIL()` |
 

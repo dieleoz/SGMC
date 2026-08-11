@@ -424,7 +424,6 @@ MODELO = {
             col("Ubicacion_LatLong", "LatLong", obligatoria=True, valor_inicial="HERE()",
                 nota="Coordenada de CADA fotografia. La compresion a 600 px descarta el EXIF, "
                      "asi que la geolocalizacion debe guardarse como dato, no confiarse a la imagen"),
-            col("PrecisionGPS", "Number", valor_inicial="USERLOCATIONACCURACY()"),
             col("FechaHora", "ChangeTimestamp",
                 nota="Marca del servidor, no del reloj del telefono, que el usuario puede alterar"),
             col("Usuario", "Text", valor_inicial="USEREMAIL()"),
@@ -601,6 +600,15 @@ CAMPOS_RETIRADOS = {
         "Informe_Final": "Se genera del mantenimiento y su checklist, no se transcribe.",
     },
     "ACT_Activos": {
+    },
+    "FOT_Fotografias": {
+        "PrecisionGPS": ("USERLOCATIONACCURACY() no existe en AppSheet (ESPEC-004 2.1, mismo "
+                         "hallazgo que Precision_GPS de MAN_Mantenimientos). Ninguna regla la leia "
+                         "(ESPEC-007 2.2): a diferencia de MAN, no habia cadena que romper. Retirada "
+                         "por ESPEC-007. Si FOT_Fotografias ya tenia esta columna con Initial value "
+                         "puesto en el editor, hace falta Delete and re-add de la tabla completa "
+                         "(mismo procedimiento de ESPEC-004 2.10); si quedo huerfana sin usar, no hace "
+                         "falta nada (ESPEC-007 2.7, sin confirmar cual rama aplica)."),
     },
     "CHK_Checklists": {
         "ActivoID": "Se alcanza por [MantenimientoID].[OTID].[ActivoID].",
