@@ -110,6 +110,16 @@ def cadenas(tabla, expresion):
 
 # Lo que ESCRIBE en la hoja va al final: hasta que no se puede comprobar que
 # escribio, no conviene soltarlo sobre 368 filas.
+# Una columna VIRTUAL no escribe: la calcula AppSheet y no toca la hoja. Estaba
+# clasificada entre las que escriben solo por ser App formula, y con eso el
+# encargo mandaba tomar una instantanea antes de poner algo que no puede tocar
+# un dato.
+def _escribe(r):
+    if r["tipo"] == "App formula" and r.get("columna") == "(tabla)":
+        return False
+    return r["tipo"] in ("App formula", "Bot", "Bot programado", "Initial value")
+
+
 ESCRIBEN = ("App formula", "Bot", "Bot programado", "Initial value")
 
 # Los Security Filter van al final del todo, DESPUES incluso de las que
@@ -118,7 +128,7 @@ ESCRIBEN = ("App formula", "Bot", "Bot programado", "Initial value")
 # Poner un filtro es apagar la luz de la habitacion en la que estas trabajando.
 ULTIMAS = ("Security Filter",)
 orden = sorted(REGLAS, key=lambda r: (r["tipo"] in ULTIMAS,
-                                     r["tipo"] in ESCRIBEN, r["id"]))
+                                     _escribe(r), r["id"]))
 
 con_cadena = [(r, cadenas(r["tabla"], r.get("expresion") or "")) for r in orden]
 atraviesan = [(r, c) for r, c in con_cadena if c]

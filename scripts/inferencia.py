@@ -215,3 +215,30 @@ def etiquetas_pendientes():
                 cuantas[c["ref"]] = cuantas.get(c["ref"], 0) + 1
     return sorted(((t, etiqueta_de(t), cuantas.get(t, 0)) for t in destinos),
                   key=lambda x: -x[2])
+
+
+# ------------------------------- que columnas virtuales hay, y cuales son etiqueta
+#
+# Cuatro generadores repetian la misma heuristica -«App formula sobre (tabla) es
+# una columna virtual, se llama Etiqueta y lleva Label»- y solo dos se
+# corrigieron cuando dejo de ser cierta. El quinto parche habria sido el
+# siguiente generador que alguien escriba.
+#
+# La heuristica era correcta mientras las unicas virtuales fueran etiquetas.
+# ESPEC-006 propone EstaVencida, que es virtual y NO es etiqueta: con la forma
+# sola, el encargo de la ventana emitia dos filas llamadas «Etiqueta» sobre la
+# misma tabla, una de ellas con la expresion equivocada.
+#
+# Aqui se responde una vez y la leen todos. Es la misma leccion que
+# alcance_reglas.py: lo que varios consumidores deducen por su cuenta, acaba
+# deduciendose distinto.
+def columnas_virtuales(reglas):
+    """Las (regla, nombre) de toda columna virtual declarada."""
+    return [(r, r.get("nombre_virtual") or "(sin nombre declarado)")
+            for r in reglas
+            if r.get("tipo") == "App formula" and r.get("columna") == "(tabla)"]
+
+
+def etiquetas_virtuales(reglas):
+    """Solo las que ademas hacen de Label. No toda virtual lo es."""
+    return [(r, n) for r, n in columnas_virtuales(reglas) if r.get("es_label")]

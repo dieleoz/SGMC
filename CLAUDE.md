@@ -891,7 +891,7 @@ que corregir un tipo o una clave siga siendo gratis. Las ocho son `VOLCADO_CIEGO
 dentro de la ventana, no se cita:
 
 ```bash
-python -c "import sys;sys.path.insert(0,'scripts');from inferencia import clasificar;from lectura_de_vuelta import VOLCADO_CIEGO_A;from modelo_objetivo import REGLAS;print(len(VOLCADO_CIEGO_A),'tablas |',sum(1 for t,c,m in clasificar()['a mano'] if t in VOLCADO_CIEGO_A),'tipos a cotejar |',sum(1 for r in REGLAS if r['tipo']=='App formula' and r.get('columna')=='(tabla)'),'columnas virtuales')"
+python -c "import sys;sys.path.insert(0,'scripts');from inferencia import clasificar,etiquetas_virtuales;from lectura_de_vuelta import VOLCADO_CIEGO_A;from modelo_objetivo import REGLAS;print(len(VOLCADO_CIEGO_A),'tablas |',sum(1 for t,c,m in clasificar()['a mano'] if t in VOLCADO_CIEGO_A),'tipos a cotejar |',len(etiquetas_virtuales(REGLAS)),'etiquetas virtuales por crear')"
 ```
 
 **Lo que vuelve peligrosa a esta ventana concreta es que se cierra en un solo sentido.** Las ocho son

@@ -33,7 +33,7 @@ RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(RAIZ, "scripts"))
 
 from modelo_objetivo import MODELO, REGLAS
-from inferencia import clasificar
+from inferencia import clasificar, etiquetas_virtuales
 from sistema import APP_NOMBRE, APP_URL
 from navegacion_editor import mapa_markdown
 
@@ -43,8 +43,10 @@ VACIAS = ("OT_OrdenesTrabajo", "MAN_Mantenimientos", "PLA_PlanMantenimiento",
           "CHK_Checklists", "CHD_ChecklistDetalle", "FOT_Fotografias",
           "FIR_Firmas", "NOV_Novedades")
 
-virtuales = [(r["tabla"], r["expresion"]) for r in REGLAS
-             if r["tipo"] == "App formula" and r.get("columna") == "(tabla)"]
+# Solo las que hacen de Label: no toda columna virtual lo es. Se pregunta a
+# inferencia.py en vez de deducirlo de la forma, que es lo que hacia que
+# EstaVencida saliera aqui llamandose «Etiqueta».
+virtuales = [(r["tabla"], n, r["expresion"]) for r, n in etiquetas_virtuales(REGLAS)]
 clases = clasificar()
 pendientes = {}
 for t, c, motivo in clases["a mano"]:
@@ -94,8 +96,8 @@ w("En *Data > Columns > la tabla*, botón **`Add virtual column`**:")
 w("")
 w("| Tabla | Nombre | `App formula` |")
 w("|---|---|---|")
-for t, e in sorted(virtuales):
-    w("| `%s` | **`Etiqueta`** | `%s` |" % (t, e))
+for t, n, e in sorted(virtuales):
+    w("| `%s` | **`%s`** | `%s` |" % (t, n, e))
 w("")
 w("Y en esa misma columna virtual, dos cosas que la documentación de Google prescribe y que es fácil")
 w("saltarse:")
