@@ -149,7 +149,7 @@ que llega solo con tiempo, y no llega — llega con la decisión de licenciamien
 | **Fase A. La hoja** | **CERRADA** | `verificar_faseA.py` en 0 fallos sobre `BD/Modelo_Datos_PLANTILLA.xlsx`. Hoy: **82 conformes y 4 avisos esperados** |
 | Reconstrucción de la aplicación | **HECHA** el 2026-08-10 | `_SISGA_-323965761`, con las 28 tablas dadas de alta sobre `Modelo_Datos_10082026` |
 | **Fase B. Las 39 referencias** | **HECHA el 2026-08-10.** El auditor sale con **0 correcciones**. De las 39: **4 verificadas** —la aplicación nombra la columna—, **29 compatibles no atribuidas** y **6 no medibles**, estas últimas miradas una a una en el editor y registradas con fecha en `CONFIRMADAS_A_OJO`. El estado **no lo declara este documento**: `python scripts/auditar_cableado.py` | Auditor en 0. Cumplido |
-| **Fase C. Las 21 reglas** | **SIN EMPEZAR.** Encargo en [`PROMPT_EXPRESIONES.md`](PROMPT_EXPRESIONES.md), que trae para cada regla su tabla, su propiedad y **la cadena de referencias que atraviesa** —una expresión con puntos no falla por estar mal escrita, falla porque un salto no está cableado—. Va en dos tandas: primero las **11 que no escriben**, después las **10 que sí** | Las 21 puestas, los dos filtros, las cuatro marcas de tiempo, `Deletes` retirado y `PRUEBA-003` pasada. `RG-16` no debe cambiar ninguna de las 368 celdas |
+| **Fase C. Las 21 reglas** | **EN CURSO.** 9 puestas y cotejadas a ojo. Tres estan puestas y **no hacen nada**: `RG-03` por el tipo de su columna, `RG-06` por un dato vacio —ya corregido— y `RG-02` porque `USERLOCATIONACCURACY()` **no existe en AppSheet**, lo que deja inertes tambien a `RG-19` y `RG-03`. Esa cadena esta en el pipeline. Encargo en [`PROMPT_EXPRESIONES.md`](PROMPT_EXPRESIONES.md), que trae para cada regla su tabla, su propiedad y **la cadena de referencias que atraviesa** —una expresión con puntos no falla por estar mal escrita, falla porque un salto no está cableado—. Va en dos tandas: primero las **11 que no escriben**, después las **10 que sí** | Las 21 puestas, los dos filtros, las cuatro marcas de tiempo, `Deletes` retirado y `PRUEBA-003` pasada. `RG-16` no debe cambiar ninguna de las 368 celdas |
 | Fase 1. Datos maestros | Bloqueada por D-01 y D-09 | Coordenadas reales cargadas, sedes realineadas, bancos de preguntas construidos |
 | Fase 2. Configuración de interfaz | Bloqueada por Fase 1 y por declarar vistas | Reportes y pantallas construidos. **Antes hay que declarar la interfaz en el modelo**: hoy no tiene vistas, ni acciones, ni slices |
 | Fase 3. Prueba controlada | Bloqueada por Fase 2 | Registros reales en `MAN_Mantenimientos` y en las tablas de evidencia, verificados leyendo el archivo |
@@ -166,6 +166,23 @@ la mesa de trabajo, no antes.
 ## 3.1 Lo que sí está construido
 
 Verificado el 2026-08-10 contra `scripts/modelo_objetivo.py` y `BD/Modelo_Datos_PLANTILLA.xlsx`.
+> ### Una regla puede estar puesta y no hacer nada
+>
+> Es lo que más veces ha pasado, y siempre en silencio. Tres casos el 2026-08-10, cada uno por un
+> motivo distinto:
+>
+> | | Por qué no hacía nada |
+> |---|---|
+> | `RG-03` | su columna era `Text` y comparaba contra el booleano `TRUE` |
+> | `RG-06` | `EST_Activo.GeneraAlerta` estaba vacía en los cuatro estados |
+> | `RG-02` | `USERLOCATIONACCURACY()` **no existe en AppSheet** |
+>
+> Las tres estaban bien escritas y bien colocadas. Ninguna dio un error.
+>
+> `verificar_datos.py` caza el segundo caso desde que existe **G-05** —cruza el alcance real de las
+> 21 reglas contra los datos—. Los otros dos **solo se ven mirando**: el tipo vive en el editor y la
+> función es un hecho de la plataforma.
+
 **Cada cifra se rederiva con los seis verificadores; ninguna está escrita de memoria.** El sexto,
 `verificar_datos.py`, se añadió ese mismo día y es **el único que abre el archivo de datos** para
 mirar si las columnas obligatorias están pobladas y si las 39 referencias resuelven contra los

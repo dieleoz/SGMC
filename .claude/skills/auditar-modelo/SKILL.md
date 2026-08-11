@@ -116,6 +116,17 @@ Tres límites que hay que respetar al citarlo:
   obligan a desambiguar con ` By `; cuando todo está bien, deja de nombrar la columna. Es decir:
   **no sirve para confirmar una corrección recién hecha.** Eso se mira en el editor.
 
+**Lección del 2026-08-10, y es la que más veces se ha repetido: una regla puede estar puesta, bien
+escrita, sin dar un solo error, y no hacer nada.** Tres casos el mismo día, cada uno por un motivo
+distinto: el **tipo** de su columna (`RG-03`, `Text` comparado contra el booleano `TRUE`), el **dato**
+de la columna que lee (`RG-06`, con `GeneraAlerta` vacía en los cuatro estados) y una **función que
+no existe** (`RG-02`, `USERLOCATIONACCURACY()`).
+
+Antes de reportar una regla como puesta, corre `python scripts/verificar_datos.py`: su comprobación
+**G-05** cruza el alcance real de las 21 reglas contra los datos y dice cuáles leen una columna
+vacía. No cubre los otros dos casos —el tipo vive en el editor, la función es un hecho de la
+plataforma—, así que esos se miran.
+
 **Lección del 2026-08-06.** Que dos tablas compartan un nombre de columna no significa que estén
 relacionadas. En este proyecto, la cadena Activo → Orden → Mantenimiento existía en el diccionario
 de datos, en los diagramas y en todos los documentos, pero en la aplicación `OTID` estaba tipada

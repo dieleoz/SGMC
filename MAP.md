@@ -66,6 +66,8 @@ D:\@Proyect\Sisga\
 │   ├── validar_modelo.py          El modelo consigo mismo. Gate objetivo del pipeline
 │   ├── verificar_faseA.py         El modelo contra la hoja descargada: estructura y tipos
 │   ├── verificar_datos.py         Los DATOS de esa hoja: obligatorias vacías, huérfanas, tipos
+│   │                               mezclados, tablas vacías (G-04) y **reglas que leen una
+│   │                               columna vacía y por tanto no hacen nada** (G-05)
 │   ├── verificar_documentos.py    La prosa contra el modelo
 │   ├── verificar_enlaces.py       Que todo enlace relativo entre documentos resuelve
 │   ├── verificar_reproducible.py  Que generar la plantilla dos veces dé lo mismo
@@ -77,6 +79,17 @@ D:\@Proyect\Sisga\
 │   ├── probar_auditor.py          Prueba negativa del anterior: le mete defectos y
 │   │                               comprueba que los caza. Sin red
 │   ├── verificar_app.py           Recuento de filas por la API
+│   ├── instantanea.py             Fotografía los datos vivos y compara dos fotos celda a
+│   │                               celda. La red de las 10 reglas que ESCRIBEN
+│   │
+│   │                              Módulos que responden una sola pregunta, y los consumen
+│   │                              los generadores para que el saber no se quede en prosa
+│   ├── inferencia.py              Quién consigue el tipo de cada columna: a mano, el
+│   │                               nombre o el contenido. 107 / 17 / 87
+│   ├── alcance_reglas.py          Qué columnas toca de verdad cada regla, con su tabla.
+│   │                               Atribuir por nombre suelto daba 94 donde hay 36
+│   ├── lectura_de_vuelta.py       Quién comprueba cada clase de cambio. Tres tienen
+│   │                               comando; **cuatro no tiene nadie**
 │   └── generar_*.py               Generadores de la plantilla y de los documentos
 │
 ├── contexto/                     Material de contexto operativo, no versionado. No es la vara.
