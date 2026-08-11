@@ -421,13 +421,19 @@ con el caso lejano rechazado); sesión iniciada con `ivan.salcedo@concesiondelsi
     texto escrito en `P-40`.
   - En la fila «negativa»: `CierreConExcepcion` vale `N`/`FALSE` (o blanco) y `MotivoExcepcion` está
     vacío.
-  - **Ninguna de las dos filas de `MAN_Mantenimientos` tiene la clave `Precision_GPS`.**
+  - **`Precision_GPS` vale blanco en las dos filas.** Ojo con lo que NO se exige aquí: que la
+    **clave** no venga. Las filas de `instantanea.py` son diccionarios con una clave por columna
+    de la app, y la columna **existe físicamente en la hoja** —retirarla del modelo no la borra de
+    ahí—. Bajo la **Rama A** de `ESPEC-004` §2.10 queda huérfana a propósito, estado que `P-45`
+    declara explícitamente **no fallo**. Exigir su ausencia hacía que dos pruebas de la misma tanda
+    dictaminaran lo contrario sobre el mismo estado, y la innegociable era la equivocada.
+    Bajo la **Rama B**, la clave no vendrá; las dos formas pasan.
   - **Ninguna otra celda de ninguna otra tabla cambió** entre las dos instantáneas.
   - Las dos lecturas —API y Drive— coinciden en los cinco puntos anteriores.
 - **Cómo se distingue el fallo:** cualquier celda fuera de las cuatro filas nuevas aparece en el
   `comparar`, o `CierreConExcepcion`/`MotivoExcepcion` no coinciden con lo que se vio en pantalla, o
-  la clave `Precision_GPS` sigue apareciendo en la fila, o la lectura por Drive discrepa de la
-  lectura por API.
+  `Precision_GPS` trae **un valor** en alguna de las dos filas —eso significaría que algo la sigue
+  poblando—, o la lectura por Drive discrepa de la lectura por API.
 
 **Cierre del fixture, en esta misma prueba:** confirmados los cinco puntos, borrar por API
 (`scripts/appsheet_api.py`, `Action: Delete`) las dos filas de `MAN_Mantenimientos` y las dos de

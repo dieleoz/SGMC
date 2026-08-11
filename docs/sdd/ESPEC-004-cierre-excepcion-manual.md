@@ -9,7 +9,10 @@
 hallazgos** (`ESTADO.md` §0, `CLAUDE.md` §7.4). **Su texto literal no quedó guardado como artefacto
 en el repositorio**: solo sobreviven su número y su tema general, en prosa, en `ESTADO.md` y
 `CLAUDE.md`. No hay un `docs/sdd/*.md` ni un `git log` con el detalle punto por punto — se
-comprobó buscando `ESPEC-004` en todo el árbol y en `git log --all --grep`, sin resultado.
+comprobó buscando **el dictamen** —no la cadena `ESPEC-004`, que sí devuelve commits y de la que
+`git show 81118aa:...` recupera las 798 líneas de la versión anterior íntegras— en todo el árbol y en
+el historial. El único `DICTAMEN_*.md` del repositorio no menciona `ESPEC-004`. Lo que no existe es el
+**texto de los quince hallazgos**; el documento que juzgaron sí está.
 
 Frente a eso, esta reescritura no simula reclasificar un texto que no existe. Hace el trabajo
 equivalente: **vuelve a verificar cada afirmación de la versión anterior contra el archivo, hoy**, y
@@ -231,7 +234,7 @@ validar_modelo.py · verificar_datos.py · verificar_faseA.py
 Nueve, más `modelo_objetivo.py` que se edita directo (§4). **Y una búsqueda por un solo término no
 alcanza**: `generar_diccionario_bd.py` no aparece en ese `grep` porque nombra el mecanismo por la
 *regla* (`"RG-19"`, dentro de `lectores["UMBRAL_GPS"]`), no por la *columna* — el mismo modo de
-fallo que el propio `generar_prompt_cableado.py` ya documenta en su código (fila de abajo). **Once
+fallo que el propio `generar_prompt_cableado.py` ya documenta en su código (fila de abajo). **Doce
 scripts en total** (los nueve del `grep`, más `generar_diccionario_bd.py`, más `modelo_objetivo.py`
 editado directo), no los seis que contó la versión anterior.
 
@@ -243,6 +246,7 @@ editado directo), no los seis que contó la versión anterior.
 | `generar_diccionario_bd.py:159` (`lectores["UMBRAL_GPS"] = "RG-19"`) | **Editar.** `docs/bd.md` seguiría atribuyendo un lector inexistente |
 | `validar_modelo.py:323` (`COBERTURA["Precision del GPS"]`) | **Editar.** Sin editar, `V-13` falla tras retirar la columna |
 | `verificar_faseA.py:307-386` (bloque `F-12`/`F-13`) | **Editar.** Cruza `Precision_GPS` contra `CierreConExcepcion` asumiendo `RG-19` viva |
+| `generar_encargo_ventana.py:141` | **Editar — el que faltaba.** Emite con texto **fijo** la fila `« RG-02, RG-19, RG-03 → ESPEC-004 está bloqueada »` en `docs/ENCARGO_VENTANA.md` (línea 158). Un `grep Precision_GPS` no lo encuentra: cita las **reglas**. Tras `ORDEN-004` esa fila debe nombrar solo `RG-03` y decir que **entra**, no que está bloqueada — si no, el encargo del editor seguirá diciendo a quien lo lea que no toque justo lo que este documento acaba de desbloquear |
 | `verificar_datos.py:218` (comentario de cabecera de `G-05`) | **Editar.** Cita `RG-19` como ejemplo vigente del defecto que `G-05` persigue; sustituir por uno abierto (`RG-06`/`GeneraAlerta` ya sirve) |
 | `generar_tipos_esperados.py` | **No editar.** Cita el hecho histórico ("`Precision_GPS` salió `LatLong` el 2026-08-10 estando su tabla vacía"), deriva de `MODELO` dinámicamente, desaparece sola |
 | `inferencia.py` (`GATILLOS_NOMBRE`) | **No editar.** Mismo hecho histórico, sostiene una regla general (`gps` → `LatLong`) útil para columnas futuras |
@@ -354,13 +358,22 @@ Todo en `scripts/modelo_objetivo.py`:
 - **`DECISIONES`**: la entrada "Cierre sin GPS válido" no cambia de lado; su `por_qué` añade que el
   valor lo pone el técnico y no una fórmula, remite a este documento y nombra la exposición de §2.14.
 
-**En el mismo cambio**, fuera de `modelo_objetivo.py`: los siete archivos de la tabla de §2.9 que
+**En el mismo cambio**, fuera de `modelo_objetivo.py`: los **ocho** archivos de la tabla de §2.9 que
 dicen "Editar". Los tres que dicen "No editar" se regeneran solos.
+
+**La `Description` de `CierreConExcepcion` no viaja por ningún generador, y por eso va en el encargo
+del editor.** §2.13 adopta fijarla y `P-40` describe al técnico leyéndola en pantalla, pero el `nota=`
+de una columna no lo consume nadie (`grep -rn 'get("nota")' scripts/*.py` solo devuelve
+`generar_reconstruccion.py`, y sobre `REGLAS`), y ningún script emite `Description`. Sin esto era un
+refinamiento adoptado que nadie iba a poner. Se escribe **en la misma pantalla y la misma sesión** que
+la lectura del `Type` —coste cero— y `P-44` la coteja literal.
 
 **Documentos generados que se re-emiten** con los comandos de siempre una vez editados esos siete
 scripts: `docs/bd.md`, `docs/ARQUITECTURA_OBJETIVO_SGMC.md`, `docs/MANUAL_DESPLIEGUE.md`,
 `docs/PROMPT_CABLEADO.md`, `docs/PROMPT_EXPRESIONES.md`, `docs/sdd/RECONSTRUCCION_EXPRESIONES.md`,
-`docs/REGLAS_DEL_MODELO_DE_DATOS.md`, `docs/TIPOS_ESPERADOS.md`, `docs/GUIA_IMPLEMENTACION_FUNCIONAL.md`.
+`docs/REGLAS_DEL_MODELO_DE_DATOS.md`, `docs/TIPOS_ESPERADOS.md`, `docs/GUIA_IMPLEMENTACION_FUNCIONAL.md`
+y **`docs/ENCARGO_VENTANA.md`**, que es el que lee quien entra al editor y hoy dice que esto está
+bloqueado.
 
 **A mano, no generados:** `docs/ALCANCE_Y_SUPUESTOS_SGMC.md` (D-04, líneas 108 y 133: ya no puede
 decir "CERRADA en el mecanismo" sobre algo que nunca funcionó), `docs/FUNCIONAL_SGMC.md` §6.4 (quien
@@ -417,7 +430,10 @@ umbral es una referencia para el juicio del técnico, no una comparación autom�
 - **Se adopta rechazar la mejora de volver editable `Coordenadas_Cierre_LatLong`** (§3).
 - **Se adopta conservar `PAR_Parametros.UMBRAL_GPS`** sin lector, precedente de `RADIO_GEOFENCING_KM`.
 - **Se adopta que `RG-13` y `RG-18` quedan fuera de alcance** (§2.6, §5).
-- **Se adopta la Rama B de §2.10 como la más probable**, dado el estado que `ESTADO.md` describe hoy
+- **No se estima aquí qué rama es la más probable.** La estimación vive en §2.10 y en un solo sitio:
+  este documento llegó a decir A en §2.10 y B en §7, que son contrarias, y B es la destructiva. Lo
+  decide **la lectura 4 del encargo de editor** (`Precision_GPS`: si existe, su `Type` e `Initial
+  value`), no una probabilidad escrita de antemano
   para `MAN_Mantenimientos`, sin que eso decida cuál aplica realmente: se confirma mirando el editor.
 - **Se adopta un dueño y una cadencia provisionales para §2.14**: el supervisor, por cierre
   individual, hasta que `D-12` entregue una vista agregada.
