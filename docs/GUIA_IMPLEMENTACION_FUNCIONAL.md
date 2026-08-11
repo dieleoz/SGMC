@@ -467,9 +467,9 @@ por diligencia o por casualidad.**
 
 > ## No publique todavia
 >
-> **Las coordenadas de los activos no son reales.** De los **368** de la hoja vigente, **34**
-> comparten `4.728512, -74.114531`, que esta en Bogota, y los **334** restantes llevan coordenada
-> propia pero **calculada sobre el trazado del corredor, no medida en campo**.
+> **Las coordenadas de los activos no son reales.** Las **368** se derivan del PK sobre el
+> trazado del corredor en cada pasada del generador: son todas distintas y todas estan sobre la
+> via, pero **ninguna esta medida en campo**.
 >
 > Con radios de 0,05 km en la mayoria de los tipos, **el primer tecnico en via no podra cerrar ni
 > una orden**. Y se descubre con el tecnico delante.

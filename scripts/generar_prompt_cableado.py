@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.join(RAIZ, "scripts"))
 
 from modelo_objetivo import MODELO, REGLAS, CLAVE_GENERADA
 from sistema import APP_NOMBRE, APP_ID, APP_URL, HOJA_NOMBRE
-from inferencia import clasificar
+from inferencia import clasificar, etiquetas_pendientes
 from alcance_reglas import por_columna
 
 clases = clasificar()
@@ -189,7 +189,28 @@ w("> real y representativo, `5607`, y AppSheet la tipó **`Number`**. El modelo 
 w("> que operación escriba `55CN03` no cabrá. Tener el dato correcto no basta.")
 w("")
 
-w("## Paso 4 — Las %d reglas" % len(REGLAS))
+w("## Paso 4 — La etiqueta de cada tabla, que no la declaraba nadie")
+w("")
+w("`Label` es la columna que **representa una fila en las listas y en los desplegables**. No estaba")
+w("en el modelo ni en ningún documento: la elegía AppSheet, y elige la primera columna de texto, que")
+w("casi siempre es la clave.")
+w("")
+w("No rompe nada, y por eso nadie lo miraba. Lo que pasa es que el técnico abre el desplegable para")
+w("asignar una orden y ve **`USR-001`, `USR-004`** en vez de los nombres.")
+w("")
+w("En *Data > Columns*, marca la casilla **`Label`** de estas columnas:")
+w("")
+w("| Tabla | Referencias que la apuntan | `Label` |")
+w("|---|---|---|")
+for _t, _e, _n in etiquetas_pendientes():
+    w("| `%s` | %d | %s |" % (_t, _n,
+      "**`%s`**" % _e if _e else "*ninguna: la clave la identifica, y está decidido así*"))
+w("")
+w("> Las tres sin etiqueta **no son un hueco**: una orden se identifica por su número y su fecha,")
+w("> una ejecución por su orden y su hora. Está decidido, no olvidado.")
+w("")
+
+w("## Paso 5 — Las %d reglas" % len(REGLAS))
 w("")
 w("Están **enteras y sin cortar** en [`sdd/RECONSTRUCCION_EXPRESIONES.md`](sdd/RECONSTRUCCION_EXPRESIONES.md),")
 w("con su tabla, su columna y su tipo —`Valid_If`, `Initial value`, `App formula`, bot—. Cópialas de")
@@ -199,7 +220,7 @@ w("La que más se olvida es **RG-19**, el umbral de GPS con su `OR(ISBLANK(...))
 w("si alguien borra la fila del parámetro **todos los cierres salen limpios y nadie se entera**.")
 w("")
 
-w("## Paso 5 — Comprobar, y aquí está lo que solo se puede ver ahora")
+w("## Paso 6 — Comprobar, y aquí está lo que solo se puede ver ahora")
 w("")
 w("**Las %d tablas que llegaron vacías eligieron su clave a ciegas**, porque AppSheet la infiere de"
   % len(CLAVE_GENERADA))

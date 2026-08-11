@@ -148,3 +148,51 @@ if __name__ == "__main__":
     print("")
     print("Las de 'a mano' NO las consigue nadie si el encargo no las nombra.")
     print("El 2026-08-10 el encargo nombraba 61 y habia %d." % len(r["a mano"]))
+
+
+# ------------------------------------------------------ la etiqueta, que nadie declaraba
+#
+# `Label` es la columna que representa una fila en las listas y en los
+# desplegables. **No la declaraba ni el modelo ni ningun documento**: la elegia
+# AppSheet, y elige la primera columna de texto, que casi siempre es la clave.
+#
+# Nadie lo miraba porque no rompe nada: la aplicacion funciona igual. Lo que
+# pasa es que el tecnico abre el desplegable de un activo y ve `ACT-0001`,
+# `ACT-0002`, `ACT-0003` en vez de `Poste SOS-001`. Veinte tablas son destino de
+# alguna referencia; USR_Usuarios lo es de seis, asi que quien asigna una orden
+# elige entre `USR-001` y `USR-004`.
+#
+# Es el ejemplo mas limpio del patron: un atributo que el repositorio da por
+# supuesto y la plataforma decide. Ninguno de los ocho verificadores puede verlo
+# -la API devuelve filas, no esquema-, asi que lo unico que cabe es decir cual
+# debe ser y que alguien lo compruebe.
+ETIQUETAS = ("Nombre", "Nombres", "Pregunta", "Descripcion")
+
+# Las transaccionales NO tienen etiqueta natural, y no es un hueco: una orden o
+# un mantenimiento se identifican por su clave y su fecha, no por un nombre. Se
+# declaran aqui para que quede dicho que se decidio, no que se olvido.
+SIN_ETIQUETA_NATURAL = {
+    "OT_OrdenesTrabajo": "una orden se identifica por su numero y su fecha",
+    "MAN_Mantenimientos": "una ejecucion se identifica por su orden y su hora",
+    "CHK_Checklists": "un checklist se identifica por su mantenimiento",
+    }
+
+
+def etiqueta_de(tabla):
+    """Que columna deberia ser el Label. None si su clave es la identificacion."""
+    if tabla in SIN_ETIQUETA_NATURAL:
+        return None
+    cols = [c["nombre"] for c in MODELO[tabla]["columnas"]]
+    return next((n for n in ETIQUETAS if n in cols), None)
+
+
+def etiquetas_pendientes():
+    """Las tablas destino de alguna referencia, con la etiqueta que les toca."""
+    destinos = {c["ref"] for t in MODELO for c in MODELO[t]["columnas"] if c.get("ref")}
+    cuantas = {}
+    for t in MODELO:
+        for c in MODELO[t]["columnas"]:
+            if c.get("ref"):
+                cuantas[c["ref"]] = cuantas.get(c["ref"], 0) + 1
+    return sorted(((t, etiqueta_de(t), cuantas.get(t, 0)) for t in destinos),
+                  key=lambda x: -x[2])

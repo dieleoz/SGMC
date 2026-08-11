@@ -280,7 +280,44 @@ por tabla, está en [`TIPOS_ESPERADOS.md`](TIPOS_ESPERADOS.md).
 > real y representativo, `5607`, y AppSheet la tipó **`Number`**. El modelo dice `Text`, y el día
 > que operación escriba `55CN03` no cabrá. Tener el dato correcto no basta.
 
-## Paso 4 — Las 21 reglas
+## Paso 4 — La etiqueta de cada tabla, que no la declaraba nadie
+
+`Label` es la columna que **representa una fila en las listas y en los desplegables**. No estaba
+en el modelo ni en ningún documento: la elegía AppSheet, y elige la primera columna de texto, que
+casi siempre es la clave.
+
+No rompe nada, y por eso nadie lo miraba. Lo que pasa es que el técnico abre el desplegable para
+asignar una orden y ve **`USR-001`, `USR-004`** en vez de los nombres.
+
+En *Data > Columns*, marca la casilla **`Label`** de estas columnas:
+
+| Tabla | Referencias que la apuntan | `Label` |
+|---|---|---|
+| `USR_Usuarios` | 7 | **`Nombres`** |
+| `MAN_Mantenimientos` | 3 | *ninguna: la clave la identifica, y está decidido así* |
+| `ACT_Activos` | 3 | **`Nombre`** |
+| `UNF_UnidadesFuncionales` | 3 | **`Nombre`** |
+| `FRM_Formularios` | 3 | **`Nombre`** |
+| `FRM_Preguntas` | 2 | **`Pregunta`** |
+| `EST_Activo` | 2 | **`Nombre`** |
+| `FRE_Frecuencias` | 2 | **`Nombre`** |
+| `OT_OrdenesTrabajo` | 2 | *ninguna: la clave la identifica, y está decidido así* |
+| `TIP_TiposActivo` | 2 | **`Nombre`** |
+| `MOT_MotivosPendiente` | 1 | **`Nombre`** |
+| `TPR_TiposRespuesta` | 1 | **`Nombre`** |
+| `CHK_Checklists` | 1 | *ninguna: la clave la identifica, y está decidido así* |
+| `SEN_Sentidos` | 1 | **`Nombre`** |
+| `EOT_EstadosOrden` | 1 | **`Nombre`** |
+| `FRM_Secciones` | 1 | **`Nombre`** |
+| `FAL_ModosFalla` | 1 | **`Nombre`** |
+| `CAL_Calzadas` | 1 | **`Nombre`** |
+| `ROL_Roles` | 1 | **`Nombre`** |
+| `SED_Sedes` | 1 | **`Nombre`** |
+
+> Las tres sin etiqueta **no son un hueco**: una orden se identifica por su número y su fecha,
+> una ejecución por su orden y su hora. Está decidido, no olvidado.
+
+## Paso 5 — Las 21 reglas
 
 Están **enteras y sin cortar** en [`sdd/RECONSTRUCCION_EXPRESIONES.md`](sdd/RECONSTRUCCION_EXPRESIONES.md),
 con su tabla, su columna y su tipo —`Valid_If`, `Initial value`, `App formula`, bot—. Cópialas de
@@ -289,7 +326,7 @@ ahí. **No las escribas de memoria ni las adaptes.**
 La que más se olvida es **RG-19**, el umbral de GPS con su `OR(ISBLANK(...))`: sin ese `ISBLANK`,
 si alguien borra la fila del parámetro **todos los cierres salen limpios y nadie se entera**.
 
-## Paso 5 — Comprobar, y aquí está lo que solo se puede ver ahora
+## Paso 6 — Comprobar, y aquí está lo que solo se puede ver ahora
 
 **Las 6 tablas que llegaron vacías eligieron su clave a ciegas**, porque AppSheet la infiere de
 los datos y no había. Y son justo las que generan clave con `UNIQUEID()`, es decir alfanumérica:
