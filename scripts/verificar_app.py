@@ -1,9 +1,15 @@
 # -*- coding: utf-8 -*-
 """Compara lo que la APLICACION ve con lo que el repositorio dice que hay.
 
-El quinto verificador, y el primero que mira el sistema en vivo. Los otros
-cuatro leen archivos: el modelo, un .xlsx descargado, la prosa, los enlaces.
-Este pregunta a la aplicacion.
+NO es uno de los seis verificadores, aunque se llame igual y durante un tiempo
+se describiera a si mismo como «el quinto». Aquellos leen ARCHIVOS -el modelo,
+un .xlsx, la prosa, los enlaces- y se corren antes de cerrar cualquier cambio.
+
+Este pregunta a la APLICACION EN VIVO, y por eso pertenece al otro grupo, con
+auditar_cableado.py y instantanea.py: instrumentos que miran produccion. La
+diferencia importa porque los tres comparten un limite que los seis no tienen
+-lo que la API no devuelve, no se puede ver- y porque ninguno de ellos es un
+gate: no bloquean, informan.
 
 Por que hacia falta
 -------------------

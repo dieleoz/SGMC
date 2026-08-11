@@ -16,6 +16,7 @@
 |---|---|
 | Saber en qué punto va el proyecto y qué falta | [ESTADO.md](ESTADO.md) |
 | Entender qué es el proyecto | [README.md](README.md) |
+| Entender qué es el sistema hoy, sin historia ni estado | [docs/sdd/ESPEC-000-sistema-actual.md](docs/sdd/ESPEC-000-sistema-actual.md) |
 | Saber qué te toca a ti, según tu rol | [docs/INDICACIONES_POR_ROL.md](docs/INDICACIONES_POR_ROL.md) |
 | Entender qué hace el sistema y para quién | [docs/FUNCIONAL_SGMC.md](docs/FUNCIONAL_SGMC.md) |
 | Ver la arquitectura que se va a construir | [docs/ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) |
@@ -123,6 +124,7 @@ D:\@Proyect\Sisga\
 
 | Documento | Contenido | Vigencia |
 |---|---|---|
+| [docs/sdd/ESPEC-000-sistema-actual.md](docs/sdd/ESPEC-000-sistema-actual.md) | El sistema tal como es hoy, en presente: qué resuelve, de qué se compone, el modelo, las decisiones de diseño, qué se puede comprobar y los límites vigentes | **Vigente. Es la línea de partida contra la que se leen las demás especificaciones** |
 | [ESTADO.md](ESTADO.md) | Qué está hecho, qué falta y qué está bloqueado | **Vigente. Es la verdad del estado** |
 | [docs/SDD_PIPELINE_SGMC.md](docs/SDD_PIPELINE_SGMC.md) | Método de construcción: cinco agentes y el gate antes del paso caro | Vigente en sus agentes; sus referencias a fases anteriores a la reconstrucción están superadas |
 | [docs/INDICACIONES_POR_ROL.md](docs/INDICACIONES_POR_ROL.md) | El reparto por rol: qué hacer, qué decidir, qué leer | Vigente |

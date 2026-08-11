@@ -382,6 +382,7 @@ archivo/       Material de origen, no versionado
 
 | Documento | Para qué sirve |
 |---|---|
+| [docs/sdd/ESPEC-000-sistema-actual.md](docs/sdd/ESPEC-000-sistema-actual.md) | El sistema tal como es hoy, en presente, sin historia ni estado. La línea de partida de toda especificación |
 | [ESTADO.md](ESTADO.md) | **Empiece aquí.** Qué está hecho, qué falta, qué está bloqueado |
 | [docs/INDICACIONES_POR_ROL.md](docs/INDICACIONES_POR_ROL.md) | Quién hace qué para que esto llegue a campo, con sus decisiones exclusivas y su costo |
 | [docs/FUNCIONAL_SGMC.md](docs/FUNCIONAL_SGMC.md) | Qué hace el sistema. Su §6 es el registro de una sola forma por propósito |
@@ -397,7 +398,7 @@ archivo/       Material de origen, no versionado
 | [docs/COMUNICACION_PROPIETARIO_APP.md](docs/COMUNICACION_PROPIETARIO_APP.md) | Qué decirle al dueño de la aplicación anterior |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Fases con criterio de cierre verificable. Su §2.1 es **la ventana barata**: lo que solo es gratis mientras ocho tablas sigan vacías |
 | [docs/ENCARGO_VENTANA.md](docs/ENCARGO_VENTANA.md) | El encargo autocontenido de esa ventana, generado del modelo. **Y lo que deja fuera, con su motivo** |
-| [docs/sdd/](docs/sdd/) | Especificaciones y pruebas del pipeline (`ESPEC-003`, `PRUEBA-003`, `RECONSTRUCCION_EXPRESIONES`, `ESPEC-004`, `ESPEC-005`) |
+| [docs/sdd/](docs/sdd/) | Especificaciones y pruebas del pipeline (`ESPEC-000`, `ESPEC-003`, `PRUEBA-003`, `RECONSTRUCCION_EXPRESIONES`, `ESPEC-004`, `ESPEC-005`) |
 | [Manuales/MANUAL_DE_USUARIO.md](Manuales/MANUAL_DE_USUARIO.md) | Guía de operación por rol. **No se entrega todavía**: describe funciones que aún no están montadas, y lo dice en su cabecera |
 | [MAP.md](MAP.md) | Índice maestro y referencias cruzadas |
 | [CLAUDE.md](CLAUDE.md) | Reglas de trabajo para agentes sobre este repositorio |
