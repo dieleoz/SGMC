@@ -28,7 +28,8 @@ editor: las 8 claves llevan `UNIQUEID()` y las dos columnas virtuales `Etiqueta`
 reemplazan; `Precision_GPS` se retiró del modelo — y les falta la mitad que vive en el editor:
 ninguno de los tres bots por evento está creado, `Automation > Bots` sigue vacío hoy.
 `ESPEC-007` está aprobada con riesgos aceptados, y sigue sin aplicar: falta `ORDEN-007`.
-`ESPEC-008` se está escribiendo ahora mismo. El guion de lo que queda por hacer a mano, paso a paso,
+`ESPEC-008` está **aprobada con riesgos aceptados** (2026-08-11), con sus ocho condiciones
+aplicadas y ampliada a `NOV_Novedades`. Falta su `ORDEN-008`. El guion de lo que queda por hacer a mano, paso a paso,
 está en [`docs/LO_QUE_SE_HACE_A_MANO.md`](docs/LO_QUE_SE_HACE_A_MANO.md).**
 
 ```
@@ -69,7 +70,7 @@ abierto.
 | **`ESPEC-004`** · `CierreConExcepcion` manual | **APROBADA CON RIESGOS ACEPTADOS** (tercera versión) y **APLICADA AL MODELO** por `ORDEN-004` el 2026-08-11. `RG-02` y `RG-19` se retiraron —ya no existen—, `Precision_GPS` se retiró del modelo. En el editor: `Type Yes/No` confirmado, `Description` escrita a mano. **Pendiente la mitad del editor** | Quitar la `App formula` de `CierreConExcepcion` en `Data > Columns`, resolver `MotivoExcepcion` (`Required_If` vs `Valid_If`) y ejecutar `PRUEBA-004` `P-40` a `P-45`. Ver [`ORDEN-004`](docs/sdd/ORDEN-004-cierre-excepcion-manual.md) §6 |
 | **`ESPEC-006`** · reemplazo de los bots programados | **CERRADA con cuatro riesgos aceptados** (tercera pasada de arquitecto) y **APLICADA AL MODELO** por `ORDEN-006` el 2026-08-11. `RG-08` y `RG-12` se retiraron —ya no existen— | Cablear `RG-37`/`RG-38` en el editor (fila de abajo) |
 | **`ESPEC-007`** · retirar `FOT_Fotografias.PrecisionGPS` | **APROBADA CON RIESGOS ACEPTADOS el 2026-08-11**, primera pasada de arquitecto. **No aplicada al modelo**: falta `ORDEN-007` | Ejecutar `ORDEN-007` sobre `scripts/modelo_objetivo.py` |
-| **`ESPEC-008`** | **En curso.** Se está escribiendo ahora mismo | El dictamen del arquitecto |
+| **`ESPEC-008`** | **APROBADA CON RIESGOS ACEPTADOS** (2026-08-11), ocho condiciones aplicadas, ampliada a `NOV_Novedades` con `RG-40` | `ORDEN-008`. Su parche de `generar_prompt_cableado.py` va **en el mismo commit** que el cambio de modelo |
 | `RG-02` · `RG-19` · `RG-08` · `RG-12` | **Retiradas del modelo, no existen.** `RG-03` ya no depende de las dos primeras: solo le falta el cableado de rutina en el editor, igual que el resto | — |
 | Las **8 claves** con `UNIQUEID()` | **Las 8 puestas** en el editor, con `Key` marcada, verificadas a ojo | Nada. Ya está |
 | Los **106 tipos** de columna | En curso. **Unas 24 de las 28 tablas** con tipos corregidos en la sesión del editor | Nada. Es mecánico |
@@ -78,8 +79,8 @@ abierto.
 | `RG-37` (columna virtual `EstaVencida`) y `RG-38` (vista + acción) | **Reemplazan a `RG-08` y `RG-12`** (`ESPEC-006`/`ORDEN-006`, 2026-08-11): esos dos bots programados no corrían en la cuenta gratuita. Ninguno de los dos es un bot: `RG-37` es una columna virtual sobre `OT_OrdenesTrabajo`, `RG-38` es una vista más una acción sobre `PLA_PlanMantenimiento` que pulsa el supervisor. **Sin cablear en el editor** | Nada. Ya se puede |
 | **Crear órdenes desde la aplicación** | **Desbloqueado por `ESPEC-005`, ya aplicada al editor.** Las órdenes se siguen creando en el Sheets **saltándose todas las validaciones** hasta que la app pueda crearlas | Los 3 bots por evento y los filtros de seguridad |
 | Los **2 `Security Filter`** | Van **los últimos**: al ponerlos, la API deja de ver esa tabla y los dos instrumentos mecánicos se quedan ciegos (`lectura_de_vuelta.FILTROS_AL_FINAL`) | Todo lo anterior |
-| **`MAN_Mantenimientos.OTID`** de `Text` a `Ref` | Pendiente de `ESPEC-003`. **La ventana barata se cierra con el primer fixture** — ver abajo | Decidir si se hace. Si se hace, **antes** del primer fixture |
-| **Las coordenadas reales** | 368 derivadas del `PK`, **ninguna medida en campo** | Operación. **Es el bloqueo del piloto** |
+| **`MAN_Mantenimientos.OTID`** | **Ya es `Ref → OT_OrdenesTrabajo` en el modelo, y no hay nada que decidir.** Su propia nota lo dice: *«Era `Text`. Ese solo hecho impedia todo el geofencing»*. Lo decidido el 2026-08-07 fue lo contrario —**no** marcarlo `IsPartOf`—, para que borrar una orden no borre su ejecución. Lo abierto es otra cosa: **el auditor no puede comprobar que esté puesto en el editor**, porque `OT_OrdenesTrabajo` está vacía y el método necesita filas en el destino. Sale como `NO SE PUEDEN JUZGAR` | Nada que decidir. Se **mira** en el editor |
+| **Las coordenadas reales** | 368 derivadas del `PK`, **ninguna medida en campo**, y **las 368 distintas entre sí** — lo que las hace peores que inútiles: una coordenada única para todos dejaría el geofencing **decorativo** y pasaría siempre; 368 puntos sintéticos distintos hacen que **el técnico esté en el activo real y el sistema le diga que no**. Rechaza cierres legítimos, que es peor que no comprobar nada | Operación. **Es el bloqueo del piloto** |
 | **288 de 333 preguntas** en borrador | Marcadas `[BORRADOR: validar con operacion]` | Operación |
 | `D-04` y `SED_Sedes.UnidadFuncionalID` | Avisos que **pasan a fallo el 2026-08-31** | Operación |
 

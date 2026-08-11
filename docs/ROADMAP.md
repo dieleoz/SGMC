@@ -103,7 +103,7 @@ Las ocho son `VOLCADO_CIEGO_A` en `scripts/lectura_de_vuelta.py`, y coinciden ex
 python -c "import sys;sys.path.insert(0,'scripts');from inferencia import clasificar;from lectura_de_vuelta import VOLCADO_CIEGO_A;from modelo_objetivo import REGLAS;print(len(VOLCADO_CIEGO_A),'tablas |',sum(1 for t,c,m in clasificar()['a mano'] if t in VOLCADO_CIEGO_A),'tipos a cotejar |',sum(1 for r in REGLAS if r['tipo']=='App formula' and r.get('columna')=='(tabla)'),'columnas virtuales')"
 ```
 
-Hoy: **8 tablas · 53 tipos a cotejar · 3 columnas virtuales** (de las tres, solo dos son `Etiqueta`
+Hoy: **8 tablas · 53 tipos · 3 columnas virtuales** (de las tres, solo dos son `Etiqueta`
 — la tercera es `EstaVencida`, `RG-37`, que no es `Label` y no entra en `ENCARGO_VENTANA.md` Paso 1;
 ver `ESPEC-006`/`ORDEN-006`).
 
@@ -112,6 +112,13 @@ generado por `scripts/generar_encargo_ventana.py`. Son dos cosas y nada más: la
 virtuales `Etiqueta`** que deja pendientes `ESPEC-005`, y el **cotejo de los 53 tipos** de esas ocho
 tablas —mirar, no cambiar, y anotar lo que se vea aunque coincida, porque la API devuelve filas y no
 esquema, y esa anotación es la única evidencia que va a existir—.
+
+> **Ese `53` es el TAMAÑO del trabajo, no lo que queda.** Sale de `inferencia.clasificar()`, que
+> responde *«qué columnas necesitan mano»* y **no** *«en cuáles ya pasó alguien»*: la API devuelve
+> filas, no esquema, así que **no existe comando que reste lo hecho**. Y se hizo mucho: el
+> 2026-08-11 una sesión de editor recorrió las ocho tablas corrigiendo tipos (`docs/sdd/ACTA-004`,
+> `ACTA-006`). Leer este número como pendiente ya indujo un informe erróneo. La única evidencia de
+> qué se tocó son las actas.
 
 **Las 2 columnas virtuales ya están creadas**, con `Show?` y `Label` puestos, verificado a ojo el
 2026-08-11. Lo que sigue abierto de la ventana es el cotejo de tipos: el guion paso a paso está en
@@ -222,7 +229,7 @@ espera—:
 | [`ESPEC-006`](sdd/ESPEC-006-reemplazo-bots-programados.md) · reemplazo de los bots programados | `RG-08` y `RG-12`, que no corren en esta cuenta (§6) | **Aplicada** (`ORDEN-006`): retiradas, sustituidas por `RG-37`/`RG-38` |
 | [`ESPEC-007`](sdd/ESPEC-007-precision-gps-fotografias.md) · retirar `FOT_Fotografias.PrecisionGPS` | Nada del cableado la necesita: ninguna regla del modelo lee esa columna | **Aprobada con riesgos aceptados** el 2026-08-11, primera pasada de arquitecto. **Sin aplicar**: falta `ORDEN-007` |
 
-**`ESPEC-008` está en curso**, escribiéndose ahora mismo: no entra en esta tabla porque todavía no
+**`ESPEC-008` está aprobada con riesgos aceptados** (2026-08-11) y ampliada a `NOV_Novedades`: no entra en esta tabla porque todavía no
 llegó al arquitecto.
 
 > ### Una regla puede estar puesta y no hacer nada
@@ -316,7 +323,11 @@ y por eso no hay forma de adelantarlo desde el repositorio.
 - [ ] Cargar `ACT_Activos.PR` y `ACT_Activos.TramoINVIAS`, vacías en las 368. **No se deducen del
       `PK`**: la conversión PK↔PR no es una fórmula sino una tabla de equivalencias que no existe, y
       el corredor tiene dos puntos distintos llamados `PR 0+000`
-- [ ] Situar las cinco sedes que faltan. `SED_Sedes` tiene `UnidadFuncionalID`, `PR`, `TramoINVIAS`,
+- [ ] Situar **las seis** sedes. Ojo con el reparto, porque no es el mismo número para cada columna:
+      **`PK` y `Ubicacion_LatLong` faltan en las seis**; `UnidadFuncionalID`, `PR` y `TramoINVIAS`
+      faltan en **cinco**, porque solo el peaje de Machetá los trae. Decir «cinco sedes» a secas ya
+      indujo a un lector a reportar que a cinco les faltaba la coordenada. `SED_Sedes` tiene
+      `UnidadFuncionalID`, `PR`, `TramoINVIAS`,
       `PK` y `Ubicacion_LatLong`, y solo el peaje de Machetá trae `UnidadFuncionalID`, `PR` y
       `TramoINVIAS`; **`PK` y `Ubicacion_LatLong` están vacías en las seis**. Y el de San Luis de
       Gaceno figura en el contrato como peaje nuevo, sin abscisa: está proyectado, no construido.
