@@ -232,6 +232,52 @@ for tabla, d in MODELO.items():
             if c.get(campo):
                 _revisar_literales(f"{tabla}.{c['nombre']} ({campo})", tabla, c[campo])
 
+# ------- V-18 la misma regla declarada dos veces, con expresiones distintas
+#
+# Una regla puede estar escrita en DOS sitios: en la columna -`formula`,
+# `valid_if`, `valor_inicial`- y en REGLAS. Cuando divergen, cada consumidor
+# lee una cosa distinta y nadie lo nota.
+#
+# Paso con RG-19 y era la unica: la columna decia
+#     [Precision_GPS] > LOOKUP("UMBRAL_GPS", ...)
+# y REGLAS decia
+#     OR(ISBLANK(LOOKUP(...)), [Precision_GPS] > LOOKUP(...))
+#
+# No es un matiz. RECONSTRUCCION_EXPRESIONES -lo que el ejecutor teclea- toma la
+# de REGLAS, la del OR. Sin la guarda, la regla es falsa siempre; CON la guarda,
+# es falsa **solo mientras el parametro UMBRAL_GPS exista**. Bastaba con borrar
+# esa fila -y hay dos cuentas con permiso de edicion sobre el Sheets- para que
+# CierreConExcepcion saliera TRUE en todos los cierres.
+#
+# Lo escribe el arquitecto y tiene razon en la urgencia: ESPEC-004 propone
+# retirar RG-19, y con ella desapareceria el unico caso, dejando la divergencia
+# sin vigilancia. La comprobacion va ANTES que la retirada.
+# Se compara SOLO la propiedad que corresponde al tipo de la regla. Compararlas
+# todas daba un falso positivo inmediato: RG-01 es un Valid_If y la misma
+# columna tiene HERE() como valor inicial, que es otra propiedad y no una
+# divergencia. Un falso positivo en un gate que bloquea el despliegue ensena a
+# desactivarlo.
+_PROPIEDAD = {
+    "Valid_If": "valid_if",
+    "App formula": "formula",
+    "Initial value": "valor_inicial",
+    }
+for r in REGLAS:
+    _t, _c = r["tabla"], r.get("columna")
+    _campo = _PROPIEDAD.get(r["tipo"])
+    if not _c or _c.startswith("(") or not _campo:
+        continue
+    _col = next((x for x in MODELO.get(_t, {}).get("columnas", [])
+                 if x["nombre"] == _c), None)
+    if _col:
+        _v = (_col.get(_campo) or "").strip()
+        if _v and _v != (r.get("expresion") or "").strip():
+            error("V-18",
+                  f"{r['id']} esta declarada DOS VECES con expresiones distintas. "
+                  f"{_t}.{_c}.{_campo} dice «{_v}» y REGLAS dice "
+                  f"«{r['expresion']}». Cada consumidor lee una: "
+                  f"RECONSTRUCCION_EXPRESIONES toma la de REGLAS")
+
 # ------------------------------- V-12 lo retirado no sigue vivo en el modelo
 for tabla in RETIRADAS:
     if tabla in MODELO:

@@ -337,7 +337,8 @@ MODELO = {
                 mensaje_error="Ubicacion fuera de rango: debe estar junto al activo para cerrar."),
             col("Precision_GPS", "Number", valor_inicial="USERLOCATIONACCURACY()", editable=False),
             col("CierreConExcepcion", "Yes/No",
-                formula='[Precision_GPS] > LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor")',
+                formula=('OR(ISBLANK(LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor")), '
+                      '[Precision_GPS] > LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor"))'),
                 nota="Se calcula, no se edita (RG-19). El umbral vive en PAR_Parametros"),
             col("MotivoExcepcion", "LongText", nota="Obligatorio si CierreConExcepcion es verdadero"),
             col("RequiereSegundaVisita", "Yes/No", valor_inicial="FALSE"),
