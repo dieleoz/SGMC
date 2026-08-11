@@ -220,12 +220,17 @@ mensaje de error invita a reescribir una expresión correcta para acomodarla a u
 > (D-01) entrega un sistema donde ningún técnico puede cerrar una orden, y se descubre con el
 > técnico delante.
 
-**`RG-08` y `RG-12` son bots programados, y no corren en la cuenta gratuita** —verificado con cita
-oficial en `docs/BASE_CONOCIMIENTO_APPSHEET.md` §6—, y `RG-08` tiene además un defecto propio: movería
+**`RG-08` y `RG-12` eran bots programados, y no corrían en la cuenta gratuita** —verificado con cita
+oficial en `docs/BASE_CONOCIMIENTO_APPSHEET.md` §6—, y `RG-08` tenía además un defecto propio: movía
 la orden al estado `Vencida`, que es final, así que un técnico que llega tarde no podría cerrarla.
-[`ESPEC-006`](docs/sdd/ESPEC-006-reemplazo-bots-programados.md) lo especifica —**sin aplicar
-todavía**—: `RG-37`, una columna virtual `EstaVencida` que no escribe ni bloquea el cierre, y
-`RG-38`, una vista más una acción que el supervisor pulsa, sin depender de `Automation > Bots`.
+[`ESPEC-006`](docs/sdd/ESPEC-006-reemplazo-bots-programados.md), cerrada con cuatro riesgos aceptados
+y **aplicada al modelo por `ORDEN-006` el 2026-08-11**, los retiró: `RG-08` y `RG-12` ya no existen en
+`scripts/modelo_objetivo.py`. En su lugar quedan `RG-37`, una columna virtual `EstaVencida` que no
+escribe ni bloquea el cierre, y `RG-38`, una vista más una acción que el supervisor pulsa, sin
+depender de `Automation > Bots`. **Pendiente cablear las dos en el editor** — nadie las ha creado
+todavía: `Automation > Bots` sigue vacío hoy, verificado dos veces
+(`docs/sdd/ACTA-004-lecturas-editor.md` §4ter). El guion paso a paso de esa sesión de editor está en
+[`docs/LO_QUE_SE_HACE_A_MANO.md`](docs/LO_QUE_SE_HACE_A_MANO.md).
 
 ## 6. Estado, hallazgos y bloqueantes
 
@@ -236,6 +241,7 @@ Todos en [`ESTADO.md`](ESTADO.md), que se actualiza; aquí no, para que no se co
 | Qué está hecho y qué falta hoy | [`ESTADO.md`](ESTADO.md) |
 | **Qué está cableado en la aplicación** | `python scripts/auditar_cableado.py`. **No lo sabe ningún documento**; su salida queda en [`docs/CORRECCIONES_CABLEADO.md`](docs/CORRECCIONES_CABLEADO.md) |
 | **Qué hay que cerrar antes de que entre la primera fila** | [`docs/ENCARGO_VENTANA.md`](docs/ENCARGO_VENTANA.md), generado. Caduca solo |
+| **Qué se hace a mano en el editor, paso a paso** | [`docs/LO_QUE_SE_HACE_A_MANO.md`](docs/LO_QUE_SE_HACE_A_MANO.md) — 13 pasos, 11 sin ningún comando que los verifique |
 | Qué le toca a usted según su rol | [`docs/INDICACIONES_POR_ROL.md`](docs/INDICACIONES_POR_ROL.md) |
 | Qué hace el sistema, para quién y cómo | [`docs/FUNCIONAL_SGMC.md`](docs/FUNCIONAL_SGMC.md) |
 | Cómo se construye o configura la app | [`docs/MANUAL_DESPLIEGUE.md`](docs/MANUAL_DESPLIEGUE.md) |
@@ -306,6 +312,7 @@ archivo/       Material de origen, no versionado
 | [docs/COMUNICACION_PROPIETARIO_APP.md](docs/COMUNICACION_PROPIETARIO_APP.md) | Qué decirle al dueño de la aplicación anterior |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Fases con criterio de cierre verificable. Su §2.1 es **la ventana barata**: lo que solo es gratis mientras ocho tablas sigan vacías |
 | [docs/ENCARGO_VENTANA.md](docs/ENCARGO_VENTANA.md) | El encargo autocontenido de esa ventana, generado del modelo. **Y lo que deja fuera, con su motivo** |
+| [docs/LO_QUE_SE_HACE_A_MANO.md](docs/LO_QUE_SE_HACE_A_MANO.md) | Lo que ningún comando puede hacer ni verificar: el guion paso a paso de quien va al editor de AppSheet, ordenado por cuándo se hace |
 | [docs/sdd/](docs/sdd/) | Especificaciones y pruebas del pipeline. El índice vigente, con el estado de cada una, está en [MAP.md](MAP.md) §3 |
 | [Manuales/MANUAL_DE_USUARIO.md](Manuales/MANUAL_DE_USUARIO.md) | Guía de operación por rol. **No se entrega todavía**: describe funciones que aún no están montadas, y lo dice en su cabecera |
 | [MAP.md](MAP.md) | Índice maestro y referencias cruzadas |
@@ -317,7 +324,7 @@ archivo/       Material de origen, no versionado
 
 | Archivo | Estado |
 |---|---|
-| [`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTILLA.xlsx) | **El entregable de datos.** Generado del modelo: 28 pestañas de datos más `_LEEME`, 211 columnas, ninguna de sobra. 27 tipos de activo, 27 formularios y 368 activos |
+| [`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTILLA.xlsx) | **El entregable de datos.** Generado del modelo: 28 pestañas de datos más `_LEEME`, 210 columnas, ninguna de sobra. 27 tipos de activo, 27 formularios y 368 activos |
 
 > **No hay carpeta `entregables/`.** Las catorce decisiones que contenían los documentos enviados a
 > Dirección viven hoy como supuestos adoptados en

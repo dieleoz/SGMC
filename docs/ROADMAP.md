@@ -13,6 +13,7 @@
 > | En qué punto va cada frente y qué lo bloquea | [`ESTADO.md`](../ESTADO.md) |
 > | Qué es el sistema hoy: modelo, decisiones de diseño, límites | [`SISTEMA.md`](SISTEMA.md) |
 > | Qué está cableado en la aplicación | `python scripts/auditar_cableado.py`. **Ningún documento lo sabe** |
+> | Qué hacer a mano en el editor, paso a paso | [`LO_QUE_SE_HACE_A_MANO.md`](LO_QUE_SE_HACE_A_MANO.md) |
 > | Qué hace el sistema y para quién | [`FUNCIONAL_SGMC.md`](FUNCIONAL_SGMC.md) |
 > | Cómo se mantiene el corredor de verdad | [`CONTEXTO_OPERACION.md`](CONTEXTO_OPERACION.md) |
 > | Quién hace qué | [`INDICACIONES_POR_ROL.md`](INDICACIONES_POR_ROL.md) |
@@ -112,6 +113,10 @@ virtuales `Etiqueta`** que deja pendientes `ESPEC-005`, y el **cotejo de los 53 
 tablas —mirar, no cambiar, y anotar lo que se vea aunque coincida, porque la API devuelve filas y no
 esquema, y esa anotación es la única evidencia que va a existir—.
 
+**Las 2 columnas virtuales ya están creadas**, con `Show?` y `Label` puestos, verificado a ojo el
+2026-08-11. Lo que sigue abierto de la ventana es el cotejo de tipos: el guion paso a paso está en
+[`LO_QUE_SE_HACE_A_MANO.md`](LO_QUE_SE_HACE_A_MANO.md).
+
 **Y lo que NO cabe, con su motivo, que es la mitad que impide que la lista se reordene sola:**
 
 | Queda fuera | Por qué |
@@ -207,13 +212,18 @@ una especificación entra, la tumban, se rehace contra el archivo y pasa. **El e
 con su motivo, está en [`../MAP.md`](../MAP.md) §3 y en [`ESTADO.md`](../ESTADO.md) §0.** Lo que el
 orden necesita saber es qué queda inerte mientras tanto:
 
-**Las dos que bloqueaban aquí ya se aplicaron (2026-08-11) y esta tabla queda vacía a propósito, no
-borrada** —el molde sigue vivo para la próxima especificación que quede en espera—:
+**Las dos que bloqueaban aquí ya se aplicaron (2026-08-11), y una tercera pasó el gate el mismo día
+y sigue esperando su orden** —el molde sigue vivo para la próxima especificación que quede en
+espera—:
 
 | Espera | Deja sin poder ponerse | Estado |
 |---|---|---|
 | [`ESPEC-004`](sdd/ESPEC-004-cierre-excepcion-manual.md) · cierre con excepción manual | `RG-02`, `RG-19` y `RG-03`. `RG-02` dependía de una función que **no existe en AppSheet** | **Aplicada** (`ORDEN-004`): `RG-02`/`RG-19` retiradas, `RG-03` ya se puede cablear |
 | [`ESPEC-006`](sdd/ESPEC-006-reemplazo-bots-programados.md) · reemplazo de los bots programados | `RG-08` y `RG-12`, que no corren en esta cuenta (§6) | **Aplicada** (`ORDEN-006`): retiradas, sustituidas por `RG-37`/`RG-38` |
+| [`ESPEC-007`](sdd/ESPEC-007-precision-gps-fotografias.md) · retirar `FOT_Fotografias.PrecisionGPS` | Nada del cableado la necesita: ninguna regla del modelo lee esa columna | **Aprobada con riesgos aceptados** el 2026-08-11, primera pasada de arquitecto. **Sin aplicar**: falta `ORDEN-007` |
+
+**`ESPEC-008` está en curso**, escribiéndose ahora mismo: no entra en esta tabla porque todavía no
+llegó al arquitecto.
 
 > ### Una regla puede estar puesta y no hacer nada
 >
@@ -328,7 +338,7 @@ y por eso no hay forma de adelantarlo desde el repositorio.
 - [ ] Confirmar el umbral de GPS. La hoja dice 40 m en `PAR_Parametros`; la propuesta enviada decía
       50. Hay que quedarse con uno
 - [x] **Encabezados sin codificación corrupta.** La hoja se genera del modelo, así que el mojibake
-      que arrastraba la heredada desapareció con ella: ninguno de los 211 encabezados lo tiene
+      que arrastraba la heredada desapareció con ella: ninguno de los 210 encabezados lo tiene
 - [~] **Código QR: FUERA DE ALCANCE.** Primero tiene que funcionar el ciclo básico. El hallazgo se
       conserva porque es real: `ACT_Activos.CodigoQR` está poblado **solo en las filas del juego de
       arranque** y su valor es una copia de `CodigoActivo` salvo en una, donde `SERV-001` lleva

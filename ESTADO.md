@@ -21,25 +21,36 @@ no se repite: aquí solo va lo que falta.
 ## En una frase
 
 **La hoja de datos está terminada. Las 28 tablas y las 39 referencias están puestas y auditadas.
-`ESPEC-005` es el primer dictamen del pipeline que pasó el gate y ya está aplicada al modelo —falta
-la mitad que vive en el editor—. `ESPEC-004` y `ESPEC-006` pasaron el gate y se aplicaron al modelo
-el 2026-08-11 (`ORDEN-004`, `ORDEN-006`): `RG-02`, `RG-19`, `RG-08` y `RG-12` se retiraron —ya no
-existen—, `RG-37` y `RG-38` las reemplazan, y `Precision_GPS` se retiró del modelo. Falta cablear
-todo eso en el editor.**
+`ESPEC-005` es el primer dictamen del pipeline que pasó el gate y ya está aplicada al modelo y al
+editor: las 8 claves llevan `UNIQUEID()` y las dos columnas virtuales `Etiqueta` están creadas.
+`ESPEC-004` y `ESPEC-006` pasaron el gate, se aplicaron al modelo el 2026-08-11 (`ORDEN-004`,
+`ORDEN-006`) — `RG-02`, `RG-19`, `RG-08` y `RG-12` se retiraron, ya no existen; `RG-37` y `RG-38` las
+reemplazan; `Precision_GPS` se retiró del modelo — y les falta la mitad que vive en el editor:
+ninguno de los tres bots por evento está creado, `Automation > Bots` sigue vacío hoy.
+`ESPEC-007` está aprobada con riesgos aceptados, y sigue sin aplicar: falta `ORDEN-007`.
+`ESPEC-008` se está escribiendo ahora mismo. El guion de lo que queda por hacer a mano, paso a paso,
+está en [`docs/LO_QUE_SE_HACE_A_MANO.md`](docs/LO_QUE_SE_HACE_A_MANO.md).**
 
 ```
 FASE A   hoja generada, 28 tablas, 210 columnas          CERRADA
 FASE B   39 referencias, auditor en 0 correcciones       CERRADA
 FASE C   21 configurables · 9 cotejadas · 0 imposibles   EN CURSO
-CLAVES   8 con UNIQUEID(): 6 puestas, 2 por poner        EN CURSO
-TIPOS    106 columnas a mano · 22 de 28 tablas hechas    EN CURSO
-LABEL    18 por marcar + 2 columnas virtuales por crear  ABIERTO
-BOTS     3 por evento sin empezar · RG-37/RG-38 por cablear (no son bots)  ABIERTO
+CLAVES   8 con UNIQUEID(): las 8 puestas, Key marcada, verificadas a ojo   EN CURSO
+TIPOS    106 columnas a mano · unas 24 de 28 tablas con tipos corregidos   EN CURSO
+LABEL    Label movido de la clave a la columna legible en unas 14 tablas · las 2 columnas
+         virtuales Etiqueta creadas, con Show? y Label puestos             EN CURSO
+BOTS     Automation > Bots vacío, ningún bot creado · 3 por evento sin empezar
+         (RG-06, RG-10, RG-07 el último) · RG-37/RG-38 por cablear (no son bots)  ABIERTO
 ```
 
-**Las cifras se rederivan, no se citan.** `21 configurables` son las **21 reglas** que declara hoy
-el modelo: ya no hay ninguna inerte —`ESPEC-004`/`ORDEN-004` retiraron `RG-02` y `RG-19`, que eran
-las que no podían funcionar—; `18` y `2` salen de `inferencia.py`:
+**Las cifras de arriba se leen distinto según su origen.** `21 configurables` son las **21 reglas**
+que declara hoy el modelo, y se rederivan, no se citan —`ESPEC-004`/`ORDEN-004` retiraron `RG-02` y
+`RG-19`, que eran las que no podían funcionar—. Las de `CLAVES`, `TIPOS`, `LABEL` y `BOTS` en cambio
+son **lecturas a ojo del editor de hoy** —no hay comando que las recupere, la API v2 devuelve filas,
+no esquema (`scripts/lectura_de_vuelta.py`)—, transcritas aunque coincidan con lo esperado. `18` y
+`2` de la nota siguiente son una cosa distinta: el **objetivo** que declara el modelo, no lo que ya
+se hizo en el editor —cuántas columnas *deberían* llevar `Label` según `scripts/modelo_objetivo.py`,
+sea cual sea el progreso de hoy—, y esas sí salen de `inferencia.py`:
 
 ```bash
 python scripts/validar_modelo.py     # Tablas 28 | Columnas 210 | Referencias 39 | Reglas 21
@@ -54,15 +65,18 @@ abierto.
 
 | Frente | Estado | Espera a |
 |---|---|---|
-| **`ESPEC-005`** · claves `OTID` y `PlanID` | **APLICADA AL MODELO.** Primer dictamen que pasa el gate. `CLAVE_LEGIBLE` 22→20, `CLAVE_GENERADA` 6→8, reglas 21→23 con `RG-35` y `RG-36`. **Pendiente la mitad del editor** | Crear las 2 columnas virtuales `Etiqueta`, marcar `Show?` y `Label`. Encargo en [`docs/PROMPT_CABLEADO.md`](docs/PROMPT_CABLEADO.md) |
-| **`ESPEC-004`** · `CierreConExcepcion` manual | **APROBADA CON RIESGOS ACEPTADOS** (tercera versión) y **APLICADA AL MODELO** por `ORDEN-004` el 2026-08-11. `RG-02` y `RG-19` se retiraron —ya no existen—, `Precision_GPS` se retiró del modelo. **Pendiente la mitad del editor** | Quitar la `App formula` de `CierreConExcepcion` en `Data > Columns`, resolver `MotivoExcepcion` (`Required_If` vs `Valid_If`) y ejecutar `PRUEBA-004` `P-40` a `P-45`. Ver [`ORDEN-004`](docs/sdd/ORDEN-004-cierre-excepcion-manual.md) §6 |
-| `RG-02` · `RG-19` | **Retiradas del modelo, no existen.** `RG-03` ya no depende de ellas: solo le falta el cableado de rutina en el editor, igual que el resto | — |
-| Las **8 claves** con `UNIQUEID()` | **6 puestas** en el editor. Faltan `OT_OrdenesTrabajo` y `PLA_PlanMantenimiento`, que `ESPEC-005` acaba de desbloquear | Nada. Ya se puede |
-| Los **106 tipos** de columna | En curso. **22 de las 28 tablas hechas** en la sesión del editor; faltan `UNF_UnidadesFuncionales` y `USR_Usuarios` sin terminar | Nada. Es mecánico |
-| El **`Label`**: 18 por marcar + 2 virtuales | Las 22 tablas de la sesión llevan tipos **y etiquetas**. Las 2 columnas virtuales `Etiqueta` **no están creadas** | Nada. Ya se puede |
-| Los **3 bots por evento** (`RG-06`, `RG-07`, `RG-10`) | **Sin empezar.** `RG-10` ya no está bloqueado: `OTID` y `PlanID` se generan solos | Nada. Ya se puede |
+| **`ESPEC-005`** · claves `OTID` y `PlanID` | **APLICADA AL MODELO Y AL EDITOR.** Primer dictamen que pasa el gate. `CLAVE_LEGIBLE` 22→20, `CLAVE_GENERADA` 6→8, reglas 21→23 con `RG-35` y `RG-36`. Las 8 claves con `UNIQUEID()` y las 2 columnas virtuales `Etiqueta` (`Show?`/`Label`) están puestas en el editor, verificadas a ojo | Nada de lo propio. Sigue abierto crear órdenes desde la app hasta que los 3 bots por evento y los filtros de seguridad estén cableados |
+| **`ESPEC-004`** · `CierreConExcepcion` manual | **APROBADA CON RIESGOS ACEPTADOS** (tercera versión) y **APLICADA AL MODELO** por `ORDEN-004` el 2026-08-11. `RG-02` y `RG-19` se retiraron —ya no existen—, `Precision_GPS` se retiró del modelo. En el editor: `Type Yes/No` confirmado, `Description` escrita a mano. **Pendiente la mitad del editor** | Quitar la `App formula` de `CierreConExcepcion` en `Data > Columns`, resolver `MotivoExcepcion` (`Required_If` vs `Valid_If`) y ejecutar `PRUEBA-004` `P-40` a `P-45`. Ver [`ORDEN-004`](docs/sdd/ORDEN-004-cierre-excepcion-manual.md) §6 |
+| **`ESPEC-006`** · reemplazo de los bots programados | **CERRADA con cuatro riesgos aceptados** (tercera pasada de arquitecto) y **APLICADA AL MODELO** por `ORDEN-006` el 2026-08-11. `RG-08` y `RG-12` se retiraron —ya no existen— | Cablear `RG-37`/`RG-38` en el editor (fila de abajo) |
+| **`ESPEC-007`** · retirar `FOT_Fotografias.PrecisionGPS` | **APROBADA CON RIESGOS ACEPTADOS el 2026-08-11**, primera pasada de arquitecto. **No aplicada al modelo**: falta `ORDEN-007` | Ejecutar `ORDEN-007` sobre `scripts/modelo_objetivo.py` |
+| **`ESPEC-008`** | **En curso.** Se está escribiendo ahora mismo | El dictamen del arquitecto |
+| `RG-02` · `RG-19` · `RG-08` · `RG-12` | **Retiradas del modelo, no existen.** `RG-03` ya no depende de las dos primeras: solo le falta el cableado de rutina en el editor, igual que el resto | — |
+| Las **8 claves** con `UNIQUEID()` | **Las 8 puestas** en el editor, con `Key` marcada, verificadas a ojo | Nada. Ya está |
+| Los **106 tipos** de columna | En curso. **Unas 24 de las 28 tablas** con tipos corregidos en la sesión del editor | Nada. Es mecánico |
+| El **`Label`**: 18 por marcar (objetivo del modelo) + 2 virtuales | Label movido de la clave a la columna legible en **unas 14 tablas**. **Las 2 columnas virtuales `Etiqueta` están creadas**, con `Show?` y `Label` puestos | Nada. Ya se puede |
+| Los **3 bots por evento** (`RG-06`, `RG-07`, `RG-10`) | **Sin empezar.** `Automation > Bots` está vacío, verificado dos veces (`docs/sdd/ACTA-004-lecturas-editor.md` §4ter). `RG-10` ya no está bloqueado: `OTID` y `PlanID` se generan solos | Nada. Ya se puede. `RG-07` se crea el último, porque manda correo real |
 | `RG-37` (columna virtual `EstaVencida`) y `RG-38` (vista + acción) | **Reemplazan a `RG-08` y `RG-12`** (`ESPEC-006`/`ORDEN-006`, 2026-08-11): esos dos bots programados no corrían en la cuenta gratuita. Ninguno de los dos es un bot: `RG-37` es una columna virtual sobre `OT_OrdenesTrabajo`, `RG-38` es una vista más una acción sobre `PLA_PlanMantenimiento` que pulsa el supervisor. **Sin cablear en el editor** | Nada. Ya se puede |
-| **Crear órdenes desde la aplicación** | **Desbloqueado por `ESPEC-005`.** Hasta que las 2 virtuales estén en el editor, las órdenes se siguen creando en el Sheets **saltándose todas las validaciones** | Las 2 columnas virtuales |
+| **Crear órdenes desde la aplicación** | **Desbloqueado por `ESPEC-005`, ya aplicada al editor.** Las órdenes se siguen creando en el Sheets **saltándose todas las validaciones** hasta que la app pueda crearlas | Los 3 bots por evento y los filtros de seguridad |
 | Los **2 `Security Filter`** | Van **los últimos**: al ponerlos, la API deja de ver esa tabla y los dos instrumentos mecánicos se quedan ciegos (`lectura_de_vuelta.FILTROS_AL_FINAL`) | Todo lo anterior |
 | **`MAN_Mantenimientos.OTID`** de `Text` a `Ref` | Pendiente de `ESPEC-003`. **La ventana barata se cierra con el primer fixture** — ver abajo | Decidir si se hace. Si se hace, **antes** del primer fixture |
 | **Las coordenadas reales** | 368 derivadas del `PK`, **ninguna medida en campo** | Operación. **Es el bloqueo del piloto** |
@@ -262,7 +276,7 @@ exactamente las columnas que el modelo declara más el `_RowNumber` que añade A
 
 ### Lo que dejó la sesión del editor
 
-Cuatro horas de navegador, y esto es lo que quedó puesto:
+**Sesión del 2026-08-10, cuatro horas de navegador:**
 
 ```
 CLAVES     las 6 con UNIQUEID()          ya estaban
@@ -272,14 +286,37 @@ ETIQUETAS  esas mismas 22 tablas         hechas
 BOTS       los 5                          sin empezar
 ```
 
-**Un solo cambio en los datos en toda la sesión, y era el esperado:**
+**Un solo cambio en los datos en toda esa sesión, y era el esperado:**
 `ACT_Activos[ACT-0034].FechaBaja` perdió la hora al pasar de `DateTime` a `Date`.
-`auditar_cableado.py` sigue en **0 correcciones**.
 
 > Que cuatro horas de tocar el esquema produzcan **un** cambio de dato es el resultado bueno, no el
 > aburrido: significa que los tipos se corrigieron sin reescribir el inventario por debajo. Y lo
 > sabemos porque `instantanea.py` compara celda a celda contra una foto previa — sin eso, esta
 > frase sería una impresión.
+
+**Sesión del 2026-08-11, sobre la anterior:**
+
+```
+CLAVES     las 8 con UNIQUEID(), las 8   Key marcada, verificadas a ojo
+TIPOS      unas 24 de las 28 tablas      con tipos corregidos
+LABEL      unas 14 tablas                con Label movido de la clave a la columna legible
+           2 columnas virtuales Etiqueta creadas, con Show? y Label
+DESCRIPTION  CierreConExcepcion          escrita a mano (ningún generador la emite)
+BOTS       ninguno creado                Automation > Bots vacío, verificado dos veces
+```
+
+**La lectura de vuelta de esta sesión salió limpia: los datos no cambiaron.**
+`docs/sdd/ACTA-006-cotejo-y-supuesto.md` §3 compara dos instantáneas y el resultado es
+`NINGUNA CELDA CAMBIO`. `auditar_cableado.py` sigue en **0 correcciones**.
+
+**Y dejó dos hallazgos que van más allá de esta sesión**, escritos en
+[`docs/BASE_CONOCIMIENTO_APPSHEET.md`](docs/BASE_CONOCIMIENTO_APPSHEET.md) §17 y §18: un tipo mal
+puesto no solo deja una regla decorativa, **falsea lo que la API devuelve** — `USR_Usuarios.Telefono`
+tipada `Number` le comía el `+` del indicativo, y la API lo devolvía sin que nadie escribiera nada
+distinto—; y el icono `=` junto a `Editable?`/`Require?` **no es un visor, es un conmutador**: pulsado
+sobre un campo booleano lo deja con expresión vacía y **tumbó la aplicación entera** durante una
+sesión cuyo encargo era de solo lectura. El detalle operativo de los dos, y cómo evitarlos, está en
+[`docs/LO_QUE_SE_HACE_A_MANO.md`](docs/LO_QUE_SE_HACE_A_MANO.md) §0.
 
 #### `RespuestaLista` es un `Enum` sin catálogo, y se resolvió con `Allow other values`
 
@@ -431,6 +468,7 @@ radio.
 |---|---|
 | **Saber qué le toca a usted** | [`docs/INDICACIONES_POR_ROL.md`](docs/INDICACIONES_POR_ROL.md) |
 | **Cablear la aplicación** | [`docs/PROMPT_CABLEADO.md`](docs/PROMPT_CABLEADO.md) — el encargo entero, generado del modelo: las 39 referencias con su destino, los tipos y el orden |
+| **Qué queda por hacer a mano, paso a paso** | [`docs/LO_QUE_SE_HACE_A_MANO.md`](docs/LO_QUE_SE_HACE_A_MANO.md) — 13 pasos, 11 sin ningún comando que los verifique. Es el guion de quien va al editor |
 | **Cambiar algo del modelo** | [`docs/REGLAS_DEL_MODELO_DE_DATOS.md`](docs/REGLAS_DEL_MODELO_DE_DATOS.md) — las diez reglas del motor, con el fallo del que salió cada una y quién la hace cumplir |
 | **Construir la aplicación** | [`docs/MANUAL_DESPLIEGUE.md`](docs/MANUAL_DESPLIEGUE.md) — diez pasos y una ficha por tabla, columna por columna |
 | **La expresión exacta de una regla** | [`docs/sdd/RECONSTRUCCION_EXPRESIONES.md`](docs/sdd/RECONSTRUCCION_EXPRESIONES.md) — las 21 sin cortar |
@@ -510,3 +548,15 @@ veces la comprobación de huérfanos daba verde. Los verificadores contestan «a
 **Una instrucción que exige criterio se ejecuta mal.** «Oculte las columnas retiradas» produjo que
 se cableara una trampa como referencia y que alguien se inventara los valores de un `Enum`. Por eso
 los documentos llevan la lista completa, generada, sin nada que deducir.
+
+**Un tipo mal no solo deja una regla decorativa: falsea lo que la API devuelve.** `USR_Usuarios.Telefono`
+tipada `Number` le comía el `+` del indicativo a la lectura — el dato en la hoja estaba bien desde el
+principio, lo que cambió fue lo que el lector truncaba. Un contraste de instantáneas que compara
+contra la foto anterior, no contra la hoja, puede archivar esto como «diferencia benigna» sin verla.
+Detalle completo en [`docs/BASE_CONOCIMIENTO_APPSHEET.md`](docs/BASE_CONOCIMIENTO_APPSHEET.md) §17.
+
+**El icono `=` no es un visor, es un conmutador.** Junto a `Editable?` o `Require?`, pulsarlo sobre un
+campo booleano lo convierte a expresión vacía, y al guardar **la aplicación entera deja de cargar** —
+no la columna, la app—, incluso durante una sesión cuyo encargo era de solo lectura. Se sale con la
+`X` del campo de expresión, nunca con `Ctrl+Z`. Detalle completo en
+[`docs/BASE_CONOCIMIENTO_APPSHEET.md`](docs/BASE_CONOCIMIENTO_APPSHEET.md) §18.

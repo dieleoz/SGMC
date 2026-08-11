@@ -147,7 +147,10 @@ para que un paso sin comprobación no se lea como comprobado:
 | **Etiqueta** (`Label`) | Es lo que ve el técnico en los desplegables; solo se mira en `Data > Columns` |
 
 Estas cuatro se cierran copiando el texto literal que se ve en el editor, no afirmando que
-"coincide": coincidir no es evidencia, el texto sí.
+"coincide": coincidir no es evidencia, el texto sí. El guion paso a paso de cómo se cierra cada una,
+en qué pantalla y en qué orden, está en
+[`docs/LO_QUE_SE_HACE_A_MANO.md`](LO_QUE_SE_HACE_A_MANO.md) — no lo repite este documento, que
+describe qué es el sistema, no cómo se construye.
 
 ## 6. Los límites que hoy tiene
 
@@ -166,3 +169,8 @@ Estas cuatro se cierran copiando el texto literal que se ve en el editor, no afi
 - **Ninguna garantía de integridad vive en la hoja.** Ni unicidad, ni tipos, ni referencial: todas las
   reglas —`Valid_If`, `Required_If`, referencias— viven en la capa de aplicación, y hoy hay dos
   cuentas con permiso de edición directa sobre el Sheets.
+- **Una columna mal tipada no solo deja una regla decorativa: falsea lo que la propia API devuelve.**
+  Un `Phone` leído como `Number` le come el `+` del indicativo a la lectura, sin que nadie escriba
+  nada distinto en la hoja. Por eso `instantanea.py` y `auditar_cableado.py` solo son de fiar sobre
+  columnas cuyo tipo ya está confirmado en el editor — verificado en
+  [`docs/BASE_CONOCIMIENTO_APPSHEET.md`](BASE_CONOCIMIENTO_APPSHEET.md) §17.
