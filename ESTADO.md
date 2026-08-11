@@ -41,6 +41,59 @@ TIPOS    107 columnas que nadie pone si no se ponen     ABIERTO
 LABEL    17 tablas                                       ABIERTO
 ```
 
+## 0. Los frentes abiertos, todos
+
+Es lo que faltaba: **una sola tabla con todo lo que está a medias.** Si algo no está aquí, no está
+abierto.
+
+| Frente | Estado | Espera a |
+|---|---|---|
+| **`ESPEC-005`** · claves `OTID` y `PlanID` | Especificada. **Va primero** | Verificador → arquitecto |
+| **`ESPEC-004`** · `CierreConExcepcion` manual | **BLOQUEADA** por el arquitecto: 12 condiciones, 1 aplicada | Rehacerla con las otras 11 |
+| Los **107 tipos** de columna | En curso en el editor | Nada. Es mecánico |
+| El **`Label`** de 17 tablas | En curso | Nada |
+| Las **8 claves** de las tablas vacías | 6 se pueden hacer ya; 2 esperan a `ESPEC-005` | Parcialmente `ESPEC-005` |
+| Los **5 bots** | 3 se pueden poner; `RG-10` y `RG-12` no | `ESPEC-005` |
+| `RG-02` · `RG-19` · `RG-03` | No se pueden poner | `ESPEC-004` |
+| Los **2 `Security Filter`** | Van **los últimos**: al ponerlos, la API deja de ver esa tabla | Todo lo anterior |
+| **Las coordenadas reales** | 368 derivadas del `PK`, **ninguna medida en campo** | Operación. **Es el bloqueo del piloto** |
+| **288 de 333 preguntas** en borrador | Marcadas `[BORRADOR: validar con operacion]` | Operación |
+| `D-04` y `SED_Sedes.UnidadFuncionalID` | Avisos que **pasan a fallo el 2026-08-31** | Operación |
+
+**Lo que no depende de nosotros son las tres últimas**, y son las que de verdad impiden arrancar.
+Lo demás es trabajo.
+
+### ¿Esto es replicable?
+
+**La hoja sí.** Se rehace con un comando, y `verificar_reproducible.py` demuestra que dos pasadas
+dan las 29 pestañas idénticas celda por celda. No hay que conservarla: se genera.
+
+```bash
+python scripts/generar_plantilla.py
+```
+
+**La aplicación no automáticamente, y no puede serlo:** la API v2 de AppSheet devuelve filas, no
+esquema, así que no hay forma de escribir tipos, claves, etiquetas ni expresiones desde un script.
+Se reconstruye a mano siguiendo tres documentos, y **todo lo que se tocó en el editor el 2026-08-10
+está escrito en alguno de los tres**: las claves con `UNIQUEID()`, los tipos, el `Label`, los
+`Editable_If`, los `Security Filter`, la estructura de los bots y el patrón de dos pasos para los
+que añaden filas.
+
+> **Lo que hay que decir y no está probado:** ese procedimiento **nunca se ha ejecutado entero desde
+> cero**. Se fue escribiendo mientras se arreglaba, así que describe lo que hicimos, no lo que se
+> comprobó que funciona seguido de principio a fin. La única forma de saberlo es reconstruir una
+> aplicación nueva a partir de los tres documentos y comparar. Hasta entonces, «replicable» es una
+> intención razonada, no un hecho verificado.
+
+### El orden de las dos especificaciones, decidido
+
+**`ESPEC-005` va primero.** Motivo: `PRUEBA-004` monta su fixture sobre claves `OTID` tecleadas a
+mano, y `ESPEC-005` las convierte en `UNIQUEID()`. Si fuera al revés, el fixture quedaría
+inconstruible y habría que reescribir la tanda de pruebas dos veces.
+
+Además `ESPEC-005` desbloquea **crear órdenes desde la aplicación**, que hoy se hacen en el Sheets
+saltándose todas las validaciones.
+
 ### Dos decisiones abiertas, y hasta que se cierren la Fase C no acaba
 
 Ninguna de las dos es teclear. Las dos están en el pipeline, con su especificación escrita.
