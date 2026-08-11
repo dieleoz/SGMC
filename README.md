@@ -9,8 +9,14 @@ eléctrica y de TI del corredor vial de la **Concesión Transversal del Sisga S.
 > `ESTADO.md` dice en qué punto está hoy, qué falta y quién lo bloquea. Si los dos discrepan, manda
 > `ESTADO.md`.
 >
-> En una frase, a 2026-08-10: **la hoja de datos está terminada y verificada; la aplicación está a
-> medio cablear.** Las 28 tablas están dadas de alta y las referencias se están reponiendo una a una.
+> En una frase, a 2026-08-11: **la hoja de datos está terminada y verificada; la aplicación está a
+> medio cablear.** Las 28 tablas están dadas de alta, las 39 referencias auditadas en 0 correcciones
+> y en el editor están puestas las 6 claves con `UNIQUEID()` más los tipos y las etiquetas de 22 de
+> las 28 tablas. Faltan las 2 columnas virtuales `Etiqueta`, los 5 bots y los 2 filtros de
+> seguridad.
+>
+> **`ESPEC-005` es el primer dictamen del pipeline que pasa el gate**, y ya está aplicada al modelo:
+> `OTID` y `PlanID` se generan con `UNIQUEID()`. `ESPEC-004` sigue bloqueada.
 >
 > **Dónde está el Excel:** [`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTILLA.xlsx). La
 > plantilla sale entera de `python scripts/generar_plantilla.py` y es el mismo archivo publicado como
@@ -139,8 +145,20 @@ La fuente única es **[`scripts/modelo_objetivo.py`](scripts/modelo_objetivo.py)
 la validación, el diccionario, el manual de despliegue y la plantilla de datos. **Nada se documenta
 a mano.**
 
-**28 tablas · 211 columnas · 39 referencias · 21 reglas.** La cifra sale de
+**28 tablas · 211 columnas · 39 referencias · 23 reglas.** La cifra sale de
 `python scripts/validar_modelo.py`, que la imprime en su primera línea; no se cita de memoria.
+Eran 21 reglas hasta que `ESPEC-005` añadió `RG-35` y `RG-36`.
+
+> **Dos de esas 23 no son columnas de la hoja.** `RG-35` y `RG-36` son **columnas virtuales**
+> llamadas `Etiqueta` que AppSheet calcula y no guarda en el Sheets, así que **no están en
+> `MODELO`**: viven en `REGLAS` y en `inferencia.ETIQUETA_VIRTUAL`. Buscarlas en la hoja no las
+> encuentra, y eso es correcto.
+
+> **Y el volcado local es ciego a ocho tablas.** `generar_plantilla.py` vacía a propósito las ocho
+> tablas de movimiento cada vez que corre, así que **una fila creada en la aplicación nunca aparece
+> en `BD/Modelo_Datos_PLANTILLA.xlsx`**. Para mirar datos de movimiento, `python
+> scripts/instantanea.py`, que lee por API. Está declarado en `scripts/lectura_de_vuelta.py` como
+> `VOLCADO_CIEGO_A`.
 
 | Documento | Qué describe |
 |---|---|
@@ -206,7 +224,8 @@ sale del tipo de activo, porque una subestación y un poste SOS no admiten la mi
 DISTANCE([Coordenadas_Cierre_LatLong], [OTID].[ActivoID].[Ubicacion_LatLong]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]
 ```
 
-**No está cableada en la aplicación, y ninguna de las 21 reglas lo está.** Todas están escritas y
+**No está cableada en la aplicación, y de las 23 reglas solo 9 lo están** —puestas y cotejadas a
+ojo, que es la única evidencia posible: las expresiones no viajan por la API—. Todas están escritas y
 listas para reponer en
 [`docs/sdd/RECONSTRUCCION_EXPRESIONES.md`](docs/sdd/RECONSTRUCCION_EXPRESIONES.md), junto con el
 `Editable_If = FALSE` de las cuatro columnas de captura. **Pero antes van las referencias que la
@@ -236,15 +255,18 @@ ningún técnico puede cerrar una orden, y se descubre con el técnico delante.
 nunca**: dependía de `USERLOCATIONACCURACY()`, que no existe en AppSheet. La corrección —que el
 técnico marque la excepción en vez de que la calcule una fórmula inexistente— está especificada en
 [`docs/sdd/ESPEC-004-cierre-excepcion-manual.md`](docs/sdd/ESPEC-004-cierre-excepcion-manual.md),
-todavía sin probar ni aprobar.
+**bloqueada por el arquitecto en segunda pasada con quince hallazgos**. No se aplica.
 
-**Y `OTID` y `PlanID` son claves legibles sin generador declarado.** Las otras seis tablas
-transaccionales vacías resuelven su clave con `UNIQUEID()`; estas dos no, y los bots `RG-10` y
-`RG-12` crean órdenes sin asignarla, así que la fila nace sin clave y AppSheet la descarta sin
-avisar. La propuesta —`UNIQUEID()` para ambas más una columna `Etiqueta` para que la orden se
-identifique ante el técnico— está en
-[`docs/sdd/ESPEC-005-clave-otid-planid.md`](docs/sdd/ESPEC-005-clave-otid-planid.md), también sin
-probar ni aprobar.
+**`OTID` y `PlanID` eran claves legibles sin generador declarado, y ya no lo son.** Las otras seis
+tablas transaccionales vacías resolvían su clave con `UNIQUEID()`; estas dos no, y los bots `RG-10`
+y `RG-12` creaban órdenes sin asignarla, así que la fila nacía sin clave y AppSheet la descartaba
+sin avisar. **[`ESPEC-005`](docs/sdd/ESPEC-005-clave-otid-planid.md) lo resolvió y está aplicada al
+modelo**: las dos pasan a `UNIQUEID()` —`CLAVE_LEGIBLE` de 22 a 20 tablas, `CLAVE_GENERADA` de 6 a
+8— y la identificación ante el técnico la dan dos columnas virtuales `Etiqueta` (`RG-35`, `RG-36`).
+**Con eso queda desbloqueado crear órdenes desde la aplicación**, que hasta hoy se hacen en el
+Sheets saltándose todas las validaciones. **Lo que falta es la mitad que vive en el editor**: crear
+las dos virtuales, marcarles `Show?` y marcarles `Label`, según
+[`docs/PROMPT_CABLEADO.md`](docs/PROMPT_CABLEADO.md).
 
 ## 6. Estado, hallazgos y bloqueantes
 
@@ -298,6 +320,15 @@ referencias apuntaban a `SED_Sedes` en vez de a `CAL_Calzadas` y a `TIP_TiposAct
 de texto se habían convertido en `Ref`. **Nada lo detectó**: `validar_modelo.py` daba `APTO`, la API
 respondía 28/28 y las 368 filas seguían ahí. Es la regla `R-04` —*una referencia que resuelve puede
 apuntar a lo que no es*—, y preguntar «apunta a algo» nunca contesta «apunta a lo correcto».
+
+**Y tres módulos que no verifican nada: declaran lo que nadie declaraba.** Se consultan antes de
+tocar el editor, no después:
+
+| Script | Declara |
+|---|---|
+| [`scripts/lectura_de_vuelta.py`](scripts/lectura_de_vuelta.py) | **Quién comprueba cada clase de cambio**: tres tienen comando, **cuatro no tiene nadie**. Y `VOLCADO_CIEGO_A`, las ocho tablas que el volcado local vacía por diseño |
+| [`scripts/navegacion_editor.py`](scripts/navegacion_editor.py) | **Dónde está cada control en pantalla.** El nombre de la regla no es el del control: `Required_If` se llama `Require?` y **no es una casilla** |
+| [`scripts/alcance_reglas.py`](scripts/alcance_reglas.py) | **Qué columnas toca de verdad cada regla, con su tabla**: 39 de las 211. Por nombre suelto salían 94 |
 
 ## 8. Organización del repositorio
 

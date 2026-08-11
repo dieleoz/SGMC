@@ -103,7 +103,7 @@ De ahí salen tres clases, y el orden entre ellas no es negociable:
 
 | # | Paso | Contenido | Depende de |
 |---|---|---|---|
-| **0** | **Cablear la aplicación entera** | **Las 39 referencias**, con `IsPartOf` en las cuatro que lo llevan; **las 21 reglas**; los dos filtros de seguridad; las cuatro marcas de tiempo como `ChangeTimestamp`; retirar `Deletes` en `OT_OrdenesTrabajo` y `MAN_Mantenimientos`; y correr `PRUEBA-003` | **En curso, y su estado no se lee aquí:** `python scripts/auditar_cableado.py`. Ficha por tabla en [`MANUAL_DESPLIEGUE.md`](MANUAL_DESPLIEGUE.md); expresión completa en [`sdd/RECONSTRUCCION_EXPRESIONES.md`](sdd/RECONSTRUCCION_EXPRESIONES.md) |
+| **0** | **Cablear la aplicación entera** | **Las 39 referencias**, con `IsPartOf` en las cuatro que lo llevan; **las 23 reglas**; los dos filtros de seguridad; las cuatro marcas de tiempo como `ChangeTimestamp`; retirar `Deletes` en `OT_OrdenesTrabajo` y `MAN_Mantenimientos`; y correr `PRUEBA-003` | **En curso, y su estado no se lee aquí:** `python scripts/auditar_cableado.py`. Ficha por tabla en [`MANUAL_DESPLIEGUE.md`](MANUAL_DESPLIEGUE.md); expresión completa en [`sdd/RECONSTRUCCION_EXPRESIONES.md`](sdd/RECONSTRUCCION_EXPRESIONES.md) |
 | **0b** | ~~Decidir la migración~~ | **Ejecutada el 2026-08-10.** Las 48 columnas sobrantes ya no existen en el archivo, así que ocultarlas dejó de estar en el plan y con ellas se fueron las tres trampas | Cerrado |
 | **1** | **Esquema completo** | `TAR_Tareas` · poblar `ROL_Roles` con los 12 · `ETR_Estructuras`, que es lo que queda de la jerarquía de ubicación · columnas de tiempo en la orden · retirar `ACT.FrecuenciaID` y `TIP.FormularioID`, **que `verificar_documentos.py` avisa como descartadas y vivas con fecha tope 2026-08-31** | `ESPEC-003` y su veredicto |
 | **2** | **Carga del inventario real** | Los 355 con identidad, serie y ubicación. **Los que hay hoy son sintéticos** y lo dicen de sí mismos. Aquí entran también las cuatro columnas que existen y están vacías en las 368: `Ubicacion_LatLong`, `PR`, `TramoINVIAS` y `SedeID` | Paso 1, y que operación confirme que 355 son los de este corredor |
@@ -149,7 +149,7 @@ que llega solo con tiempo, y no llega — llega con la decisión de licenciamien
 | **Fase A. La hoja** | **CERRADA** | `verificar_faseA.py` en 0 fallos sobre `BD/Modelo_Datos_PLANTILLA.xlsx`. Hoy: **82 conformes y 4 avisos esperados** |
 | Reconstrucción de la aplicación | **HECHA** el 2026-08-10 | `_SISGA_-323965761`, con las 28 tablas dadas de alta sobre `Modelo_Datos_10082026` |
 | **Fase B. Las 39 referencias** | **HECHA el 2026-08-10.** El auditor sale con **0 correcciones**. De las 39: **4 verificadas** —la aplicación nombra la columna—, **29 compatibles no atribuidas** y **6 no medibles**, estas últimas miradas una a una en el editor y registradas con fecha en `CONFIRMADAS_A_OJO`. El estado **no lo declara este documento**: `python scripts/auditar_cableado.py` | Auditor en 0. Cumplido |
-| **Fase C. Las 21 reglas** | **EN CURSO.** 9 puestas y cotejadas a ojo. Tres estan puestas y **no hacen nada**: `RG-03` por el tipo de su columna, `RG-06` por un dato vacio —ya corregido— y `RG-02` porque `USERLOCATIONACCURACY()` **no existe en AppSheet**, lo que deja inertes tambien a `RG-19` y `RG-03`. Esa cadena esta en el pipeline. Encargo en [`PROMPT_EXPRESIONES.md`](PROMPT_EXPRESIONES.md), que trae para cada regla su tabla, su propiedad y **la cadena de referencias que atraviesa** —una expresión con puntos no falla por estar mal escrita, falla porque un salto no está cableado—. Va en dos tandas: primero las **11 que no escriben**, después las **10 que sí** | Las 21 puestas, los dos filtros, las cuatro marcas de tiempo, `Deletes` retirado y `PRUEBA-003` pasada. `RG-16` no debe cambiar ninguna de las 368 celdas |
+| **Fase C. Las 23 reglas** | **EN CURSO — marcador real: 20 configurables · 9 cotejadas · 3 imposibles.** Eran 21 hasta que `ESPEC-005` añadió `RG-35` y `RG-36`; las 3 imposibles son `RG-02`, `RG-19` y `RG-03`, que espera `ESPEC-004`. En el editor: **las 6 claves con `UNIQUEID()` puestas**, **tipos y etiquetas de 22 de las 28 tablas** —faltan `UNF_UnidadesFuncionales` y `USR_Usuarios`—, **las 2 columnas virtuales `Etiqueta` sin crear** y **los 5 bots sin empezar**. Encargo en [`PROMPT_EXPRESIONES.md`](PROMPT_EXPRESIONES.md), que trae para cada regla su tabla, su propiedad y **la cadena de referencias que atraviesa** —una expresión con puntos no falla por estar mal escrita, falla porque un salto no está cableado—, y **dónde está cada control en pantalla** con `python scripts/navegacion_editor.py`, porque `Required_If` se llama `Require?` y no es una casilla. Va en dos tandas: primero las que **no escriben**, después las que **sí** | Las 23 puestas, los dos filtros, las cuatro marcas de tiempo, `Deletes` retirado y `PRUEBA-003` pasada. `RG-16` no debe cambiar ninguna de las 368 celdas |
 | Fase 1. Datos maestros | Bloqueada por D-01 y D-09 | Coordenadas reales cargadas, sedes realineadas, bancos de preguntas construidos |
 | Fase 2. Configuración de interfaz | Bloqueada por Fase 1 y por declarar vistas | Reportes y pantallas construidos. **Antes hay que declarar la interfaz en el modelo**: hoy no tiene vistas, ni acciones, ni slices |
 | Fase 3. Prueba controlada | Bloqueada por Fase 2 | Registros reales en `MAN_Mantenimientos` y en las tablas de evidencia, verificados leyendo el archivo |
@@ -166,17 +166,25 @@ la mesa de trabajo, no antes.
 ## 3.1 Lo que sí está construido
 
 Verificado el 2026-08-10 contra `scripts/modelo_objetivo.py` y `BD/Modelo_Datos_PLANTILLA.xlsx`.
-> ### Lo que falta de la Fase C no es teclear
+> ### Lo que falta de la Fase C: una decisión, y una mitad de teclado
 >
-> Dos decisiones abiertas, las dos con especificación escrita y en el pipeline:
+> - [`ESPEC-005`](sdd/ESPEC-005-clave-otid-planid.md) — **APLICADA AL MODELO, PENDIENTE EN EL
+>   EDITOR.** Es el primer dictamen del pipeline que pasa el gate. `OTID` y `PlanID` eran claves
+>   legibles que **nadie generaba**, así que los bots `RG-10` y `RG-12` habrían creado filas sin
+>   identificador y AppSheet las descarta sin avisar. Ya son `UNIQUEID()`: `CLAVE_LEGIBLE` bajó de
+>   22 a 20 tablas y `CLAVE_GENERADA` subió de 6 a 8. En su lugar, la identificación ante el técnico
+>   la dan **dos columnas VIRTUALES llamadas `Etiqueta`** —`RG-35` y `RG-36`—, que AppSheet calcula
+>   y **no se guardan en la hoja**; por eso no están en `MODELO`, solo en `REGLAS` y en
+>   `inferencia.ETIQUETA_VIRTUAL`. **Con esto queda desbloqueado crear órdenes desde la
+>   aplicación**, que hoy se hacen en el Sheets saltándose todas las validaciones. **Lo que falta es
+>   la mitad del editor**: crear las dos virtuales, marcarles `Show?` y marcarles `Label`. Encargo
+>   en [`PROMPT_CABLEADO.md`](PROMPT_CABLEADO.md), paso 5.
+> - [`ESPEC-004`](sdd/ESPEC-004-cierre-excepcion-manual.md) — **BLOQUEADA.** `RG-02` usa una función
+>   que **no existe en AppSheet**, y deja inertes a `RG-19` y `RG-03`. Segunda pasada del
+>   arquitecto: **quince hallazgos**. No se aplica.
 >
-> - [`ESPEC-004`](sdd/ESPEC-004-cierre-excepcion-manual.md) — `RG-02` usa una función que **no
->   existe en AppSheet**, y deja inertes a `RG-19` y `RG-03`.
-> - [`ESPEC-005`](sdd/ESPEC-005-clave-otid-planid.md) — `OTID` y `PlanID` son claves legibles que
->   **nadie genera**, así que los bots `RG-10` y `RG-12` crearían filas sin identificador. Al
->   resolverlo se desbloquea además **crear órdenes desde la aplicación**.
->
-> Ninguna se aplica hasta que pase por el arquitecto.
+> Nada se aplica hasta que pase por el arquitecto. `ESPEC-005` es la prueba de que ese ciclo termina
+> en algo: entró, la tumbaron, se rehizo contra el archivo y pasó.
 
 > ### Una regla puede estar puesta y no hacer nada
 >
@@ -192,7 +200,7 @@ Verificado el 2026-08-10 contra `scripts/modelo_objetivo.py` y `BD/Modelo_Datos_
 > Las tres estaban bien escritas y bien colocadas. Ninguna dio un error.
 >
 > `verificar_datos.py` caza el segundo caso desde que existe **G-05** —cruza el alcance real de las
-> 21 reglas contra los datos—. Los otros dos **solo se ven mirando**: el tipo vive en el editor y la
+> 23 reglas contra los datos—. Los otros dos **solo se ven mirando**: el tipo vive en el editor y la
 > función es un hecho de la plataforma.
 
 **Cada cifra se rederiva con los seis verificadores; ninguna está escrita de memoria.** El sexto,
@@ -215,7 +223,7 @@ generador entre sí.
 > atribuidas** —la aplicación nombra la tabla destino, y que sea la columna que el modelo declara lo
 > dice el modelo, no la aplicación—. Sumarlas infla la cifra, y ya se infló una vez.
 
-- **Modelo de 28 tablas, 211 columnas, 39 referencias y 21 reglas.** `validar_modelo.py` sale
+- **Modelo de 28 tablas, 211 columnas, 39 referencias y 23 reglas.** `validar_modelo.py` sale
   `APTO PARA DESPLEGAR` con 0 errores y 3 avisos.
 - **La hoja se genera del modelo, y es la que la aplicación lee.** 28 pestañas de datos más `_LEEME`,
   ninguna oculta, sin una sola columna de sobra ni de menos: **las 48 que sobraban ya no existen en el
@@ -431,7 +439,7 @@ un requisito previo que no es de configuración sino de modelo.
 
 > ### Antes de las reglas van las referencias, y cuántas faltan no se lee aquí
 >
-> **Diez de las 21 reglas desreferencian** —`RG-01`, `RG-04`, `RG-05`, `RG-06`, `RG-08`, `RG-09`,
+> **Diez de las 23 reglas desreferencian** —`RG-01`, `RG-04`, `RG-05`, `RG-06`, `RG-08`, `RG-09`,
 > `RG-11`, `RG-16`, `RG-17` y `RG-34`; la lista se saca buscando `].[` en las expresiones del
 > modelo—, y cada una **falla o, peor, resuelve contra lo que no es** si la referencia de debajo está
 > mal puesta. Y «mal puesta»
@@ -485,7 +493,7 @@ Declarado en el modelo, con su expresión completa en
 
 Pendiente, y además no declarado todavía en el modelo:
 
-- [ ] Imponer `QuienCambia`: la columna está poblada en las siete filas y **ninguna de las 21 reglas
+- [ ] Imponer `QuienCambia`: la columna está poblada en las siete filas y **ninguna de las 23 reglas
       la lee**, así que hoy nada impide que un técnico ponga «Cerrada» él mismo
 - [ ] Estado de rechazo. `MAN_Mantenimientos.ObservacionRechazo` existe y la orden no tiene a dónde
       volver: falta una fila `Devuelta` en `EOT_EstadosOrden`, que es dato y no esquema

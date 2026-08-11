@@ -18,7 +18,30 @@ Hay dos fuentes y pueden no coincidir:
 | Fuente | Qué es | Cómo se lee |
 |---|---|---|
 | El Google Sheets que declare `python scripts/sistema.py` como `HOJA_ID` | **El que corre la app.** Manda ante discrepancia | Conector de Google Drive, `read_file_content` |
-| El volcado que declare ese mismo script como `VOLCADO` (hoy, `BD/Modelo_Datos_PLANTILLA.xlsx`) | Registro local | `openpyxl` |
+| El volcado que declare ese mismo script como `VOLCADO` (hoy, `BD/Modelo_Datos_PLANTILLA.xlsx`) | Registro local. **Ciego a ocho tablas** — ver abajo | `openpyxl` |
+| La aplicación en vivo | La única que ve las filas de movimiento | `python scripts/instantanea.py` |
+
+### El volcado local es CIEGO a las ocho tablas de movimiento, y no lo dice al abrirlo
+
+**`generar_plantilla.py` las vacía a propósito** cada vez que corre: son registros de prueba y la
+plantilla es lo que recibe el funcional. Están declaradas en `scripts/lectura_de_vuelta.py` como
+`VOLCADO_CIEGO_A`:
+
+```
+OT_OrdenesTrabajo · MAN_Mantenimientos · CHK_Checklists · CHD_ChecklistDetalle
+FOT_Fotografias   · FIR_Firmas         · NOV_Novedades  · PLA_PlanMantenimiento
+```
+
+**Nunca uses el volcado para mirar datos de movimiento.** Una fila creada en la aplicación —un
+fixture, una orden real— **nunca llega a ese archivo**, así que ahí saldrán las ocho vacías **aunque
+la aplicación tenga filas**. Reportar «`MAN_Mantenimientos` está vacía, luego el ciclo nunca se
+ejecutó» leyendo el volcado es un hallazgo **falso por construcción**, y ni `verificar_faseA.py` ni
+`verificar_datos.py` lo desmienten: los dos leen ese mismo archivo por defecto.
+
+**Para esas ocho tablas hay exactamente dos fuentes válidas:** el Sheets de producción por el
+conector, o `python scripts/instantanea.py`, que lee por API. El volcado sirve para **estructura y
+catálogos**, no para población de movimiento. Si informas de una de las ocho, di con cuál de las dos
+la miraste.
 
 **No copies el `fileId` ni la ruta de una auditoría anterior.** Este sistema se reconstruyó tres
 veces en cuatro días, y `scripts/sistema.py` es el único sitio que no envejece: lista también las
@@ -41,16 +64,22 @@ advertirlo**.
 Revisa de paso `get_file_metadata`: si `modifiedTime` es reciente, alguien acaba de tocar el
 backend y cualquier hallazgo previo puede haber caducado.
 
-### 2. Lee el volcado local
+### 2. Lee el volcado local — para estructura, no para movimiento
+
+El recuento de filas que imprime este comando **no significa nada en las ocho tablas de
+`VOLCADO_CIEGO_A`**, que salen marcadas para que no se te olvide:
 
 ```bash
 python -c "
-import openpyxl
+import sys, openpyxl
+sys.path.insert(0, 'scripts')
+from lectura_de_vuelta import VOLCADO_CIEGO_A
 wb = openpyxl.load_workbook(r'BD/Modelo_Datos_PLANTILLA.xlsx', read_only=True, data_only=True)
 for n in wb.sheetnames:
     ws = wb[n]
     hdr = [c.value for c in next(ws.iter_rows(min_row=1, max_row=1)) if c.value]
-    print(f'{n:22s} cols={len(hdr):2d} filas~{ws.max_row-1}')
+    ciega = '  <-- CIEGA: el volcado la vacia por diseno, mira instantanea.py' if n in VOLCADO_CIEGO_A else ''
+    print(f'{n:22s} cols={len(hdr):2d} filas~{ws.max_row-1}{ciega}')
 "
 ```
 
@@ -84,12 +113,22 @@ que la tabla exista no significa que el flujo se haya ejercitado.
   esa misma hoja? El catálogo vigente son 27 formularios, uno por tipo, con las 333 preguntas
   cargadas — 45 acordadas (SOS, CCTV, PMVF) y el resto con la marca `[BORRADOR: validar con
   operacion]` de `scripts/banco_preguntas.py`. Buscar esa marca dice qué queda por revisar.
-- Integridad referencial: en el modelo vigente `OT_OrdenesTrabajo` tiene clave `OTID` (Text), y
-  `CHK_Checklists` no lleva `OTID` sino `MantenimientoID`, referencia a `MAN_Mantenimientos`.
-  Vuelca `scripts/modelo_objetivo.py` antes de asumir cuál es la clave de cada tabla: ya cambió más
-  de una vez en este proyecto.
-- Tablas vacías: `MAN_Mantenimientos`, `FOT_Fotografias` y `FIR_Firmas`. Mientras sigan sin
-  registros, el ciclo de mantenimiento nunca se ha ejecutado y nada está probado.
+- Integridad referencial: `CHK_Checklists` **no lleva `OTID`** sino `MantenimientoID`, referencia a
+  `MAN_Mantenimientos`. Y desde `ESPEC-005`, **`OT_OrdenesTrabajo.OTID` y
+  `PLA_PlanMantenimiento.PlanID` ya no son claves legibles**: las genera `UNIQUEID()`, así que
+  `CLAVE_LEGIBLE` son **20** tablas y `CLAVE_GENERADA` **8**. Comparar un `Ref` a una de esas ocho
+  contra un literal de texto es **siempre** un error. Vuelca `scripts/modelo_objetivo.py` antes de
+  asumir cuál es la clave de cada tabla: ya cambió más de una vez en este proyecto.
+- Tablas de movimiento sin registros: **compruébalo por API o en el Sheets, nunca en el volcado.**
+  Las ocho de `VOLCADO_CIEGO_A` salen vacías ahí siempre. Si lo confirmas contra la fuente buena y
+  siguen sin filas, entonces sí: el ciclo de mantenimiento nunca se ha ejecutado y nada está
+  probado.
+- **Y si están vacías, dilo con la consecuencia que tiene:** una tabla vacía es el último momento en
+  que un cambio de tipo o de clave **no arrastra ni una fila**. `MAN_Mantenimientos.OTID` está
+  declarada `Ref` en el modelo y **sigue `Text` en el editor** —conversión pendiente de
+  `ESPEC-003`—, y mientras sea `Text` **no hay referencia real**: toda la cadena
+  `[OTID].[ActivoID].[…]` del geofencing no existe. **El primer fixture cierra esa ventana** para
+  `OT_OrdenesTrabajo`, `MAN_Mantenimientos` y `PLA_PlanMantenimiento`, y no vuelve a abrirse.
 - Datos de prueba sin limpiar: nombres donde deberían ir identificadores, `NOW()` como texto.
 
 ## Lo que la lectura de datos NO puede decirte
@@ -122,14 +161,33 @@ distinto: el **tipo** de su columna (`RG-03`, `Text` comparado contra el boolean
 de la columna que lee (`RG-06`, con `GeneraAlerta` vacía en los cuatro estados) y una **función que
 no existe** (`RG-02`, `USERLOCATIONACCURACY()`).
 
-Y hay dos reglas que **no se pueden poner hoy**, así que no las reportes como pendientes de
-teclear: `RG-02` usa una función inexistente y `RG-10`/`RG-12` crearían órdenes sin clave. Están en
-`ESPEC-004` y `ESPEC-005`, en el pipeline.
+**Tres reglas no se pueden poner hoy, y no son las mismas de antes.** `RG-02`, `RG-19` y `RG-03`
+dependen de `USERLOCATIONACCURACY()`, que **no existe en AppSheet**: espera a `ESPEC-004`, que sigue
+**BLOQUEADA** —segunda pasada, quince hallazgos—. **`RG-10` y `RG-12` ya no están bloqueadas**:
+`ESPEC-005` está aplicada al modelo y `OTID`/`PlanID` se generan solos. No las reportes como
+esperando a nadie.
+
+**De `ESPEC-005` queda la mitad que vive en el editor**, y es lo que hay que ir a mirar: las dos
+**columnas virtuales** `Etiqueta` de `OT_OrdenesTrabajo` y `PLA_PlanMantenimiento` (`RG-35`,
+`RG-36`), con `Show?` activo y `Label` marcado. **No las busques en la hoja ni en `MODELO`**: una
+columna virtual la calcula AppSheet y no se guarda en el Sheets, así que vive solo en `REGLAS` y en
+`inferencia.ETIQUETA_VIRTUAL`. Que no aparezca en el volcado **no es un hallazgo**.
 
 Antes de reportar una regla como puesta, corre `python scripts/verificar_datos.py`: su comprobación
-**G-05** cruza el alcance real de las 21 reglas contra los datos y dice cuáles leen una columna
-vacía. No cubre los otros dos casos —el tipo vive en el editor, la función es un hecho de la
-plataforma—, así que esos se miran.
+**G-05** cruza el alcance real de las **23** reglas contra los datos y dice cuáles leen una columna
+vacía, y **G-04** avisa de las tablas tipadas a ciegas. No cubren los otros dos casos —el tipo vive
+en el editor, la función es un hecho de la plataforma—, así que esos se miran.
+
+**El alcance de una regla se pregunta a `python scripts/alcance_reglas.py`, no al nombre de la
+columna.** Atribuir por nombre suelto daba 94 columnas «con regla» donde hay **39 de 211**: como
+`[Activo]` está en `RG-04` y en `RG-16`, las 23 columnas llamadas `Activo` cargaban con las dos.
+
+**Y antes de decir que algo «está sin poner», comprueba que alguien pueda verlo.** `python
+scripts/lectura_de_vuelta.py` dice, por clase de cambio, quién lo lee de vuelta: **`referencias`,
+`datos` y `estructura` tienen comando; `tipos`, `expresiones`, `permisos` y `etiqueta` no tiene
+nadie**. Un hallazgo sobre una de esas cuatro solo se cierra **copiando literalmente lo que ves en
+el editor** — «coincide» no es evidencia. Y `python scripts/navegacion_editor.py` dice dónde mirar:
+el nombre de la regla **no es** el del control (`Required_If` es `Require?`, y no es una casilla).
 
 **Lección del 2026-08-06.** Que dos tablas compartan un nombre de columna no significa que estén
 relacionadas. En este proyecto, la cadena Activo → Orden → Mantenimiento existía en el diccionario
@@ -152,7 +210,18 @@ explícitamente que no se puede deshacer.
 ## Al terminar
 
 Actualiza `ESTADO.md` con lo encontrado, y `CLAUDE.md` solo si cambia una **regla**, no el estado.
-Deja constancia del comando y de la salida con que cerraste cada hallazgo.
+Deja constancia del comando y de la salida con que cerraste cada hallazgo — **y de si el hallazgo
+salió del volcado o de la fuente en vivo**, porque en las ocho tablas de movimiento eso decide si el
+hallazgo existe.
+
+Y deja los cuatro en verde antes de cerrar:
+
+```bash
+python scripts/validar_modelo.py
+python scripts/verificar_documentos.py
+python scripts/verificar_enlaces.py
+python scripts/verificar_datos.py
+```
 
 El dictamen del 2026-08-06 que antes se actualizaba aquí, y sus hallazgos `B-01` a `B-14`, salieron
 del árbol de trabajo en la limpieza del 2026-08-10. Se recuperan con

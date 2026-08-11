@@ -28,17 +28,28 @@ Datos        Modelo_Datos_10082026   ·   Hoja de cálculo de Google
 
 ## En una frase
 
-**La hoja de datos está terminada. Las 28 tablas y las 39 referencias están puestas y auditadas. La
-Fase C está a medias, y lo que falta no es teclear: es que tres reglas del modelo no pueden
-funcionar como están declaradas y hay dos especificaciones abiertas para resolverlo.**
+**La hoja de datos está terminada. Las 28 tablas y las 39 referencias están puestas y auditadas.
+`ESPEC-005` es el primer dictamen del pipeline que pasó el gate y ya está aplicada al modelo —falta
+la mitad que vive en el editor—. `ESPEC-004` sigue bloqueada, y con ella tres reglas que no pueden
+funcionar como están declaradas.**
 
 ```
-FASE A   hoja generada, 28 tablas, 211 columnas         CERRADA
-FASE B   39 referencias, auditor en 0 correcciones      CERRADA
-FASE C   18 configurables · 9 cotejadas · 3 imposibles  EN CURSO
-CLAVES   8 tablas con clave a ciegas, 5 sin aviso       ABIERTO
-TIPOS    107 columnas que nadie pone si no se ponen     ABIERTO
-LABEL    17 tablas                                       ABIERTO
+FASE A   hoja generada, 28 tablas, 211 columnas          CERRADA
+FASE B   39 referencias, auditor en 0 correcciones       CERRADA
+FASE C   20 configurables · 9 cotejadas · 3 imposibles   EN CURSO
+CLAVES   8 con UNIQUEID(): 6 puestas, 2 por poner        EN CURSO
+TIPOS    107 columnas a mano · 22 de 28 tablas hechas    EN CURSO
+LABEL    18 por marcar + 2 columnas virtuales por crear  ABIERTO
+BOTS     5, sin empezar                                  ABIERTO
+```
+
+**Las cifras se rederivan, no se citan.** `20 configurables` son las **23 reglas** que declara el
+modelo menos las 3 que `ESPEC-004` deja inertes; `18` y `2` salen de `inferencia.py`:
+
+```bash
+python scripts/validar_modelo.py     # Tablas 28 | Columnas 211 | Referencias 39 | Reglas 23
+python scripts/inferencia.py         # a mano 107 · nombre 17 · contenido 87
+python -c "import sys;sys.path.insert(0,'scripts');from inferencia import etiquetas_pendientes as e;p=e();print(len(p),'destinos ·',sum(1 for x in p if x[1]),'con Label')"
 ```
 
 ## 0. Los frentes abiertos, todos
@@ -48,20 +59,64 @@ abierto.
 
 | Frente | Estado | Espera a |
 |---|---|---|
-| **`ESPEC-005`** · claves `OTID` y `PlanID` | Especificada. **Va primero** | Verificador → arquitecto |
-| **`ESPEC-004`** · `CierreConExcepcion` manual | **BLOQUEADA** por el arquitecto: 12 condiciones, 1 aplicada | Rehacerla con las otras 11 |
-| Los **107 tipos** de columna | En curso en el editor | Nada. Es mecánico |
-| El **`Label`** de 17 tablas | En curso | Nada |
-| Las **8 claves** de las tablas vacías | 6 se pueden hacer ya; 2 esperan a `ESPEC-005` | Parcialmente `ESPEC-005` |
-| Los **5 bots** | 3 se pueden poner; `RG-10` y `RG-12` no | `ESPEC-005` |
+| **`ESPEC-005`** · claves `OTID` y `PlanID` | **APLICADA AL MODELO.** Primer dictamen que pasa el gate. `CLAVE_LEGIBLE` 22→20, `CLAVE_GENERADA` 6→8, reglas 21→23 con `RG-35` y `RG-36`. **Pendiente la mitad del editor** | Crear las 2 columnas virtuales `Etiqueta`, marcar `Show?` y `Label`. Encargo en [`docs/PROMPT_CABLEADO.md`](docs/PROMPT_CABLEADO.md) |
+| **`ESPEC-004`** · `CierreConExcepcion` manual | **BLOQUEADA.** Segunda pasada del arquitecto, **quince hallazgos**. No se aplica | Rehacerla con los quince |
 | `RG-02` · `RG-19` · `RG-03` | No se pueden poner | `ESPEC-004` |
-| Los **2 `Security Filter`** | Van **los últimos**: al ponerlos, la API deja de ver esa tabla | Todo lo anterior |
+| Las **8 claves** con `UNIQUEID()` | **6 puestas** en el editor. Faltan `OT_OrdenesTrabajo` y `PLA_PlanMantenimiento`, que `ESPEC-005` acaba de desbloquear | Nada. Ya se puede |
+| Los **107 tipos** de columna | En curso. **22 de las 28 tablas hechas** en la sesión del editor; faltan `UNF_UnidadesFuncionales` y `USR_Usuarios` sin terminar | Nada. Es mecánico |
+| El **`Label`**: 18 por marcar + 2 virtuales | Las 22 tablas de la sesión llevan tipos **y etiquetas**. Las 2 columnas virtuales `Etiqueta` **no están creadas** | Nada. Ya se puede |
+| Los **5 bots** | **Sin empezar.** `RG-10` y `RG-12` ya no están bloqueados: `OTID` y `PlanID` se generan solos | Nada. Ya se puede |
+| **Crear órdenes desde la aplicación** | **Desbloqueado por `ESPEC-005`.** Hasta que las 2 virtuales estén en el editor, las órdenes se siguen creando en el Sheets **saltándose todas las validaciones** | Las 2 columnas virtuales |
+| Los **2 `Security Filter`** | Van **los últimos**: al ponerlos, la API deja de ver esa tabla y los dos instrumentos mecánicos se quedan ciegos (`lectura_de_vuelta.FILTROS_AL_FINAL`) | Todo lo anterior |
+| **`MAN_Mantenimientos.OTID`** de `Text` a `Ref` | Pendiente de `ESPEC-003`. **La ventana barata se cierra con el primer fixture** — ver abajo | Decidir si se hace. Si se hace, **antes** del primer fixture |
 | **Las coordenadas reales** | 368 derivadas del `PK`, **ninguna medida en campo** | Operación. **Es el bloqueo del piloto** |
 | **288 de 333 preguntas** en borrador | Marcadas `[BORRADOR: validar con operacion]` | Operación |
 | `D-04` y `SED_Sedes.UnidadFuncionalID` | Avisos que **pasan a fallo el 2026-08-31** | Operación |
 
 **Lo que no depende de nosotros son las tres últimas**, y son las que de verdad impiden arrancar.
 Lo demás es trabajo.
+
+### El primer fixture cierra una ventana, y no se vuelve a abrir
+
+Lo pide el arquitecto y no puede quedarse solo en su dictamen:
+
+> **A partir del primer fixture de prueba, `OT_OrdenesTrabajo`, `MAN_Mantenimientos` y
+> `PLA_PlanMantenimiento` dejan de estar en cero para siempre.**
+
+Hoy las tres están vacías, y una tabla vacía es el único momento en que un cambio de tipo o de clave
+**no arrastra ni una fila**. En cuanto entre la primera, cualquier conversión pasa a tener que
+migrar datos, y eso deja de ser gratis.
+
+**Lo que se lleva por delante es `MAN_Mantenimientos.OTID`.** El modelo ya lo declara `Ref` a
+`OT_OrdenesTrabajo`; **el editor lo sigue teniendo `Text`**, y mientras esté `Text` no hay
+referencia real y toda la cadena `[OTID].[ActivoID].[…]` del geofencing no existe. Es la conversión
+que `ESPEC-003` deja pendiente.
+
+**Si esa conversión se va a hacer, se hace antes del primer fixture.** No es una preferencia de
+orden: después hay que resolver a mano cada valor de `OTID` ya escrito, y ninguna de las dos
+comprobaciones mecánicas —`auditar_cableado.py` e `instantanea.py`— avisa de que la ventana se
+cerró.
+
+### El volcado local es CIEGO a las ocho tablas de movimiento
+
+**`generar_plantilla.py` las vacía a propósito** cada vez que corre: son registros de prueba, y la
+plantilla es lo que recibe el funcional. Está declarado en `scripts/lectura_de_vuelta.py` como
+`VOLCADO_CIEGO_A`, y son las ocho de `CLAVE_GENERADA`:
+
+```
+OT_OrdenesTrabajo · MAN_Mantenimientos · CHK_Checklists · CHD_ChecklistDetalle
+FOT_Fotografias   · FIR_Firmas         · NOV_Novedades  · PLA_PlanMantenimiento
+```
+
+**La consecuencia anula pruebas enteras.** `verificar_faseA.py` y `verificar_datos.py` leen
+`BD/Modelo_Datos_PLANTILLA.xlsx` por defecto. Una fila creada **en la aplicación** —un fixture, una
+orden real— **nunca llega a ese archivo**. Cualquier comprobación que espere verla ahí **no puede
+dispararse jamás**, y pasa en verde por no ejercitarse. Lo encontró el arquitecto sobre `PRUEBA-004`:
+dos de sus pruebas eran imposibles.
+
+**Para mirar datos de movimiento, `python scripts/instantanea.py`**, que lee por API; o se descarga
+el Sheets a un archivo aparte y se le pasa por argumento al verificador. El volcado sirve para
+estructura y catálogos, no para esto.
 
 ### ¿Esto es replicable?
 
@@ -85,26 +140,57 @@ que añaden filas.
 > aplicación nueva a partir de los tres documentos y comparar. Hasta entonces, «replicable» es una
 > intención razonada, no un hecho verificado.
 
-### El orden de las dos especificaciones, decidido
+### El orden de las dos especificaciones: se cumplió, y `ESPEC-005` ya pasó
 
-**`ESPEC-005` va primero.** Motivo: `PRUEBA-004` monta su fixture sobre claves `OTID` tecleadas a
-mano, y `ESPEC-005` las convierte en `UNIQUEID()`. Si fuera al revés, el fixture quedaría
-inconstruible y habría que reescribir la tanda de pruebas dos veces.
+**`ESPEC-005` iba primero, y fue.** Motivo: `PRUEBA-004` monta su fixture sobre claves `OTID`
+tecleadas a mano, y `ESPEC-005` las convierte en `UNIQUEID()`. Al revés, el fixture habría quedado
+inconstruible y habría habido que reescribir la tanda de pruebas dos veces.
 
-Además `ESPEC-005` desbloquea **crear órdenes desde la aplicación**, que hoy se hacen en el Sheets
-saltándose todas las validaciones.
+**Es el primer dictamen del pipeline que pasa el gate.** El arquitecto verificó la cita de Google
+que sostiene el diseño —*«Add a virtual column… enter a `CONCATENATE()` expression»*—, reprodujo el
+diseño en una copia, corrompió la expresión a propósito y comprobó que `V-11` la caza.
 
-### Dos decisiones abiertas, y hasta que se cierren la Fase C no acaba
+Lo que cambió en el modelo, y se cuenta con un comando:
 
-Ninguna de las dos es teclear. Las dos están en el pipeline, con su especificación escrita.
+```bash
+python -c "import sys;sys.path.insert(0,'scripts');import modelo_objetivo as M;print(len(M.CLAVE_LEGIBLE),len(M.CLAVE_GENERADA),len(M.REGLAS))"
+# 20 8 23
+```
+
+| | Antes | Ahora |
+|---|---|---|
+| `CLAVE_LEGIBLE` | 22 | **20** — salen `OT_OrdenesTrabajo` y `PLA_PlanMantenimiento` |
+| `CLAVE_GENERADA` | 6 | **8** — entran las dos, con `UNIQUEID()` |
+| `REGLAS` | 21 | **23** — entran `RG-35` y `RG-36` |
+
+**`RG-35` y `RG-36` no son columnas de la hoja: son columnas VIRTUALES llamadas `Etiqueta`**, que
+AppSheet calcula y no se guardan en el Sheets. Por eso no están en `MODELO` —`F-02` no las exige, no
+tocan la hoja— y viven solo en `REGLAS`, declaradas aparte en `inferencia.ETIQUETA_VIRTUAL`. Se
+probó meter `Etiqueta` en la tupla `ETIQUETAS` y **no funciona**: `etiqueta_de()` solo mira `MODELO`.
+
+```
+RG-35  OT_OrdenesTrabajo     CONCATENATE([ActivoID].[Nombre], " - ", [FechaProgramada])
+RG-36  PLA_PlanMantenimiento CONCATENATE([ActivoID].[Nombre], " - ", [FrecuenciaID].[Nombre])
+```
+
+**Y eso desbloquea crear órdenes desde la aplicación**, que hoy se siguen haciendo en el Sheets
+saltándose todas las validaciones. Lo que falta para cobrarlo es la mitad que vive en el editor:
+crear las dos columnas virtuales, marcarles `Show?` y marcarles `Label`. El encargo lo trae
+[`docs/PROMPT_CABLEADO.md`](docs/PROMPT_CABLEADO.md), paso 5.
+
+### La decisión que sigue abierta, y hasta que se cierre la Fase C no acaba
 
 | | Qué pasa | Qué bloquea |
 |---|---|---|
-| [`ESPEC-004`](docs/sdd/ESPEC-004-cierre-excepcion-manual.md) | `RG-02` usa `USERLOCATIONACCURACY()`, que **no existe en AppSheet**. Sin ella `Precision_GPS` nunca se puebla, `RG-19` compara blanco y `RG-03` no pide nunca el motivo | `RG-02` · `RG-19` · `RG-03` |
-| [`ESPEC-005`](docs/sdd/ESPEC-005-clave-otid-planid.md) | `OTID` y `PlanID` son claves legibles que **nadie genera**, y `RG-10` y `RG-12` son bots que crean filas ahí. Nacerían sin clave, y AppSheet las descarta sin decir nada | `RG-10` · `RG-12` · crear órdenes desde la app |
+| [`ESPEC-004`](docs/sdd/ESPEC-004-cierre-excepcion-manual.md) · **BLOQUEADA** | `RG-02` usa `USERLOCATIONACCURACY()`, que **no existe en AppSheet**. Sin ella `Precision_GPS` nunca se puebla, `RG-19` compara blanco y `RG-03` no pide nunca el motivo | `RG-02` · `RG-19` · `RG-03` |
 
-**No se aplican hasta que el arquitecto las tumbe o las deje pasar.** Es la regla que nos saltamos
-el 2026-08-10 por la mañana, y costó un dictamen de veinte observaciones.
+**Segunda pasada del arquitecto: quince hallazgos. No se aplica.** La primera versión recibió doce
+condiciones y se rehizo con las once que faltaban; la versión rehecha volvió con quince. Sigue en el
+pipeline, sin aplicar en `modelo_objetivo.py` ni en el editor.
+
+**Nada se aplica hasta que el arquitecto lo tumbe o lo deje pasar.** Es la regla que nos saltamos el
+2026-08-10 por la mañana, y costó un dictamen de veinte observaciones. `ESPEC-005` es la prueba de
+que el ciclo termina en algo: entró, la tumbaron, se rehizo contra el archivo y pasó.
 
 > **Lo que bloquea el piloto no ha cambiado en todo el día:** las 368 coordenadas se derivan del
 > `PK` sobre el trazado y **ninguna se midió en campo**. El geofencing puede quedar perfecto y estar
@@ -138,9 +224,12 @@ python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"
 
 ### El modelo
 
-`scripts/modelo_objetivo.py` es la fuente única: **28 tablas, 211 columnas, 39 referencias, 21
+`scripts/modelo_objetivo.py` es la fuente única: **28 tablas, 211 columnas, 39 referencias, 23
 reglas.** De ahí se generan el diccionario, el manual de despliegue, la guía funcional y la lista de
 reposición de expresiones. Nada de eso se escribe a mano.
+
+**Eran 21 reglas hasta que `ESPEC-005` añadió `RG-35` y `RG-36`.** La cifra la imprime
+`python scripts/validar_modelo.py` en su primera línea; no se cita de memoria.
 
 ### La aplicación
 
@@ -160,6 +249,40 @@ exactamente las columnas que el modelo declara más el `_RowNumber` que añade A
 > Eso ya se corrigió tabla por tabla, pero el mecanismo sigue vivo: **`TramoINVIAS` se tipa `Number`
 > mientras el único valor cargado sea `5607`**, y el día que operación escriba `55CN03` no cabrá.
 
+### Lo que dejó la sesión del editor
+
+Cuatro horas de navegador, y esto es lo que quedó puesto:
+
+```
+CLAVES     las 6 con UNIQUEID()          ya estaban
+TIPOS      22 de las 28 tablas           hechas
+ETIQUETAS  esas mismas 22 tablas         hechas
+           UNF_UnidadesFuncionales · USR_Usuarios   sin terminar
+BOTS       los 5                          sin empezar
+```
+
+**Un solo cambio en los datos en toda la sesión, y era el esperado:**
+`ACT_Activos[ACT-0034].FechaBaja` perdió la hora al pasar de `DateTime` a `Date`.
+`auditar_cableado.py` sigue en **0 correcciones**.
+
+> Que cuatro horas de tocar el esquema produzcan **un** cambio de dato es el resultado bueno, no el
+> aburrido: significa que los tipos se corrigieron sin reescribir el inventario por debajo. Y lo
+> sabemos porque `instantanea.py` compara celda a celda contra una foto previa — sin eso, esta
+> frase sería una impresión.
+
+#### `RespuestaLista` es un `Enum` sin catálogo, y se resolvió con `Allow other values`
+
+`CHD_ChecklistDetalle.RespuestaLista` está declarada `Enum` y **el modelo no le declara lista de
+valores a propósito**: su contenido depende de la pregunta, y las opciones viven en
+`LST_ValoresLista`, una fila por valor y por pregunta. No hay un conjunto fijo que declarar.
+
+**AppSheet lo rechazaba**: un `Enum` sin valores no se deja guardar. Se resolvió activando
+**`Allow other values`**, que es exactamente lo que corresponde a un dominio abierto.
+
+**Queda escrito porque es una decisión de diseño, no un apaño.** Quien encuentre esa columna sin
+lista y sin esta nota va a suponer que falta poblarla, y va a inventarse los valores — que es
+precisamente lo que ya pasó una vez con un `Enum` de este repositorio.
+
 ---
 
 ## 2. Qué falta
@@ -178,7 +301,7 @@ sirve: se repone entero.** No es una lista de retoques, es el procedimiento comp
 | # | Qué | Dónde está escrito |
 |---|---|---|
 | 1 | **Las 39 referencias**, con `IsPartOf` en las cuatro que lo llevan | [`docs/PROMPT_CABLEADO.md`](docs/PROMPT_CABLEADO.md) — el encargo. Cuántas faltan **hoy**: `python scripts/auditar_cableado.py` |
-| 2 | **Las 21 reglas**: geofencing, umbral de GPS, `Editable_If`, los bots | [`docs/PROMPT_EXPRESIONES.md`](docs/PROMPT_EXPRESIONES.md) — el encargo de la Fase C, con la cadena de referencias que atraviesa cada una |
+| 2 | **Las 23 reglas**: geofencing, umbral de GPS, `Editable_If`, los bots, las 2 etiquetas virtuales | [`docs/PROMPT_EXPRESIONES.md`](docs/PROMPT_EXPRESIONES.md) — el encargo de la Fase C, con la cadena de referencias que atraviesa cada una. **Dónde está cada control en pantalla**: `python scripts/navegacion_editor.py` |
 | 3 | **Los dos filtros de seguridad**: activos por unidad funcional, órdenes por técnico | Ídem |
 | 4 | **Las cuatro marcas de tiempo** como `ChangeTimestamp` del servidor | Ídem |
 | 5 | **Retirar `Deletes`** en `OT_OrdenesTrabajo` y `MAN_Mantenimientos` | Ídem |
@@ -299,7 +422,9 @@ radio.
 | **Cablear la aplicación** | [`docs/PROMPT_CABLEADO.md`](docs/PROMPT_CABLEADO.md) — el encargo entero, generado del modelo: las 39 referencias con su destino, los tipos y el orden |
 | **Cambiar algo del modelo** | [`docs/REGLAS_DEL_MODELO_DE_DATOS.md`](docs/REGLAS_DEL_MODELO_DE_DATOS.md) — las diez reglas del motor, con el fallo del que salió cada una y quién la hace cumplir |
 | **Construir la aplicación** | [`docs/MANUAL_DESPLIEGUE.md`](docs/MANUAL_DESPLIEGUE.md) — diez pasos y una ficha por tabla, columna por columna |
-| **La expresión exacta de una regla** | [`docs/sdd/RECONSTRUCCION_EXPRESIONES.md`](docs/sdd/RECONSTRUCCION_EXPRESIONES.md) — las 21 sin cortar |
+| **La expresión exacta de una regla** | [`docs/sdd/RECONSTRUCCION_EXPRESIONES.md`](docs/sdd/RECONSTRUCCION_EXPRESIONES.md) — las 23 sin cortar |
+| **Dónde está ese control en el editor** | `python scripts/navegacion_editor.py` — el nombre de la regla **no es** el nombre del control |
+| **Quién comprueba lo que acabo de hacer** | `python scripts/lectura_de_vuelta.py` — y si contesta «a ojo», es que no hay comando |
 | **Probar que funciona** | [`docs/sdd/PRUEBA-003-despliegue.md`](docs/sdd/PRUEBA-003-despliegue.md) |
 | **Qué hace el sistema y para quién** | [`docs/FUNCIONAL_SGMC.md`](docs/FUNCIONAL_SGMC.md) |
 | **La estructura de datos real** | [`docs/bd.md`](docs/bd.md), generado del archivo |
@@ -309,7 +434,7 @@ radio.
 
 ---
 
-## 5. Los cinco verificadores
+## 5. Los seis verificadores
 
 Ninguno sustituye a otro, y **lo único que ha funcionado en este proyecto es lo mecánico**.
 
@@ -319,16 +444,41 @@ python scripts/verificar_faseA.py        # el modelo contra la hoja descargada
 python scripts/verificar_documentos.py   # la prosa contra el modelo
 python scripts/verificar_enlaces.py      # que todo enlace entre documentos resuelve
 python scripts/verificar_reproducible.py # que generar dos veces dé lo mismo
+python scripts/verificar_datos.py        # el único que abre el archivo de datos
 ```
 
-**El quinto se añadió el 2026-08-10 y nació de lo que los otros cuatro no pueden ver.** Al
-resembrar las claves, el generador dejó de ser idempotente: la garantía de catálogo buscaba las
-filas por clave, la resiembra cambiaba esa clave, y en la pasada siguiente las volvía a añadir.
-`SED_Sedes` acabó con las seis edificaciones **duplicadas**, y cada ejecución habría añadido seis
-más.
+**`verificar_reproducible.py` nació de lo que los otros no pueden ver.** Al resembrar las claves, el
+generador dejó de ser idempotente: la garantía de catálogo buscaba las filas por clave, la resiembra
+cambiaba esa clave, y en la pasada siguiente las volvía a añadir. `SED_Sedes` acabó con las seis
+edificaciones **duplicadas**, y cada ejecución habría añadido seis más.
 
-Pasó los cinco verificadores: el modelo era coherente, la Fase A cerraba, la prosa cuadraba y los
-enlaces resolvían. **Todos miran un archivo, y este defecto solo existe entre dos ejecuciones.**
+Pasó todos los demás: el modelo era coherente, la Fase A cerraba, la prosa cuadraba y los enlaces
+resolvían. **Todos miran un archivo, y ese defecto solo existe entre dos ejecuciones.**
+
+### Lo que se añadió después, y qué agujero tapa cada uno
+
+Ninguna de estas comprobaciones estaba escrita en ningún documento hasta ahora.
+
+| | Qué mira | El agujero que tapa |
+|---|---|---|
+| **`V-18`** en `validar_modelo.py` | Una regla declarada **dos veces con expresiones distintas** —una en la columna, otra en `REGLAS`— | `RG-19` lo estaba **y nadie lo veía**. La columna decía `[Precision_GPS] > LOOKUP(…)` y `REGLAS` decía `OR(ISBLANK(LOOKUP(…)), …)`. `RECONSTRUCCION_EXPRESIONES` —lo que el ejecutor teclea— toma la de `REGLAS`. Sin la guarda la regla es falsa siempre; con ella, falsa **solo mientras exista el parámetro**, y hay dos cuentas con permiso de edición sobre el Sheets |
+| **`V-11` ahora recorre también las columnas** | Toda expresión del modelo, venga de `REGLAS` **o del `formula` / `valid_if` / `valor_inicial` de una columna** | Antes solo miraba `REGLAS`, así que una expresión escrita en una columna **no se validaba en absoluto**. El arquitecto metió en una columna la peor expresión posible —desreferenciar un `Yes/No` y nombrar una columna que no existe— y el validador respondió `APTO PARA DESPLEGAR`. La misma dentro de `REGLAS` daba dos errores |
+| **`G-04`** en `verificar_datos.py` | Tablas que llegaron **vacías y tipadas a ciegas**: AppSheet eligió el tipo de sus columnas sin un solo dato | Son las 8 de movimiento. Y el aviso dice en voz alta que **este archivo las vacía por diseño**, así que salen vacías aunque la aplicación tenga filas |
+| **`G-05`** en `verificar_datos.py` | Reglas que **leen una columna vacía**, cruzando el alcance real contra los datos | Es como se caza `RG-06`: bien escrita, sin error, y `GeneraAlerta` vacía en los cuatro estados. Hoy señala `ACT_Activos.SedeID`, de la que depende `RG-34` |
+
+Y tres instrumentos que no son verificadores pero declaran lo que nadie declaraba:
+
+| | Qué declara |
+|---|---|
+| **`scripts/lectura_de_vuelta.py`** | Por clase de cambio, **quién lo comprueba**: `referencias`, `datos` y `estructura` tienen comando; **`tipos`, `expresiones`, `permisos` y `etiqueta` no tiene nadie**. Tres con comando, **cuatro a ojo** — y las cuatro son justo las que sobrevivieron a tres informes de «hecho». Un paso sin comprobación declarada se lee como comprobado |
+| **`scripts/navegacion_editor.py`** | El **mapa de clics** del editor. Los nombres de las reglas **no son los de los controles**: `Required_If` se llama **`Require?`** y **no es una casilla que se marque** —hay que pulsar el icono `=` de al lado—. El 2026-08-10 acabó escrita en `Valid If` |
+| **`scripts/alcance_reglas.py`** | Qué columnas toca **de verdad** cada regla, **con su tabla**. Son **39 de las 211**. Atribuyendo por nombre suelto salían **94**: como `[Activo]` aparece en `RG-04` y en `RG-16`, las **23 columnas llamadas `Activo`** de 23 tablas distintas salían con esas dos reglas encima. Y eso no es cosmética: esa atribución **ordena el trabajo del ejecutor**, así que inflarla convierte la prioridad en ruido |
+
+```bash
+python scripts/lectura_de_vuelta.py   # quién lee de vuelta cada cosa, y quién no
+python scripts/navegacion_editor.py   # dónde está cada control en pantalla
+python scripts/alcance_reglas.py      # 39 de 211, con su tabla
+```
 
 ---
 

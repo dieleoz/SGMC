@@ -322,7 +322,7 @@ tres es lo que hizo que este documento dijera durante un día que las referencia
 
 | | En el modelo | En la hoja | En la aplicación |
 |---|---|---|---|
-| Modelo de datos, 28 tablas | **Sí.** 211 columnas, 39 referencias, 21 reglas | **Sí.** 28 pestañas más `_LEEME`, ninguna columna de sobra ni de menos: el recuento contra el modelo da cero por los dos lados. `FASE A CERRADA` con 82 conformes y 4 avisos esperados | **Las 28 tablas dadas de alta, y nada más** |
+| Modelo de datos, 28 tablas | **Sí.** 211 columnas, 39 referencias, 23 reglas | **Sí.** 28 pestañas más `_LEEME`, ninguna columna de sobra ni de menos: el recuento contra el modelo da cero por los dos lados. `FASE A CERRADA` con 82 conformes y 4 avisos esperados | **Las 28 tablas dadas de alta, y nada más** |
 | Referencias entre tablas | **Sí.** Las 39, con `IsPartOf` en cuatro: `FOT`, `FIR` y `CHK` contra el mantenimiento, y `CHD` contra su checklist | No aplica: la hoja no tiene integridad referencial | **No. Sin poner** |
 | Claves alfanuméricas | **Sí.** Ninguna tabla con clave numérica pura | **Sí.** `ACT-0001`, `TIP-001`, `UNF-01`, `SED-001`, `USR-001`, `ROL-01`… | **Entraron como texto**, comprobado por API el 2026-08-10 |
 | Geofencing y filtros de seguridad | **Sí.** `RG-01`, `RG-04` y `RG-05` con su expresión completa | El radio por tipo está poblado en los 27 | **No. Sin poner** |
@@ -338,7 +338,7 @@ tres es lo que hizo que este documento dijera durante un día que las referencia
 | Jerarquía de ubicación | **A medias.** El nivel de edificación existe —`SED_Sedes` con su UF y su coordenada, `ACT_Activos.SedeID`, `RG-34`—. El de estructura no: `ETR_Estructuras` sigue en `PROPUESTAS` | Las 6 sedes están, sin situar salvo una. **`ACT_Activos.SedeID` está vacía en las 368** | — |
 | Los tramos donde el GPS no fija: los túneles | **No.** `TUN_Tuneles` en `PROPUESTAS`, sin especificar | — | — |
 | Correctivo con criticidad y SLA | **No.** `CRI_Criticidad`, `EVT_EventosOrden` y `PAU_Pausas` en `PROPUESTAS` | — | — |
-| Imponer `QuienCambia` y el rechazo | **No.** Ninguna de las 21 reglas lee `QuienCambia` | Falta la fila `Devuelta` en `EOT_EstadosOrden` | — |
+| Imponer `QuienCambia` y el rechazo | **No.** Ninguna de las 23 reglas lee `QuienCambia` | Falta la fila `Devuelta` en `EOT_EstadosOrden` | — |
 | Vistas, acciones y slices | **No están en el modelo.** Mientras no se declaren, la interfaz no se puede generar ni auditar | — | — |
 | Certificaciones múltiples, vigencias | `CER_Certificaciones` y `USR_Certificaciones` en `PROPUESTAS` — Fase 2 | — | — |
 | Almacén, SAT, flotas | Fuera de alcance | — | — |

@@ -230,8 +230,10 @@ mal.** `[EstadoActivoID] <> "Retirado"` es siempre cierto, porque la clave de `E
 `[EstadoOrdenID] = "Cerrada"` es correcto**, porque `EOT_EstadosOrden` tiene la palabra como clave,
 por diseño (R-8).
 
-`CLAVE_LEGIBLE` de `scripts/modelo_objetivo.py` reúne hoy **22 tablas** y `CLAVE_GENERADA` las
-otras **6**; entre las dos cubren las 28, sin solaparse. Se cuentan, no se citan:
+`CLAVE_LEGIBLE` de `scripts/modelo_objetivo.py` reúne hoy **20 tablas** y `CLAVE_GENERADA` las
+otras **8**; entre las dos cubren las 28, sin solaparse. **Eran 22 y 6 hasta que `ESPEC-005` sacó
+`OT_OrdenesTrabajo` y `PLA_PlanMantenimiento` de la primera y las metió en la segunda**: su clave
+era legible y **nadie la generaba**. Se cuentan, no se citan:
 
 ```bash
 python -c "import sys;sys.path.insert(0,'scripts');import modelo_objetivo as M;print(len(M.CLAVE_LEGIBLE),len(M.CLAVE_GENERADA))"
@@ -245,7 +247,7 @@ comparación que nació para cazar**: `[EstadoActivoID] <> "Retirado"` pasa el v
 error. Comprobado el 2026-08-10 reintroduciendo el defecto sobre `REGLAS` en memoria.
 
 **Se separó ese mismo día, y ahora son dos listas.** `CLAVE_LEGIBLE` sigue diciendo *cómo se ve una
-clave*; **`CLAVE_ES_LA_PALABRA`** dice *contra cuáles es legítimo comparar un literal*, y de las 22
+clave*; **`CLAVE_ES_LA_PALABRA`** dice *contra cuáles es legítimo comparar un literal*, y de las 20
 solo son **cuatro** —`EOT_EstadosOrden`, `FRM_Formularios`, `PAR_Parametros`, `SEN_Sentidos`—,
 comprobado contra los datos. V-17 pregunta a la segunda y vuelve a cazar
 `[EstadoActivoID] <> "Retirado"`, probado reintroduciéndolo.
@@ -497,8 +499,20 @@ la lista porque no mide el repositorio contra sí mismo sino contra producción,
 repositorio** (`docs/CORRECCIONES_CABLEADO.md`) y hay referencias de las que **no puede decir nada**.
 Su método está asentado en `docs/BASE_CONOCIMIENTO_APPSHEET.md` §16, con sus límites.
 
+**Y tres módulos que no verifican nada: declaran lo que nadie declaraba.** Se consultan **antes** de
+tocar el editor, no después.
+
+| Script | Declara |
+|---|---|
+| `scripts/lectura_de_vuelta.py` | **Quién comprueba cada clase de cambio** —3 con comando, 4 a ojo—, `FILTROS_AL_FINAL` y `VOLCADO_CIEGO_A` (7.15) |
+| `scripts/navegacion_editor.py` | **Dónde está cada control en pantalla.** `Required_If` se llama `Require?` y no es una casilla |
+| `scripts/alcance_reglas.py` | **Qué columnas toca de verdad cada regla, con su tabla**: 39 de 211. Por nombre suelto salían 94 |
+
 **Lo que ninguno mide es si algo es buena idea.** Para eso está el arquitecto, y por eso su
-veredicto no se sustituye por «los scripts pasan».
+veredicto no se sustituye por «los scripts pasan». **`ESPEC-005` es la prueba de que ese gate
+termina en algo**: entró, la tumbaron con catorce hallazgos, se rehizo contra el archivo y pasó —el
+primer dictamen del pipeline que lo consigue—. `ESPEC-004` va por la segunda pasada y quince
+hallazgos, y sigue sin aplicarse.
 
 ## 7.5 Una sola forma por propósito (regla nueva, 2026-08-07)
 
@@ -746,8 +760,20 @@ error, y sin efecto.** Tres casos el mismo día, cada uno por un motivo distinto
 | `RG-02` | `USERLOCATIONACCURACY()` **no existe en AppSheet** |
 
 **`verificar_datos.py` caza el segundo caso** desde que existe `G-05`: cruza el alcance real de las
-21 reglas —por `(tabla, columna)`, con `scripts/alcance_reglas.py`— contra los datos, y dice cuáles
+23 reglas —por `(tabla, columna)`, con `scripts/alcance_reglas.py`— contra los datos, y dice cuáles
 leen una columna vacía.
+
+**Y el alcance hay que preguntárselo a `alcance_reglas.py`, no al nombre de la columna.** Los
+generadores atribuían las reglas **por nombre suelto**: como `[Activo]` aparece en `RG-04` y en
+`RG-16`, las 23 columnas llamadas `Activo` de 23 tablas distintas salían con esas dos reglas encima,
+y daban **94** columnas «con regla» donde de verdad hay **39 de 211**. Una expresión se lee **desde
+la tabla de su regla**, y los puntos saltan siguiendo las referencias; dentro de un
+`SELECT(Tabla[…], …)` el contexto cambia. Esa atribución es lo que **ordena el trabajo del
+ejecutor**, así que inflarla no es cosmética: convierte la prioridad en ruido.
+
+**`G-04` es el hermano de `G-05`**: caza las tablas que llegaron **vacías y tipadas a ciegas**,
+donde AppSheet eligió el tipo de cada columna sin un solo dato. Son las ocho de movimiento, y su
+aviso dice en voz alta que el archivo las vacía por diseño (7.15).
 
 Los otros dos **solo se ven mirando**. El tipo vive en el editor y la API v2 devuelve filas, no
 esquema; la función es un hecho de la plataforma. No se anuncian como cubiertos.
@@ -773,7 +799,83 @@ ha declarado un deseo y se ha guardado donde se guardan los hechos. Las tres fac
   elegía la primera columna de texto, que casi siempre es la clave.
 
 `scripts/lectura_de_vuelta.py` dice, por clase de cambio, quién lo comprueba: **tres tienen comando
-y cuatro no tiene nadie**. Un paso sin comprobación declarada se lee como comprobado.
+—`referencias`, `datos`, `estructura`— y cuatro no tiene nadie —`tipos`, `expresiones`, `permisos`,
+`etiqueta`—**. Un paso sin comprobación declarada se lee como comprobado.
+
+**Y `scripts/navegacion_editor.py` dice dónde está cada cosa en pantalla**, que es la otra mitad del
+mismo problema: los encargos decían **qué** poner y no **dónde**. Los nombres de las reglas **no son
+los de los controles**. `Required_If` se llama **`Require?`** y **no es una casilla que se marque**:
+hay que pulsar el icono `=` de al lado. El 2026-08-10 acabó escrita en `Valid If`, que la habría
+vuelto imposible de guardar.
+
+## 7.15 Un instrumento que miente por diseño (regla nueva, 2026-08-11)
+
+**`generar_plantilla.py` vacía a propósito las ocho tablas de movimiento cada vez que corre.** Son
+registros de prueba y la plantilla es lo que recibe el funcional, así que vaciarlas es correcto.
+Están declaradas en `scripts/lectura_de_vuelta.py` como `VOLCADO_CIEGO_A`:
+
+```
+OT_OrdenesTrabajo · MAN_Mantenimientos · CHK_Checklists · CHD_ChecklistDetalle
+FOT_Fotografias   · FIR_Firmas         · NOV_Novedades  · PLA_PlanMantenimiento
+```
+
+**La consecuencia no estaba escrita en ninguna parte, y anula pruebas enteras.** `verificar_faseA.py`
+y `verificar_datos.py` leen `BD/Modelo_Datos_PLANTILLA.xlsx` por defecto. Una fila creada **en la
+aplicación** —un fixture, una orden real— **nunca llega a ese archivo**. Cualquier comprobación que
+espere verla ahí **no puede dispararse jamás**, y pasa en verde **por no ejercitarse**. Lo encontró
+el arquitecto sobre `PRUEBA-004`: dos de sus pruebas eran imposibles de fallar y de pasar.
+
+**La regla: un instrumento cuyo silencio es indistinguible del acierto tiene que decirlo él mismo.**
+No basta con que alguien lo sepa: quien lo sabía escribió las pruebas igual. Por eso `G-04` no dice
+solo «llegó vacía», dice **«este archivo la vacía POR DISEÑO, así que aquí saldrá vacía aunque la
+aplicación tenga filas»** y nombra el instrumento que sí ve —`instantanea.py`, que lee por API—.
+
+**Para mirar datos de movimiento: `python scripts/instantanea.py`**, o se descarga el Sheets a un
+archivo aparte y se le pasa por argumento al verificador. El volcado sirve para estructura y
+catálogos, no para esto.
+
+**Es la misma forma que `FILTROS_AL_FINAL`**, en ese mismo módulo: poner los `Security Filter` deja
+ciegos a `instantanea.py` y a `auditar_cableado.py` sobre las tablas filtradas. No es que esté mal:
+es que **deja de poderse ver**, y eso se lee igual que «está bien» si nadie lo dice. Cuando un
+instrumento se apaga, hay que apuntarlo donde se apunta el estado, no donde se apunta el código.
+
+## 7.16 Una regla declarada dos veces, y con expresiones distintas (regla nueva, 2026-08-11)
+
+Una regla puede estar escrita en **dos sitios**: en la columna —`formula`, `valid_if`,
+`valor_inicial`— y en `REGLAS`. Cuando divergen, **cada consumidor lee una cosa distinta y nadie lo
+nota**. `V-18` de `validar_modelo.py` lo comprueba desde el 2026-08-10.
+
+Pasó con `RG-19` y era el único caso. La columna decía `[Precision_GPS] > LOOKUP("UMBRAL_GPS", …)` y
+`REGLAS` decía `OR(ISBLANK(LOOKUP(…)), [Precision_GPS] > LOOKUP(…))`. **No es un matiz**:
+`RECONSTRUCCION_EXPRESIONES` —lo que el ejecutor teclea— toma la de `REGLAS`, la del `OR`. Sin la
+guarda la regla es falsa siempre; **con** la guarda es falsa solo mientras exista la fila
+`UMBRAL_GPS`, y **hay dos cuentas con permiso de edición sobre el Sheets**. Borrar esa fila habría
+puesto `CierreConExcepcion` en `TRUE` en todos los cierres.
+
+`V-18` compara **solo la propiedad que corresponde al tipo de la regla**. Compararlas todas daba un
+falso positivo inmediato —`RG-01` es un `Valid_If` y la misma columna tiene `HERE()` de valor
+inicial, que es otra propiedad—, y **un falso positivo en un gate que bloquea el despliegue enseña a
+desactivarlo**.
+
+**Y el corolario, que es el mismo agujero visto desde el otro lado: `V-11` ahora recorre también las
+columnas.** Antes solo miraba `REGLAS`, mientras `V-17` sí recorría las dos — y **esa asimetría era
+el agujero**: una expresión escrita en el `formula` o el `valid_if` de una columna **no se validaba
+en absoluto**. Lo demostró el arquitecto metiendo en una columna la peor expresión posible
+—desreferenciar un `Yes/No` y nombrar una columna que no existe, los dos defectos que `V-11` nació
+para cazar—: el validador respondió `APTO PARA DESPLEGAR`. La misma expresión dentro de `REGLAS`
+daba dos errores.
+
+Con eso, `V-11` pasa a recorrer las **54 expresiones que el modelo declara en una columna** —de las
+que **49 no tienen `REGLA` propia**, y por eso no salen en `RECONSTRUCCION_EXPRESIONES` ni en
+`PROMPT_EXPRESIONES`, que se generan recorriendo `REGLAS`—. Se cuentan:
+
+```bash
+python -c "import sys;sys.path.insert(0,'scripts');from modelo_objetivo import MODELO;print(sum(1 for t in MODELO for c in MODELO[t]['columnas'] for k in ('valid_if','formula','valor_inicial') if c.get(k)))"
+```
+
+**`V-11` ampliada no caza nada hoy**, y eso es lo correcto: los tres `formula` / `valid_if` que hay
+en una columna tienen todos su regla, así que ya se validaban. **Entró antes de que hubiera qué
+cazar.** Una comprobación que se añade después del primer defecto llega tarde por definición.
 
 ## 8. Deriva documental: ahora es mecanica
 
@@ -818,6 +920,10 @@ docs/              Documentación técnica y funcional (.md)
 Manuales/          MANUAL_DE_USUARIO.md
 scripts/           Fuente del modelo, validadores y generadores
                    sistema.py declara la aplicacion y la hoja vigentes
+                   lectura_de_vuelta.py declara quien comprueba cada cosa,
+                   y VOLCADO_CIEGO_A: las 8 tablas que el volcado vacia
+                   navegacion_editor.py, donde esta cada control en pantalla
+                   alcance_reglas.py, que columnas toca de verdad cada regla
 contexto/          Material de contexto operativo. No es la vara
 archivo/           Material de origen. No versionado (en .gitignore)
 ```

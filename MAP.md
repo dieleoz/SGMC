@@ -132,13 +132,13 @@ D:\@Proyect\Sisga\
 
 | Documento | Contenido | Vigencia |
 |---|---|---|
-| [docs/ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) | Modelo objetivo: 28 tablas, 211 columnas, 39 referencias, 21 reglas | Vigente. **Se regenera, no se edita** |
+| [docs/ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) | Modelo objetivo: 28 tablas, 211 columnas, 39 referencias, 23 reglas | Vigente. **Se regenera, no se edita** |
 | [docs/PROMPT_CABLEADO.md](docs/PROMPT_CABLEADO.md) | El encargo de cableado, autocontenido: las 39 referencias, los tipos y el orden | Vigente. **Se regenera, no se edita** |
 | [docs/REGLAS_DEL_MODELO_DE_DATOS.md](docs/REGLAS_DEL_MODELO_DE_DATOS.md) | Las diez reglas que manda el motor de datos, con el fallo del que salió cada una | Vigente. **Se regenera, no se edita** |
 | [docs/bd.md](docs/bd.md) | Diccionario As-Built: lo que la hoja tiene hoy, columna a columna | Vigente. **Se regenera, no se edita** |
 | [docs/MANUAL_DESPLIEGUE.md](docs/MANUAL_DESPLIEGUE.md) | De cero a app desplegada, con la ficha de las 28 tablas columna por columna | Vigente. Generado |
 | [docs/CORRECCIONES_CABLEADO.md](docs/CORRECCIONES_CABLEADO.md) | Qué referencias quedan mal en el editor y en qué orden se arreglan, más **las que el método no puede ver** | Vigente. **Se regenera, no se edita.** Vale para la lectura con que se generó, no para siempre |
-| [docs/sdd/RECONSTRUCCION_EXPRESIONES.md](docs/sdd/RECONSTRUCCION_EXPRESIONES.md) | Los nombres renombrados y las 21 reglas a reponer, sin cortar | Vigente |
+| [docs/sdd/RECONSTRUCCION_EXPRESIONES.md](docs/sdd/RECONSTRUCCION_EXPRESIONES.md) | Los nombres renombrados y las 23 reglas a reponer, sin cortar | Vigente |
 | [docs/sdd/PRUEBA-003-despliegue.md](docs/sdd/PRUEBA-003-despliegue.md) | Las pruebas de aceptación del despliegue reconstruido | Vigente |
 | [docs/sdd/ESPEC-004-cierre-excepcion-manual.md](docs/sdd/ESPEC-004-cierre-excepcion-manual.md) | `RG-02`/`RG-19` dependen de `USERLOCATIONACCURACY()`, que no existe en AppSheet: `CierreConExcepcion` nunca se dispara. Corrige a que el técnico la marque | **Rehecha el 2026-08-10 tras bloqueo del arquitecto** (12 condiciones, 1 ya aplicada en el modelo; las otras 11 atendidas en esta versión). Pendiente de nuevo dictamen. Asume `ESPEC-005` aplicada primero. Nada de esto está aplicado aún en `scripts/modelo_objetivo.py` ni en el editor |
 | [docs/sdd/ESPEC-005-clave-otid-planid.md](docs/sdd/ESPEC-005-clave-otid-planid.md) | `OTID` y `PlanID` son claves legibles sin generador declarado; `RG-10` y `RG-12` crean filas en `OT_OrdenesTrabajo` sin asignarlo. Propone `UNIQUEID()` para ambas y una columna `Etiqueta` **virtual** (`RG-35`/`RG-36`, no `App formula` sobre columna real) para que la orden se identifique ante el técnico | **Rehecha el 2026-08-10 tras bloqueo del arquitecto** (catorce hallazgos: tres de código ya aplicados fuera de esta especificación, once atendidos en esta versión, incluida la condición que vuelve `Etiqueta` virtual). Pendiente de nuevo dictamen. Nada de esto está aplicado aún en `scripts/modelo_objetivo.py`, `scripts/inferencia.py` ni en el editor |

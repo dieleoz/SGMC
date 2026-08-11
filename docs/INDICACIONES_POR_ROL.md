@@ -23,7 +23,7 @@ Si usted acaba de llegar, busque su rol y empiece por ahí.
 
 ## Lo primero, y sin adornos
 
-**La aplicación tiene las 28 tablas dadas de alta y nada más.** Las 39 referencias, las 21 reglas,
+**La aplicación tiene las 28 tablas dadas de alta y nada más.** Las 39 referencias, las 23 reglas,
 los dos filtros de seguridad y las cuatro marcas de tiempo del servidor **están sin poner**. No es
 una lista de retoques: el cableado se repone entero, y es el trabajo del Funcional.
 
@@ -183,7 +183,7 @@ de alta y nada más: el cableado se repone entero.**
 
 > **El encargo completo es [`docs/PROMPT_CABLEADO.md`](PROMPT_CABLEADO.md), y es autocontenido.**
 > Se genera del modelo, así que trae los cinco pasos en orden con las 39 referencias, los 12
-> desplegables con sus valores, las 6 coordenadas, las 4 marcas de tiempo y las 21 reglas, sin nada
+> desplegables con sus valores, las 6 coordenadas, las 4 marcas de tiempo y las 23 reglas, sin nada
 > que deducir. **Es lo que hay que seguir dentro del editor.** Lo que viene abajo es el resumen para
 > saber qué se está haciendo y cuánto falta, no una segunda versión del procedimiento: si los dos
 > difieren, manda el generado.
@@ -219,7 +219,7 @@ va con el punto 1:** las cuatro referencias con `IsPartOf` crean borrado en casc
 seguro porque el mantenimiento nunca se borra.
 *Verificable: la casilla desmarcada en las dos tablas.*
 
-**3. Las 21 reglas.** Las cuatro que no pueden faltar:
+**3. Las 23 reglas.** Las cuatro que no pueden faltar:
 
 - **El geofencing de cierre**, en `MAN_Mantenimientos.Coordenadas_Cierre_LatLong`, comparando contra
   `[OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]`. **El radio va por tipo y está poblado en
