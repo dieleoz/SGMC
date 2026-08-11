@@ -8,8 +8,19 @@ ejercitaría. Todas las pruebas de esta tanda son estructurales.
 **Nada de lo que sigue se aplicó al repositorio real, al Sheets ni al editor.** Los comandos
 marcados «predicho sobre copia» se corrieron contra una copia de `scripts/` y de
 `BD/Modelo_Datos_PLANTILLA.xlsx` fuera del repositorio, con la edición de `ESPEC-007` §4 aplicada
-solo ahí, y su salida se cita literalmente — mismo método que `PRUEBA-004` y `PRUEBA-005` usaron
-para predecir sin tocar el original. La copia se borró después de leerla.
+solo ahí — mismo método que `PRUEBA-004` y `PRUEBA-005` usaron para predecir sin tocar el
+original. La copia se borró después de leerla.
+
+> **Cuánto vale cada salida citada, dicho sin adornos.** La cabecera anterior decía que «su salida
+> se cita literalmente», y en `P-64` y `P-65` **no era cierto**: el motivo que emiten los
+> generadores es el texto largo de §4 completo, no el resumen citado, y los números de línea
+> dependen de dónde se inserte la entrada en `CAMPOS_RETIRADOS` —al principio dan 70 y 1221; al
+> final, 146 y 1221; la prueba decía 95 y 1199—. Esas dos salidas son **paráfrasis**, y así quedan
+> marcadas en su propio apartado. Las demás sí son literales.
+>
+> Se corrige en vez de re-correrse porque el número de línea **no es lo que la prueba comprueba**:
+> comprobar una posición exacta la haría fallar por reordenar una lista, que es ruido. Lo que se
+> comprueba es que la entrada exista y que el documento deje de citar la función.
 
 | | |
 |---|---|
@@ -43,6 +54,8 @@ los tres avisos son exactamente los tres que ya existían antes de este cambio (
 
 ## P-64 — Los tres documentos que citaban la fórmula dejan de citarla, sin editarlos (innegociable)
 
+**Salida paráfrasis, no literal** (ver la nota de cabecera): se cita el sentido, no el texto exacto ni el número de línea.
+
 **Predicho sobre copia**, regenerando los tres con los comandos de siempre:
 
 ```
@@ -64,6 +77,8 @@ vivas con expresión pendiente.
 
 ## P-65 — `bd.md` marca la columna como retirada, sin ambigüedad con lo que hay en la hoja física
 
+**Salida paráfrasis, no literal** (ver la nota de cabecera): se cita el sentido, no el texto exacto ni el número de línea.
+
 **Predicho sobre copia**, con el `.xlsx` real copiado aparte (la hoja física todavía trae 8
 columnas: retirar del modelo no borra la columna de la hoja, `ESPEC-007` §2.7):
 
@@ -78,16 +93,19 @@ objetivo` en blanco sin explicación — que sería indistinguible de una column
 
 ## P-66 — `docs/TIPOS_ESPERADOS.md` deja de mencionar la columna
 
-**Predicho sobre copia:**
+**Se mide sobre el DOCUMENTO, no sobre la salida del generador.** La versión anterior de esta
+prueba hacía `grep` sobre el *stdout* de `generar_tipos_esperados.py`, que solo imprime `Generado:
+...` y un resumen: **nunca contiene un nombre de columna**, así que daba `0` tanto con el cambio como
+sin él. **No podía fallar**, y una prueba que no puede fallar no prueba nada — ocupa el sitio de la
+que sí comprobaría.
 
 ```
-$ python scripts/generar_tipos_esperados.py | grep -c PrecisionGPS
-0
+$ grep -c PrecisionGPS docs/TIPOS_ESPERADOS.md
 ```
 
-**Pasa si:** el conteo es 0. La columna deriva de `MODELO` en tiempo de ejecución (`ESPEC-007`
-§2.6); si sigue apareciendo, algo quedó hardcodeado y hay que investigarlo antes de cerrar esta
-tanda.
+**Pasa si:** devuelve **`2` antes** de aplicar y **`0` después**. Se demuestra corriendo las dos, no
+una. La columna deriva de `MODELO` en tiempo de ejecución (`ESPEC-007` §2.6); si sigue apareciendo
+después, algo quedó hardcodeado y hay que investigarlo antes de cerrar esta tanda.
 
 ## P-67 — Ningún script sigue citando la columna por nombre, fuera de `modelo_objetivo.py`
 
@@ -128,3 +146,32 @@ APTO PARA DESPLEGAR
 
 Corrido contra el repositorio real, hoy, sin ningún cambio de `ESPEC-007` aplicado. `Columnas: 210`
 es la cifra que `P-63` tiene que bajar a `209`.
+
+## P-68 — La hoja queda limpia, no en estado mixto (innegociable)
+
+Esta prueba existe porque **la tanda anterior no la tenía y el arquitecto encontró lo que dejaba
+pasar**: retirar la columna de `MODELO` sin regenerar la plantilla deja el archivo con la cabecera
+física todavía puesta, y `verificar_faseA.py` lo detecta como el estado que su propio comentario
+declara el malo.
+
+```
+$ python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"
+```
+
+**Pasa si:** termina en **`AVISOS (2)`** —los dos preexistentes, `F-01` y `F-04`— y trae la línea:
+
+```
+ok Hoja limpia: ninguna de las 50 columnas retiradas existe ya
+```
+
+**Cómo se distingue el fallo, y es concreto:** si se omite
+`python scripts/generar_plantilla.py "BD/Modelo_Datos_PLANTILLA.xlsx"` de la re-emisión de §4, sale
+**`AVISOS (4)`** con estas dos de más:
+
+```
+[F-03] FOT_Fotografias conserva 1 columnas marcadas como retiradas: PrecisionGPS
+[F-19] ESTADO MIXTO: ... quedan 1 en la hoja y 49 ya no estan
+```
+
+**Esta prueba falla de verdad**, y falla exactamente por la omisión que la motiva. Es la diferencia
+entre una prueba y una afirmación.

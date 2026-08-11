@@ -225,6 +225,17 @@ decisión de dominio registrada sobre esta columna). No se toca ningún script g
 `docs/REGLAS_DEL_MODELO_DE_DATOS.md`, `docs/sdd/RECONSTRUCCION_EXPRESIONES.md`. Ninguno necesita
 edición manual previa: se regeneran limpios en cuanto la columna deja de estar en `MODELO`.
 
+**Y antes que todos ellos, la plantilla:**
+
+```bash
+python scripts/generar_plantilla.py "BD/Modelo_Datos_PLANTILLA.xlsx"
+```
+
+Faltaba en esta lista, y omitirlo tiene consecuencia medible: retirar la columna de `MODELO` sin
+regenerar el archivo deja la **cabecera física** puesta, y `verificar_faseA.py` pasa de 2 avisos a
+**4**, con `[F-03]` y con `[F-19] ESTADO MIXTO` — el estado que el propio comentario de ese
+verificador declara el malo. `PRUEBA-007` `P-68` lo comprueba, y falla justo por esta omisión.
+
 ## 5. Qué NO cubre esta especificación
 
 - **No decide si algún reporte futuro (`D-12`) debería cruzar la calidad de posición de una
@@ -259,7 +270,10 @@ edición manual previa: se regeneran limpios en cuanto la columna deja de estar 
 
 - **Se adopta que ninguna regla necesita leer la precisión de una fotografía individual.** La
   calidad de posición que gobierna el cierre de un mantenimiento ya la exige `RG-01`
-  (`DISTANCE(...) <= RadioGeofencingKm`) sobre `MAN_Mantenimientos.Coordenadas_Cierre_LatLong`, y la
+  (`DISTANCE(...) <= RadioGeofencingKm`) sobre `MAN_Mantenimientos.Coordenadas_Cierre_LatLong`.
+  **`RG-01` no gobierna ninguna columna de `FOT_Fotografias`, y este supuesto no dice que lo haga**:
+  dice que la posición del mantenimiento al que la foto pertenece ya pasó un control, no que la foto
+  herede una regla. La versión anterior de esta frase se leía como lo primero. Y la
   excepción por GPS deficiente en el cierre ya tiene mecanismo declarado (`CierreConExcepcion` +
   `MotivoExcepcion`, `ESPEC-004`). Una fotografía es evidencia de lo que se ve, no una segunda
   medición de posición: si la del cierre pasó el geofencing, la foto que acompaña a ese mismo
@@ -270,8 +284,10 @@ edición manual previa: se regeneran limpios en cuanto la columna deja de estar 
   dato que reconciliar.
 - **Se adopta NO dejar la columna sin `Initial value`, como alternativa evaluada y rechazada.** Un
   campo `Number` visible en el formulario de captura de fotos, sin nada que lo llene, es la misma
-  trampa que ya costó cara con `ACT_Activos.CodigoQR` (33 de 368 valores autocompletados por la
-  plantilla, 335 en blanco, ninguno un código real — `README.md` prólogo): invita a que un técnico
+  trampa que ya costó cara con `ACT_Activos.CodigoQR` (**34** de 368 con valor, **334** en blanco;
+  33 de esos 34 son copia literal de `CodigoActivo`, y el que sobra es la fila 33: `CodigoActivo`
+  vale `SERV-001` y `CodigoQR` vale **`SVR-001`**. Un solo valor divergente, tecleado a mano, y
+  mal — que es la prueba del argumento dentro del propio archivo): invita a que un técnico
   transcriba a mano un número que cree recordar de la pantalla, y ese número nadie lo puede
   contrastar después. Se rechaza por el mismo criterio que `ESPEC-004` §2.13 rechazó pedir el número
   transcrito para `MAN_Mantenimientos`.
@@ -287,3 +303,64 @@ edición manual previa: se regeneran limpios en cuanto la columna deja de estar 
 - **No se estima aquí cuál rama de §2.7 es la más probable.** Se decide mirando el editor, con el
   mismo criterio que `ESPEC-004` §7 fijó para su propia ambigüedad de rama: la lectura del editor
   manda, no una probabilidad escrita de antemano.
+
+---
+
+## 8. Cierre — qué se acepta como riesgo, y qué no entra aquí
+
+**APROBADA CON RIESGOS ACEPTADOS el 2026-08-11**, en primera pasada de arquitecto. Las siete
+condiciones de su dictamen están aplicadas: `P-66` reescrita contra el documento, `P-68` añadida,
+`generar_plantilla.py` en la re-emisión, las cifras de `CodigoQR` corregidas, la frase de `RG-01`
+reformulada, las dos salidas de paráfrasis marcadas como tales, y este cierre.
+
+### Riesgos aceptados
+
+1. **2026-08-11 — Que ninguna regla necesite leer la precisión de una fotografía.** Es el supuesto
+   que sostiene todo el documento. **Qué lo rompe:** que operación decida que necesita distinguir,
+   foto por foto, cuáles se tomaron con señal deficiente —una auditoría legal de evidencia, por
+   ejemplo—. **Por qué se acepta:** la tabla sigue en cero filas, así que reabrirlo es volver a
+   declarar la columna, sin un solo dato que reconciliar. Se acepta un riesgo cuya reversión es
+   gratis.
+
+2. **2026-08-11 — No se sabe si `PrecisionGPS` llegó a tener `Initial value` puesto en el editor.**
+   Rama A (huérfana, gratis) o Rama B (`Delete and re-add`, destructivo). **Por qué no bloquea:** es
+   una lectura, no una escritura, y retirar la columna del modelo no es destructivo por sí mismo. La
+   evidencia disponible apunta a Rama A —`ACTA-004` midió que la columna gemela de
+   `MAN_Mantenimientos` **no** traía `Initial value`, y el editor rechaza la función—. Se pliega en
+   la sesión de editor ya encolada.
+
+   > **Y si sale Rama B, el orden importa y ningún documento lo decía.** Hay que **regenerar y subir
+   > la hoja limpia primero**, y hacer `Delete and re-add` **después**. Al revés, AppSheet vuelve a
+   > leer la cabecera física —que todavía trae `PrecisionGPS`— y **la re-crea inferida como
+   > `LatLong`**, porque su nombre lleva `GPS`: la misma inferencia que `docs/TIPOS_ESPERADOS.md`
+   > documenta sobre esta columna exacta. Se habría deshecho el cambio creyendo aplicarlo.
+
+3. **2026-08-11 — La analogía con `CodigoQR` es delgada.** `CodigoQR` es texto que la plantilla
+   precargó mal; `PrecisionGPS` sería un `Number` vacío. Lo que transfiere es el **mecanismo** —un
+   campo visible que nadie puede llenar de verdad invita a inventarlo, y `SVR-001` lo demuestra
+   dentro del propio archivo—, no el caso. **Se acepta** porque el argumento fuerte no depende de
+   ella: una columna sin `Initial value`, sin regla que la lea y sin consumidor es **peso muerto**, y
+   `CLAUDE.md` §3 pide endurecer, no dejar campos decorativos.
+
+### Lo que NO entra aquí, y va por delante
+
+**`FOT_Fotografias.Ubicacion_LatLong` no tiene ninguna `Editable_If` que la proteja.** `RG-20` es la
+única regla de ese tipo en el modelo y cubre solo tres columnas, todas de `MAN_Mantenimientos`.
+
+Esto sí nombra qué se rompe en producción:
+
+> Un técnico abre el formulario de fotografía, **arrastra el pin del mapa** de `Ubicacion_LatLong`
+> —que se dibuja arrastrable porque `HERE()` entra como `Initial value` y no como `App formula`, y un
+> `Initial value` **sí** es editable— y la fotografía de evidencia queda registrada donde él quiera,
+> sin que ninguna regla lo impida.
+
+Y la nota de la propia columna dice que esa coordenada **es** la evidencia, porque la compresión a
+600 px descarta el EXIF.
+
+**Retirar `PrecisionGPS` es cosmético; esto no.** Es `ESPEC-008`, y va antes que ejecutar esta.
+Además está en la ventana barata: hoy es un `editable=False` más extender `RG-20`; después del
+piloto es una migración.
+
+*(Aparte, sin tocarlo: `FOT_Fotografias.MantenimientoID` lleva `es_parte_de=True`, así que **borrar
+una orden borra sus fotografías**. Está heredado, no lo introduce esta especificación, pero en un
+sistema cuyo propósito es que la evidencia sea difícil de falsificar, eso se decide por escrito.)*
