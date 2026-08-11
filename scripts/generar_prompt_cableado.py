@@ -18,6 +18,7 @@ sys.path.insert(0, os.path.join(RAIZ, "scripts"))
 from modelo_objetivo import MODELO, REGLAS, CLAVE_GENERADA
 from sistema import APP_NOMBRE, APP_ID, APP_URL, HOJA_NOMBRE
 from inferencia import clasificar, etiquetas_pendientes
+from lectura_de_vuelta import bloque
 from alcance_reglas import por_columna
 
 clases = clasificar()
@@ -83,6 +84,8 @@ w("")
 
 w("## Paso 1 — Retirar el borrado. ANTES que las referencias")
 w("")
+w(bloque("permisos"))
+w("")
 w("En *Data > Tables*, para `OT_OrdenesTrabajo` y `MAN_Mantenimientos`, en **Are updates allowed**:")
 w("")
 w("```")
@@ -97,6 +100,8 @@ w("el momento en que se marca la primera; la protección tiene que estar puesta 
 w("")
 
 w("## Paso 2 — Las %d referencias" % len(refs))
+w("")
+w(bloque("referencias"))
 w("")
 w("Para cada una: *Data > Columns > la tabla > la columna > `TYPE` = `Ref`*, y en las propiedades de")
 w("la columna, **`Source table`** = la tabla destino.")
@@ -178,6 +183,8 @@ for t, c, motivo in sorted(clases["nombre"], key=lambda x: (x[0], x[1]["nombre"]
     w("- `%s.%s` → **`%s`**  ·  %s" % (t, c["nombre"], c["tipo"], motivo))
 w("")
 
+w(bloque("tipos"))
+w("")
 w("### Las %d que dependen del contenido" % len(clases["contenido"]))
 w("")
 w("AppSheet debería acertar leyendo los valores — **cuando los hay**. Las de una tabla vacía no")
@@ -190,6 +197,8 @@ w("> que operación escriba `55CN03` no cabrá. Tener el dato correcto no basta.
 w("")
 
 w("## Paso 4 — La etiqueta de cada tabla, que no la declaraba nadie")
+w("")
+w(bloque("etiqueta"))
 w("")
 w("`Label` es la columna que **representa una fila en las listas y en los desplegables**. No estaba")
 w("en el modelo ni en ningún documento: la elegía AppSheet, y elige la primera columna de texto, que")

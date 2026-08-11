@@ -32,6 +32,13 @@ automatizas: un valor equivocado aplicado en serie se aplica en serie.
 
 ## Paso 1 — Retirar el borrado. ANTES que las referencias
 
+**Cómo se lee de vuelta: NADIE, salvo tú.**
+
+**No hay comando.** Are updates allowed no viaja por la API, y la API ademas tiene MAS permisos que la aplicacion -se salta el Deletes retirado-, asi que probar por ahi diria que se puede borrar cuando la app no deja.
+
+Por eso este paso se cierra **copiando literalmente lo que ves**, incluso
+cuando coincida. «Coincide» no es evidencia; el texto sí.
+
 En *Data > Tables*, para `OT_OrdenesTrabajo` y `MAN_Mantenimientos`, en **Are updates allowed**:
 
 ```
@@ -44,6 +51,14 @@ checklist. Eso solo es seguro porque el mantenimiento nunca se borra. **La casca
 el momento en que se marca la primera; la protección tiene que estar puesta ya.**
 
 ## Paso 2 — Las 39 referencias
+
+**Cómo se lee de vuelta:**
+
+```bash
+python scripts/auditar_cableado.py
+```
+
+Lee las columnas virtuales inversas de la tabla destino. Con ' By ' prueba la columna; sin ' By ' solo prueba que hay una referencia a esa tabla. Y no ve nada si el destino esta vacio.
 
 Para cada una: *Data > Columns > la tabla > la columna > `TYPE` = `Ref`*, y en las propiedades de
 la columna, **`Source table`** = la tabla destino.
@@ -270,6 +285,13 @@ Deberían haber entrado bien porque su nombre lleva la palabra que AppSheet reco
 - `SED_Sedes.Ubicacion_LatLong` → **`LatLong`**  ·  su nombre lo dispara (documentado: 13, tabla de palabras reconocidas)
 - `USR_Usuarios.FechaIngreso` → **`Date`**  ·  su nombre lo dispara (observado: ACT_Activos.FechaBaja salio DateTime estando vacia en las 368)
 
+**Cómo se lee de vuelta: NADIE, salvo tú.**
+
+**No hay comando.** La API v2 devuelve filas, no esquema: no hay forma de preguntarle de que tipo es una columna. Se cotejan contra TIPOS_ESPERADOS.md, y lo que quede escrito es la unica evidencia.
+
+Por eso este paso se cierra **copiando literalmente lo que ves**, incluso
+cuando coincida. «Coincide» no es evidencia; el texto sí.
+
 ### Las 87 que dependen del contenido
 
 AppSheet debería acertar leyendo los valores — **cuando los hay**. Las de una tabla vacía no
@@ -281,6 +303,13 @@ por tabla, está en [`TIPOS_ESPERADOS.md`](TIPOS_ESPERADOS.md).
 > que operación escriba `55CN03` no cabrá. Tener el dato correcto no basta.
 
 ## Paso 4 — La etiqueta de cada tabla, que no la declaraba nadie
+
+**Cómo se lee de vuelta: NADIE, salvo tú.**
+
+**No hay comando.** El Label es lo que el tecnico ve en los desplegables. Se mira en Data > Columns, una por tabla.
+
+Por eso este paso se cierra **copiando literalmente lo que ves**, incluso
+cuando coincida. «Coincide» no es evidencia; el texto sí.
 
 `Label` es la columna que **representa una fila en las listas y en los desplegables**. No estaba
 en el modelo ni en ningún documento: la elegía AppSheet, y elige la primera columna de texto, que
@@ -294,25 +323,25 @@ En *Data > Columns*, marca la casilla **`Label`** de estas columnas:
 | Tabla | Referencias que la apuntan | `Label` |
 |---|---|---|
 | `USR_Usuarios` | 7 | **`Nombres`** |
-| `MAN_Mantenimientos` | 3 | *ninguna: la clave la identifica, y está decidido así* |
 | `ACT_Activos` | 3 | **`Nombre`** |
+| `MAN_Mantenimientos` | 3 | *ninguna: la clave la identifica, y está decidido así* |
 | `UNF_UnidadesFuncionales` | 3 | **`Nombre`** |
 | `FRM_Formularios` | 3 | **`Nombre`** |
-| `FRM_Preguntas` | 2 | **`Pregunta`** |
-| `EST_Activo` | 2 | **`Nombre`** |
-| `FRE_Frecuencias` | 2 | **`Nombre`** |
-| `OT_OrdenesTrabajo` | 2 | *ninguna: la clave la identifica, y está decidido así* |
 | `TIP_TiposActivo` | 2 | **`Nombre`** |
-| `MOT_MotivosPendiente` | 1 | **`Nombre`** |
-| `TPR_TiposRespuesta` | 1 | **`Nombre`** |
-| `CHK_Checklists` | 1 | *ninguna: la clave la identifica, y está decidido así* |
-| `SEN_Sentidos` | 1 | **`Nombre`** |
-| `EOT_EstadosOrden` | 1 | **`Nombre`** |
-| `FRM_Secciones` | 1 | **`Nombre`** |
+| `FRM_Preguntas` | 2 | **`Pregunta`** |
+| `FRE_Frecuencias` | 2 | **`Nombre`** |
+| `EST_Activo` | 2 | **`Nombre`** |
+| `OT_OrdenesTrabajo` | 2 | *ninguna: la clave la identifica, y está decidido así* |
 | `FAL_ModosFalla` | 1 | **`Nombre`** |
-| `CAL_Calzadas` | 1 | **`Nombre`** |
 | `ROL_Roles` | 1 | **`Nombre`** |
 | `SED_Sedes` | 1 | **`Nombre`** |
+| `EOT_EstadosOrden` | 1 | **`Nombre`** |
+| `TPR_TiposRespuesta` | 1 | **`Nombre`** |
+| `MOT_MotivosPendiente` | 1 | **`Nombre`** |
+| `CHK_Checklists` | 1 | *ninguna: la clave la identifica, y está decidido así* |
+| `CAL_Calzadas` | 1 | **`Nombre`** |
+| `SEN_Sentidos` | 1 | **`Nombre`** |
+| `FRM_Secciones` | 1 | **`Nombre`** |
 
 > Las tres sin etiqueta **no son un hueco**: una orden se identifica por su número y su fecha,
 > una ejecución por su orden y su hora. Está decidido, no olvidado.

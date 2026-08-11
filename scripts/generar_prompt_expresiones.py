@@ -36,6 +36,7 @@ sys.path.insert(0, os.path.join(RAIZ, "scripts"))
 
 from modelo_objetivo import MODELO, REGLAS
 from sistema import APP_NOMBRE, APP_URL
+from lectura_de_vuelta import bloque
 
 SALIDA = os.path.join(RAIZ, "docs", "PROMPT_EXPRESIONES.md")
 
@@ -233,6 +234,10 @@ for r, c in con_cadena:
         w("no en la expresión.")
         w("")
 
+w("## Cómo se comprueba, y por qué depende de ti")
+w("")
+w(bloque("expresiones"))
+w("")
 w("## Al terminar")
 w("")
 w("Antes de dar por buena ninguna:")

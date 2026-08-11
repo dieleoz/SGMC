@@ -84,7 +84,7 @@ columna la produjo hay que preguntarselo al modelo, que es justo lo que se estab
 vive en el destino, asi que de una referencia cuya tabla destino esta vacia el auditor no puede
 decir nada. No la da por buena: la separa.
 
-La ultima instantanea guardada -`BD/instantaneas/antes-de-las-que-escriben.json`- trae **953 filas** repartidas en las
+La ultima instantanea guardada -`BD/instantaneas/despues-de-los-tipos.json`- trae **953 filas** repartidas en las
 28 tablas, y **8 de ellas estan vacias**:
 
 ```
@@ -96,6 +96,36 @@ La ultima instantanea guardada -`BD/instantaneas/antes-de-las-que-escriben.json`
 **De esas 8 salen dos cosas a la vez:** sus referencias no son medibles, y sus columnas se
 tiparon a ciegas -sin contenido que leer, AppSheet cae en `Text`-. Las dos vuelven en el
 paso 4.
+
+## Antes de nada: quien comprueba cada cosa
+
+**Quien ejecuta no puede verificarse a sí mismo.** Cierra el diálogo, ve el botón en gris, y
+para él la cosa quedó. El 2026-08-10 se reportó tres veces que algo estaba hecho:
+
+```
+«39/39 referencias asignadas»   ->  5 mal, 4 sin poner
+«11 reglas puestas»             ->  6 bien, 1 mal, 2 sin poner
+«tipos y Label listos»          ->  escribio en 2 celdas, 1 mal
+```
+
+Las tres se descubrieron después, una a una, y de ahí sale el bucle de arreglar el arreglo: cada
+tanda encuentra a mano lo que la anterior dio por hecho.
+
+Lo que las cazó no fue mirar más: fue **leer de vuelta con otro instrumento**.
+
+| Qué se toca | Quién lo lee de vuelta |
+|---|---|
+| Referencias | `python scripts/auditar_cableado.py` |
+| Datos | `python scripts/instantanea.py comparar <antes> <despues>` |
+| Estructura | `python scripts/verificar_app.py` |
+| **Tipos de columna** | **nadie: la API devuelve filas, no esquema** |
+| **Expresiones y filtros** | **nadie** |
+| **`Are updates allowed`** | **nadie**, y la API tiene más permisos que la app |
+| **`Label`** | **nadie** |
+
+> **Las cuatro de abajo son las que sobrevivieron a los tres informes.** No porque nadie mirara:
+> porque no había con qué. Se cierran copiando **literalmente** lo que muestra el editor, incluso
+> cuando coincide. «Coincide» no es evidencia; el texto sí.
 
 ## Paso 0 — Antes de abrir AppSheet
 

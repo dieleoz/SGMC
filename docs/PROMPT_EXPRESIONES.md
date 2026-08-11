@@ -375,6 +375,15 @@ OR(ISBLANK(LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor")), [Pre
 
 Marca el cierre como excepcional cuando el error del satelite supera el umbral. Sin ella la columna existe y nadie la puebla: un cierre con 45 m de error seria indistinguible de uno con 8 m, y ahi se cae la cadena de evidencia. EL UMBRAL ES UN PARAMETRO, no un numero en la expresion: se calibra con las pruebas de campo y lo ajusta el administrador en una celda, sin abrir el editor. FALLA DE FORMA RUIDOSA: si el umbral no se puede leer, el OR con ISBLANK marca el cierre COMO EXCEPCIONAL. Sin eso, borrar la fila del parametro haria que todos los cierres saliesen limpios y nadie se enterase, que es la forma exacta del defecto de RG-16. Provisional 40 m, unas ocho veces la precision tipica de un movil a cielo abierto (4,9 m segun GPS.gov) y deja margen para montana y estructuras. D-04 decia 50; se baja a 40 tras comprobar que 45 m ya es nueve veces la norma.
 
+## Cómo se comprueba, y por qué depende de ti
+
+**Cómo se lee de vuelta: NADIE, salvo tú.**
+
+**No hay comando.** Valid_If, App formula, Initial value, Editable_If y los Security Filter no viajan por la API. Se copian del editor LITERALMENTE, sin resumir ni corregir: un espacio al final o una tilde de mas rompen la comparacion y no dan error.
+
+Por eso este paso se cierra **copiando literalmente lo que ves**, incluso
+cuando coincida. «Coincide» no es evidencia; el texto sí.
+
 ## Al terminar
 
 Antes de dar por buena ninguna:
