@@ -110,7 +110,14 @@ def cadenas(tabla, expresion):
 # Lo que ESCRIBE en la hoja va al final: hasta que no se puede comprobar que
 # escribio, no conviene soltarlo sobre 368 filas.
 ESCRIBEN = ("App formula", "Bot", "Bot programado", "Initial value")
-orden = sorted(REGLAS, key=lambda r: (r["tipo"] in ESCRIBEN, r["id"]))
+
+# Los Security Filter van al final del todo, DESPUES incluso de las que
+# escriben: en cuanto entran, la API deja de devolver las filas de esa tabla y
+# ni instantanea.py ni auditar_cableado.py pueden volver a comprobar nada ahi.
+# Poner un filtro es apagar la luz de la habitacion en la que estas trabajando.
+ULTIMAS = ("Security Filter",)
+orden = sorted(REGLAS, key=lambda r: (r["tipo"] in ULTIMAS,
+                                     r["tipo"] in ESCRIBEN, r["id"]))
 
 con_cadena = [(r, cadenas(r["tabla"], r.get("expresion") or "")) for r in orden]
 atraviesan = [(r, c) for r, c in con_cadena if c]
@@ -193,6 +200,11 @@ for i, (r, c) in enumerate(con_cadena, 1):
 w("")
 w("> Las de `App formula`, `Initial value` y las de tipo bot **escriben**. Ponerlas antes de haber")
 w("> comprobado las demás significa soltarlas sobre el inventario entero sin saber qué escriben.")
+w(">")
+w("> **Y los dos `Security Filter` van los últimos de todos.** En cuanto entran, la API deja de")
+w("> devolver las filas de esa tabla —llama sin usuario, así que `USEREMAIL()` queda en blanco— y")
+w("> ni `instantanea.py` ni `auditar_cableado.py` pueden volver a comprobar nada ahí. Ponerlos")
+w("> antes es apagar la luz de la habitación en la que estás trabajando.")
 w("")
 
 w("## Las expresiones, enteras")

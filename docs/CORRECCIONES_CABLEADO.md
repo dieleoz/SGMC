@@ -7,7 +7,7 @@ mano: vuelve a correr el script y se rehace con lo que quede pendiente.
 
 En la aplicacion **`_SISGA_-323965761`**, 0 columnas de `ACT_Activos` estan mal. El resto del
 cableado no contradice al modelo, pero conviene leer la cifra con cuidado: de las 39
-referencias, **4 estan verificadas** —la aplicacion nombra la columna— y **29 solo son
+referencias, **4 estan verificadas** —la aplicacion nombra la columna— y **26 solo son
 compatibles**: la aplicacion nombra la tabla destino, y que la referencia este en la columna que
 el modelo declara **lo dice el modelo, no la aplicacion**. Sumarlas es la cifra inflada que ya
 costo cara una vez.
@@ -60,7 +60,7 @@ dio 28/28 con estas 0 rotas.
 
 ## Lo que este script NO puede ver
 
-6 referencias no son observables por este medio, porque su tabla destino esta **vacia** y
+9 referencias no son observables por este medio, porque su tabla destino esta **vacia** y
 la columna virtual inversa vive en el destino. **No estan bien ni mal: no se sabe.**
 
 | Referencia | Destino | Mirada en el editor |
@@ -70,11 +70,14 @@ la columna virtual inversa vive en el destino. **No estan bien ni mal: no se sab
 | `FIR_Firmas.MantenimientoID` | `MAN_Mantenimientos` | el 2026-08-10 por Diego, en el editor |
 | `FOT_Fotografias.MantenimientoID` | `MAN_Mantenimientos` | el 2026-08-10 por Diego, en el editor |
 | `MAN_Mantenimientos.OTID` | `OT_OrdenesTrabajo` | el 2026-08-10 por Diego, en el editor |
+| `NOV_Novedades.ActivoID` | `ACT_Activos` | **nadie la ha mirado** |
+| `OT_OrdenesTrabajo.ActivoID` | `ACT_Activos` | **nadie la ha mirado** |
 | `OT_OrdenesTrabajo.OTOrigenID` | `OT_OrdenesTrabajo` | el 2026-08-10 por Diego, en el editor |
+| `PLA_PlanMantenimiento.ActivoID` | `ACT_Activos` | **nadie la ha mirado** |
 
-Las 6 se miraron en el editor. **Eso no las vuelve verificadas:** una lectura visual
-no es una medicion, y por eso queda con fecha y con quien la hizo. Si alguien vuelve a
-cablear, esa confirmacion habla de un estado anterior.
+**3 sin mirar.** Abrelas en el editor una por una y confirma su `Source table`.
+Dar por buena una referencia que nadie ha mirado es como se llego a un informe de
+«39/39 asignadas» con cinco columnas rotas.
 
 Para **medirlas**, sembrar una fila en `MAN_Mantenimientos`, `CHK_Checklists` y
 `OT_OrdenesTrabajo` y volver a correr el auditor. De paso deja de haber tablas cuya clave

@@ -84,16 +84,16 @@ columna la produjo hay que preguntarselo al modelo, que es justo lo que se estab
 vive en el destino, asi que de una referencia cuya tabla destino esta vacia el auditor no puede
 decir nada. No la da por buena: la separa.
 
-La ultima instantanea guardada -`BD/instantaneas/despues-de-los-tipos.json`- trae **953 filas** repartidas en las
-28 tablas, y **8 de ellas estan vacias**:
+La ultima instantanea guardada -`BD/instantaneas/despues-de-los-tres.json`- trae **585 filas** repartidas en las
+28 tablas, y **9 de ellas estan vacias**:
 
 ```
-  CHD_ChecklistDetalle     CHK_Checklists           FIR_Firmas
-  FOT_Fotografias          MAN_Mantenimientos       NOV_Novedades
-  OT_OrdenesTrabajo        PLA_PlanMantenimiento
+  ACT_Activos              CHD_ChecklistDetalle     CHK_Checklists
+  FIR_Firmas               FOT_Fotografias          MAN_Mantenimientos
+  NOV_Novedades            OT_OrdenesTrabajo        PLA_PlanMantenimiento
 ```
 
-**De esas 8 salen dos cosas a la vez:** sus referencias no son medibles, y sus columnas se
+**De esas 9 salen dos cosas a la vez:** sus referencias no son medibles, y sus columnas se
 tiparon a ciegas -sin contenido que leer, AppSheet cae en `Text`-. Las dos vuelven en el
 paso 4.
 
@@ -122,6 +122,24 @@ Lo que las cazó no fue mirar más: fue **leer de vuelta con otro instrumento**.
 | **Expresiones y filtros** | **nadie** |
 | **`Are updates allowed`** | **nadie**, y la API tiene más permisos que la app |
 | **`Label`** | **nadie** |
+
+### Y un orden que no es preferencia: los filtros de seguridad, al final
+
+**Poner un `Security Filter` apaga los instrumentos sobre esa tabla.** La API llama sin usuario,
+así que `USEREMAIL()` queda en blanco y el filtro no deja pasar nada:
+
+```
+ACT_Activos    368 filas  ->  0 por la API, en cuanto entra RG-04
+auditor        6 referencias no juzgables  ->  9
+```
+
+**No se pierde ni un dato** —un filtro filtra lecturas, no borra— pero `instantanea.py` deja de
+poder comparar los activos y `auditar_cableado.py` cuenta `ACT_Activos` como tabla vacía, con lo
+que las tres referencias que la apuntan dejan de ser juzgables.
+
+Así que `RG-04` y `RG-05` van **después** de haber comprobado referencias, tipos y datos. Es la
+versión instrumental de la trampa de siempre: no es que esté mal, es que **deja de poderse ver**,
+y eso se lee igual que «está bien» si nadie lo dice.
 
 > **Las cuatro de abajo son las que sobrevivieron a los tres informes.** No porque nadie mirara:
 > porque no había con qué. Se cierran copiando **literalmente** lo que muestra el editor, incluso
@@ -484,7 +502,7 @@ AppSheet deberia acertar leyendo los valores. La lista completa, tabla por tabla
 editor. Aqui van las dos unicas cosas que hay que saber antes de mirarla:
 
 **Una columna vacia no tiene contenido que leer, y cae en `Text`.**
-Son 8 tablas enteras -las de la instantanea- mas cada columna vacia de las pobladas.
+Son 9 tablas enteras -las de la instantanea- mas cada columna vacia de las pobladas.
 
 > **Y el caso que desarma la confianza en el contenido.** Una columna de texto cuyos valores
 > parecen numeros se tipa `Number`. Paso el 2026-08-10 con `SED_Sedes.TramoINVIAS`: el unico
@@ -745,10 +763,8 @@ python scripts/instantanea.py comparar antes-de-las-que-escriben despues
 ```
 
 **Y no basta con mirar la fila que se espera que cambie.** Una `App formula` se evalua sobre
-**todas** las filas de su tabla: `RG-16` sola se evalua sobre los **368** activos, no sobre el
-unico que deberia cambiar. Si la expresion esta mal, escribe en todos y **no da error: da
-datos**. Por eso el criterio de cierre no es «la fila esperada quedo bien», es **«no cambio
-ninguna celda»** — y eso exige la fotografia previa.
+**todas** las filas de su tabla, no solo sobre la que se espera que cambie. Si la expresion
+esta mal, escribe en todas y **no da error: da datos**.
 
 ### Las cuatro que no pueden faltar
 

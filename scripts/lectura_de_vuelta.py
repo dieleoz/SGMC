@@ -104,3 +104,31 @@ if __name__ == "__main__":
     print("")
     print("Las de la segunda fila son las que sobrevivieron a tres informes de")
     print("'hecho' el 2026-08-10. No porque nadie mirara: porque no habia con que.")
+
+
+# ------------------------------------- lo que apaga los instrumentos: el orden
+#
+# **Los filtros de seguridad van AL FINAL, y no es preferencia.**
+#
+# El 2026-08-10, al poner RG-04 sobre ACT_Activos, la API paso de devolver 368
+# filas a devolver CERO. No se perdio nada -un Security Filter filtra lecturas,
+# no borra- pero la API llama SIN USUARIO, asi que USEREMAIL() esta en blanco y
+# el filtro no deja pasar nada.
+#
+# El efecto es que los dos unicos instrumentos mecanicos se quedan ciegos justo
+# en la tabla mas grande:
+#
+#   instantanea.py       deja de poder comparar los 368 activos
+#   auditar_cableado.py  ACT_Activos pasa a "tabla vacia", y con ella las tres
+#                        referencias que la apuntan dejan de ser juzgables: de 6
+#                        no observables se paso a 9
+#
+# Es la version instrumental de la trampa de siempre: no es que este mal, es que
+# **deja de poderse ver**, y eso se lee igual que "esta bien" si nadie lo dice.
+FILTROS_AL_FINAL = (
+    "Los Security Filter -RG-04 y RG-05- se ponen DESPUES de haber comprobado "
+    "referencias, tipos y datos. Una vez puestos, la API deja de devolver las "
+    "filas de esas tablas y ni instantanea.py ni auditar_cableado.py pueden "
+    "volver a mirarlas: no porque fallen, sino porque el filtro hace su trabajo "
+    "tambien con ellos.")
+

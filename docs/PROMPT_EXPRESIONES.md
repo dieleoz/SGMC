@@ -65,28 +65,33 @@ dice. Las que **escriben en la hoja** van al final a propósito.
 |---|---|---|---|---|---|
 | 1 | `RG-01` | `MAN_Mantenimientos` | `Coordenadas_Cierre_LatLong` | `Valid_If` | `OT_OrdenesTrabajo` → `ACT_Activos` · `OT_OrdenesTrabajo` → `ACT_Activos` → `TIP_TiposActivo` |
 | 2 | `RG-03` | `MAN_Mantenimientos` | `MotivoExcepcion` | `Required_If` | — |
-| 3 | `RG-04` | `ACT_Activos` | `(tabla)` | `Security Filter` | `USR_Usuarios` |
-| 4 | `RG-05` | `OT_OrdenesTrabajo` | `(tabla)` | `Security Filter` | `USR_Usuarios` · `USR_Usuarios` |
-| 5 | `RG-13` | `MAN_Mantenimientos` | `(tabla)` | `Verificacion de evidencia` | — |
-| 6 | `RG-14` | `OT_OrdenesTrabajo` | `(tabla)` | `Are updates allowed` | — |
-| 7 | `RG-15` | `MAN_Mantenimientos` | `(tabla)` | `Are updates allowed` | — |
-| 8 | `RG-17` | `ACT_Activos` | `FechaBaja` | `Required_If` | `EST_Activo` |
-| 9 | `RG-18` | `ACT_Activos` | `(tabla)` | `Doctrina de reportes` | — |
-| 10 | `RG-20` | `MAN_Mantenimientos` | `(varias)` | `Editable_If` | — |
-| 11 | `RG-34` | `ACT_Activos` | `UnidadFuncionalID` | `Valid_If` | `SED_Sedes` |
-| 12 | `RG-02` | `MAN_Mantenimientos` | `Precision_GPS` | `Initial value` | — |
-| 13 | `RG-06` | `MAN_Mantenimientos` | `(tabla)` | `Bot` | `EST_Activo` |
-| 14 | `RG-07` | `OT_OrdenesTrabajo` | `(tabla)` | `Bot` | — |
-| 15 | `RG-08` | `OT_OrdenesTrabajo` | `EstadoOrdenID` | `Bot programado` | `EOT_EstadosOrden` |
-| 16 | `RG-09` | `CHK_Checklists` | `VersionFormulario` | `Initial value` | `FRM_Formularios` |
-| 17 | `RG-10` | `MAN_Mantenimientos` | `(tabla)` | `Bot` | — |
-| 18 | `RG-11` | `PLA_PlanMantenimiento` | `ProximaFecha` | `App formula` | `FRE_Frecuencias` |
-| 19 | `RG-12` | `PLA_PlanMantenimiento` | `(tabla)` | `Bot programado` | — |
-| 20 | `RG-16` | `ACT_Activos` | `Activo` | `App formula` | `EST_Activo` |
-| 21 | `RG-19` | `MAN_Mantenimientos` | `CierreConExcepcion` | `App formula` | — |
+| 3 | `RG-13` | `MAN_Mantenimientos` | `(tabla)` | `Verificacion de evidencia` | — |
+| 4 | `RG-14` | `OT_OrdenesTrabajo` | `(tabla)` | `Are updates allowed` | — |
+| 5 | `RG-15` | `MAN_Mantenimientos` | `(tabla)` | `Are updates allowed` | — |
+| 6 | `RG-17` | `ACT_Activos` | `FechaBaja` | `Required_If` | `EST_Activo` |
+| 7 | `RG-18` | `ACT_Activos` | `(tabla)` | `Doctrina de reportes` | — |
+| 8 | `RG-20` | `MAN_Mantenimientos` | `(varias)` | `Editable_If` | — |
+| 9 | `RG-34` | `ACT_Activos` | `UnidadFuncionalID` | `Valid_If` | `SED_Sedes` |
+| 10 | `RG-02` | `MAN_Mantenimientos` | `Precision_GPS` | `Initial value` | — |
+| 11 | `RG-06` | `MAN_Mantenimientos` | `(tabla)` | `Bot` | `EST_Activo` |
+| 12 | `RG-07` | `OT_OrdenesTrabajo` | `(tabla)` | `Bot` | — |
+| 13 | `RG-08` | `OT_OrdenesTrabajo` | `EstadoOrdenID` | `Bot programado` | `EOT_EstadosOrden` |
+| 14 | `RG-09` | `CHK_Checklists` | `VersionFormulario` | `Initial value` | `FRM_Formularios` |
+| 15 | `RG-10` | `MAN_Mantenimientos` | `(tabla)` | `Bot` | — |
+| 16 | `RG-11` | `PLA_PlanMantenimiento` | `ProximaFecha` | `App formula` | `FRE_Frecuencias` |
+| 17 | `RG-12` | `PLA_PlanMantenimiento` | `(tabla)` | `Bot programado` | — |
+| 18 | `RG-16` | `ACT_Activos` | `Activo` | `App formula` | `EST_Activo` |
+| 19 | `RG-19` | `MAN_Mantenimientos` | `CierreConExcepcion` | `App formula` | — |
+| 20 | `RG-04` | `ACT_Activos` | `(tabla)` | `Security Filter` | `USR_Usuarios` |
+| 21 | `RG-05` | `OT_OrdenesTrabajo` | `(tabla)` | `Security Filter` | `USR_Usuarios` · `USR_Usuarios` |
 
 > Las de `App formula`, `Initial value` y las de tipo bot **escriben**. Ponerlas antes de haber
 > comprobado las demás significa soltarlas sobre el inventario entero sin saber qué escriben.
+>
+> **Y los dos `Security Filter` van los últimos de todos.** En cuanto entran, la API deja de
+> devolver las filas de esa tabla —llama sin usuario, así que `USEREMAIL()` queda en blanco— y
+> ni `instantanea.py` ni `auditar_cableado.py` pueden volver a comprobar nada ahí. Ponerlos
+> antes es apagar la luz de la habitación en la que estás trabajando.
 
 ## Las expresiones, enteras
 
@@ -120,41 +125,6 @@ no en la expresión.
 ```
 
 Si el tecnico cierra con excepcion por GPS deficiente, debe justificarlo por escrito.
-
-### RG-04 — `ACT_Activos.(tabla)`
-
-**Security Filter** · cubre `RF-004`
-
-```
-IN([UnidadFuncionalID], SELECT(ASG_AsignacionZona[UnidadFuncionalID], AND([UsuarioID].[Correo] = USEREMAIL(), [Activo] = TRUE)))
-```
-
-Cada tecnico descarga solo los activos de las unidades funcionales que tiene asignadas. Controla el volumen de sincronizacion, no solo la visibilidad.
-
-Atraviesa **1 referencia**:
-
-- `ASG_AsignacionZona.UsuarioID` → `USR_Usuarios`
-
-Si el error nombra una de esas tablas y no es la que toca, el fallo está en ese salto,
-no en la expresión.
-
-### RG-05 — `OT_OrdenesTrabajo.(tabla)`
-
-**Security Filter** · cubre `RF-004`
-
-```
-OR([TecnicoID].[Correo] = USEREMAIL(), [SupervisorID].[Correo] = USEREMAIL())
-```
-
-El tecnico ve sus ordenes; el supervisor, las que supervisa.
-
-Atraviesa **2 referencias distintas**:
-
-- `OT_OrdenesTrabajo.TecnicoID` → `USR_Usuarios`
-- `OT_OrdenesTrabajo.SupervisorID` → `USR_Usuarios`
-
-Si el error nombra una de esas tablas y no es la que toca, el fallo está en ese salto,
-no en la expresión.
 
 ### RG-13 — `MAN_Mantenimientos.(tabla)`
 
@@ -374,6 +344,41 @@ OR(ISBLANK(LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor")), [Pre
 ```
 
 Marca el cierre como excepcional cuando el error del satelite supera el umbral. Sin ella la columna existe y nadie la puebla: un cierre con 45 m de error seria indistinguible de uno con 8 m, y ahi se cae la cadena de evidencia. EL UMBRAL ES UN PARAMETRO, no un numero en la expresion: se calibra con las pruebas de campo y lo ajusta el administrador en una celda, sin abrir el editor. FALLA DE FORMA RUIDOSA: si el umbral no se puede leer, el OR con ISBLANK marca el cierre COMO EXCEPCIONAL. Sin eso, borrar la fila del parametro haria que todos los cierres saliesen limpios y nadie se enterase, que es la forma exacta del defecto de RG-16. Provisional 40 m, unas ocho veces la precision tipica de un movil a cielo abierto (4,9 m segun GPS.gov) y deja margen para montana y estructuras. D-04 decia 50; se baja a 40 tras comprobar que 45 m ya es nueve veces la norma.
+
+### RG-04 — `ACT_Activos.(tabla)`
+
+**Security Filter** · cubre `RF-004`
+
+```
+IN([UnidadFuncionalID], SELECT(ASG_AsignacionZona[UnidadFuncionalID], AND([UsuarioID].[Correo] = USEREMAIL(), [Activo] = TRUE)))
+```
+
+Cada tecnico descarga solo los activos de las unidades funcionales que tiene asignadas. Controla el volumen de sincronizacion, no solo la visibilidad.
+
+Atraviesa **1 referencia**:
+
+- `ASG_AsignacionZona.UsuarioID` → `USR_Usuarios`
+
+Si el error nombra una de esas tablas y no es la que toca, el fallo está en ese salto,
+no en la expresión.
+
+### RG-05 — `OT_OrdenesTrabajo.(tabla)`
+
+**Security Filter** · cubre `RF-004`
+
+```
+OR([TecnicoID].[Correo] = USEREMAIL(), [SupervisorID].[Correo] = USEREMAIL())
+```
+
+El tecnico ve sus ordenes; el supervisor, las que supervisa.
+
+Atraviesa **2 referencias distintas**:
+
+- `OT_OrdenesTrabajo.TecnicoID` → `USR_Usuarios`
+- `OT_OrdenesTrabajo.SupervisorID` → `USR_Usuarios`
+
+Si el error nombra una de esas tablas y no es la que toca, el fallo está en ese salto,
+no en la expresión.
 
 ## Cómo se comprueba, y por qué depende de ti
 
