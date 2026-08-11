@@ -48,6 +48,7 @@ except ImportError:
     print("Falta openpyxl."); sys.exit(2)
 
 from modelo_objetivo import MODELO
+from alcance_reglas import por_columna
 from sistema import VOLCADO
 
 ARCHIVO = sys.argv[1] if len(sys.argv) > 1 else VOLCADO
@@ -200,6 +201,40 @@ for t in MODELO:
             avisos.append(
                 "[G-03] %s.%s mezcla %s. AppSheet tipa por la mayoria"
                 % (t, n, " y ".join(sorted(tipos))))
+
+# ------------------------- G-05  una regla que lee una columna vacia no hace nada
+#
+# El fallo que se repitio tres veces el 2026-08-10, y que ningun verificador
+# veia porque G-01 solo mira las columnas `obligatoria`:
+#
+#   RG-03  bien escrita sobre una columna que AppSheet tipo Text
+#   RG-06  [EstadoActivoID].[GeneraAlerta] = TRUE, y GeneraAlerta esta VACIA
+#          en las 4 filas del catalogo: el bot no se dispara nunca
+#   RG-19  compara Precision_GPS, que nadie puebla porque la funcion que la
+#          poblaria no existe en AppSheet
+#
+# Las tres estan CONFIGURADAS. Ninguna da error. Ninguna hace nada.
+#
+# Una columna sin datos no es sospechosa por si misma -media plantilla esta
+# vacia a proposito, la rellena operacion-. Lo que la vuelve grave es que **una
+# regla dependa de ella**: ahi el silencio deja de ser una espera y pasa a ser
+# una salvaguarda apagada.
+print("G-05  Columnas de las que depende una regla, y estan vacias")
+print("")
+_reglas = por_columna()
+for (t, n), ids in sorted(_reglas.items()):
+    filas = datos.get(t)
+    if not filas:
+        continue      # tabla vacia: ya lo cuenta G-04, y ahi es esperado
+    if not any(c["nombre"] == n for c in MODELO[t]["columnas"]):
+        continue
+    llenas = sum(1 for f in filas if texto(f.get(n)))
+    if llenas:
+        continue
+    avisos.append(
+        "[G-05] %s.%s esta vacia en las %d filas y de ella depende %s. "
+        "La regla queda configurada y sin efecto: no da error, no hace nada"
+        % (t, n, len(filas), ", ".join(sorted(ids))))
 
 # -------------------------------------------------------------------- salida
 for f in fallos:

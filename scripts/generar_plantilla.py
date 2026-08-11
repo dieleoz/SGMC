@@ -286,6 +286,26 @@ for a in sorted(activos, key=lambda x: texto(x.get("CodigoActivo"))):
     a["Ubicacion_LatLong"] = punto(min(km / LARGO_KM, 0.999999))
     sin_coordenada += 1
 
+# ---------------------- el dato del que depende una regla, y estaba en blanco
+#
+# EST_Activo.GeneraAlerta llegaba VACIA en los cuatro estados, y RG-06 dice
+# `[EstadoActivoID].[GeneraAlerta] = TRUE`. Con la columna en blanco esa
+# condicion es falsa siempre: el bot que avisa al CCO se puede configurar
+# entero, no dar ningun error, y no dispararse nunca.
+#
+# Es el mismo fallo que dejo RG-03 decorativa, un nivel mas abajo: alli era el
+# tipo, aqui es el dato. Lo caza G-05 de verificar_datos.py, que nacio de esto.
+#
+# Solo `Fuera de servicio` lo genera. `Retirado` es una baja planeada -alguien
+# decidio retirar el equipo- y avisar de ella al CCO seria ruido; el aviso
+# existe para el equipo que se cae, no para el que se jubila.
+alertas = {"Fuera de servicio": "TRUE"}
+estados = leer("EST_Activo")
+for e in estados:
+    if not texto(e.get("GeneraAlerta")):
+        e["GeneraAlerta"] = alertas.get(texto(e.get("Nombre")), "FALSE")
+escribir("EST_Activo", estados)
+
 escribir("ACT_Activos", activos)
 
 # ------------------------------- 4a. claves que AppSheet descartaria en silencio

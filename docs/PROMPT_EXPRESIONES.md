@@ -389,6 +389,30 @@ no en la expresión.
 Por eso este paso se cierra **copiando literalmente lo que ves**, incluso
 cuando coincida. «Coincide» no es evidencia; el texto sí.
 
+## Dos que hoy NO se pueden poner, y hay que saberlo antes de intentarlo
+
+**`RG-02` es imposible tal como está declarada.** Usa `USERLOCATIONACCURACY()`, y esa función
+**no existe en AppSheet**: la plataforma no expone la precisión del GPS al motor de expresiones.
+La captura manual sí muestra al técnico los metros en pantalla, pero ese número no se puede
+guardar en una columna. Deja `Precision_GPS` con tipo `Number` y **sin `Initial value`**.
+
+Y arrastra dos más, así que no las des por buenas aunque las pongas:
+
+```
+RG-02   Precision_GPS = USERLOCATIONACCURACY()       no existe -> nunca se puebla
+RG-19   CierreConExcepcion = Precision_GPS > umbral   blanco > numero -> siempre falso
+RG-03   MotivoExcepcion obligatorio si excepcion      nunca se pide
+```
+
+Tres reglas bien configuradas y el mecanismo entero inerte. **Está pendiente de decidir** si
+`CierreConExcepcion` pasa a ser una casilla que marca el técnico; hasta entonces, ponlas y no las
+cuentes como funcionando.
+
+> Es el patrón del día: una regla puede estar puesta, bien escrita, sin dar un solo error, y no
+> hacer nada. Pasó por el tipo (`RG-03`), por el dato (`RG-06`, con `GeneraAlerta` vacía) y aquí
+> por una función que no existe. `python scripts/verificar_datos.py` caza el segundo caso —G-05—;
+> los otros dos solo se ven mirando.
+
 ## Al terminar
 
 Antes de dar por buena ninguna:
