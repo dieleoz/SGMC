@@ -1,0 +1,46 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(python3:*)",
+      "Bash(py:*)",
+      "Bash(node:*)",
+      "Bash(npm run:*)",
+      "Bash(npm ls:*)",
+      "Bash(pip list:*)",
+      "Bash(pip show:*)",
+
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git tag:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git stash list:*)",
+
+      "Bash(ls:*)",
+      "Bash(dir:*)",
+      "Bash(pwd)",
+      "Bash(find:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+
+      "Edit(//D:/@Proyect/Sisga/**)",
+      "Write(//D:/@Proyect/Sisga/**)"
+    ],
+    "deny": [
+      "Bash(git push:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git clean:*)",
+      "Bash(rm:*)",
+      "Bash(rmdir:*)",
+      "Bash(del:*)",
+      "Read(//D:/@Proyect/Sisga/.env)",
+      "Edit(//D:/@Proyect/Sisga/.env)",
+      "Write(//D:/@Proyect/Sisga/.env)"
+    ]
+  }
+}

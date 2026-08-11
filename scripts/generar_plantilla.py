@@ -748,6 +748,44 @@ for tabla in dst.sheetnames:
     for j, nombre in enumerate(cab, start=1):
         celdas = [ws.cell(r, j) for r in range(2, ws.max_row + 1)]
         vivas = [c for c in celdas if c.value not in (None, "")]
+
+        # Una columna cuyos valores vivos son TODOS booleanos escritos: una
+        # sola grafia.
+        #
+        # Se comprueba ANTES que la mezcla de tipos de Python, porque esa no lo
+        # ve: 'True' y 'TRUE' son las dos `str`, asi que la columna parecia
+        # homogenea y salieron 76 celdas con cuatro grafias -'True' 61, 'true'
+        # 8, 'False' 5, 'false' 2-.
+        #
+        # Importa mas de lo que parece. El contraste del 2026-08-10 entre el
+        # Excel y la aplicacion mostro que 28 de las 38 columnas Yes/No
+        # devuelven Y/N por la API, es decir que **AppSheet las tipo Yes/No
+        # leyendo el contenido**: no hay gatillo de nombre que las salve -no
+        # acaban en `?` ni empiezan por is/has-. La inferencia por contenido es
+        # lo unico que las sostiene, y darle cuatro grafias distintas es apostar
+        # sin necesidad.
+        # Un booleano de Python cuenta como booleano escrito. Es lo que
+        # convierte esta comprobacion en util: 66 celdas estaban guardadas como
+        # celda booleana del .xlsx y 2.285 como texto TRUE/FALSE, es decir **la
+        # misma cosa guardada de dos formas en tablas distintas**
+        # -EOT_EstadosOrden.EsFinal booleana, ACT_Activos.Activo texto-. El
+        # bloque de mas abajo no las veia porque solo mira columnas con tipos
+        # MEZCLADOS, y estas son uniformes dentro de su tabla.
+        escritos = [c for c in vivas
+                    if isinstance(c.value, bool)
+                    or (isinstance(c.value, str)
+                        and c.value.strip().lower() in ("true", "false"))]
+        # Se normaliza aunque la columna sea UNIFORME. La primera version exigia
+        # que hubiera mas de una grafia -"si es homogenea, dejala"- y con eso una
+        # columna entera en 'True' pasaba de largo: 61 celdas. Uniforme no es
+        # correcto, es solo uniforme.
+        if vivas and len(escritos) == len(vivas)                 and any(not isinstance(c.value, str)
+                        or c.value != c.value.strip().upper() for c in escritos):
+            for c in escritos:
+                c.value = ("TRUE" if c.value else "FALSE")                     if isinstance(c.value, bool) else c.value.strip().upper()
+            homogeneizadas.append("%s.%s (forma booleana)" % (tabla, nombre))
+            continue
+
         if len({type(c.value).__name__ for c in vivas}) < 2:
             continue
         # Booleano y su cadena conviviendo: gana la cadena, que es lo que

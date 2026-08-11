@@ -1,15 +1,27 @@
 # -*- coding: utf-8 -*-
 """Genera docs/MANUAL_DESPLIEGUE.md desde el modelo.
 
-Es el manual que se entrega a quien construye la aplicacion en AppSheet. Se
-genera para que sus listas no puedan desviarse del modelo: las 28 tablas, las
-28 claves, las 38 referencias y las 20 reglas salen de modelo_objetivo.py.
+Es **el unico documento que hay que leer para desplegar de cero**. Los otros
+cuatro -PROMPT_CABLEADO, PROMPT_EXPRESIONES, TIPOS_ESPERADOS y
+CORRECCIONES_CABLEADO- siguen existiendo, pero como EXTRACTOS QUE SE LE PASAN A
+UN EJECUTOR, no como piezas que haya que ir a buscar. El manual dice cual es
+cada uno y cuando se usa; el camino esta aqui dentro.
+
+Ninguna cifra se escribe a mano
+-------------------------------
+Todas salen de `modelo_objetivo.py`, de `inferencia.py`, del volcado de la hoja
+o de la ultima instantanea de la aplicacion. Un numero escrito a mano en un
+generador es indistinguible de uno derivado cuando se lee el .md, y envejece
+igual de callado: este mismo encabezado decia «las 38 referencias y las 20
+reglas» cuando el modelo ya declaraba 39 y 21.
 
 Esta escrito por ROL, no por persona, para poder replicarlo en otro contrato.
 
 Uso:  python scripts/generar_manual_despliegue.py
 """
+import json
 import os
+import re
 import sys
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -17,6 +29,8 @@ sys.path.insert(0, os.path.join(RAIZ, "scripts"))
 import modelo_objetivo
 from modelo_objetivo import (MODELO, REGLAS, RETIRADAS, CLAVE_GENERADA,
                              CAMPOS_RETIRADOS, COLUMNAS_SIN_DECIDIR)
+from inferencia import clasificar
+from sistema import VOLCADO
 
 # El modelo describe datos, no interfaz. Esto no se afirma de memoria: se
 # comprueba. Si alguien declara vistas en el modelo, el manual deja de decir
@@ -37,27 +51,178 @@ NIVELES = [
                       "FOT_Fotografias", "FIR_Firmas"]),
 ]
 
-# Tipos que AppSheet no infiere desde una hoja de texto.
-TIPOS_MANUALES = [
-    ("ACT_Activos", "Ubicacion_LatLong", "LatLong", "Sobre ella se calcula la distancia al activo"),
-    ("ACT_Activos", "FechaBaja", "Date", ""),
-    ("ACT_Activos", "Activo", "Yes/No", ""),
-    ("MAN_Mantenimientos", "Coordenadas_Cierre_LatLong", "LatLong", "**La mas importante.** DISTANCE() no funciona sobre texto"),
-    ("MAN_Mantenimientos", "UbicacionEscaneo_LatLong", "LatLong", ""),
-    ("MAN_Mantenimientos", "Precision_GPS", "Number", ""),
-    ("MAN_Mantenimientos", "CierreConExcepcion", "Yes/No", ""),
-    ("MAN_Mantenimientos", "OrigenApertura", "Enum", "Valores: `QR`, `Lista`"),
-    ("OT_OrdenesTrabajo", "Tipo", "Enum", "Valores: `Preventivo`, `Correctivo`"),
-    ("FOT_Fotografias", "Ubicacion_LatLong", "LatLong", ""),
-    ("FOT_Fotografias", "Archivo", "Image", ""),
-    ("FIR_Firmas", "Imagen", "Signature", ""),
-    ("NOV_Novedades", "Ubicacion_LatLong", "LatLong", ""),
-    ("NOV_Novedades", "Fotografia", "Image", ""),
-    ("MAN_Mantenimientos", "FechaHoraRegistro", "ChangeTimestamp", "**Marca del servidor.** AppSheet no lo infiere nunca"),
-    ("FOT_Fotografias", "FechaHora", "ChangeTimestamp", "**Sin esto la hora de la fotografia no prueba nada**"),
-    ("FIR_Firmas", "FechaHora", "ChangeTimestamp", "Idem para la firma"),
-    ("NOV_Novedades", "FechaHora", "ChangeTimestamp", ""),
-]
+# ------------------------------------------------------------------- LAS CIFRAS
+#
+# Aqui vivia `TIPOS_MANUALES`: diecisiete columnas escritas a dedo bajo el
+# titulo «los tipos que AppSheet no adivina». Era una LISTA BLANCA DE
+# EXCEPCIONES sobre un default que se presumia bueno, y por eso el resto se
+# daba por correcto por omision. Son 107 -las cuenta inferencia.py, no este
+# archivo-, y dos de las diecisiete ni siquiera lo necesitaban: su propio
+# nombre las consigue. El precio de la omision fue RG-03, bien escrita y bien
+# colocada sobre una columna que AppSheet tipo Text.
+#
+# Regla de este generador: **ninguna cifra se escribe, todas se derivan.**
+
+CLASES = clasificar()
+TOTAL_COLUMNAS = sum(len(d["columnas"]) for d in MODELO.values())
+REFS = [(t, c) for t in MODELO for c in MODELO[t]["columnas"] if c.get("ref")]
+N_REFS = len(REFS)
+
+REF_DE = {(t, c["nombre"]): c["ref"] for t, c in REFS}
+CLAVE_DE = {c["nombre"]: t for t in MODELO
+            for c in MODELO[t]["columnas"] if c.get("pk")}
+
+# Referencias cuyo NOMBRE es ademas clave primaria de otra tabla. Son las que
+# se prestan a abrirse en la tabla equivocada, y ahi AppSheet SI protesta:
+# `contains a cyclical table reference`.
+HOMONIMAS = [(t, c["nombre"], c["ref"], CLAVE_DE[c["nombre"]])
+             for t, c in REFS if c["nombre"] in CLAVE_DE]
+
+
+# --------------------------------------------- que reglas dependen de que columna
+#
+# Se resuelve por CADENA, no por nombre suelto. La diferencia no es cosmetica:
+# `[Activo]` dentro del SELECT de RG-04 es ASG_AsignacionZona.Activo, no el
+# `Activo` de las otras diecinueve tablas que se llaman igual. Contando por
+# nombre salen 52 columnas con regla encima; contando por cadena, 23.
+#
+# No se importa de generar_prompt_expresiones.py porque ese modulo escribe su
+# .md al importarse. Se reimplementa aqui, que es el coste de no tener efectos
+# de importacion.
+def _ambito(expresion):
+    """Los tramos donde manda OTRA tabla: dentro de SELECT(Tabla[...], ...)."""
+    tramos = []
+    for m in re.finditer(r"\b(?:SELECT|FILTER|ANY|COUNT|MAXROW|MINROW)\s*\(\s*(\w+)\[",
+                         expresion):
+        tabla = m.group(1)
+        if tabla not in MODELO:
+            continue
+        hondo, fin = 0, None
+        for i in range(m.end() - len(tabla) - 1, len(expresion)):
+            if expresion[i] == "(":
+                hondo += 1
+            elif expresion[i] == ")":
+                hondo -= 1
+                if hondo == 0:
+                    fin = i
+                    break
+        tramos.append((m.start(), fin if fin is not None else len(expresion), tabla))
+    return tramos
+
+
+def _tocadas(tabla, expresion):
+    """Los pares (tabla, columna) que la expresion realmente lee."""
+    tramos = _ambito(expresion)
+    out = set()
+    for m in re.finditer(r"(?:\[\w+\]\s*\.\s*)*\[\w+\]", expresion):
+        aqui = next((t for ini, fin, t in tramos if ini <= m.start() <= fin), tabla)
+        for n in re.findall(r"\[(\w+)\]", m.group(0)):
+            if aqui is None:
+                break
+            out.add((aqui, n))
+            aqui = REF_DE.get((aqui, n))
+    # SELECT nombra su columna fuera de corchetes, con la tabla delante.
+    for m in re.finditer(r"\b(\w+)\[(\w+)\]", expresion):
+        if m.group(1) in MODELO:
+            out.add((m.group(1), m.group(2)))
+    return out
+
+
+DEPENDEN = {}
+for _r in REGLAS:
+    _pares = _tocadas(_r["tabla"], _r.get("expresion") or "")
+    if _r.get("columna") and not _r["columna"].startswith("("):
+        _pares.add((_r["tabla"], _r["columna"]))
+    for _par in _pares:
+        DEPENDEN.setdefault(_par, set()).add(_r["id"])
+
+
+def reglas_de(tabla, columna):
+    return sorted(DEPENDEN.get((tabla, columna), ()))
+
+
+# ------------------------------------------------------- las que ESCRIBEN en la hoja
+#
+# Por TIPO de propiedad, no por lista de identificadores: una regla nueva entra
+# sola en el grupo que le toca. Lo que escriben no se revierte cambiando un
+# desplegable, y por eso van al final y con instantanea previa.
+def escribe(r):
+    return r["tipo"] in ("App formula", "Initial value") or r["tipo"].startswith("Bot")
+
+
+ESCRIBEN = [r for r in REGLAS if escribe(r)]
+
+# Orden de trabajo: primero lo que solo valida, al final lo que escribe.
+REGLAS_ORDENADAS = sorted(REGLAS, key=lambda r: (escribe(r), r["id"]))
+
+
+# ------------------------------------------------------------- lo que dice la hoja
+#
+# Se lee el volcado. Si no esta, la frase que dependa de ese dato NO se
+# escribe: un manual que se inventa un numero cuando no puede leerlo es peor
+# que un manual con un hueco.
+_LIBRO = None
+
+
+def _pestana(tabla):
+    global _LIBRO
+    if _LIBRO is None:
+        try:
+            import openpyxl
+            _LIBRO = openpyxl.load_workbook(os.path.join(RAIZ, VOLCADO),
+                                            read_only=True, data_only=True)
+        except Exception:
+            _LIBRO = False
+    if not _LIBRO or tabla not in _LIBRO.sheetnames:
+        return None
+    filas = list(_LIBRO[tabla].iter_rows(values_only=True))
+    if not filas:
+        return None
+    cab = [("" if x is None else str(x).strip()) for x in filas[0]]
+    return [dict(zip(cab, f)) for f in filas[1:]]
+
+
+_TIPOS = _pestana("TIP_TiposActivo")
+RADIOS = {}
+for _f in (_TIPOS or []):
+    RADIOS.setdefault(_f.get("RadioGeofencingKm"), []).append(_f.get("Nombre"))
+N_TIPOS = len(_TIPOS) if _TIPOS is not None else None
+N_CON_RADIO = (sum(1 for _f in _TIPOS if _f.get("RadioGeofencingKm") not in (None, ""))
+               if _TIPOS is not None else None)
+
+_ACT = _pestana("ACT_Activos")
+N_ACTIVOS = len(_ACT) if _ACT is not None else None
+
+
+def _numero(x):
+    """1.5 -> '1,5'. Sin decimales inventados."""
+    return ("%g" % x).replace(".", ",")
+
+
+# -------------------------------------------------- lo que dice la aplicacion viva
+#
+# La ultima instantanea guardada. NO es el destino: es el estado, y el manual
+# tiene que distinguirlos porque confundirlos es de lo que mas cuesta aqui.
+_CARPETA_FOTOS = os.path.join(RAIZ, "BD", "instantaneas")
+
+
+def _ultima_foto():
+    if not os.path.isdir(_CARPETA_FOTOS):
+        return None, None
+    fotos = [x for x in os.listdir(_CARPETA_FOTOS) if x.endswith(".json")]
+    if not fotos:
+        return None, None
+    n = max(fotos, key=lambda x: os.path.getmtime(os.path.join(_CARPETA_FOTOS, x)))
+    try:
+        with open(os.path.join(_CARPETA_FOTOS, n), encoding="utf-8") as f:
+            return n[:-5], json.load(f)
+    except ValueError:
+        return None, None
+
+
+FOTO_NOMBRE, FOTO = _ultima_foto()
+FOTO_FILAS = sum(len(v) for v in FOTO.values()) if FOTO else None
+FOTO_VACIAS = sorted(t for t, v in FOTO.items() if not v) if FOTO else []
 
 # Las columnas trampa NO se escriben a mano: se derivan mas abajo cruzando
 # CAMPOS_RETIRADOS contra las claves del modelo. Una lista a mano aqui se
@@ -79,7 +244,7 @@ w("| Sistema | Gestion de Mantenimiento en Campo |")
 w("| Plataforma | Google AppSheet sobre Google Sheets |")
 w("| Fuente del modelo | `scripts/modelo_objetivo.py`. Este manual se genera de ahi |")
 w("| Tablas | **%d** |" % len(MODELO))
-w("| Referencias | **%d** |" % sum(1 for d in MODELO.values() for c in d["columnas"] if c.get("ref")))
+w("| Referencias | **%d** |" % N_REFS)
 w("| Reglas | **%d** |" % len(REGLAS))
 w("")
 w("## Por que este manual existe")
@@ -250,12 +415,12 @@ w("|---|---|---|---|")
 for t, c, tipo, nota in TIPOS_MANUALES:
     w("| `%s` | `%s` | `%s` | %s |" % (t, c, tipo, nota))
 w("")
-w("## Paso 5 — Las %d referencias" % sum(1 for d in MODELO.values() for c in d["columnas"] if c.get("ref")))
+w("## Paso 5 — Las %d referencias" % N_REFS)
 w("")
 w("> **Cuidado con las listas de otros documentos.** Circulo una lista de **15** referencias por")
 w("> convertir, y era correcta para lo que normaba: una aplicacion existente donde otras 23 ya estaban")
 w("> puestas. Ese documento esta retirado. **Construyendo desde cero no sobrevive ninguna: son %d.**"
-  % sum(1 for d in MODELO.values() for c in d["columnas"] if c.get("ref")))
+  % N_REFS)
 w("> Si al terminar cuenta 15, siguio la lista equivocada.")
 w("")
 w("Una referencia de AppSheet **guarda el valor de la clave de la tabla destino**. De ahi que el orden")
@@ -489,7 +654,7 @@ w("Las dos en verde. Si la primera falla, casi siempre es `OT_OrdenesTrabajo.Act
 w("antigua de 15 no incluia.")
 w("")
 w("**Cuente las referencias.** Las columnas de tipo `Ref` deben sumar **%d**."
-  % sum(1 for d in MODELO.values() for c in d["columnas"] if c.get("ref")))
+  % N_REFS)
 w("")
 w("**Y los seis verificadores del repositorio:**")
 w("")
@@ -651,7 +816,7 @@ salida = os.path.join(RAIZ, "docs", "MANUAL_DESPLIEGUE.md")
 with open(salida, "w", encoding="utf-8") as f:
     f.write("\n".join(L) + "\n")
 
-refs = sum(1 for d in MODELO.values() for c in d["columnas"] if c.get("ref"))
+refs = N_REFS
 print("Generado:", salida)
 print("%d tablas, %d referencias, %d reglas, %d claves generadas"
       % (len(MODELO), refs, len(REGLAS), len(CLAVE_GENERADA)))

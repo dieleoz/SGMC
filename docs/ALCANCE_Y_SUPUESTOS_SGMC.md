@@ -241,21 +241,34 @@ Un supuesto corregido no es un error del método: es el método funcionando.
 - La directiva de construcción original, `PROMPT_CONSTRUCCION_SGMC.md`, y la que la sucedió,
   `PROMPT_CONTINUAR_DESPLIEGUE.md`, se retiraron en la limpieza del 2026-08-10.
 
-### S-nuevo · Que el contenido `TRUE`/`FALSE` produzca `Yes/No` (2026-08-10)
+### S-30 · Que el contenido `TRUE`/`FALSE` produzca `Yes/No` — **verificado a medias** (2026-08-10)
 
-**38 columnas del modelo son `Yes/No` — el 18 % — y ninguna cumple un gatillo de nombre
-documentado:** ni acaban en `?` ni empiezan por `is`/`has`, que es lo único que §13 de la base de
-conocimiento reconoce. Que AppSheet las tipe `Yes/No` depende de que lea `TRUE`/`FALSE` en el
-contenido, **y eso no está en la documentación oficial ni lo hemos observado aquí.**
+**38 columnas del modelo son `Yes/No` —el 18 %— y ninguna cumple un gatillo de nombre documentado:**
+ni acaban en `?` ni empiezan por `is`/`has`, que es lo único que reconoce §13 de la base de
+conocimiento. Que AppSheet las tipe `Yes/No` depende enteramente de que lea `TRUE`/`FALSE` en el
+contenido.
 
-**Si el supuesto es falso**, esas 38 salen `Text`, y entonces toda comparación contra el booleano
-`TRUE` es **siempre falsa y no da error**. Ya ocurrió con una: `MAN_Mantenimientos.CierreConExcepcion`
-salió `Text`, y `RG-03` —bien escrita y bien colocada— dejó de pedir el motivo de excepción.
+**Qué sabemos, y cómo.** Se contrastó el `.xlsx` del repositorio contra los datos vivos de la
+aplicación, leídos por API:
 
-**27 de las 38 las nombra alguna regla.** `RG-04` y `RG-16` solas cabalgan sobre las 24 columnas
-`Activo`, de modo que si el supuesto falla, el filtro de seguridad que decide qué activos ve cada
-técnico compara contra blanco.
+```
+28 de 38 devuelven Y/N   ->  AppSheet SI las tipo Yes/No leyendo el contenido
+ 0 fallan
+10 sin datos             ->  no se puede saber. Son de las ocho tablas vacias
+```
 
-**Cómo se cierra:** o una cita de la documentación oficial de AppSheet, o confirmarlas una a una en
-`Data > Columns`. Mientras tanto, `PROMPT_CABLEADO.md` las lista entre las que hay que poner a mano.
+El método es indirecto pero concluyente en un sentido: **la API devuelve `Y`/`N` para una columna
+`Yes/No` y el literal para una `Text`.** Si esas 28 fueran `Text`, habrían devuelto `TRUE`. Se puede
+refutar repitiendo el contraste.
 
+**Dónde sigue abierto, y ya falló ahí.** Las 10 restantes están en tablas sin una sola fila, así que
+no hay contenido del que inferir. `MAN_Mantenimientos.CierreConExcepcion` es una de ellas y salió
+`Text`: `RG-03` —bien escrita y bien colocada— dejó de pedir el motivo de excepción, porque comparar
+texto contra el booleano `TRUE` es **siempre falso y no da error**.
+
+**Por qué importa el resto.** 27 de las 38 las nombra alguna regla. `RG-04` y `RG-16` solas cabalgan
+sobre las 24 columnas `Activo`, de modo que si el supuesto fallara ahí, el filtro de seguridad que
+decide qué activos ve cada técnico compararía contra blanco.
+
+**Cómo se cierra del todo:** confirmando en `Data > Columns` las 10 de las tablas vacías. `G-04` las
+cuenta y las fecha; `PROMPT_CABLEADO.md` las lista entre las que hay que poner a mano.
