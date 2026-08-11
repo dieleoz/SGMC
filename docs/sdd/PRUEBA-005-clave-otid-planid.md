@@ -1,5 +1,10 @@
 # PRUEBA-005 — Pruebas de aceptación de ESPEC-005
 
+<!-- verificar_documentos: ignorar OT_OrdenesTrabajo.Etiqueta, PLA_PlanMantenimiento.Etiqueta -->
+<!-- D-03 compara Tabla.Columna contra MODELO, y Etiqueta a propósito NUNCA entra en MODELO: es
+     una columna virtual declarada solo en REGLAS (RG-35/RG-36). Citarla en prosa como Tabla.Columna
+     es legítimo -es como se documenta una virtual, mismo criterio que ESPEC-005-, no un hueco. -->
+
 **Rehecha el 2026-08-10, junto con `ESPEC-005`, tras bloqueo del arquitecto.** Once hallazgos se
 atienden aquí; los tres de código ya estaban aplicados en el repositorio antes de esta versión
 (ver cabecera de `ESPEC-005`). El cambio de mayor alcance es que `Etiqueta` pasó de ser una `App
@@ -7,16 +12,28 @@ formula` sobre columna real a una **columna virtual**, y eso reescribe buena par
 lo que la versión anterior predecía que iba a fallar (`P-07`), ahora se verificó que pasa; lo que
 predecía que había que regenerar la hoja (`P-03`), ahora se verificó que no hace falta.
 
-**Escrita antes de que `ORDEN-005` exista.** Nada de lo que sigue se aplicó al repositorio real ni
-al modelo en vivo. Los comandos marcados «automática» sí se corrieron —de solo lectura contra la
-aplicación, o sobre una copia temporal fuera del repositorio para predecir el resultado exacto— y
-sus salidas están citadas literalmente. Los que requieren la app están descritos para cuando el
-ejecutor los corra, no ejecutados aquí.
+**Escrita antes de que `ORDEN-005` exista.** Al momento de escribir esta prueba, nada de lo que sigue
+se había aplicado al repositorio real ni al modelo en vivo. Los comandos marcados «automática» sí se
+corrieron —de solo lectura contra la aplicación, o sobre una copia temporal fuera del repositorio
+para predecir el resultado exacto— y sus salidas están citadas literalmente. Los que requieren la app
+están descritos para cuando el ejecutor los corra, no ejecutados aquí.
+
+**Corrección posterior, al cerrar [`ORDEN-005`](ORDEN-005-clave-otid-planid.md) y
+[`ACTA-005`](ACTA-005-clave-otid-planid.md):** el párrafo de arriba dejó de ser cierto para la
+Familia A. El 2026-08-10, los cambios de `scripts/modelo_objetivo.py` y `scripts/inferencia.py` que
+esta tanda exige como precondición (`CLAVE_LEGIBLE`, `CLAVE_GENERADA`, `REGLAS`,
+`SIN_ETIQUETA_NATURAL`, `ETIQUETA_VIRTUAL`) **se aplicaron directamente al repositorio real**, sin que
+existiera todavía `ORDEN-005` ni `ACTA-005` — un fallo de proceso, documentado en esos dos archivos,
+no algo que este documento deba disimular. `P-01` a `P-08` (Familia A) por tanto ya se pueden correr
+contra el repositorio real, no solo contra una copia temporal, y `ACTA-005` registra qué se corrió y
+qué devolvió. **La Familia B, C y D (editor de AppSheet, Sheets, bots) siguen sin aplicarse**: nadie
+declaró `Initial value`, nadie marcó `Key` ni `Label`, ni se creó ninguna de las dos columnas
+virtuales en el editor. Esa mitad sigue pendiente de una ejecución real contra la aplicación.
 
 | | |
 |---|---|
 | Cubre | [`ESPEC-005-clave-otid-planid.md`](ESPEC-005-clave-otid-planid.md): `OTID` y `PlanID` pasan de `CLAVE_LEGIBLE` a `CLAVE_GENERADA` (`Initial value = UNIQUEID()`); `Etiqueta` como columna **virtual** en `OT_OrdenesTrabajo` y `PLA_PlanMantenimiento` (`App formula` vía `RG-35`/`RG-36`, `Label`) |
-| Contra cuál sistema | `_SISGA_-323965761` sobre `Modelo_Datos_10082026` (`fileId` `1h9kyCYGK6esRL1UiTcPXHlSmDQcPb13fNZ0hBznYOa0`), volcado en `BD/Modelo_Datos_PLANTILLA.xlsx`. Volcado hoy con `python scripts/sistema.py` |
+| Contra cuál sistema | `_SISGA_-323965761` sobre `Modelo_Datos_10082026` (`fileId` `1h9kyCYGK6esRL1UiTcPXHlSmDQcPb13fNZ0hBznYOa0`), volcado en `BD/Modelo_Datos_PLANTILLA.xlsx`. `python scripts/sistema.py` **no descarga nada**: solo imprime el nombre y el identificador vigentes de la aplicación y de la hoja (ver `scripts/sistema.py`) para confirmar que se trabaja contra el sistema correcto. Volcar de verdad es descargar `Modelo_Datos_10082026` (Google Sheets, `fileId` de arriba) a un archivo `.xlsx` aparte y pasarlo por argumento a los verificadores (`verificar_faseA.py`, `verificar_datos.py`) |
 | Reglas que esta tanda tiene que probar | `RG-35` y `RG-36`, nuevas, declaradas como `REGLA` de columna virtual — a diferencia de la versión anterior, ya no hay un hallazgo de "regla sin declarar": eso es precisamente lo que `P-07` verifica que se resolvió. `RG-10` y `RG-12` dejan de crear filas huérfanas. `RG-07` (bot de correo) se ve afectado como efecto colateral — ver precondición de la Familia B |
 | Innegociables | `P-01`, `P-03`, `P-04`, `P-07`, `P-09`, `P-11`, `P-12`, `P-13`, `P-14` |
 
@@ -343,7 +360,14 @@ repositorio real queda sin tocar.
   python scripts/generar_reconstruccion.py && grep -n "RG-35\|RG-36" docs/sdd/RECONSTRUCCION_EXPRESIONES.md
   python scripts/generar_prompt_expresiones.py && grep -c "RG-35\|RG-36" docs/PROMPT_EXPRESIONES.md
   ```
-- **Resultado, corrida de verdad hoy:**
+- **Criterio de paso:** las tres salidas no vacías — no un número concreto. La tercera es
+  `grep -c`, un conteo de líneas que coinciden, y ese conteo no es reproducible como literal: depende
+  de cuántas veces `RG-35`/`RG-36` aparezcan en el texto que genera `generar_prompt_expresiones.py`
+  (encabezado de cada regla, más una vez por cada salto de referencia que documente, ver `ESPEC-005`
+  §3.3), y ese formato puede cambiar sin que el mecanismo que esta prueba verifica —que `Etiqueta`
+  vive en `REGLAS`, no fuera— deje de cumplirse. Fijar "6" como el resultado esperado ataría esta
+  prueba a un detalle de formato del generador, no al hallazgo que importa.
+- **Resultado, corrida de verdad hoy — el número es lo que se observó, no lo que se exige:**
   ```
   ['RG-35', 'RG-36']
   227:### RG-35 — `OT_OrdenesTrabajo` · `(tabla)`
@@ -357,7 +381,8 @@ repositorio real queda sin tocar.
   anterior.
 - **Cómo se distingue el fallo:** si alguna de las tres salidas queda vacía, `Etiqueta` se declaró
   fuera de `REGLAS` (por ejemplo, como `formula=` de una columna de `MODELO`), reproduciendo el
-  defecto que esta versión de `ESPEC-005` existe para evitar.
+  defecto que esta versión de `ESPEC-005` existe para evitar. Que el conteo de la tercera salida sea
+  distinto de `6` **no es, por sí solo, un fallo**: solo lo es si llega a `0`.
 
 #### P-08 — `verificar_datos.py`: `G-04` NO sube de 12/7 columnas — confirma que `Etiqueta` nunca toca la hoja
 
@@ -533,9 +558,10 @@ Se cierran documentando lo que se vio, literal.
   ```bash
   python scripts/instantanea.py guardar prueba-005-final
   ```
-  Y, como segunda vía de lectura, abrir `Modelo_Datos_10082026` con el conector de Drive (vuelto a
-  volcar con `python scripts/sistema.py` antes de usarlo) y localizar las filas por `Observaciones`
-  conteniendo `"PRUEBA-005"` — nunca por la clave.
+  Y, como segunda vía de lectura, abrir `Modelo_Datos_10082026` con el conector de Drive —descargando
+  el Sheets a un archivo `.xlsx` aparte y pasándolo por argumento a los verificadores, no con
+  `python scripts/sistema.py`, que no descarga nada: solo imprime los identificadores vigentes— y
+  localizar las filas por `Observaciones` conteniendo `"PRUEBA-005"` — nunca por la clave.
 - **Resultado esperado:**
   - Exactamente 3 filas nuevas en `OT_OrdenesTrabajo` y 2 en `MAN_Mantenimientos`.
   - Las 3 filas de `OT_OrdenesTrabajo` tienen `Etiqueta` no vacía, distinta de su propio `OTID`, y
@@ -573,7 +599,12 @@ python scripts/instantanea.py guardar prueba-005-tras-cierre
   §6)—, con `Activo = FALSE`. `Observaciones` se conserva con la marca `TEST`, para que cualquiera
   que las encuentre después sepa qué son.
 - **Último paso de esta prueba: reactivar `RG-07`** (`Automation > Bots` → `RG-07` → `Enable`),
-  cerrando la precondición común de la Familia B.
+  cerrando la precondición común de la Familia B. **No hay comando que lea esto de vuelta**: el
+  estado `Enable`/`Disable` de un bot no viaja por la API v2 (`scripts/lectura_de_vuelta.py`,
+  categoría "expresiones" — mismo motivo por el que `Valid_If` o un `Security Filter` tampoco
+  viajan). Se cierra copiando literalmente lo que muestra `Automation > Bots` para `RG-07` después de
+  pulsar `Enable` (nombre del bot, y el estado que la columna de la tabla de bots indica, ej. `On` /
+  `Off` o el texto exacto que use esa versión del editor) — no basta con decir "se reactivó".
 - Borrar del disco los archivos `BD/instantaneas/prueba-005-*.json` que esta tanda generó, siguiendo
   la higiene de `PRUEBA-004` §1.
 - **Cómo se distingue el fallo:** alguna celda fuera de las 5 filas de prueba aparece en el
@@ -589,6 +620,12 @@ python scripts/instantanea.py guardar prueba-005-tras-cierre
   `OT_OrdenesTrabajo` (las 3 del fixture, marcadas `Activo = FALSE` pero presentes), así que esta es
   la primera oportunidad de convertir esa confirmación visual en una medición real.
 - **Precondición:** `P-13` completada (las 3 filas de `OT_OrdenesTrabajo` existen, `Activo = FALSE`).
+  **Y, sin excepción: `RG-05` (Security Filter, `OT_OrdenesTrabajo`) NO puede estar aplicado en el
+  editor todavía.** `scripts/lectura_de_vuelta.py` (`FILTROS_AL_FINAL`) documenta, con el precedente
+  ya ocurrido de `RG-04` sobre `ACT_Activos`, que un `Security Filter` evalúa `USEREMAIL()` en blanco
+  cuando la API llama sin usuario y la tabla pasa a devolver cero filas — no un error, el filtro
+  haciendo su trabajo también contra este instrumento. Confirmar antes de correr esta prueba, a ojo
+  en `Data > Columns > OT_OrdenesTrabajo`, que `RG-05` sigue sin estar puesto.
 - **Acción:** `python scripts/auditar_cableado.py`
 - **Resultado esperado:** las dos referencias hacia `OT_OrdenesTrabajo` pasan de "NO SE PUEDEN
   JUZGAR" a **VERIFICADAS** o a alguna de las otras categorías medibles (compatible no atribuida,
@@ -600,21 +637,42 @@ python scripts/instantanea.py guardar prueba-005-tras-cierre
   "declaradas y ausentes" o "convertidas en Ref sin serlo" — cualquiera de esas tres es la
   confirmación de que cambiar la clave sí rompió lo que estaba configurado, y hay que
   reconfigurarlas antes de dar esta tanda por cerrada.
+- **Esta prueba es la única oportunidad que va a existir de medir estas dos referencias.** No hay
+  antes: hasta que `P-13` deja filas reales, `OT_OrdenesTrabajo` está vacía y la API no tiene nada
+  que atribuir (`ESPEC-005` §2.8). No hay después: en cuanto `RG-05` se aplique —y `ESTADO.md` fija
+  que los `Security Filter` van los últimos, después de todo lo demás de la Fase C— la API vuelve a
+  ver `OT_OrdenesTrabajo` en cero para siempre y estas dos referencias regresan a "NO SE PUEDEN
+  JUZGAR" sin que exista ya ninguna ventana para volver a medirlas. Si `P-14` se salta, o se corre
+  después de aplicar `RG-05`, esa confirmación queda para siempre "a ojo" y nunca medida.
 
 ### Familia D — Configuración (AppSheet), cotejo a ojo
 
 #### P-15 — `Etiqueta` es el `Label`, y el técnico ve texto, no `UNIQUEID()`
 
 - **Qué comprueba:** el punto 4 del encargo. Es el paso que ningún comando puede verificar (`Label`
-  no viaja por la API).
+  no viaja por la API). Añade, frente a versiones anteriores, las dos comprobaciones que la propia
+  cita de Google que sostiene el diseño (`ESPEC-005` §2.5) prescribe y que antes no se verificaban
+  por separado: *"Enable the `Show?` property of the virtual column. Disable the `Label?` property
+  for any existing row label column."* — [Add row labels](https://support.google.com/appsheet/answer/10106376),
+  AppSheet Help. Marcar `Label` sin que `Show?` esté activo, o dejar la columna vieja con `Label?`
+  todavía marcado, son dos formas de que esto falle en silencio que el resultado final (el
+  desplegable con texto) no distingue una de otra.
 - **Precondición:** `P-06` (estructural) y `P-13` (hay filas con `Etiqueta` poblada).
-- **Acción:** en *Data > Columns* de `OT_OrdenesTrabajo`, confirmar que la columna virtual `Etiqueta`
-  tiene la casilla `Label` marcada. Abrir un desplegable que referencie `OT_OrdenesTrabajo` —el
-  selector de `OTID` en el formulario de `MAN_Mantenimientos`— y copiar literalmente el texto de una
-  de las opciones.
-- **Resultado esperado:** el desplegable muestra el texto compuesto por `Etiqueta` (activo y fecha),
-  no una cadena `UNIQUEID()`.
-- **Cómo se distingue el fallo:** el desplegable sigue mostrando la clave.
+- **Acción:**
+  1. En *Data > Columns* de `OT_OrdenesTrabajo`, sobre la columna virtual `Etiqueta`: confirmar que
+     `Show?` está **activo** (sin esto AppSheet no acepta la columna como `Label`, según la cita de
+     arriba) y que `Label` está **marcado**. Copiar literalmente el estado de las dos casillas.
+  2. Sobre la columna que hacía de etiqueta por defecto antes de este cambio —la que AppSheet elegía
+     sola, típicamente `OTID` (`docs/PROMPT_CABLEADO.md`, «Paso 5»)—: confirmar que `Label?` quedó
+     **desactivado**. Copiar literalmente cuál es esa columna y su estado.
+  3. Abrir un desplegable que referencie `OT_OrdenesTrabajo` —el selector de `OTID` en el formulario
+     de `MAN_Mantenimientos`— y copiar literalmente el texto de una de las opciones.
+- **Resultado esperado:** `Show?` activo y `Label` marcado en `Etiqueta`; `Label?` desactivado en la
+  columna que antes hacía de etiqueta; el desplegable muestra el texto compuesto por `Etiqueta`
+  (activo y fecha), no una cadena `UNIQUEID()`.
+- **Cómo se distingue el fallo:** el desplegable sigue mostrando la clave, o `Show?` aparece inactivo
+  en `Etiqueta`, o la columna vieja sigue con `Label?` marcado (en ese caso puede haber dos columnas
+  compitiendo por ser `Label` y el comportamiento del desplegable deja de ser predecible).
 
 #### P-16 — `Etiqueta` no se puede editar a mano
 
@@ -633,27 +691,42 @@ python scripts/instantanea.py guardar prueba-005-tras-cierre
 - **Qué comprueba:** el mismo mecanismo que `P-09`/`P-10`/`P-13` pero sobre la segunda tabla, con la
   marca `TEST` resuelta de otra forma: `ESPEC-005` §6 señala que `PLA_PlanMantenimiento` no tiene
   ninguna columna de texto libre, así que "es la única fila que existe" no sirve como discriminador
-  —deja de ser cierto si algo falla a mitad de la tanda—.
+  —deja de ser cierto si algo falla a mitad de la tanda—. **Añade también, y no lo cubre ningún otro
+  paso**, marcar `Label` sobre `PLA_PlanMantenimiento.Etiqueta`: `docs/PROMPT_CABLEADO.md` deriva su
+  segunda tabla del «Paso 5» a partir de `etiquetas_pendientes()`, que solo lista tablas que **son
+  destino de una referencia** (`ESPEC-005` §2.2: nada apunta a `PLA_PlanMantenimiento`), así que ese
+  encargo generado nunca instruye marcar `Label` aquí. Sin este paso, `PLA_PlanMantenimiento` se
+  queda sin `Label` puesto y nadie lo detecta porque ningún generador lo pide.
 - **Precondición:** `P-09` completada para `PlanID`.
 - **Acción:**
-  ```bash
-  python scripts/instantanea.py guardar prueba-005-antes-pla
-  ```
-  Con la sesión de operación (o `USR-002`), en `PLA_PlanMantenimiento`, `+`: `ActivoID = ACT-0001`,
-  `FrecuenciaID = FRE-04` (Mensual), `UltimaEjecucion` = hoy menos 30 días, `ResponsableID =
-  USR-002`. `SAVE`.
-  ```bash
-  python scripts/instantanea.py guardar prueba-005-despues-pla
-  python scripts/instantanea.py comparar prueba-005-antes-pla prueba-005-despues-pla
-  ```
-- **Resultado esperado:** el `comparar` identifica **la clave exacta** (`UNIQUEID()`) de la fila
-  nueva por el `diff`, no por conteo. `PlanID` no vacío, `ProximaFecha` calculada por `RG-11`,
-  `Etiqueta` no vacía y con el nombre del activo y de la frecuencia.
+  1. En *Data > Columns* de `PLA_PlanMantenimiento`: confirmar que la columna virtual `Etiqueta`
+     tiene `Show?` activo, y marcar `Label` sobre ella. Si otra columna (típicamente `PlanID`) tenía
+     `Label?` marcado, desmarcarla primero —mismo mecanismo que `P-15` sobre `OT_OrdenesTrabajo`—.
+     Copiar literalmente el estado de las tres casillas (`Show?` de `Etiqueta`, `Label` de `Etiqueta`,
+     `Label?` de la columna vieja).
+  2. ```bash
+     python scripts/instantanea.py guardar prueba-005-antes-pla
+     ```
+     Con la sesión de operación (o `USR-002`), en `PLA_PlanMantenimiento`, `+`: `ActivoID = ACT-0001`,
+     `FrecuenciaID = FRE-04` (Mensual), `UltimaEjecucion` = hoy menos 30 días, `ResponsableID =
+     USR-002`. `SAVE`.
+     ```bash
+     python scripts/instantanea.py guardar prueba-005-despues-pla
+     python scripts/instantanea.py comparar prueba-005-antes-pla prueba-005-despues-pla
+     ```
+  3. Abrir un desplegable que referencie `PLA_PlanMantenimiento` si existe alguno en la app, o en su
+     defecto la lista de `PLA_PlanMantenimiento` en la app, y copiar literalmente el texto mostrado
+     para la fila recién creada.
+- **Resultado esperado:** `Label` marcado sobre `Etiqueta` y `Label?` desactivado en la columna vieja
+  (paso 1). El `comparar` identifica **la clave exacta** (`UNIQUEID()`) de la fila nueva por el
+  `diff`, no por conteo. `PlanID` no vacío, `ProximaFecha` calculada por `RG-11`, `Etiqueta` no vacía
+  y con el nombre del activo y de la frecuencia; la lista de la app muestra ese texto, no `PlanID`.
 - **Cierre de esta prueba, sin `Delete`:** usando la clave identificada por el `diff`,
   `ejecutar_accion("PLA_PlanMantenimiento", "Edit", filas=[{"PlanID": "<clave>", "Activo": False}])`.
   Confirmar con una instantánea que la fila sigue existiendo, ahora con `Activo = FALSE`.
 - **Cómo se distingue el fallo:** la fila no se guarda, se guarda sin `PlanID`, `Etiqueta` queda
-  vacía, o el cierre borra la fila en vez de marcarla inactiva.
+  vacía, la lista sigue mostrando `PlanID` en vez de `Etiqueta` (señal de que el paso 1 no se hizo o
+  no se guardó), o el cierre borra la fila en vez de marcarla inactiva.
 
 ## 3. Pruebas bloqueadas
 

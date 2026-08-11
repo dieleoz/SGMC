@@ -45,6 +45,10 @@ la gente, y ahí se coló más de un error del 2026-08-10.
 - **`Display`** — **`Label`**, `Display name` y `Description`
 - **`Other Properties`** — `Searchable`, `Scannable`, `NFC` y `Sensitive data`
 
+### Antes de leer nada: recarga en duro
+
+Si el editor muestra «A newer version of the app exists», recarga en duro con Ctrl+Shift+R ANTES de leer ningun tipo. Lo que hay en pantalla puede ser cache, y un cotejo sobre cache reporta tipos falsos con toda la confianza del mundo.
+
 ### Los bots
 
 `Automation > Bots` → `Create a new Bot`, y tres partes:
@@ -439,25 +443,25 @@ En *Data > Columns*, marca la casilla **`Label`** de estas columnas:
 | Tabla | Referencias que la apuntan | `Label` |
 |---|---|---|
 | `USR_Usuarios` | 7 | **`Nombres`** |
-| `UNF_UnidadesFuncionales` | 3 | **`Nombre`** |
 | `ACT_Activos` | 3 | **`Nombre`** |
+| `UNF_UnidadesFuncionales` | 3 | **`Nombre`** |
 | `MAN_Mantenimientos` | 3 | *ninguna: la clave la identifica, y está decidido así* |
 | `FRM_Formularios` | 3 | **`Nombre`** |
 | `FRM_Preguntas` | 2 | **`Pregunta`** |
-| `OT_OrdenesTrabajo` | 2 | **`Etiqueta`** |
 | `EST_Activo` | 2 | **`Nombre`** |
-| `TIP_TiposActivo` | 2 | **`Nombre`** |
+| `OT_OrdenesTrabajo` | 2 | **`Etiqueta`** |
 | `FRE_Frecuencias` | 2 | **`Nombre`** |
-| `FRM_Secciones` | 1 | **`Nombre`** |
-| `SED_Sedes` | 1 | **`Nombre`** |
-| `CAL_Calzadas` | 1 | **`Nombre`** |
-| `EOT_EstadosOrden` | 1 | **`Nombre`** |
-| `FAL_ModosFalla` | 1 | **`Nombre`** |
+| `TIP_TiposActivo` | 2 | **`Nombre`** |
 | `CHK_Checklists` | 1 | *ninguna: la clave la identifica, y está decidido así* |
-| `TPR_TiposRespuesta` | 1 | **`Nombre`** |
 | `SEN_Sentidos` | 1 | **`Nombre`** |
+| `TPR_TiposRespuesta` | 1 | **`Nombre`** |
+| `FAL_ModosFalla` | 1 | **`Nombre`** |
 | `MOT_MotivosPendiente` | 1 | **`Nombre`** |
+| `EOT_EstadosOrden` | 1 | **`Nombre`** |
 | `ROL_Roles` | 1 | **`Nombre`** |
+| `FRM_Secciones` | 1 | **`Nombre`** |
+| `CAL_Calzadas` | 1 | **`Nombre`** |
+| `SED_Sedes` | 1 | **`Nombre`** |
 
 > Las 2 sin etiqueta **no son un hueco**: se identifican por su clave y su fecha. Está
 > decidido, no olvidado.

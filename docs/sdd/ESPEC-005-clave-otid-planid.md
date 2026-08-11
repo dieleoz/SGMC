@@ -13,6 +13,17 @@ deriva el número de activos de `ACT_Activos` en vez de traerlo escrito a mano. 
 —incluida una condición que cambia el diseño de `Etiqueta`— se atienden en esta versión, verificada
 de nuevo contra el archivo en cada punto, no reescrita desde la memoria de la anterior.
 
+**Nota de estado, añadida al cerrar [`ORDEN-005`](ORDEN-005-clave-otid-planid.md) y
+[`ACTA-005`](ACTA-005-clave-otid-planid.md):** el arquitecto dio esta versión por `PASA CON
+CONDICIONES`, con diez condiciones. Tres eran de código y se aplicaron junto con el resto de esta
+especificación (§4: `CLAVE_LEGIBLE`, `CLAVE_GENERADA`, `REGLAS` en `scripts/modelo_objetivo.py`;
+`SIN_ETIQUETA_NATURAL` y `ETIQUETA_VIRTUAL` en `scripts/inferencia.py`). **Eso se hizo el
+2026-08-10 sin que existiera todavía una orden de ejecución ni una acta** — un fallo de proceso, no
+un atajo válido, y `ORDEN-005`/`ACTA-005` lo registran así en vez de encubrirlo. Las siete
+condiciones restantes eran de este documento y de `PRUEBA-005`; se aplicaron después, sobre el texto,
+al escribir `ORDEN-005`. La hoja de Google Sheets y el editor de AppSheet **no se tocaron**: lo
+aplicado es exclusivamente el modelo en Python. Ver `ACTA-005` para el detalle verificado.
+
 ## 1. Qué se quiere y por qué
 
 Las ocho tablas transaccionales (`OT_OrdenesTrabajo`, `MAN_Mantenimientos`, `CHK_Checklists`,
@@ -362,10 +373,21 @@ otras seis tablas transaccionales ya usan sin incidentes.
 
 ### 3.2 Cómo se identifica una orden ante el técnico si `OTID` deja de ser legible — el mecanismo completo, verificado
 
-`scripts/inferencia.py:174-178` (hoy, antes de `ORDEN-005`) declara `OT_OrdenesTrabajo` en
-`SIN_ETIQUETA_NATURAL` con el motivo "una orden se identifica por su número y su fecha". Ese motivo
-deja de sostenerse en cuanto el número es un `UNIQUEID()`. La resolución, verificada por simulación
-completa sobre una copia temporal del repositorio (no aplicada al repositorio real):
+`scripts/inferencia.py:174-178` (al momento de escribir esta especificación, antes de `ORDEN-005`)
+declaraba `OT_OrdenesTrabajo` en `SIN_ETIQUETA_NATURAL` con el motivo "una orden se identifica por su
+número y su fecha". Ese motivo deja de sostenerse en cuanto el número es un `UNIQUEID()`. La
+resolución, verificada entonces por simulación completa sobre una copia temporal del repositorio:
+
+**Corrección posterior, para que este documento no se contradiga con el repositorio real:** lo que
+sigue se redactó y se verificó por simulación *antes* de que `ORDEN-005` existiera, y por eso decía
+"no aplicada al repositorio real". Eso dejó de ser cierto el 2026-08-10: los cambios de este §3.2 y
+del §4 **sí se aplicaron** directamente a `scripts/modelo_objetivo.py` y `scripts/inferencia.py` —sin
+que existiera todavía `ORDEN-005` ni `ACTA-005`, un fallo de proceso que esos dos documentos
+registran—. Lo que sigue describe la simulación tal como se verificó entonces; el estado real hoy se
+confirma con
+`python -c "import sys;sys.path.insert(0,'scripts');import modelo_objetivo as m;print(len(m.CLAVE_LEGIBLE),len(m.CLAVE_GENERADA),len(m.REGLAS))"`
+(da `20 8 23`, no los `22 6 21` de antes) y con `etiqueta_de('OT_OrdenesTrabajo')` (da `'Etiqueta'`,
+no `None`).
 
 1. **`OT_OrdenesTrabajo` sale de `SIN_ETIQUETA_NATURAL`** en `scripts/inferencia.py`.
 2. **Se declaran `RG-35` y `RG-36` en `REGLAS`** (§4), con `columna="(tabla)"` y `tipo="App

@@ -101,6 +101,25 @@ pide plantilla PDF y valores de retorno. Van dos sitios, en este orden:
      y eliges la que acabas de crear
 """
 
+# ------------------- el editor puede mostrarte tipos que ya no son los que hay
+#
+# Si arriba aparece el aviso «A newer version of the app exists», lo que ves en
+# `Data > Columns` puede ser **cache**, no el estado real. Se descubrio el
+# 2026-08-11 cotejando tipos: sin recargar en duro, OT_OrdenesTrabajo mostraba
+# nueve columnas como `Text` cuando ya estaban puestas.
+#
+# El dano no es que se vea mal: es que quien coteja **reporta tipos falsos**, y
+# lo hace de buena fe y con la pantalla delante. Un cotejo a ojo es la unica
+# evidencia que existe para los tipos -la API devuelve filas, no esquema-, asi
+# que una lectura sobre cache contamina justo lo que no se puede recuperar.
+#
+# Antes de cotejar nada: **Ctrl+Shift+R**.
+CACHE_DEL_EDITOR = (
+    "Si el editor muestra «A newer version of the app exists», recarga en duro "
+    "con Ctrl+Shift+R ANTES de leer ningun tipo. Lo que hay en pantalla puede "
+    "ser cache, y un cotejo sobre cache reporta tipos falsos con toda la "
+    "confianza del mundo.")
+
 SENAL_DE_GUARDADO = """
 **El boton `SAVE` de la cabecera pasa de gris a AZUL** cuando el editor recoge un
 cambio, y vuelve a gris al guardar. Ese ciclo -gris, azul, gris- es la senal.
@@ -121,7 +140,8 @@ def mapa_markdown():
     L += ["", "**Dentro del panel de una columna**, las secciones van en este orden:", ""]
     for nombre, que in SECCIONES_COLUMNA:
         L.append("- **`%s`** — %s" % (nombre, que))
-    L += ["", "### Los bots", BOT, "### Cómo saber que quedó guardado", SENAL_DE_GUARDADO]
+    L += ["", "### Antes de leer nada: recarga en duro", "", CACHE_DEL_EDITOR,
+          "", "### Los bots", BOT, "### Cómo saber que quedó guardado", SENAL_DE_GUARDADO]
     return "\n".join(L)
 
 

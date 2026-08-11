@@ -185,6 +185,10 @@ la gente, y ahí se coló más de un error del 2026-08-10.
 - **`Display`** — **`Label`**, `Display name` y `Description`
 - **`Other Properties`** — `Searchable`, `Scannable`, `NFC` y `Sensitive data`
 
+### Antes de leer nada: recarga en duro
+
+Si el editor muestra «A newer version of the app exists», recarga en duro con Ctrl+Shift+R ANTES de leer ningun tipo. Lo que hay en pantalla puede ser cache, y un cotejo sobre cache reporta tipos falsos con toda la confianza del mundo.
+
 ### Los bots
 
 `Automation > Bots` → `Create a new Bot`, y tres partes:
