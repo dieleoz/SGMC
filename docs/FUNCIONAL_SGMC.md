@@ -121,13 +121,13 @@ las cinco tiene fila en `TIP_TiposActivo`**, así que hoy no se pueden ni regist
 `EOT_EstadosOrden` lleva una columna `QuienCambia` que define quién mueve cada estado:
 
 ```
-Programada   → Sistema
+Programada   → Supervisor   ← lo deja ahí quien pulsa la accion del plan (RG-38), no un bot
 Asignada     → Supervisor
 En ejecución → Técnico
 En revisión  → Técnico      ← aquí el técnico termina y suelta
 Cerrada      → Supervisor   ← quien ejecuta no certifica
 Suspendida   → Supervisor
-Vencida      → Sistema
+Vencida      → Supervisor   ← decisión de que la orden no se va a ejecutar, no un bot (RG-37/ESPEC-006)
 ```
 
 **El técnico deja la orden «En revisión»; el supervisor la recibe y la cierra.** Quien hace el
@@ -137,6 +137,15 @@ cambio no toca la comprobación que lo mide.
 > **Estado real:** `QuienCambia` está escrita en la tabla, **pero ninguna regla la impone**. Hoy nada
 > impide que un técnico ponga «Cerrada» él mismo. El modelo describe la separación y no la aplica.
 > Es una de las piezas pendientes — ver sección 8.
+>
+> **`Vencida` y `Programada` cambiaron de dueño, no solo de dato (`ESPEC-006`/`ORDEN-006`).**
+> `RG-08`, el bot que movía una orden a `Vencida` sola, nunca corrió: los bots programados no se
+> ejecutan en la cuenta gratuita, y además la habría dejado en un estado terminal del que el
+> técnico no podía salir para cerrar. Se reemplazó por `RG-37`, una columna virtual
+> `EstaVencida` que **solo informa** —no mueve el estado—, y `Vencida` pasó a significar «el
+> supervisor decidió que esta orden no se va a ejecutar», una decisión de persona, no del sistema.
+> El mismo argumento aplica a `Programada`: la deja ahí quien pulsa la acción de `RG-38` sobre el
+> plan de mantenimiento, no un bot semanal —`RG-12` tampoco llegó a correr nunca—.
 
 Falta además una cosa para que la recepción esté completa: **no hay estado de rechazo.**
 `MAN_Mantenimientos.ObservacionRechazo` existe y la orden no tiene a dónde volver, porque

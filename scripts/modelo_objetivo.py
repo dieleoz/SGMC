@@ -906,8 +906,9 @@ CLAVE_GENERADA = {
     "FOT_Fotografias",
     "FIR_Firmas",
     "NOV_Novedades",
-    # ESPEC-005: su clave era legible y NADIE la generaba, y RG-10 y RG-12
-    # crean filas ahi. Una fila sin clave AppSheet la descarta sin decirlo.
+    # ESPEC-005: su clave era legible y NADIE la generaba, y RG-10 y la accion
+    # de RG-38 (antes RG-12, ESPEC-006) crean filas ahi. Una fila sin clave
+    # AppSheet la descarta sin decirlo.
     "OT_OrdenesTrabajo", "PLA_PlanMantenimiento",
 }
 
@@ -1162,10 +1163,19 @@ REGLAS = [
          tipo="Bot", cubre="RF-003",
          expresion="Adds",
          descripcion="Notifica por correo al tecnico cuando se le asigna una orden."),
-    dict(id="RG-08", tabla="OT_OrdenesTrabajo", columna="EstadoOrdenID",
-         tipo="Bot programado", cubre="D-06",
-         expresion='AND([EstadoOrdenID].[EsFinal] = FALSE, [FechaProgramada] < TODAY())',
-         descripcion="Marca como Vencida la orden cuya fecha programada paso sin cerrarse."),
+    dict(id="RG-37", tabla="OT_OrdenesTrabajo", columna="(tabla)",
+         tipo="App formula", cubre="D-06",
+         expresion="AND([EstadoOrdenID].[EsFinal] = FALSE, [FechaProgramada] < TODAY())",
+         nombre_virtual="EstaVencida",
+         descripcion=("EstaVencida, columna VIRTUAL (Yes/No), no en MODELO: F-02 no la exige, no "
+                      "toca la hoja. Reemplaza a RG-08. Misma condicion exacta que tenia el bot "
+                      "programado, pero como lectura que se recalcula en cada sincronizacion: no "
+                      "escribe, no mueve el estado, y el tecnico que llega tarde sigue pudiendo "
+                      "cerrar. Su consumidor: una vista 'Ordenes vencidas' sobre esta tabla, "
+                      "condicion [EstaVencida] = TRUE, visible para el rol Supervisor (ver "
+                      "ESPEC-006 3.2). No tiene historico: si la orden se cierra tarde, vuelve a "
+                      "FALSE y no queda marca de que estuvo vencida, y la vista deja de listarla "
+                      "(ver ESPEC-006 3.4).")),
     dict(id="RG-09", tabla="CHK_Checklists", columna="VersionFormulario",
          tipo="Initial value", cubre="D-11",
          expresion="[FormularioID].[Version]",
@@ -1174,12 +1184,19 @@ REGLAS = [
          tipo="App formula", cubre="Plan de mantenimiento",
          expresion="[UltimaEjecucion] + [FrecuenciaID].[Dias]",
          descripcion="Calcula cuando vuelve a tocar el preventivo de ese activo."),
-    dict(id="RG-12", tabla="PLA_PlanMantenimiento", columna="(tabla)",
-         tipo="Bot programado", cubre="Plan de mantenimiento",
-         expresion="[ProximaFecha] <= TODAY() + 7",
-         descripcion=("Genera las ordenes de la semana a partir del plan y notifica al tecnico "
-                      "responsable. REQUIERE PLAN PAGADO: en el gratuito los bots programados no "
-                      "se ejecutan.")),
+    dict(id="RG-38", tabla="PLA_PlanMantenimiento", columna="(tabla)",
+         tipo="Accion", cubre="Plan de mantenimiento",
+         expresion="AND([Activo] = TRUE, [ProximaFecha] <= TODAY() + 7)",
+         descripcion=("Reemplaza a RG-12. La expresion de arriba es la condicion de una vista/slice "
+                      "'Vence en 7 dias' sobre esta tabla -no una regla de columna-. Sobre esa vista "
+                      "se expone una accion 'Data: add a new row to another table using values from "
+                      "this row' (Data > Actions), que el supervisor pulsa -individual o en bloque, "
+                      "ver Actions: The Essentials, seccion Bulk actions- y crea la fila en "
+                      "OT_OrdenesTrabajo. Mapeo de columnas verificado en ESPEC-006 3.3. No usa "
+                      "Automation > Bots: no hay Event ni Schedule, es invocacion explicita del "
+                      "usuario. No requiere plan de pago (ver ESPEC-006 2.1: la restriccion "
+                      "verificada contra la fuente oficial es sobre bots con Schedule event, no "
+                      "sobre acciones invocadas por el usuario).")),
     dict(id="RG-13", tabla="MAN_Mantenimientos", columna="(tabla)",
          tipo="Verificacion de evidencia", cubre="Prueba de presencia",
          expresion="DISTANCE([UbicacionEscaneo_LatLong], [Coordenadas_Cierre_LatLong]) <= 0.5",

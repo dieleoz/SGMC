@@ -785,9 +785,9 @@ Adds
 
 Cubre: RF-003
 
-### RG-08 · Bot programado sobre `OT_OrdenesTrabajo`.`EstadoOrdenID`
+### RG-37 · App formula sobre `OT_OrdenesTrabajo`
 
-Marca como Vencida la orden cuya fecha programada paso sin cerrarse.
+EstaVencida, columna VIRTUAL (Yes/No), no en MODELO: F-02 no la exige, no toca la hoja. Reemplaza a RG-08. Misma condicion exacta que tenia el bot programado, pero como lectura que se recalcula en cada sincronizacion: no escribe, no mueve el estado, y el tecnico que llega tarde sigue pudiendo cerrar. Su consumidor: una vista 'Ordenes vencidas' sobre esta tabla, condicion [EstaVencida] = TRUE, visible para el rol Supervisor (ver ESPEC-006 3.2). No tiene historico: si la orden se cierra tarde, vuelve a FALSE y no queda marca de que estuvo vencida, y la vista deja de listarla (ver ESPEC-006 3.4).
 
 ```
 AND([EstadoOrdenID].[EsFinal] = FALSE, [FechaProgramada] < TODAY())
@@ -815,12 +815,12 @@ Calcula cuando vuelve a tocar el preventivo de ese activo.
 
 Cubre: Plan de mantenimiento
 
-### RG-12 · Bot programado sobre `PLA_PlanMantenimiento`
+### RG-38 · Accion sobre `PLA_PlanMantenimiento`
 
-Genera las ordenes de la semana a partir del plan y notifica al tecnico responsable. REQUIERE PLAN PAGADO: en el gratuito los bots programados no se ejecutan.
+Reemplaza a RG-12. La expresion de arriba es la condicion de una vista/slice 'Vence en 7 dias' sobre esta tabla -no una regla de columna-. Sobre esa vista se expone una accion 'Data: add a new row to another table using values from this row' (Data > Actions), que el supervisor pulsa -individual o en bloque, ver Actions: The Essentials, seccion Bulk actions- y crea la fila en OT_OrdenesTrabajo. Mapeo de columnas verificado en ESPEC-006 3.3. No usa Automation > Bots: no hay Event ni Schedule, es invocacion explicita del usuario. No requiere plan de pago (ver ESPEC-006 2.1: la restriccion verificada contra la fuente oficial es sobre bots con Schedule event, no sobre acciones invocadas por el usuario).
 
 ```
-[ProximaFecha] <= TODAY() + 7
+AND([Activo] = TRUE, [ProximaFecha] <= TODAY() + 7)
 ```
 
 Cubre: Plan de mantenimiento

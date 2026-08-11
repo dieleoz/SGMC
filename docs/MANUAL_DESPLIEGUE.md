@@ -356,7 +356,7 @@ Por tipo: **39** `Ref` · **38** `Yes/No` · **12** `Enum` · **9** `LongText` �
 
 **Estan ordenadas por cuantas reglas dependen de cada una**, que es lo que ordena el trabajo:
 una columna mal tipada **sin** regla encima molesta al usuario; **con** una regla encima
-**rompe la regla en silencio**, que es lo que paso con `RG-03`. Las 23 primeras llevan regla.
+**rompe la regla en silencio**, que es lo que paso con `RG-03`. Las 24 primeras llevan regla.
 
 | Tabla | Columna | `TYPE` | Reglas | Por que no se consigue sola |
 |---|---|---|---|---|
@@ -371,16 +371,17 @@ una columna mal tipada **sin** regla encima molesta al usuario; **con** una regl
 | `ASG_AsignacionZona` | `UnidadFuncionalID` | **`Ref`** → `UNF_UnidadesFuncionales` | `RG-04` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `ASG_AsignacionZona` | `UsuarioID` | **`Ref`** → `USR_Usuarios` | `RG-04` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `CHK_Checklists` | `FormularioID` | **`Ref`** → `FRM_Formularios` | `RG-09` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
-| `EOT_EstadosOrden` | `EsFinal` | **`Yes/No`** | `RG-08` | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
+| `EOT_EstadosOrden` | `EsFinal` | **`Yes/No`** | `RG-37` | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
 | `EST_Activo` | `GeneraAlerta` | **`Yes/No`** | `RG-06` | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
 | `MAN_Mantenimientos` | `CierreConExcepcion` | **`Yes/No`** | `RG-03` | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
 | `MAN_Mantenimientos` | `EstadoActivoID` | **`Ref`** → `EST_Activo` | `RG-06` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `MAN_Mantenimientos` | `MotivoExcepcion` | **`LongText`** | `RG-03` | indistinguible de Text por contenido |
 | `MAN_Mantenimientos` | `OTID` | **`Ref`** → `OT_OrdenesTrabajo` | `RG-01` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `MAN_Mantenimientos` | `RequiereSegundaVisita` | **`Yes/No`** | `RG-10` | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
-| `OT_OrdenesTrabajo` | `EstadoOrdenID` | **`Ref`** → `EOT_EstadosOrden` | `RG-08` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `OT_OrdenesTrabajo` | `EstadoOrdenID` | **`Ref`** → `EOT_EstadosOrden` | `RG-37` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `OT_OrdenesTrabajo` | `SupervisorID` | **`Ref`** → `USR_Usuarios` | `RG-05` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `OT_OrdenesTrabajo` | `TecnicoID` | **`Ref`** → `USR_Usuarios` | `RG-05` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `PLA_PlanMantenimiento` | `Activo` | **`Yes/No`** | `RG-38` | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
 | `PLA_PlanMantenimiento` | `ActivoID` | **`Ref`** → `ACT_Activos` | `RG-36` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `SED_Sedes` | `UnidadFuncionalID` | **`Ref`** → `UNF_UnidadesFuncionales` | `RG-34` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `ACT_Activos` | `CalzadaID` | **`Ref`** → `CAL_Calzadas` | — | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
@@ -452,7 +453,6 @@ una columna mal tipada **sin** regla encima molesta al usuario; **con** una regl
 | `OT_OrdenesTrabajo` | `Tipo` | **`Enum`** · `Preventivo` · `Correctivo` | — | el contenido no declara el conjunto de valores permitidos |
 | `PAR_Parametros` | `Activo` | **`Yes/No`** | — | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
 | `PAR_Parametros` | `Descripcion` | **`LongText`** | — | indistinguible de Text por contenido |
-| `PLA_PlanMantenimiento` | `Activo` | **`Yes/No`** | — | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
 | `PLA_PlanMantenimiento` | `ResponsableID` | **`Ref`** → `USR_Usuarios` | — | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `ROL_Roles` | `Activo` | **`Yes/No`** | — | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
 | `SED_Sedes` | `Activo` | **`Yes/No`** | — | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
@@ -724,7 +724,7 @@ retirada.
 **Y compruebe en que tabla esta antes de abrir la columna**, por lo que dice el paso 5: el
 mismo nombre es clave en una tabla y referencia en otra.
 
-### Las 21, y las 10 que van al final
+### Las 21, y las 9 que van al final
 
 | # | Regla | Tabla | Columna | Propiedad | Escribe |
 |---|---|---|---|---|---|
@@ -739,18 +739,18 @@ mismo nombre es clave en una tabla y referencia en otra.
 | 9 | RG-18 | `ACT_Activos` | `(tabla)` | Doctrina de reportes | no |
 | 10 | RG-20 | `MAN_Mantenimientos` | `(varias)` | Editable_If | no |
 | 11 | RG-34 | `ACT_Activos` | `UnidadFuncionalID` | Valid_If | no |
-| 12 | RG-06 | `MAN_Mantenimientos` | `(tabla)` | Bot | **SI** |
-| 13 | RG-07 | `OT_OrdenesTrabajo` | `(tabla)` | Bot | **SI** |
-| 14 | RG-08 | `OT_OrdenesTrabajo` | `EstadoOrdenID` | Bot programado | **SI** |
+| 12 | RG-38 | `PLA_PlanMantenimiento` | `(tabla)` | Accion | no |
+| 13 | RG-06 | `MAN_Mantenimientos` | `(tabla)` | Bot | **SI** |
+| 14 | RG-07 | `OT_OrdenesTrabajo` | `(tabla)` | Bot | **SI** |
 | 15 | RG-09 | `CHK_Checklists` | `VersionFormulario` | Initial value | **SI** |
 | 16 | RG-10 | `MAN_Mantenimientos` | `(tabla)` | Bot | **SI** |
 | 17 | RG-11 | `PLA_PlanMantenimiento` | `ProximaFecha` | App formula | **SI** |
-| 18 | RG-12 | `PLA_PlanMantenimiento` | `(tabla)` | Bot programado | **SI** |
-| 19 | RG-16 | `ACT_Activos` | `Activo` | App formula | **SI** |
-| 20 | RG-35 | `OT_OrdenesTrabajo` | `(tabla)` | App formula | **SI** |
-| 21 | RG-36 | `PLA_PlanMantenimiento` | `(tabla)` | App formula | **SI** |
+| 18 | RG-16 | `ACT_Activos` | `Activo` | App formula | **SI** |
+| 19 | RG-35 | `OT_OrdenesTrabajo` | `(tabla)` | App formula | **SI** |
+| 20 | RG-36 | `PLA_PlanMantenimiento` | `(tabla)` | App formula | **SI** |
+| 21 | RG-37 | `OT_OrdenesTrabajo` | `(tabla)` | App formula | **SI** |
 
-### Las 10 que escriben en la hoja van al final, y antes se toma una instantanea
+### Las 9 que escriben en la hoja van al final, y antes se toma una instantanea
 
 Las de `App formula`, `Initial value` y las de tipo bot **escriben en la hoja**. A diferencia de
 un tipo de columna, **lo que escriben no se revierte cambiando un desplegable**: hay que saber
@@ -758,7 +758,7 @@ que habia antes. Por eso van las ultimas, cuando ya se puede comprobar que escri
 
 ```bash
 python scripts/instantanea.py guardar antes-de-las-que-escriben
-#   ... se ponen las 10 ...
+#   ... se ponen las 9 ...
 python scripts/instantanea.py guardar despues
 python scripts/instantanea.py comparar antes-de-las-que-escriben despues
 ```
@@ -966,7 +966,7 @@ ACT_Activos.TipoActivoID    estaba: Ref -> SED_Sedes     lo dejo: Ref -> TIP_Tip
 SED_Sedes.TramoINVIAS       estaba: Number               lo dejo: Text
 ```
 
-**Y para las 10 reglas que escriben en la hoja, la anotacion no sirve: hace falta la
+**Y para las 9 reglas que escriben en la hoja, la anotacion no sirve: hace falta la
 instantanea.** Lo que escriben no vive en el esquema, vive en el dato, y hay que haberlo
 fotografiado **antes**:
 

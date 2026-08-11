@@ -43,8 +43,8 @@ es poco, aquí está donde se concentra el error.
 | `OT_OrdenesTrabajo` | `TecnicoID` | **`Ref`** | `RG-05` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `OT_OrdenesTrabajo` | `SupervisorID` | **`Ref`** | `RG-05` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `OT_OrdenesTrabajo` | `Tipo` | **`Enum`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
-| `OT_OrdenesTrabajo` | `FechaProgramada` | **`DateTime`** | `RG-08`, `RG-35` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
-| `OT_OrdenesTrabajo` | `EstadoOrdenID` | **`Ref`** | `RG-08` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
+| `OT_OrdenesTrabajo` | `FechaProgramada` | **`DateTime`** | `RG-35`, `RG-37` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
+| `OT_OrdenesTrabajo` | `EstadoOrdenID` | **`Ref`** | `RG-37` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `OT_OrdenesTrabajo` | `OTOrigenID` | **`Ref`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `OT_OrdenesTrabajo` | `Observaciones` | **`LongText`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `OT_OrdenesTrabajo` | `FechaCierre` | **`DateTime`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
@@ -85,9 +85,9 @@ es poco, aquí está donde se concentra el error.
 | `PLA_PlanMantenimiento` | `ActivoID` | **`Ref`** | `RG-36` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `PLA_PlanMantenimiento` | `FrecuenciaID` | **`Ref`** | `RG-11`, `RG-36` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `PLA_PlanMantenimiento` | `UltimaEjecucion` | **`Date`** | `RG-11` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
-| `PLA_PlanMantenimiento` | `ProximaFecha` | **`Date`** | `RG-11`, `RG-12` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
+| `PLA_PlanMantenimiento` | `ProximaFecha` | **`Date`** | `RG-11`, `RG-38` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `PLA_PlanMantenimiento` | `ResponsableID` | **`Ref`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
-| `PLA_PlanMantenimiento` | `Activo` | **`Yes/No`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
+| `PLA_PlanMantenimiento` | `Activo` | **`Yes/No`** | `RG-38` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `FOT_Fotografias` | `FotoID` | **`Text`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `FOT_Fotografias` | `MantenimientoID` | **`Ref`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `FOT_Fotografias` | `Tipo` | **`Enum`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |

@@ -136,13 +136,13 @@ dice. Las que **escriben en la hoja** van al final a propósito.
 | 9 | `RG-34` | `ACT_Activos` | `UnidadFuncionalID` | `Valid_If` | `SED_Sedes` |
 | 10 | `RG-35` | `OT_OrdenesTrabajo` | `(tabla)` | `App formula` | `ACT_Activos` |
 | 11 | `RG-36` | `PLA_PlanMantenimiento` | `(tabla)` | `App formula` | `ACT_Activos` · `FRE_Frecuencias` |
-| 12 | `RG-06` | `MAN_Mantenimientos` | `(tabla)` | `Bot` | `EST_Activo` |
-| 13 | `RG-07` | `OT_OrdenesTrabajo` | `(tabla)` | `Bot` | — |
-| 14 | `RG-08` | `OT_OrdenesTrabajo` | `EstadoOrdenID` | `Bot programado` | `EOT_EstadosOrden` |
-| 15 | `RG-09` | `CHK_Checklists` | `VersionFormulario` | `Initial value` | `FRM_Formularios` |
-| 16 | `RG-10` | `MAN_Mantenimientos` | `(tabla)` | `Bot` | — |
-| 17 | `RG-11` | `PLA_PlanMantenimiento` | `ProximaFecha` | `App formula` | `FRE_Frecuencias` |
-| 18 | `RG-12` | `PLA_PlanMantenimiento` | `(tabla)` | `Bot programado` | — |
+| 12 | `RG-37` | `OT_OrdenesTrabajo` | `(tabla)` | `App formula` | `EOT_EstadosOrden` |
+| 13 | `RG-38` | `PLA_PlanMantenimiento` | `(tabla)` | `Accion` | — |
+| 14 | `RG-06` | `MAN_Mantenimientos` | `(tabla)` | `Bot` | `EST_Activo` |
+| 15 | `RG-07` | `OT_OrdenesTrabajo` | `(tabla)` | `Bot` | — |
+| 16 | `RG-09` | `CHK_Checklists` | `VersionFormulario` | `Initial value` | `FRM_Formularios` |
+| 17 | `RG-10` | `MAN_Mantenimientos` | `(tabla)` | `Bot` | — |
+| 18 | `RG-11` | `PLA_PlanMantenimiento` | `ProximaFecha` | `App formula` | `FRE_Frecuencias` |
 | 19 | `RG-16` | `ACT_Activos` | `Activo` | `App formula` | `EST_Activo` |
 | 20 | `RG-04` | `ACT_Activos` | `(tabla)` | `Security Filter` | `USR_Usuarios` |
 | 21 | `RG-05` | `OT_OrdenesTrabajo` | `(tabla)` | `Security Filter` | `USR_Usuarios` · `USR_Usuarios` |
@@ -155,9 +155,9 @@ dice. Las que **escriben en la hoja** van al final a propósito.
 > ni `instantanea.py` ni `auditar_cableado.py` pueden volver a comprobar nada ahí. Ponerlos
 > antes es apagar la luz de la habitación en la que estás trabajando.
 
-## Los 5 bots no van en una columna, y esto es lo que faltaba
+## Los 3 bots no van en una columna, y esto es lo que faltaba
 
-Las otras 16 se ponen en una propiedad de una columna o de una tabla. **Un bot no.** Vive en
+Las otras 18 se ponen en una propiedad de una columna o de una tabla. **Un bot no.** Vive en
 `Automation > Bots` —el icono del rayo— y tiene tres partes, no una expresión suelta:
 
 ```
@@ -184,14 +184,39 @@ El orden es este:
 2. **`Automation > Bots` → tu bot → `Add a step` → `Run a data action`**, y eliges la que
    acabas de crear.
 
-Afecta a `RG-10` y a `RG-12`, que son las 2 que crean órdenes.
+Afecta a `RG-10`, que es la que crea órdenes.
 
-> **`RG-10` y `RG-12` ya se pueden poner.** `OTID` era clave legible y nadie la generaba, así que la fila
+> **`RG-10` ya se pueden poner.** `OTID` era clave legible y nadie la generaba, así que la fila
 > nacía sin identificador y AppSheet la descartaba en silencio. `ESPEC-005` lo resolvió:
 > `OT_OrdenesTrabajo` está en `CLAVE_GENERADA` y su clave sale de `UNIQUEID()`.
 >
 > Lo que sí sigue abierto es **cuándo dispararlos**: crean órdenes, y con eso pueblan una
 > tabla que hoy está en cero. Ver `ENCARGO_VENTANA.md`.
+
+## `RG-38` no es un bot: solo `Data > Actions`, sin `Automation > Bots`
+
+Se parece a un bot que crea filas —mismo paso `Data: add a new row to another table using
+values from this row`—, pero **no lleva la segunda mitad**. No hay `Event`, no hay
+`Schedule`, no se abre `Automation > Bots` en ningún momento: la dispara el usuario, pulsando
+el botón de la acción sobre una fila (o varias, en bloque). Por eso no requiere plan de pago
+aunque su condición se parezca a la de un bot programado retirado: la restricción de la
+cuenta gratuita es sobre bots con `Schedule event`, no sobre acciones invocadas a mano —ver
+`ESPEC-006` §2.1 y §7, supuesto 2.
+
+### `RG-38` — `PLA_PlanMantenimiento.(tabla)`
+
+1. **`Data > Slices`.** Crea la vista/slice con la condición de abajo — es lo que decide
+   qué filas ofrecen el botón.
+   ```
+   AND([Activo] = TRUE, [ProximaFecha] <= TODAY() + 7)
+   ```
+2. **`Data > Actions` → `Add Action`**, sobre la tabla de origen (`PLA_PlanMantenimiento`). `Do this` =
+   **`Data: add a new row to another table using values from this row`**, con el mapeo
+   de columnas de `ESPEC-006` §3.3.
+3. **No hay paso 3 en `Automation > Bots`.** Si algo pide crear un bot para esto, es la
+   trampa de arriba aplicada al revés: aquí no hace falta, y crear uno de todos modos
+   reintroduce el problema que esta regla existe para evitar (nadie sabe si corrió).
+
 
 ## Las expresiones, enteras
 
@@ -345,6 +370,33 @@ Atraviesa **2 referencias distintas**:
 Si el error nombra una de esas tablas y no es la que toca, el fallo está en ese salto,
 no en la expresión.
 
+### RG-37 — `OT_OrdenesTrabajo.(tabla)`
+
+**App formula** · cubre `D-06`
+
+```
+AND([EstadoOrdenID].[EsFinal] = FALSE, [FechaProgramada] < TODAY())
+```
+
+EstaVencida, columna VIRTUAL (Yes/No), no en MODELO: F-02 no la exige, no toca la hoja. Reemplaza a RG-08. Misma condicion exacta que tenia el bot programado, pero como lectura que se recalcula en cada sincronizacion: no escribe, no mueve el estado, y el tecnico que llega tarde sigue pudiendo cerrar. Su consumidor: una vista 'Ordenes vencidas' sobre esta tabla, condicion [EstaVencida] = TRUE, visible para el rol Supervisor (ver ESPEC-006 3.2). No tiene historico: si la orden se cierra tarde, vuelve a FALSE y no queda marca de que estuvo vencida, y la vista deja de listarla (ver ESPEC-006 3.4).
+
+Atraviesa **1 referencia**:
+
+- `OT_OrdenesTrabajo.EstadoOrdenID` → `EOT_EstadosOrden`
+
+Si el error nombra una de esas tablas y no es la que toca, el fallo está en ese salto,
+no en la expresión.
+
+### RG-38 — `PLA_PlanMantenimiento.(tabla)`
+
+**Accion** · cubre `Plan de mantenimiento`
+
+```
+AND([Activo] = TRUE, [ProximaFecha] <= TODAY() + 7)
+```
+
+Reemplaza a RG-12. La expresion de arriba es la condicion de una vista/slice 'Vence en 7 dias' sobre esta tabla -no una regla de columna-. Sobre esa vista se expone una accion 'Data: add a new row to another table using values from this row' (Data > Actions), que el supervisor pulsa -individual o en bloque, ver Actions: The Essentials, seccion Bulk actions- y crea la fila en OT_OrdenesTrabajo. Mapeo de columnas verificado en ESPEC-006 3.3. No usa Automation > Bots: no hay Event ni Schedule, es invocacion explicita del usuario. No requiere plan de pago (ver ESPEC-006 2.1: la restriccion verificada contra la fuente oficial es sobre bots con Schedule event, no sobre acciones invocadas por el usuario).
+
 ### RG-06 — `MAN_Mantenimientos.(tabla)`
 
 **Bot** · cubre `RF-016`
@@ -371,23 +423,6 @@ Adds
 ```
 
 Notifica por correo al tecnico cuando se le asigna una orden.
-
-### RG-08 — `OT_OrdenesTrabajo.EstadoOrdenID`
-
-**Bot programado** · cubre `D-06`
-
-```
-AND([EstadoOrdenID].[EsFinal] = FALSE, [FechaProgramada] < TODAY())
-```
-
-Marca como Vencida la orden cuya fecha programada paso sin cerrarse.
-
-Atraviesa **1 referencia**:
-
-- `OT_OrdenesTrabajo.EstadoOrdenID` → `EOT_EstadosOrden`
-
-Si el error nombra una de esas tablas y no es la que toca, el fallo está en ese salto,
-no en la expresión.
 
 ### RG-09 — `CHK_Checklists.VersionFormulario`
 
@@ -432,16 +467,6 @@ Atraviesa **1 referencia**:
 
 Si el error nombra una de esas tablas y no es la que toca, el fallo está en ese salto,
 no en la expresión.
-
-### RG-12 — `PLA_PlanMantenimiento.(tabla)`
-
-**Bot programado** · cubre `Plan de mantenimiento`
-
-```
-[ProximaFecha] <= TODAY() + 7
-```
-
-Genera las ordenes de la semana a partir del plan y notifica al tecnico responsable. REQUIERE PLAN PAGADO: en el gratuito los bots programados no se ejecutan.
 
 ### RG-16 — `ACT_Activos.Activo`
 

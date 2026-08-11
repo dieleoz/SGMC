@@ -142,9 +142,13 @@ OR([TecnicoID].[Correo] = USEREMAIL(), [SupervisorID].[Correo] = USEREMAIL())
 Adds
 ```
 
-### RG-08 — `OT_OrdenesTrabajo` · `EstadoOrdenID`
+### RG-37 — `OT_OrdenesTrabajo` · `(tabla)`
 
-**Tipo:** Bot programado · cubre D-06
+**Tipo:** App formula · cubre D-06
+
+> **Es una COLUMNA VIRTUAL, no una columna de la hoja.** Se crea con
+> *Data > Columns > `Add virtual column`*, se llama **`EstaVencida`**, y lleva esa expresión
+> en su `App formula`.
 
 ```
 AND([EstadoOrdenID].[EsFinal] = FALSE, [FechaProgramada] < TODAY())
@@ -166,12 +170,12 @@ AND([EstadoOrdenID].[EsFinal] = FALSE, [FechaProgramada] < TODAY())
 [UltimaEjecucion] + [FrecuenciaID].[Dias]
 ```
 
-### RG-12 — `PLA_PlanMantenimiento` · `(tabla)`
+### RG-38 — `PLA_PlanMantenimiento` · `(tabla)`
 
-**Tipo:** Bot programado · cubre Plan de mantenimiento
+**Tipo:** Accion · cubre Plan de mantenimiento
 
 ```
-[ProximaFecha] <= TODAY() + 7
+AND([Activo] = TRUE, [ProximaFecha] <= TODAY() + 7)
 ```
 
 ### RG-13 — `MAN_Mantenimientos` · `(tabla)`

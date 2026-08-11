@@ -55,7 +55,7 @@ forma de que mienta es que mienta el archivo**.
 | `SEN_Sentidos` | 3 | 2 | Sí |
 | `ACT_Activos` | 20 | 368 | Sí |
 | `OT_OrdenesTrabajo` | 12 | 0 | Sí |
-| `MAN_Mantenimientos` | 23 | 0 | Sí |
+| `MAN_Mantenimientos` | 22 | 0 | Sí |
 | `NOV_Novedades` | 9 | 0 | Sí · **nueva** |
 | `PLA_PlanMantenimiento` | 7 | 0 | Sí · **nueva** |
 | `FAL_ModosFalla` | 6 | 5 | Sí · **nueva** |
@@ -341,7 +341,7 @@ Trabajo programado o levantado sobre un activo.
 
 Ejecucion real en campo. Cuelga de la orden y es padre de la evidencia.
 
-23 columnas · 0 filas · clave: vacía
+22 columnas · 0 filas · clave: vacía
 
 | # | Columna | Tipo objetivo | Estado |
 |---|---|---|---|
@@ -355,19 +355,18 @@ Ejecucion real en campo. Cuelga de la orden y es padre de la evidencia.
 | 8 | `FechaHoraEscaneo` | DateTime |  |
 | 9 | `EstadoActivoID` | Ref → `EST_Activo` |  |
 | 10 | `Coordenadas_Cierre_LatLong` | LatLong |  |
-| 11 | `Precision_GPS` | — | **Retirada.** USERLOCATIONACCURACY() no existe en AppSheet (ESPEC-004 2.1): la columna nunca se poblaba, RG-19 comparaba siempre numero > blanco y RG-03 no pedia MotivoExcepcion nunca. Retirada por ESPEC-004/ORDEN-004. Si MAN_Mantenimientos ya estaba dada de alta en el editor con esta columna sin usar (Rama A, ESPEC-004 2.10), retirarla del modelo no la borra de la hoja: queda huerfana, sin Initial value y sin uso, y eso no es un fallo (ACTA-004; PRUEBA-004 P-45). Si ya estaba cableada con Initial value puesto (Rama B), hace falta Delete and re-add de la tabla completa (ESPEC-004 2.10). |
-| 12 | `CierreConExcepcion` | Yes/No |  |
-| 13 | `MotivoExcepcion` | LongText |  |
-| 14 | `RequiereSegundaVisita` | Yes/No | Antes `Requiere_Segunda_Visita`. Convencion de nombres. |
-| 15 | `MotivoPendienteID` | Ref → `MOT_MotivosPendiente` | Antes `Motivo_Pendiente`. Pasa a referencia contra MOT_MotivosPendiente. |
-| 16 | `ModoFallaID` | Ref → `FAL_ModosFalla` |  |
-| 17 | `Observaciones` | LongText |  |
-| 18 | `AprobadoSupervisor` | Yes/No | Antes `Aprobado_Supervisor`. Convencion de nombres. |
-| 19 | `FechaAprobacion` | DateTime |  |
-| 20 | `ObservacionRechazo` | LongText |  |
-| 21 | `UsuarioRegistro` | Text | Antes `Usuario_Registro`. Convencion de nombres. |
-| 22 | `FechaHoraRegistro` | ChangeTimestamp | Antes `Fecha_Hora_Registro`. Convencion de nombres. |
-| 23 | `Activo` | Yes/No |  |
+| 11 | `CierreConExcepcion` | Yes/No |  |
+| 12 | `MotivoExcepcion` | LongText |  |
+| 13 | `RequiereSegundaVisita` | Yes/No | Antes `Requiere_Segunda_Visita`. Convencion de nombres. |
+| 14 | `MotivoPendienteID` | Ref → `MOT_MotivosPendiente` | Antes `Motivo_Pendiente`. Pasa a referencia contra MOT_MotivosPendiente. |
+| 15 | `ModoFallaID` | Ref → `FAL_ModosFalla` |  |
+| 16 | `Observaciones` | LongText |  |
+| 17 | `AprobadoSupervisor` | Yes/No | Antes `Aprobado_Supervisor`. Convencion de nombres. |
+| 18 | `FechaAprobacion` | DateTime |  |
+| 19 | `ObservacionRechazo` | LongText |  |
+| 20 | `UsuarioRegistro` | Text | Antes `Usuario_Registro`. Convencion de nombres. |
+| 21 | `FechaHoraRegistro` | ChangeTimestamp | Antes `Fecha_Hora_Registro`. Convencion de nombres. |
+| 22 | `Activo` | Yes/No |  |
 
 ### `NOV_Novedades`
 

@@ -284,6 +284,42 @@ else:
     w("> tabla que hoy está en cero. Ver `ENCARGO_VENTANA.md`.")
 w("")
 
+# Una "Accion" (RG-38 hoy) NO es un bot: no tiene Event ni Schedule, la dispara
+# el usuario. Se deriva de REGLAS, no de un id fijo -si algun dia hay una
+# segunda, esta seccion la recoge sola-.
+_acciones = [r for r in REGLAS if r["tipo"] == "Accion"]
+if _acciones:
+    w("## %s no %s bot%s: solo `Data > Actions`, sin `Automation > Bots`"
+      % (" y ".join("`%s`" % r["id"] for r in _acciones),
+         "es un" if len(_acciones) == 1 else "son",
+         "" if len(_acciones) == 1 else "s"))
+    w("")
+    w("Se parece a un bot que crea filas —mismo paso `Data: add a new row to another table using")
+    w("values from this row`—, pero **no lleva la segunda mitad**. No hay `Event`, no hay")
+    w("`Schedule`, no se abre `Automation > Bots` en ningún momento: la dispara el usuario, pulsando")
+    w("el botón de la acción sobre una fila (o varias, en bloque). Por eso no requiere plan de pago")
+    w("aunque su condición se parezca a la de un bot programado retirado: la restricción de la")
+    w("cuenta gratuita es sobre bots con `Schedule event`, no sobre acciones invocadas a mano —ver")
+    w("`ESPEC-006` §2.1 y §7, supuesto 2.")
+    w("")
+    for r in _acciones:
+        w("### `%s` — `%s.%s`" % (r["id"], r["tabla"], r.get("columna") or "(tabla)"))
+        w("")
+        w("1. **`Data > Slices`.** Crea la vista/slice con la condición de abajo — es lo que decide")
+        w("   qué filas ofrecen el botón.")
+        w("   ```")
+        w("   %s" % r["expresion"])
+        w("   ```")
+        w("2. **`Data > Actions` → `Add Action`**, sobre la tabla de origen (`%s`). `Do this` ="
+          % r["tabla"])
+        w("   **`Data: add a new row to another table using values from this row`**, con el mapeo")
+        w("   de columnas de `%s` §3.3." % "ESPEC-006")
+        w("3. **No hay paso 3 en `Automation > Bots`.** Si algo pide crear un bot para esto, es la")
+        w("   trampa de arriba aplicada al revés: aquí no hace falta, y crear uno de todos modos")
+        w("   reintroduce el problema que esta regla existe para evitar (nadie sabe si corrió).")
+        w("")
+    w("")
+
 w("## Las expresiones, enteras")
 w("")
 w("**Cópialas de aquí. No las escribas de memoria ni las adaptes.**")

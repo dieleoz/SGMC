@@ -102,11 +102,13 @@ Las ocho son `VOLCADO_CIEGO_A` en `scripts/lectura_de_vuelta.py`, y coinciden ex
 python -c "import sys;sys.path.insert(0,'scripts');from inferencia import clasificar;from lectura_de_vuelta import VOLCADO_CIEGO_A;from modelo_objetivo import REGLAS;print(len(VOLCADO_CIEGO_A),'tablas |',sum(1 for t,c,m in clasificar()['a mano'] if t in VOLCADO_CIEGO_A),'tipos a cotejar |',sum(1 for r in REGLAS if r['tipo']=='App formula' and r.get('columna')=='(tabla)'),'columnas virtuales')"
 ```
 
-Hoy: **8 tablas · 54 tipos a cotejar · 2 columnas virtuales.**
+Hoy: **8 tablas · 53 tipos a cotejar · 3 columnas virtuales** (de las tres, solo dos son `Etiqueta`
+— la tercera es `EstaVencida`, `RG-37`, que no es `Label` y no entra en `ENCARGO_VENTANA.md` Paso 1;
+ver `ESPEC-006`/`ORDEN-006`).
 
 **Lo que cabe dentro de la ventana está reunido en [`ENCARGO_VENTANA.md`](ENCARGO_VENTANA.md)**,
 generado por `scripts/generar_encargo_ventana.py`. Son dos cosas y nada más: las **2 columnas
-virtuales `Etiqueta`** que deja pendientes `ESPEC-005`, y el **cotejo de los 54 tipos** de esas ocho
+virtuales `Etiqueta`** que deja pendientes `ESPEC-005`, y el **cotejo de los 53 tipos** de esas ocho
 tablas —mirar, no cambiar, y anotar lo que se vea aunque coincida, porque la API devuelve filas y no
 esquema, y esa anotación es la única evidencia que va a existir—.
 
@@ -115,9 +117,9 @@ esquema, y esa anotación es la única evidencia que va a existir—.
 | Queda fuera | Por qué |
 |---|---|
 | `UNF_UnidadesFuncionales` y `USR_Usuarios` | **Tienen filas.** Su ventana se cerró hace tiempo, su precio ya está pagado y no vuelve a subir: pueden esperar |
-| Los 5 bots | **No dependen de la ventana.** Se configuran igual con las tablas llenas |
+| Los 3 bots (`RG-06`, `RG-07`, `RG-10`) más `RG-38` (acción) | **No dependen de la ventana.** Se configuran igual con las tablas llenas. `RG-08`/`RG-12` se retiraron (`ESPEC-006`/`ORDEN-006`); `RG-37` es columna virtual, ya cubierta en la fila de arriba |
 | `RG-04` y `RG-05`, los `Security Filter` | Van **los últimos**. Al ponerlos, la API deja de devolver las filas de esa tabla y ni `auditar_cableado.py` ni `instantanea.py` pueden volver a mirarla. Apagan los instrumentos |
-| `RG-02`, `RG-19` y `RG-03` | `ESPEC-004` sigue **BLOQUEADA**, y `RG-02` usa una función que no existe en AppSheet |
+| `RG-03` | Ya **entra**: `ESPEC-004`/`ORDEN-004` la desbloqueó (2026-08-11). `RG-02` y `RG-19` se retiraron del modelo (`RG-02` usaba una función que no existe en AppSheet) |
 
 **La prohibición central del encargo es poblar cualquiera de las ocho**, y no es una precaución
 genérica: es **justo el acto** que acaba con el motivo por el que el encargo existe. Quien la cierra
@@ -205,10 +207,13 @@ una especificación entra, la tumban, se rehace contra el archivo y pasa. **El e
 con su motivo, está en [`../MAP.md`](../MAP.md) §3 y en [`ESTADO.md`](../ESTADO.md) §0.** Lo que el
 orden necesita saber es qué queda inerte mientras tanto:
 
-| Espera | Deja sin poder ponerse |
-|---|---|
-| [`ESPEC-004`](sdd/ESPEC-004-cierre-excepcion-manual.md) · cierre con excepción manual | `RG-02`, `RG-19` y `RG-03`. `RG-02` depende de una función que **no existe en AppSheet**, así que `Precision_GPS` nunca se puebla, `RG-19` compara contra blanco y `RG-03` no pide nunca el motivo |
-| [`ESPEC-006`](sdd/ESPEC-006-reemplazo-bots-programados.md) · reemplazo de los bots programados | `RG-08` y `RG-12`, que no corren en esta cuenta (§6) |
+**Las dos que bloqueaban aquí ya se aplicaron (2026-08-11) y esta tabla queda vacía a propósito, no
+borrada** —el molde sigue vivo para la próxima especificación que quede en espera—:
+
+| Espera | Deja sin poder ponerse | Estado |
+|---|---|---|
+| [`ESPEC-004`](sdd/ESPEC-004-cierre-excepcion-manual.md) · cierre con excepción manual | `RG-02`, `RG-19` y `RG-03`. `RG-02` dependía de una función que **no existe en AppSheet** | **Aplicada** (`ORDEN-004`): `RG-02`/`RG-19` retiradas, `RG-03` ya se puede cablear |
+| [`ESPEC-006`](sdd/ESPEC-006-reemplazo-bots-programados.md) · reemplazo de los bots programados | `RG-08` y `RG-12`, que no corren en esta cuenta (§6) | **Aplicada** (`ORDEN-006`): retiradas, sustituidas por `RG-37`/`RG-38` |
 
 > ### Una regla puede estar puesta y no hacer nada
 >
@@ -361,10 +366,10 @@ suya volverá a hacerlo: se pregunta con `python scripts/auditar_cableado.py`.
 
 > ### Antes de las reglas van las referencias, y cuántas faltan no se lee aquí
 >
-> **Diez de las 23 reglas desreferencian** —`RG-01`, `RG-04`, `RG-05`, `RG-06`, `RG-08`, `RG-09`,
-> `RG-11`, `RG-16`, `RG-17` y `RG-34`; la lista se saca buscando `].[` en las expresiones del
-> modelo—, y cada una **falla o, peor, resuelve contra lo que no es** si la referencia de debajo está
-> mal puesta. Y «mal puesta» no significa ausente: ha pasado que `ACT_Activos.TipoActivoID` apuntara
+> **Doce de las 21 reglas desreferencian** —`RG-01`, `RG-04`, `RG-05`, `RG-06`, `RG-09`,
+> `RG-11`, `RG-16`, `RG-17`, `RG-34`, `RG-35`, `RG-36` y `RG-37`; la lista se saca buscando `].[` en
+> las expresiones del modelo—, y cada una **falla o, peor, resuelve contra lo que no es** si la
+> referencia de debajo está mal puesta. Y «mal puesta» no significa ausente: ha pasado que `ACT_Activos.TipoActivoID` apuntara
 > a `SED_Sedes`, con lo que cada activo leía el checklist de una sede y `RG-01` fallaba con
 > `Can't find column "RadioGeofencingKm" in table "SED_Sedes"` — un mensaje que invita a reescribir
 > una expresión correcta para acomodarla a un cableado roto.
@@ -413,18 +418,27 @@ Declarado en el modelo, con su expresión completa en
 
 Pendiente, y además no declarado todavía en el modelo:
 
-- [ ] Imponer `QuienCambia`: la columna está poblada en las siete filas y **ninguna de las 23 reglas
+- [ ] Imponer `QuienCambia`: la columna está poblada en las siete filas y **ninguna de las 21 reglas
       la lee**, así que hoy nada impide que un técnico ponga «Cerrada» él mismo
 - [ ] Estado de rechazo. `MAN_Mantenimientos.ObservacionRechazo` existe y la orden no tiene a dónde
       volver: falta una fila `Devuelta` en `EOT_EstadosOrden`, que es dato y no esquema
-- [ ] Bots de notificación y de alerta. **Dos de los cinco no caben en el plan gratuito**: ver el
-      recuadro de abajo, que corrige la versión anterior de esta línea
+- [x] Bots de notificación y de alerta. **Resuelto por `ESPEC-006`/`ORDEN-006`**: los dos que no
+      cabían en el plan gratuito (`RG-08`, `RG-12`) se retiraron y se reemplazaron por `RG-37`
+      (columna virtual) y `RG-38` (vista + acción). Ver el recuadro de abajo
 - [ ] **Declarar la interfaz en el modelo** —vistas, acciones y slices—, y generar de ahí el manual
       de pantallas. Mientras no exista, el paso de vistas de cualquier manual dice «se construye
       sola», que es la clase de instrucción que este proyecto tiene prohibida
 - [ ] Reportes y tablero, según D-12 y D-13, encima de lo anterior
 
-> ### Los 5 bots: dos de ellos no se pueden contar como funcionando, y no por estar mal puestos
+> **Resuelto por `ESPEC-006`/`ORDEN-006` (2026-08-11): `RG-08` y `RG-12` se retiraron del modelo.**
+> No se reemplazó "bot que no corre" por "bot que sí corre" — se reemplazó el mecanismo entero.
+> `RG-37` (columna virtual `EstaVencida` sobre `OT_OrdenesTrabajo`) sustituye a `RG-08`: informa,
+> no mueve el estado. `RG-38` (vista + acción sobre `PLA_PlanMantenimiento`, invocada por el
+> supervisor) sustituye a `RG-12`. Lo que sigue debajo describe el problema tal como se encontró y
+> por qué había que decidir antes de configurar nada; se conserva como historia, no como estado
+> vigente. El análisis por debajo queda como registro de tres bots por evento, no cinco.
+>
+> ### Los 3 bots por evento, y los dos programados que se retiraron
 >
 > La lista se vuelca, no se cita:
 >
@@ -490,6 +504,12 @@ Pendiente, y además no declarado todavía en el modelo:
 >
 > Hoy no ha hecho daño porque `RG-08` es de los que no se ejecutan (arriba) y porque
 > `OT_OrdenesTrabajo` está vacía. **Las dos cosas dejan de ser ciertas el mismo día.**
+>
+> **Decidido por `ESPEC-006`/`ORDEN-006`: la tercera salida.** `Vencida` deja de ser una
+> consecuencia automática y pasa a ser una decisión del supervisor de que la orden no se va a
+> ejecutar — se queda `EsFinal = Y`, correcto para una disposición final tomada por una persona.
+> `RG-37` (columna virtual `EstaVencida`) es la marca informativa; no bloquea el cierre, verificado
+> como el punto que más pesaba de la especificación (`PRUEBA-006` `P-55`).
 
 **Cierra cuando:** cada regla se demuestra funcionando en la app, no solo configurada — **y las que
 no puedan demostrarse en esta cuenta se cierran diciendo que no se demostraron, no dándolas por
