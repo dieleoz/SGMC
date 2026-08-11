@@ -9,7 +9,7 @@ eléctrica y de TI del corredor vial de la **Concesión Transversal del Sisga S.
 > | Para saber | Lea |
 > |---|---|
 > | Qué está abierto, qué falta y qué lo bloquea | [`ESTADO.md`](ESTADO.md). **Si discrepa de aquí, manda `ESTADO.md`** |
-> | Qué es el sistema, en presente: modelo, decisiones de diseño, qué se puede comprobar y qué no, y sus límites | [`docs/sdd/ESPEC-000-sistema-actual.md`](docs/sdd/ESPEC-000-sistema-actual.md) |
+> | Qué es el sistema, en presente: modelo, decisiones de diseño, qué se puede comprobar y qué no, y sus límites | [`docs/SISTEMA.md`](docs/SISTEMA.md) |
 > | En qué orden se implementa lo que queda | [`docs/ROADMAP.md`](docs/ROADMAP.md) |
 > | Cómo se trabaja sobre este repositorio | [`CLAUDE.md`](CLAUDE.md) |
 > | Dónde está cada archivo | [`MAP.md`](MAP.md) |
@@ -131,7 +131,7 @@ El recuento —tablas, columnas, referencias y reglas— lo imprime `python scri
 en su primera línea; no se cita de memoria. **Por qué el modelo es así** —qué protege la evidencia,
 por qué el radio de geofencing va por tipo, por qué ocho claves se generan con `UNIQUEID()` y por
 qué dos etiquetas son columnas virtuales— está en
-[`docs/sdd/ESPEC-000-sistema-actual.md`](docs/sdd/ESPEC-000-sistema-actual.md) §4.
+[`docs/SISTEMA.md`](docs/SISTEMA.md) §4.
 
 > **El volcado local es ciego a las ocho tablas de movimiento.** `generar_plantilla.py` las vacía a
 > propósito cada vez que corre, así que **una fila creada en la aplicación nunca aparece en
@@ -203,61 +203,22 @@ sale del tipo de activo, porque una subestación y un poste SOS no admiten la mi
 DISTANCE([Coordenadas_Cierre_LatLong], [OTID].[ActivoID].[Ubicacion_LatLong]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]
 ```
 
-**No está cableada en la aplicación, y de las 23 reglas solo 9 lo están** —puestas y cotejadas a
-ojo, que es la única evidencia posible: las expresiones no viajan por la API—. Todas están escritas y
-listas para reponer en
-[`docs/sdd/RECONSTRUCCION_EXPRESIONES.md`](docs/sdd/RECONSTRUCCION_EXPRESIONES.md), junto con el
-`Editable_If = FALSE` de las cuatro columnas de captura. **Pero antes van las referencias que la
-expresión atraviesa** —orden → activo → tipo—, porque una referencia mal puesta no hace fallar la
-regla: la hace resolver contra lo que no es. El 2026-08-10 `ACT_Activos.TipoActivoID` apuntaba a
-`SED_Sedes`, y esta misma expresión fallaba con
-`Can't find column "RadioGeofencingKm" in table "SED_Sedes"` — un mensaje que invita a reescribir
-una expresión correcta para acomodarla a un cableado roto. **Cuáles faltan hoy no lo dice este README
-ni ningún documento generado del modelo**: lo dice `python scripts/auditar_cableado.py` leyendo la
-aplicación.
+El radio vive en `TIP_TiposActivo.RadioGeofencingKm`, con valor en los 27 tipos: 0,05 km en el
+equipo puntual, 0,1 km en las instalaciones con recinto y 1,5 km en el tramo de fibra, que es lineal
+y no tiene un «delante». La lista completa, tipo por tipo, sale de `scripts/catalogo_tipos.py`.
 
-**Lo que sí está resuelto es el dato.** En
-[`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTILLA.xlsx) —el mismo archivo publicado
-como `Modelo_Datos_10082026`— `TIP_TiposActivo.RadioGeofencingKm` trae valor en los **27 tipos**:
-0,05 km en 18 —poste SOS, cámara, sensores, paso seguro y equipos de TI—, 0,1 km en 8 —paneles de
-mensaje variable, básculas, peajes, generador y subestación— y 1,5 km en el tramo de fibra, que es
-lineal.
+**Antes de la regla van las referencias que la expresión atraviesa** —orden → activo → tipo—, porque
+una referencia mal puesta no hace fallar la regla: la hace **resolver contra lo que no es**, y el
+mensaje de error invita a reescribir una expresión correcta para acomodarla a un cableado roto.
+**Qué está cableado hoy no lo dice este README ni ningún documento generado del modelo**: lo dice
+`python scripts/auditar_cableado.py` leyendo la aplicación en vivo, y qué queda abierto lo dice
+[`ESTADO.md`](ESTADO.md).
 
-**Y aunque se cablee, falta la coordenada real del activo** (bloqueante D-01). La columna ya no está
-vacía —las 368 traen su punto derivado del `PK`—, y **eso se lee peor, no mejor**: la regla compara
-contra un punto que está sobre la vía pero no frente al equipo, así que con radios de 0,05 km en 18
-de los 27 tipos **rechaza el cierre legítimo, igual que cuando estaba vacía, pero ya no hay una celda
-en blanco que lo delate**. Publicar antes de cargar las coordenadas reales entrega un sistema donde
-ningún técnico puede cerrar una orden, y se descubre con el técnico delante.
-
-**Y el cierre con excepción por GPS deficiente, tal como estaba declarado, no podía dispararse
-nunca**: dependía de `USERLOCATIONACCURACY()`, que no existe en AppSheet. La corrección —que el
-técnico marque la excepción en vez de que la calcule una fórmula inexistente— está especificada en
-[`docs/sdd/ESPEC-004-cierre-excepcion-manual.md`](docs/sdd/ESPEC-004-cierre-excepcion-manual.md),
-**bloqueada por el arquitecto en segunda pasada con quince hallazgos**. No se aplica.
-
-**`OTID` y `PlanID` eran claves legibles sin generador declarado, y ya no lo son.** Las otras seis
-tablas transaccionales vacías resolvían su clave con `UNIQUEID()`; estas dos no, y los bots `RG-10`
-y `RG-12` creaban órdenes sin asignarla, así que la fila nacía sin clave y AppSheet la descartaba
-sin avisar. **[`ESPEC-005`](docs/sdd/ESPEC-005-clave-otid-planid.md) lo resolvió y está aplicada al
-modelo**: las dos pasan a `UNIQUEID()` —`CLAVE_LEGIBLE` de 22 a 20 tablas, `CLAVE_GENERADA` de 6 a
-8— y la identificación ante el técnico la dan dos columnas virtuales `Etiqueta` (`RG-35`, `RG-36`).
-**Con eso queda desbloqueado crear órdenes desde la aplicación**, que hasta hoy se hacen en el
-Sheets saltándose todas las validaciones. **Lo que falta es la mitad que vive en el editor**: crear
-las dos virtuales, marcarles `Show?` y marcarles `Label`, según
-[`docs/ENCARGO_VENTANA.md`](docs/ENCARGO_VENTANA.md) y
-[`docs/PROMPT_CABLEADO.md`](docs/PROMPT_CABLEADO.md).
-
-> **Y la hoja de datos no cambió, aunque cambiara el modelo.** Comparando el `.xlsx` antes y después
-> salen **29 pestañas, las mismas, y cero con contenido distinto**. La razón es que `RG-35` y `RG-36`
-> son **columnas virtuales** —no existen en el Sheets— y las listas de claves describen el
-> comportamiento del **editor**, no los datos. **Eso es justo lo que hacía atractiva la columna
-> virtual frente a la real**, que sí habría escrito en producción. La comprobación entera, con su
-> comando, está en [`docs/ROADMAP.md`](docs/ROADMAP.md) §3.1.
->
-> **Y hay una comprobación menos:** `F-11` de `verificar_faseA.py` exime a `CLAVE_GENERADA`, así que
-> **dejó de mirar `OT_OrdenesTrabajo` y `PLA_PlanMantenimiento`**. Es correcto, pero su verde ya no
-> dice nada de esas dos: la clave de ambas solo se ve en el editor.
+> **El geofencing no puede ser correcto antes que el dato.** La regla compara contra un punto que
+> está sobre la vía pero **no frente al equipo**, así que con radios de 0,05 km rechaza el cierre
+> legítimo — y no hay una celda vacía que lo delate. Publicar antes de cargar las coordenadas reales
+> (D-01) entrega un sistema donde ningún técnico puede cerrar una orden, y se descubre con el
+> técnico delante.
 
 **`RG-08` y `RG-12` son bots programados, y no corren en la cuenta gratuita** —verificado con cita
 oficial en `docs/BASE_CONOCIMIENTO_APPSHEET.md` §6—, y `RG-08` tiene además un defecto propio: movería
@@ -289,45 +250,25 @@ Todos en [`ESTADO.md`](ESTADO.md), que se actualiza; aquí no, para que no se co
 El método vigente es SDD, descrito en [`docs/SDD_PIPELINE_SGMC.md`](docs/SDD_PIPELINE_SGMC.md):
 especificar, probar y aprobar antes de tocar producción. `python scripts/validar_modelo.py` en 0 errores es el único gate objetivo.
 
-Los **seis** verificadores, que no se sustituyen entre sí:
+Los instrumentos del repositorio se reparten en tres grupos, y confundirlos es lo que hace pasar por
+comprobado lo que nadie miró. **Qué mide cada uno, uno por uno, está en
+[`docs/SISTEMA.md`](docs/SISTEMA.md) §5; cuándo se corre
+cada uno, en [`CLAUDE.md`](CLAUDE.md) §7.4.**
 
-| Script | Mide |
-|---|---|
-| [`scripts/validar_modelo.py`](scripts/validar_modelo.py) | El modelo consigo mismo |
-| [`scripts/verificar_faseA.py`](scripts/verificar_faseA.py) | El modelo contra la hoja descargada |
-| [`scripts/verificar_documentos.py`](scripts/verificar_documentos.py) | La prosa contra el modelo |
-| [`scripts/verificar_enlaces.py`](scripts/verificar_enlaces.py) | Que todo enlace relativo entre documentos resuelve |
-| [`scripts/verificar_reproducible.py`](scripts/verificar_reproducible.py) | Que generar la plantilla dos veces dé el mismo archivo |
-| [`scripts/verificar_datos.py`](scripts/verificar_datos.py) | Que **los datos** sostienen lo que el modelo declara |
+| Grupo | Cuáles | Qué leen | ¿Bloquean? |
+|---|---|---|---|
+| **Los seis verificadores** | `validar_modelo.py`, `verificar_faseA.py`, `verificar_datos.py`, `verificar_documentos.py`, `verificar_enlaces.py`, `verificar_reproducible.py` | **Archivos**: el modelo, el `.xlsx`, la prosa, los enlaces | **Sí.** Son el gate, y ninguno sustituye a otro |
+| **Los tres que miran producción** | `verificar_app.py`, `auditar_cableado.py`, `instantanea.py` | La **aplicación en vivo**, por API | **No: informan.** Comparten un límite —lo que la API no devuelve no se puede ver— y por eso no son gate |
+| **Los tres que no miden, declaran** | `lectura_de_vuelta.py`, `navegacion_editor.py`, `alcance_reglas.py` | Nada. Dicen quién comprueba cada clase de cambio, dónde está cada control en pantalla y qué columnas toca de verdad cada regla | No. Se consultan **antes** de tocar el editor |
 
-**El sexto se añadió el 2026-08-10, y tapa el hueco que los otros cinco compartían: ninguno abría el
-archivo de datos.** `verificar_datos.py` mira si las columnas obligatorias están pobladas en las
-tablas que tienen filas, y si las 39 referencias resuelven **contra los valores reales**. Por ese
-hueco se colaron tres defectos el mismo día, en verde: `Ubicacion_LatLong` vacía en las 368,
-`SED_Sedes.UnidadFuncionalID` vacía en 5 de 6 y `ACT_Activos.SedeID` vacía en las 368.
+**`verificar_app.py` no es un verificador**, aunque se llame igual: pregunta a la aplicación, no a un
+archivo. Su propio docstring lo dice, y `probar_auditor.py` es la prueba negativa de
+`auditar_cableado.py` —le mete defectos a propósito y comprueba que los caza—, no un instrumento
+aparte.
 
-**Ninguno de los seis mira la aplicación.** Para eso hay un séptimo script, que no es un verificador
-del modelo sino un **auditor del cableado real**:
-
-| Script | Mide |
-|---|---|
-| [`scripts/auditar_cableado.py`](scripts/auditar_cableado.py) | El cableado **real** de la aplicación contra el modelo. Emite [`docs/CORRECCIONES_CABLEADO.md`](docs/CORRECCIONES_CABLEADO.md) |
-| [`scripts/probar_auditor.py`](scripts/probar_auditor.py) | Que el auditor **caza lo que dice cazar**: le mete seis defectos a propósito, incluido el real del 2026-08-10 |
-
-Existe porque el 2026-08-10 el cableado se reportó como «39/39 asignadas» y no lo estaba: dos
-referencias apuntaban a `SED_Sedes` en vez de a `CAL_Calzadas` y a `TIP_TiposActivo`, y tres columnas
-de texto se habían convertido en `Ref`. **Nada lo detectó**: `validar_modelo.py` daba `APTO`, la API
-respondía 28/28 y las 368 filas seguían ahí. Es la regla `R-04` —*una referencia que resuelve puede
-apuntar a lo que no es*—, y preguntar «apunta a algo» nunca contesta «apunta a lo correcto».
-
-**Y tres módulos que no verifican nada: declaran lo que nadie declaraba.** Se consultan antes de
-tocar el editor, no después:
-
-| Script | Declara |
-|---|---|
-| [`scripts/lectura_de_vuelta.py`](scripts/lectura_de_vuelta.py) | **Quién comprueba cada clase de cambio**: tres tienen comando, **cuatro no tiene nadie**. Y `VOLCADO_CIEGO_A`, las ocho tablas que el volcado local vacía por diseño |
-| [`scripts/navegacion_editor.py`](scripts/navegacion_editor.py) | **Dónde está cada control en pantalla.** El nombre de la regla no es el del control: `Required_If` se llama `Require?` y **no es una casilla** |
-| [`scripts/alcance_reglas.py`](scripts/alcance_reglas.py) | **Qué columnas toca de verdad cada regla, con su tabla**: 39 de las 211. Por nombre suelto salían 94 |
+**Ninguno de los seis mira la aplicación, y ninguno de los tres de producción bloquea.** De ahí la
+regla `R-04` de [`CLAUDE.md`](CLAUDE.md) §6: *una referencia que resuelve puede apuntar a lo que no
+es*, y preguntar «apunta a algo» nunca contesta «apunta a lo correcto».
 
 ## 8. Organización del repositorio
 
@@ -349,7 +290,7 @@ archivo/       Material de origen, no versionado
 
 | Documento | Para qué sirve |
 |---|---|
-| [docs/sdd/ESPEC-000-sistema-actual.md](docs/sdd/ESPEC-000-sistema-actual.md) | El sistema tal como es hoy, en presente, sin historia ni estado. La línea de partida de toda especificación |
+| [docs/SISTEMA.md](docs/SISTEMA.md) | El sistema tal como es hoy, en presente, sin historia ni estado. La línea de partida de toda especificación |
 | [ESTADO.md](ESTADO.md) | **Empiece aquí.** Qué está hecho, qué falta, qué está bloqueado |
 | [docs/INDICACIONES_POR_ROL.md](docs/INDICACIONES_POR_ROL.md) | Quién hace qué para que esto llegue a campo, con sus decisiones exclusivas y su costo |
 | [docs/FUNCIONAL_SGMC.md](docs/FUNCIONAL_SGMC.md) | Qué hace el sistema. Su §6 es el registro de una sola forma por propósito |
@@ -365,7 +306,7 @@ archivo/       Material de origen, no versionado
 | [docs/COMUNICACION_PROPIETARIO_APP.md](docs/COMUNICACION_PROPIETARIO_APP.md) | Qué decirle al dueño de la aplicación anterior |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Fases con criterio de cierre verificable. Su §2.1 es **la ventana barata**: lo que solo es gratis mientras ocho tablas sigan vacías |
 | [docs/ENCARGO_VENTANA.md](docs/ENCARGO_VENTANA.md) | El encargo autocontenido de esa ventana, generado del modelo. **Y lo que deja fuera, con su motivo** |
-| [docs/sdd/](docs/sdd/) | Especificaciones y pruebas del pipeline (`ESPEC-000`, `ESPEC-003`, `PRUEBA-003`, `RECONSTRUCCION_EXPRESIONES`, `ESPEC-004`, `ESPEC-005`, `ESPEC-006`) |
+| [docs/sdd/](docs/sdd/) | Especificaciones y pruebas del pipeline. El índice vigente, con el estado de cada una, está en [MAP.md](MAP.md) §3 |
 | [Manuales/MANUAL_DE_USUARIO.md](Manuales/MANUAL_DE_USUARIO.md) | Guía de operación por rol. **No se entrega todavía**: describe funciones que aún no están montadas, y lo dice en su cabecera |
 | [MAP.md](MAP.md) | Índice maestro y referencias cruzadas |
 | [CLAUDE.md](CLAUDE.md) | Reglas de trabajo para agentes sobre este repositorio |
@@ -378,20 +319,20 @@ archivo/       Material de origen, no versionado
 |---|---|
 | [`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTILLA.xlsx) | **El entregable de datos.** Generado del modelo: 28 pestañas de datos más `_LEEME`, 211 columnas, ninguna de sobra. 27 tipos de activo, 27 formularios y 368 activos |
 
-> **La carpeta `entregables/` ya no existe en el repositorio.** Sus cinco archivos —la propuesta de
-> arquitectura, la definición funcional de la mesa de trabajo, el correo de envío, las
-> especificaciones As-Built v2.0 y el modelo de datos As-Built— **se retiraron en la limpieza del
-> 2026-08-10**, con el resto del material que describía aplicaciones y hojas superadas. Los dos Word
-> ya se habían enviado y no se reenvían; sus catorce decisiones viven hoy como supuestos adoptados en
-> [`docs/ALCANCE_Y_SUPUESTOS_SGMC.md`](docs/ALCANCE_Y_SUPUESTOS_SGMC.md). Se comprueba con
-> `git log --diff-filter=D --name-only -- 'entregables/*'`.
+> **No hay carpeta `entregables/`.** Las catorce decisiones que contenían los documentos enviados a
+> Dirección viven hoy como supuestos adoptados en
+> [`docs/ALCANCE_Y_SUPUESTOS_SGMC.md`](docs/ALCANCE_Y_SUPUESTOS_SGMC.md); lo retirado se recupera de
+> `git`, con `git log --diff-filter=D --name-only -- 'entregables/*'`.
 
 ## 9. Enlaces
 
+Los dos primeros salen de `python scripts/sistema.py`, que es lo único que declara cuál es la
+aplicación y cuál la hoja. **Confirme el identificador ahí antes de fiarse de un enlace guardado.**
+
 - Aplicación AppSheet `_SISGA_-323965761`: [abrir en AppSheet](https://www.appsheet.com/template/appdef?appId=aca92ac5-a6eb-4c73-be81-471a5b3fe04e)
-- Backend Google Sheets `Modelo_Datos_10082026`, 29 pestañas, propiedad de la Concesión:
+- Backend Google Sheets `Modelo_Datos_10082026`, propiedad de la Concesión:
   [abrir](https://docs.google.com/spreadsheets/d/1h9kyCYGK6esRL1UiTcPXHlSmDQcPb13fNZ0hBznYOa0)
 - Repositorio: [github.com/dieleoz/SGMC](https://github.com/dieleoz/SGMC)
 
 ---
-Concesión Transversal del Sisga S.A.S. | Agosto de 2026
+Concesión Transversal del Sisga S.A.S.

@@ -1,26 +1,18 @@
 # Dónde vamos y qué falta
 
-**Lea esto primero.** Es el mapa de todo lo demás.
+**Lea esto primero.** Es el mapa de todo lo demás: **lo que está abierto**.
 
-**Punto de partida fijado el 2026-08-10.** El repositorio se limpió ese día: se retiró todo lo que
-describía aplicaciones y hojas superadas. Lo que queda describe **un solo sistema**.
+**Qué es el sistema —qué resuelve, de qué se compone, el modelo, las decisiones que gobiernan el
+diseño, qué se puede comprobar y qué no, y sus límites— está en
+[`docs/SISTEMA.md`](docs/SISTEMA.md), en presente.** Aquí
+no se repite: aquí solo va lo que falta.
 
-## El sistema
-
-```
-Aplicación   _SISGA_-323965761
-             https://www.appsheet.com/template/appdef?appId=aca92ac5-a6eb-4c73-be81-471a5b3fe04e
-
-Datos        Modelo_Datos_10082026   ·   Hoja de cálculo de Google
-             https://docs.google.com/spreadsheets/d/1h9kyCYGK6esRL1UiTcPXHlSmDQcPb13fNZ0hBznYOa0
-```
-
-> **Si un enlace no es uno de esos dos, no es este sistema.** Entre el 6 y el 10 de agosto hubo
-> cinco aplicaciones y tres hojas. Las superadas están en `scripts/sistema.py`, nombradas y con el
-> motivo por el que dejaron de serlo, para poder reconocerlas y descartarlas de un vistazo.
+> **Cuál es la aplicación y cuál la hoja lo dice `python scripts/sistema.py`, y nada más**, que
+> también nombra las superadas con el motivo por el que dejaron de serlo. **Si un enlace no es uno
+> de los dos que declara ese script, no es este sistema.**
 >
-> **Nada de lo retirado se perdió.** La etiqueta `antes-de-la-limpieza-2026-08-10` devuelve el
-> repositorio entero tal como estaba:
+> **Nada de lo retirado del árbol de trabajo se perdió.** La etiqueta
+> `antes-de-la-limpieza-2026-08-10` devuelve el repositorio entero tal como estaba:
 >
 > ```bash
 > git checkout antes-de-la-limpieza-2026-08-10

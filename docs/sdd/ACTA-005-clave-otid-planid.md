@@ -21,7 +21,7 @@ ningún momento**, las ediciones de esta tarea (`ESPEC-005`, `PRUEBA-005`, el ar
 mensaje de commit que describe trabajo real contra el editor de AppSheet (columnas virtuales creadas,
 54 tipos cotejados, un bug de caché del editor) que **esta sesión no ejecutó**. Después de eso,
 `git status` siguió mostrando más archivos tocados por fuera de esta tarea (`MAP.md`, `README.md`, un
-`ESPEC-000-sistema-actual.md` nuevo), en los minutos siguientes.
+`../SISTEMA.md` nuevo), en los minutos siguientes.
 
 **Lectura correcta de esto:** hay una sesión de ejecución distinta y activa, trabajando sobre el
 mismo repositorio al mismo tiempo que esta, probablemente aplicando de verdad la Familia B de

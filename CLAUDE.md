@@ -141,11 +141,11 @@ alguien lo escribió aquí. Se deriva con una línea:
 python -c "import sys;sys.path.insert(0,'scripts');import modelo_objetivo as M;print({t:next((c['nombre'] for c in d['columnas'] if c.get('pk')),'?') for t,d in M.MODELO.items()})"
 ```
 
-**El caso de `OT_OrdenesTrabajo` ya está resuelto y este apartado lo describía al revés.** Su clave
-es hoy `OTID`, con valores `OT-0001`. Se llamó `Numero_OT`, y ese renombrado **está hecho**: figura
-en `RENOMBRADOS` de `scripts/modelo_objetivo.py` y en la tabla §1 de
-`docs/sdd/RECONSTRUCCION_EXPRESIONES.md`. Si un documento vigente dice que la clave es `Numero_OT`,
-está desactualizado.
+**La clave de `OT_OrdenesTrabajo` es `OTID`.** El renombrado desde `Numero_OT` figura en
+`RENOMBRADOS` de `scripts/modelo_objetivo.py` y en la tabla §1 de
+`docs/sdd/RECONSTRUCCION_EXPRESIONES.md`. **Si un documento vigente dice que la clave es
+`Numero_OT`, está desactualizado**, y este apartado lo dijo mal durante días: por eso la clave se
+vuelca con la línea de arriba en vez de leerse aquí.
 
 ## 6. Referencias: las reglas que gobiernan el cableado
 
@@ -284,9 +284,9 @@ pregunta qué dependía de que no se cumpliera.**
 ### Expresiones vigentes
 
 Geofencing de cierre, RG-01 (RF-012). `ACT_Activos` guarda un único campo `Ubicacion_LatLong` de
-tipo LatLong; no existen columnas `Latitud`/`Longitud` separadas. El nombre lleva el sufijo desde
-el 2026-08-10 y **la forma corta `Ubicacion` ya no existe en ninguna tabla**: si la lees en un
-documento o en un comentario, habla de antes de esa fecha. El radio sale del tipo de activo,
+tipo LatLong; no existen columnas `Latitud`/`Longitud` separadas. **La forma corta `Ubicacion` no
+existe en ninguna tabla**: si la lees en un documento o en un comentario, describe un estado
+superado. El radio sale del tipo de activo,
 porque una subestación y un poste SOS no admiten la misma tolerancia:
 
 ```
@@ -302,8 +302,8 @@ Ubicación fuera de rango: debe estar junto al activo para cerrar.
 **Ese radio ya está poblado en la plantilla, y solo ahí.** `TIP_TiposActivo.RadioGeofencingKm` trae
 valor en los **27 tipos** de `BD/Modelo_Datos_PLANTILLA.xlsx`: `0.05` en 18 —poste SOS, cámaras,
 sensores, paso seguro y equipos de TI—, `0.1` en 8 —paneles de mensaje variable, básculas, peajes,
-generador y subestación— y `1.5` en el tramo de fibra, que es lineal. **Y esa es la única hoja que hay**, desde que el
-2026-08-10 se reconstruyó sobre ella: ya no existe una segunda con la columna vacía.
+generador y subestación— y `1.5` en el tramo de fibra, que es lineal. **Y esa es la única hoja que
+hay**: no existe una segunda con la columna vacía.
 
 Sobre la plantilla, **el literal `1.0` ya no se usa**, y `PAR_Parametros.RADIO_GEOFENCING_KM` queda
 como valor provisional histórico: la regla no lo lee. Un documento que mande el literal `1.0` sin
@@ -336,9 +336,9 @@ es la coordenada del activo, y eso **no ha cambiado en el fondo, aunque sí en l
 
 - `ACT_Activos` tiene **368 filas**: **34** del inventario real y **334** sintéticos, que se
   reconocen porque su `Observaciones` dice `ACTIVO SINTETICO DE PRUEBA - NO ES INVENTARIO REAL`.
-- Las **368** tienen `Ubicacion_LatLong` poblada y **las 368 son distintas**. Ya no hay 34 puntos
-  idénticos en Bogotá: esa descripción quedó obsoleta el 2026-08-10, cuando `generar_plantilla.py`
-  pasó a **derivar la coordenada del `PK`** proyectándolo sobre el trazado del corredor.
+- Las **368** tienen `Ubicacion_LatLong` poblada y **las 368 son distintas**: `generar_plantilla.py`
+  **deriva la coordenada del `PK`** proyectándolo sobre el trazado del corredor. Un documento que
+  hable de 34 puntos idénticos en Bogotá describe un estado superado.
 - **Derivada no es levantada.** Ninguna de las 368 es el sitio real del equipo.
 
 Se cuenta así, y no se repite de memoria:
@@ -392,36 +392,27 @@ Lo que hay que ejecutar ahora está en `ESTADO.md` §2 y en
 
 ## Para qué existe el sistema
 
-Antes de decidir nada, ancla contra esto:
+**Qué resuelve el SGMC está en `docs/SISTEMA.md` §1, en presente.** Ancla ahí
+antes de decidir nada; lo que sigue es lo único que ese documento no dice, y que hace falta para
+juzgar un cambio: **cómo se sostiene la garantía**.
 
-> Garantizar que el mantenimiento se hizo, que quien lo hizo estuvo físicamente frente al equipo,
-> y que la evidencia que lo respalda es difícil de falsificar.
+La presencia se garantiza encadenando evidencias independientes: fotografías tomadas con la cámara
+de la app y no de la galería —cada una con su propia coordenada—, cierre dentro del radio del tipo
+de activo con las columnas de captura no editables, y marca de tiempo del servidor y no del
+teléfono. La cadena no es infalsificable: eleva el costo de falsificar por encima del de hacer el
+trabajo, que es el objetivo realista.
 
-Todo lo demás sirve a eso o sobra. La presencia se garantiza encadenando evidencias
-independientes: fotografías tomadas con la cámara de la app y no de la galería —cada una con su
-propia coordenada—, cierre dentro del radio del tipo de activo con las columnas de captura no
-editables, y marca de tiempo del servidor y no del teléfono. La cadena no es infalsificable: eleva
-el costo de falsificar por encima del de hacer el trabajo, que es el objetivo realista.
-
-**El escaneo del QR físico ya no es un eslabón de esa cadena**: quedó fuera de alcance el
-2026-08-07 y el activo se abre por lista. Es el eslabón más fuerte que se perdió, y por eso el
-peso recae en la fotografía y en el `Editable_If = FALSE` de la captura.
+**El escaneo del QR físico no es un eslabón de esa cadena**: está fuera de alcance y el activo se
+abre por lista. Es el eslabón más fuerte que falta, y por eso el peso recae en la fotografía y en el
+`Editable_If = FALSE` de la captura.
 
 Detalle con consecuencia: la compresión a 600 px descarta los metadatos de la imagen, así que
 fecha, hora y coordenada se guardan **como datos de cada fotografía**, nunca confiados al archivo.
 
-## Restricciones de plataforma que condicionan el diseño
-
-Verificadas el 2026-08-06. Repásalas antes de proponer nada:
-
-| Restricción | Consecuencia |
-|---|---|
-| En el plan gratuito **los procesos programados no se ejecutan** | Sin plan pagado no hay generación automática de órdenes, ni correo semanal de tareas, ni marcado de vencidas |
-| Las imágenes se guardan en el Drive del **propietario** del documento | Hoy es una cuenta personal de Gmail con 15 GB compartidos. Con el inventario completo la cuota se agota antes de la retención exigida |
-| 10 millones de celdas por hoja | Rara vez muerde. Se degrada antes la sincronización, por encima de ~50.000 filas por tabla |
-| API REST | Requiere plan Core o superior |
-
-Las cifras de crecimiento se calculan con `python scripts/capacidad.py`, no a ojo.
+**Antes de proponer un cambio, mide si cabe.** Un cambio que suba el consumo de imágenes, que
+dependa de un proceso programado o de la API REST choca con un límite de plataforma, no con una
+decisión de diseño: los cuatro están en `docs/SISTEMA.md` §6, con su
+consecuencia. Las cifras de crecimiento se calculan con `python scripts/capacidad.py`, no a ojo.
 
 ## Los dos documentos que se generan, y por qué
 
@@ -467,18 +458,26 @@ Lo que sí está verificado como resuelto: `Coordenadas_Cierre_LatLong` y `Preci
 de esa tabla se deriva, no se cita de memoria** —el modelo declara hoy 23— porque esa cifra cambió
 tres veces y cada versión sobrevivió en algún documento.
 
-## 7.4 Los seis verificadores, y qué mide cada uno
+## 7.4 Los seis verificadores: cuándo se corre cada uno
 
-Ninguno sustituye a otro. Los seis se corren antes de dar nada por cerrado.
+**Qué mide cada uno está en `docs/SISTEMA.md` §5**, junto con las cuatro cosas
+que ningún comando puede mirar. Aquí va lo que ese documento no dice: **cuándo te toca correrlo**.
+Ninguno sustituye a otro, y los seis se corren antes de dar nada por cerrado.
 
-| Script | Mide | Cuándo falla |
-|---|---|---|
-| `validar_modelo.py` | El modelo consigo mismo: tipos, claves, rutas de desreferencia, reglas | Siempre. Es el único gate objetivo del pipeline |
-| `verificar_faseA.py` | El modelo contra **la hoja descargada**: estructura, tipos, pestañas | Al cerrar una fase de datos |
-| `verificar_datos.py` | **Los datos** de esa misma hoja: obligatorias vacías, referencias huérfanas, homogeneidad de tipo | Al entregar o publicar la plantilla |
-| `verificar_documentos.py` | **La prosa** contra el modelo | Al escribir o tocar cualquier `.md` |
-| `verificar_enlaces.py` | Que todo enlace relativo entre documentos **resuelve** | Al mover, renombrar o retirar cualquier documento |
-| `verificar_reproducible.py` | Que **generar la plantilla dos veces dé lo mismo** | Al tocar cualquier generador |
+| Script | Cuándo se corre |
+|---|---|
+| `validar_modelo.py` | **Siempre.** Es el único gate objetivo del pipeline |
+| `verificar_faseA.py` | Al cerrar una fase de datos, contra la hoja descargada |
+| `verificar_datos.py` | Al entregar o publicar la plantilla |
+| `verificar_documentos.py` | Al escribir o tocar cualquier `.md` |
+| `verificar_enlaces.py` | Al mover, renombrar o retirar cualquier documento |
+| `verificar_reproducible.py` | Al tocar cualquier generador |
+
+**`verificar_app.py` no es uno de los seis, aunque se llame igual.** Los seis leen **archivos** y
+son gate. `verificar_app.py` pregunta a la **aplicación en vivo**, y por eso pertenece al otro
+grupo, con `auditar_cableado.py` e `instantanea.py`: los tres comparten un límite que los seis no
+tienen —lo que la API no devuelve no se puede ver— y **ninguno de los tres bloquea: informan**. Está
+dicho en su propio docstring; contarlo entre los verificadores infla el gate con algo que no lo es.
 
 **`verificar_enlaces.py` se añadió el 2026-08-09, y nació de un fallo concreto.** Al retirar 15
 documentos a `docs/historico/` quedaron **31 enlaces rotos**, y se encontraron leyéndolos uno a uno.
@@ -493,11 +492,11 @@ cambios pasaron los cinco en verde y tres eran defectuosos, entre ellos
 `DISTANCE()` contra blanco no da error: da un valor que rechaza el cierre legítimo. Su propio
 encabezado explica cuál de los cinco dejaba pasar cada cosa.
 
-**Hay además un auditor que no es un verificador:** `scripts/auditar_cableado.py` compara el
-cableado **real de la aplicación** contra el que declara el modelo, leyendo por la API. No entra en
-la lista porque no mide el repositorio contra sí mismo sino contra producción, **escribe en el
-repositorio** (`docs/CORRECCIONES_CABLEADO.md`) y hay referencias de las que **no puede decir nada**.
-Su método está asentado en `docs/BASE_CONOCIMIENTO_APPSHEET.md` §16, con sus límites.
+**De los tres que miran producción, `auditar_cableado.py` es el que además escribe en el
+repositorio** (`docs/CORRECCIONES_CABLEADO.md`), y hay referencias de las que **no puede decir
+nada**: las que apuntan a una tabla vacía. Su método y sus límites están en
+`docs/BASE_CONOCIMIENTO_APPSHEET.md` §16. **Confundir «no lo puedo ver» con «está bien» es como se
+llegó a dar por cableado lo que no lo estaba.**
 
 **Y tres módulos que no verifican nada: declaran lo que nadie declaraba.** Se consultan **antes** de
 tocar el editor, no después.
@@ -798,9 +797,11 @@ ha declarado un deseo y se ha guardado donde se guardan los hechos. Las tres fac
 - **`Label`**: no lo declaraba nadie. Es lo que el técnico ve en los 39 desplegables, y AppSheet
   elegía la primera columna de texto, que casi siempre es la clave.
 
-`scripts/lectura_de_vuelta.py` dice, por clase de cambio, quién lo comprueba: **tres tienen comando
-—`referencias`, `datos`, `estructura`— y cuatro no tiene nadie —`tipos`, `expresiones`, `permisos`,
-`etiqueta`—**. Un paso sin comprobación declarada se lee como comprobado.
+`scripts/lectura_de_vuelta.py` dice, por clase de cambio, quién lo comprueba. **Cuáles no tiene
+nadie, y por qué la API no las devuelve, está en `docs/SISTEMA.md` §5**; lo que
+importa aquí es la regla que sale de ello: **un paso sin comprobación declarada se lee como
+comprobado**, y esas clases se cierran copiando el texto literal del editor, no afirmando que
+coincide.
 
 **Y `scripts/navegacion_editor.py` dice dónde está cada cosa en pantalla**, que es la otra mitad del
 mismo problema: los encargos decían **qué** poner y no **dónde**. Los nombres de las reglas **no son
@@ -1024,10 +1025,10 @@ enlace que daba 404.
 
 ## 10. Alcance y método de construcción
 
-> **CORRECCIÓN DEL 2026-08-07.** Este apartado afirmaba que el agente no tenía acceso al editor de
-> AppSheet ni al Sheets de producción. **Es falso.** El 6 de agosto de 2026 se agregaron
-> `Coordenadas_Cierre_LatLong` y `Precision_GPS` al Sheets y se ejecutó *Regenerate Structure* en AppSheet.
-> El acceso existe y ya se usó.
+> **El agente sí tiene acceso al editor de AppSheet y al Sheets de producción**, y ya lo ha usado:
+> se agregaron columnas al Sheets y se ejecutó *Regenerate Structure* desde aquí. Este apartado
+> afirmó lo contrario durante días, así que **no lo des por cerrado por lo que diga un documento:
+> pruébalo**.
 
 El acceso existe, pero es **caro y frágil**: manejar el editor de AppSheet clic a clic consume
 muchos tokens, los desplegables no siempre abren y el viewport cambia de tamaño entre llamadas,
@@ -1056,6 +1057,6 @@ lectura ni los cambios en `scripts/` que no alteren el modelo.
 
 ### Fuera de alcance
 
-**El código QR, por decisión del 2026-08-07.** Primero tiene que funcionar el ciclo básico. El
+**El código QR.** Primero tiene que funcionar el ciclo básico. El
 activo se abre por lista, no por escaneo, y `OrigenApertura = Lista` deja de ser una excepción.
 Detalle y consecuencias en `docs/SDD_PIPELINE_SGMC.md` sección 8.

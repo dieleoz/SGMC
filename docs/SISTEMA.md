@@ -1,7 +1,18 @@
-# ESPEC-000 — El sistema, tal como es
+# El sistema, tal como es
 
-No es una especificación de cambio: es la línea de partida contra la que se leen las demás. Describe
-qué es el SGMC hoy, en presente. Lo que falta o está a medias vive en [`ESTADO.md`](../../ESTADO.md);
+**No es una especificación.** Una `ESPEC` propone un cambio, y por eso pasa por verificador,
+arquitecto y ejecutor. Esto no propone nada: describe qué es el SGMC hoy, en presente, y es la línea
+de partida contra la que se leen las demás.
+
+Y por eso tampoco tiene un documento de pruebas. **Su comprobación es mecánica:**
+
+```bash
+python scripts/verificar_sistema.py
+```
+
+Cada afirmación de aquí sale de un comando, y ese verificador los corre y compara. Un documento que
+se desmiente solo cuando envejece es lo contrario de lo que ha pasado seis veces en este proyecto
+con cifras que nadie volvió a mirar. Lo que falta o está a medias vive en [`ESTADO.md`](../ESTADO.md);
 cómo se llegó hasta aquí vive en `git log` y en las actas. Nada de eso está aquí.
 
 | | |
@@ -23,8 +34,8 @@ Responde una pregunta que hoy se responde a mano, sumando partes de papel: cuán
 ejecutó. Con el sistema esa cifra es una resta entre lo programado y lo cerrado, y sale sola. Todo lo
 demás — geolocalización, fotografías, firma, histórico — existe para que esa cifra sea defendible, no
 solo cierta. El desarrollo completo, con el ciclo de la orden y qué prueba y qué no prueba el
-sistema, está en [`docs/FUNCIONAL_SGMC.md`](../FUNCIONAL_SGMC.md); qué se mantiene y de dónde sale
-cada cifra de dominio, en [`docs/CONTEXTO_OPERACION.md`](../CONTEXTO_OPERACION.md).
+sistema, está en [`docs/FUNCIONAL_SGMC.md`](FUNCIONAL_SGMC.md); qué se mantiene y de dónde sale
+cada cifra de dominio, en [`docs/CONTEXTO_OPERACION.md`](CONTEXTO_OPERACION.md).
 
 ## 2. De qué se compone
 
@@ -45,8 +56,8 @@ el editor —tipos, claves, `Label`, reglas, bots— es trabajo manual de quien 
 28 tablas, 211 columnas, 39 referencias, 23 reglas — la cifra la imprime `python
 scripts/validar_modelo.py` en su primera línea, no se cita de memoria. Vive entera en
 `scripts/modelo_objetivo.py`; se lee formateada en
-[`docs/ARQUITECTURA_OBJETIVO_SGMC.md`](../ARQUITECTURA_OBJETIVO_SGMC.md) (generado, no editar) y se
-compara contra la hoja real en [`docs/bd.md`](../bd.md) (generado del `.xlsx`).
+[`docs/ARQUITECTURA_OBJETIVO_SGMC.md`](ARQUITECTURA_OBJETIVO_SGMC.md) (generado, no editar) y se
+compara contra la hoja real en [`docs/bd.md`](bd.md) (generado del `.xlsx`).
 
 Seis grupos: catálogos (14 tablas), la tabla maestra `ACT_Activos` (1), transaccionales (4:
 `OT_OrdenesTrabajo`, `MAN_Mantenimientos`, `NOV_Novedades`, `PLA_PlanMantenimiento`), evidencias (2:

@@ -2,11 +2,11 @@
 
 **Proyecto:** Sistema de Gestión de Mantenimiento en Campo (SGMC)
 **Cliente:** Concesión Transversal del Sisga S.A.S.
-**Actualizado:** 11 de agosto de 2026
 **Propósito:** Mapa de navegación del repositorio. Dónde está cada cosa y qué contiene.
 
-> **Este archivo dice dónde está cada cosa, no en qué punto va el proyecto.**
-> Para el estado, [`ESTADO.md`](ESTADO.md).
+> **Este archivo dice dónde está cada cosa, no en qué punto va el proyecto ni qué es el sistema.**
+> Para el estado, [`ESTADO.md`](ESTADO.md); para el sistema en presente,
+> [`docs/SISTEMA.md`](docs/SISTEMA.md).
 
 ---
 
@@ -16,7 +16,7 @@
 |---|---|
 | Saber en qué punto va el proyecto y qué falta | [ESTADO.md](ESTADO.md) |
 | Entender qué es el proyecto | [README.md](README.md) |
-| Entender qué es el sistema hoy, sin historia ni estado | [docs/sdd/ESPEC-000-sistema-actual.md](docs/sdd/ESPEC-000-sistema-actual.md) |
+| Entender qué es el sistema hoy, sin historia ni estado | [docs/SISTEMA.md](docs/SISTEMA.md) |
 | Saber qué te toca a ti, según tu rol | [docs/INDICACIONES_POR_ROL.md](docs/INDICACIONES_POR_ROL.md) |
 | Entender qué hace el sistema y para quién | [docs/FUNCIONAL_SGMC.md](docs/FUNCIONAL_SGMC.md) |
 | Ver la arquitectura que se va a construir | [docs/ARQUITECTURA_OBJETIVO_SGMC.md](docs/ARQUITECTURA_OBJETIVO_SGMC.md) |
@@ -60,7 +60,7 @@ D:\@Proyect\Sisga\
 │                                   PRUEBA-003, RECONSTRUCCION_EXPRESIONES, ESPEC-004
 │                                   (rehecha tras bloqueo del arquitecto, pendiente de nuevo
 │                                   dictamen; asume ESPEC-005 aplicada primero) y ESPEC-005
-│                                   (APLICADA al modelo el 2026-08-10; le falta la mitad
+│                                   (APLICADA al modelo; le falta la mitad
 │                                   que vive en el editor, que es el ENCARGO_VENTANA)
 │
 ├── Manuales/                     Manual de usuario
@@ -71,8 +71,9 @@ D:\@Proyect\Sisga\
 │   ├── sistema.py                 La aplicación y la hoja vigentes, y las superadas con su motivo
 │   ├── catalogo_tipos.py          Los 27 tipos de activo y las 18 familias del Plan Maestro
 │   │
-│   │                              Los SEIS verificadores (CLAUDE.md §7.4). Ninguno
-│   │                              sustituye a otro y los seis se corren antes de cerrar nada
+│   │                              Los SEIS verificadores (CLAUDE.md §7.4). Leen ARCHIVOS,
+│   │                              son el gate, ninguno sustituye a otro y los seis se
+│   │                              corren antes de cerrar nada
 │   ├── validar_modelo.py          El modelo consigo mismo. Gate objetivo del pipeline
 │   ├── verificar_faseA.py         El modelo contra la hoja descargada: estructura y tipos
 │   ├── verificar_datos.py         Los DATOS de esa hoja: obligatorias vacías, huérfanas, tipos
@@ -82,22 +83,25 @@ D:\@Proyect\Sisga\
 │   ├── verificar_enlaces.py       Que todo enlace relativo entre documentos resuelve
 │   ├── verificar_reproducible.py  Que generar la plantilla dos veces dé lo mismo
 │   │
-│   │                              Contra la aplicación en vivo, no contra el repositorio
+│   │                              Los TRES que miran la aplicación EN VIVO. No son
+│   │                              verificadores y no bloquean: informan. Comparten un
+│   │                              límite —lo que la API no devuelve, no se puede ver—
 │   ├── auditar_cableado.py        El cableado REAL contra el declarado. Emite
 │   │                               docs/CORRECCIONES_CABLEADO.md. Método en
 │   │                               BASE_CONOCIMIENTO_APPSHEET §16, con sus tres límites
-│   ├── probar_auditor.py          Prueba negativa del anterior: le mete defectos y
-│   │                               comprueba que los caza. Sin red
-│   ├── verificar_app.py           Recuento de filas por la API
+│   ├── verificar_app.py           Recuento de filas por la API. Se llama como los seis
+│   │                               y NO es uno de ellos; lo dice su propio docstring
 │   ├── instantanea.py             Fotografía los datos vivos y compara dos fotos celda a
-│   │                               celda. La red de las 10 reglas que ESCRIBEN
+│   │                               celda. La red de las reglas que ESCRIBEN
+│   ├── probar_auditor.py          Prueba negativa de auditar_cableado.py: le mete
+│   │                               defectos y comprueba que los caza. Sin red
 │   │
 │   │                              Módulos que responden una sola pregunta, y los consumen
 │   │                              los generadores para que el saber no se quede en prosa
 │   ├── inferencia.py              Quién consigue el tipo de cada columna: a mano, el
-│   │                               nombre o el contenido. 107 / 17 / 87
+│   │                               nombre o el contenido. El reparto lo imprime el propio script
 │   ├── alcance_reglas.py          Qué columnas toca de verdad cada regla, con su tabla.
-│   │                               Atribuir por nombre suelto daba 94 donde hay 39
+│   │                               Atribuir por nombre suelto infla la cifra al doble
 │   ├── lectura_de_vuelta.py       Quién comprueba cada clase de cambio. Tres tienen
 │   │                               comando; **cuatro no tiene nadie**
 │   ├── navegacion_editor.py       Dónde está cada control en pantalla. El nombre de la
@@ -113,8 +117,8 @@ D:\@Proyect\Sisga\
 └── archivo/                      Material de origen, no versionado
 ```
 
-> **No hay carpeta `entregables/`.** Este mapa la listó hasta el 2026-08-10, cuando la limpieza se
-> la llevó. Se deja dicho porque un mapa que nombra una carpeta inexistente manda a buscarla.
+> **No hay carpeta `entregables/`.** Se deja dicho porque un mapa que nombra una carpeta inexistente
+> manda a buscarla; lo que contenía lo guarda `git`.
 
 ---
 
@@ -124,7 +128,7 @@ D:\@Proyect\Sisga\
 
 | Documento | Contenido | Vigencia |
 |---|---|---|
-| [docs/sdd/ESPEC-000-sistema-actual.md](docs/sdd/ESPEC-000-sistema-actual.md) | El sistema tal como es hoy, en presente: qué resuelve, de qué se compone, el modelo, las decisiones de diseño, qué se puede comprobar y los límites vigentes | **Vigente. Es la línea de partida contra la que se leen las demás especificaciones** |
+| [docs/SISTEMA.md](docs/SISTEMA.md) | El sistema tal como es hoy, en presente: qué resuelve, de qué se compone, el modelo, las decisiones de diseño, qué se puede comprobar y los límites vigentes | **Vigente. Es la línea de partida contra la que se leen las demás especificaciones** |
 | [ESTADO.md](ESTADO.md) | Qué está hecho, qué falta y qué está bloqueado | **Vigente. Es la verdad del estado** |
 | [docs/SDD_PIPELINE_SGMC.md](docs/SDD_PIPELINE_SGMC.md) | Método de construcción: cinco agentes y el gate antes del paso caro | Vigente en sus agentes; sus referencias a fases anteriores a la reconstrucción están superadas |
 | [docs/INDICACIONES_POR_ROL.md](docs/INDICACIONES_POR_ROL.md) | El reparto por rol: qué hacer, qué decidir, qué leer | Vigente |
@@ -154,8 +158,8 @@ D:\@Proyect\Sisga\
 | [docs/CORRECCIONES_CABLEADO.md](docs/CORRECCIONES_CABLEADO.md) | Qué referencias quedan mal en el editor y en qué orden se arreglan, más **las que el método no puede ver** | Vigente. **Se regenera, no se edita.** Vale para la lectura con que se generó, no para siempre |
 | [docs/sdd/RECONSTRUCCION_EXPRESIONES.md](docs/sdd/RECONSTRUCCION_EXPRESIONES.md) | Los nombres renombrados y las 23 reglas a reponer, sin cortar | Vigente |
 | [docs/sdd/PRUEBA-003-despliegue.md](docs/sdd/PRUEBA-003-despliegue.md) | Las pruebas de aceptación del despliegue reconstruido | Vigente |
-| [docs/sdd/ESPEC-004-cierre-excepcion-manual.md](docs/sdd/ESPEC-004-cierre-excepcion-manual.md) | `RG-02`/`RG-19` dependen de `USERLOCATIONACCURACY()`, que no existe en AppSheet: `CierreConExcepcion` nunca se dispara. Corrige a que el técnico la marque | **Rehecha el 2026-08-10 tras bloqueo del arquitecto** (12 condiciones, 1 ya aplicada en el modelo; las otras 11 atendidas en esta versión). Pendiente de nuevo dictamen. Asume `ESPEC-005` aplicada primero. Nada de esto está aplicado aún en `scripts/modelo_objetivo.py` ni en el editor |
-| [docs/sdd/ESPEC-005-clave-otid-planid.md](docs/sdd/ESPEC-005-clave-otid-planid.md) | `OTID` y `PlanID` son claves legibles sin generador declarado; `RG-10` y `RG-12` crean filas en `OT_OrdenesTrabajo` sin asignarlo. Propone `UNIQUEID()` para ambas y una columna `Etiqueta` **virtual** (`RG-35`/`RG-36`, no `App formula` sobre columna real) para que la orden se identifique ante el técnico | **APLICADA AL MODELO el 2026-08-10**, tras pasar el gate del arquitecto en segunda pasada. `CLAVE_LEGIBLE` bajó de 22 a 20 tablas y `CLAVE_GENERADA` subió de 6 a 8; se comprueba volcando las dos listas de `scripts/modelo_objetivo.py`. **Falta la mitad que vive en el editor** —las dos virtuales, con `Show?` y `Label`—, que es el paso 1 de [ENCARGO_VENTANA.md](docs/ENCARGO_VENTANA.md) |
+| [docs/sdd/ESPEC-004-cierre-excepcion-manual.md](docs/sdd/ESPEC-004-cierre-excepcion-manual.md) | `RG-02`/`RG-19` dependen de `USERLOCATIONACCURACY()`, que no existe en AppSheet: `CierreConExcepcion` nunca se dispara. Corrige a que el técnico la marque | **Rehecha tras bloqueo del arquitecto** (12 condiciones, 1 ya aplicada en el modelo; las otras 11 atendidas en esta versión). Pendiente de nuevo dictamen. Asume `ESPEC-005` aplicada primero. Nada de esto está aplicado aún en `scripts/modelo_objetivo.py` ni en el editor |
+| [docs/sdd/ESPEC-005-clave-otid-planid.md](docs/sdd/ESPEC-005-clave-otid-planid.md) | `OTID` y `PlanID` son claves legibles sin generador declarado; `RG-10` y `RG-12` crean filas en `OT_OrdenesTrabajo` sin asignarlo. Propone `UNIQUEID()` para ambas y una columna `Etiqueta` **virtual** (`RG-35`/`RG-36`, no `App formula` sobre columna real) para que la orden se identifique ante el técnico | **APLICADA AL MODELO**, tras pasar el gate del arquitecto en segunda pasada. `CLAVE_LEGIBLE` bajó de 22 a 20 tablas y `CLAVE_GENERADA` subió de 6 a 8; se comprueba volcando las dos listas de `scripts/modelo_objetivo.py`. **Falta la mitad que vive en el editor** —las dos virtuales, con `Show?` y `Label`—, que es el paso 1 de [ENCARGO_VENTANA.md](docs/ENCARGO_VENTANA.md) |
 | [docs/sdd/ESPEC-006-reemplazo-bots-programados.md](docs/sdd/ESPEC-006-reemplazo-bots-programados.md) | `RG-08` y `RG-12` son bots programados y no corren en la cuenta gratuita; además `RG-08` movería la orden al estado `Vencida`, que es final, e impediría al técnico tardío cerrarla. Propone `RG-37`, columna virtual `EstaVencida` sobre `OT_OrdenesTrabajo`, y `RG-38`, una vista más una acción (`Data: add a new row...`) sobre `PLA_PlanMantenimiento` que el supervisor pulsa | **Sin aplicar.** Del especificador. Pendiente de `PRUEBA-006` y del arquitecto |
 
 ### Plataforma
