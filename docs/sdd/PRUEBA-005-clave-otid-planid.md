@@ -377,7 +377,7 @@ repositorio real queda sin tocar.
   Las tres salidas son no vacías. `docs/PROMPT_EXPRESIONES.md` incluye, para cada una, su tabla, su
   tipo (`App formula`), su expresión completa y la ruta de referencia que atraviesa
   (`OT_OrdenesTrabajo.ActivoID → ACT_Activos`, y para `RG-36` también `→ FRE_Frecuencias`),
-  igual que las otras 21 reglas — **la prueba PASA**, al revés de lo que predecía la versión
+  igual que las otras 23 reglas — **la prueba PASA**, al revés de lo que predecía la versión
   anterior.
 - **Cómo se distingue el fallo:** si alguna de las tres salidas queda vacía, `Etiqueta` se declaró
   fuera de `REGLAS` (por ejemplo, como `formula=` de una columna de `MODELO`), reproduciendo el

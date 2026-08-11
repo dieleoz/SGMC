@@ -1517,7 +1517,7 @@ que tocar.
 declaran intenciones.
 
 > **Pero sí cambiaron el 2026-08-10, y no se citan de memoria.** El modelo está hoy en **28 tablas,
-> 211 columnas, 39 referencias y 21 reglas**, y esa línea la imprime el validador cada vez que corre,
+> 211 columnas, 39 referencias y 23 reglas**, y esa línea la imprime el validador cada vez que corre,
 > así que la cifra buena es siempre la de la salida y nunca la de este párrafo:
 >
 > ```bash

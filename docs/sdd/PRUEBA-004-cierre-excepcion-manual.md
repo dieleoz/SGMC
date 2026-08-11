@@ -5,21 +5,24 @@
 «innegociables». `PRUEBA-003` ya arrancaba en `P-21` por la misma razón; esta tanda arranca en
 **`P-34`**, el primer número libre después de `PRUEBA-003` (hasta `P-33`).
 
-**Escrita antes de que `ORDEN-004` exista.** Nada de lo que sigue se ejecutó contra el modelo, la
-hoja ni el editor: los comandos marcados «automática» sí se corrieron —son de solo lectura, o
-corren sobre una copia de `scripts/` y del volcado fuera del repositorio para predecir el resultado
-exacto— y sus salidas están citadas literalmente. Los que requieren la app están descritos para
-cuando el ejecutor los corra, no ejecutados aquí.
+**Ajustada el 2026-08-11** contra la tercera versión de `ESPEC-004` (reescrita tras la segunda
+pasada del arquitecto, quince hallazgos — `ESPEC-004` §0). Nada de lo que sigue se ejecutó contra el
+modelo, la hoja ni el editor: los comandos marcados «automática» sí se corrieron —son de solo
+lectura, o corren sobre una copia de `scripts/` y del volcado fuera del repositorio para predecir el
+resultado exacto— y sus salidas están citadas literalmente. Los que requieren la app están descritos
+para cuando el ejecutor los corra, no ejecutados aquí.
 
-**Supuesto que gobierna esta tanda entera, heredado de `ESPEC-004`: `ORDEN-005` ya está aplicada.**
-`OTID` y `PlanID` generan su clave con `UNIQUEID()`, no se teclean. El fixture de esta tanda se
-construye enteramente sin literales de clave — ver §1.3.
+**Lo que ya no es un supuesto: `ORDEN-005` está aplicada.** La versión anterior de esta tanda lo
+heredaba como condición de `ESPEC-004`; hoy es un hecho verificado con transcripción literal del
+editor (`docs/sdd/ACTA-005-pruebas.md`, `P-09`) y con `docs/sdd/ACTA-006-cotejo-y-supuesto.md`. `OTID`
+y `PlanID` generan su clave con `UNIQUEID()`, no se teclean. El fixture de esta tanda se construye
+enteramente sin literales de clave — ver §1.3.
 
 | | |
 |---|---|
 | Cubre | [`ESPEC-004-cierre-excepcion-manual.md`](ESPEC-004-cierre-excepcion-manual.md): retirar `RG-02`/`Precision_GPS`, retirar `RG-19`, dejar `CierreConExcepcion` editable por el técnico con `Description` formulada como pregunta, `RG-03` sin cambios de expresión |
 | Contra cuál sistema | `_SISGA_-323965761` sobre `Modelo_Datos_10082026` (fileId `1h9kyCYGK6esRL1UiTcPXHlSmDQcPb13fNZ0hBznYOa0`), volcado en `BD/Modelo_Datos_PLANTILLA.xlsx`. Volcado con `python scripts/sistema.py`, no copiado de una tanda anterior |
-| Reglas que esta tanda tiene que probar y `PRUEBA-003` no cubre | `RG-02` retirada, `RG-19` retirada, el tipo real de `CierreConExcepcion` (`S-30`), el límite exacto de `RG-20`, que los seis scripts generadores dejaron de citar el mecanismo retirado |
+| Reglas que esta tanda tiene que probar y `PRUEBA-003` no cubre | `RG-02` retirada, `RG-19` retirada, el tipo real de `CierreConExcepcion` (`S-30`, `ESPEC-004` §2.7 — la condición que más pesa de toda la tanda), el límite exacto de `RG-20`, que los once scripts generadores/verificadores dejaron de citar el mecanismo retirado (`ESPEC-004` §2.9) |
 | Innegociables | `P-40`, `P-41`, `P-42`, `P-43` |
 
 ## 1. Estado de partida
@@ -103,14 +106,12 @@ escribir y buscar después**, y coincide con lo que ya declara el modelo sobre e
 (§ Familia C), nunca se predicen ni se escriben a mano — es la misma disciplina que usa `PRUEBA-005`
 `P-11`/`P-13` para el mismo problema.
 
-### 1.4 `Ubicacion_LatLong` está poblada — verificado de nuevo, y contra quién estaba mal la cita
+### 1.4 `Ubicacion_LatLong` está poblada
 
-`ESPEC-004` §2.6 corrigió, en esta misma revisión, una acusación falsa: la versión anterior de este
-documento decía que `docs/ALCANCE_Y_SUPUESTOS_SGMC.md` afirmaba que `Ubicacion_LatLong` está vacía.
-**Es al revés**: la línea 149 de ese archivo dice, verificado hoy, que está *poblada* en las 368,
-con valores sintéticos derivados del `PK`. El documento que sí dice —de forma desactualizada— que
-está vacía es `Manuales/MANUAL_DE_USUARIO.md`, en sus líneas 46, 168 y 266, que `ESPEC-004` §4
-incluye entre lo que hay que corregir a mano.
+`docs/ALCANCE_Y_SUPUESTOS_SGMC.md`, línea 149: la columna está *poblada* en las 368 filas de
+`ACT_Activos`, con valores sintéticos derivados del `PK`. `Manuales/MANUAL_DE_USUARIO.md` (líneas 46,
+168, 266) sigue desactualizado en sentido contrario; `ESPEC-004` §4 lo incluye entre lo que hay que
+corregir a mano en el mismo cambio.
 
 Esta prueba depende del hecho, no de qué documento lo dice bien o mal:
 
@@ -141,7 +142,7 @@ físicamente junto a `ACT-0001` (`PK 00+100`), y si tampoco es viable en la fech
 y `P-41` pasan a `BLOQUEADA POR` con esa causa.
 
 **Y antes de confiar en que `P-40`/`P-41` pasaron por la razón correcta, hay un discriminador que
-cumplir, citado en `ESPEC-004` §2.10 desde `docs/BASE_CONOCIMIENTO_APPSHEET.md:300`:** no hay página
+cumplir, citado en `ESPEC-004` §2.12 desde `docs/BASE_CONOCIMIENTO_APPSHEET.md:300`:** no hay página
 oficial que confirme que AppSheet evalúa un `Valid_If` sobre una columna con `Editable_If = FALSE`.
 Si no lo evalúa, `RG-01` nunca se ejecuta sobre `Coordenadas_Cierre_LatLong`, y **cualquier cierre se
 guardaría igual, con la técnica de spoofing funcionando o sin funcionar** — `P-40` y `P-41` pasarían
@@ -150,9 +151,10 @@ por una razón que no tiene nada que ver con `RG-03`.
 **Precondición añadida, antes de dar por buena esta familia:** confirmar que `P-09` de `PRUEBA-003`
 (cierre fuera de rango, **innegociable** en esa tanda) se ejecutó **sobre este mismo despliegue** —la
 aplicación se reconstruyó entera el 2026-08-10, así que una `P-09` de una reconstrucción anterior no
-sirve— y que su caso lejano fue **rechazado**. Si `P-09` de `PRUEBA-003` no se ha corrido todavía
-sobre esta aplicación, o si su resultado no está documentado con la misma disciplina que exige esta
-tanda, `P-40`/`P-41` de esta tanda no cuentan como evidencia de nada hasta que se corra: es la misma
+sirve— y que su caso lejano fue **rechazado**. **Verificado hoy que no lo está:** `ls docs/sdd/ | grep
+-i ACTA-003` no devuelve nada — no existe acta de ejecución de `PRUEBA-003` en el repositorio. Hasta
+que `P-09` de `PRUEBA-003` se corra sobre esta aplicación y quede documentado con la misma disciplina
+que exige esta tanda, `P-40`/`P-41` de esta tanda no cuentan como evidencia de nada: es la misma
 comprobación que `scripts/generar_manual_despliegue.py:850` ya instruye —*"pruebe un cierre cercano
 y uno lejano. Si los dos salen aceptados, sospeche de esto antes que del radio."*
 
@@ -215,9 +217,8 @@ Corren contra `scripts/modelo_objetivo.py` y compañía. No requieren API ni edi
     - RG-20 todavia menciona Precision_GPS en su descripcion
     - Precision_GPS no esta en CAMPOS_RETIRADOS['MAN_Mantenimientos']
   ```
-  Corrido hoy, 2026-08-10, y es exactamente esta salida — la fórmula citada es la que quedó tras el
-  arreglo de `RG-19` que `ESPEC-004` §2.2 documenta, no la versión sin `ISBLANK` que citaba una
-  versión anterior de esta prueba.
+  Recorrido de nuevo el 2026-08-11 (misma salida) — la fórmula citada es la que quedó tras el
+  arreglo de `RG-19` que `ESPEC-004` §2.3 documenta, con `V-18` en 0 errores.
 - **Resultado esperado — DESPUÉS de `ORDEN-004`:** `PASA: 0 fallos`.
 - **Cómo se distingue el fallo:** si tras `ORDEN-004` el script sigue listando algo, `ESPEC-004` §4
   no se aplicó completa.
@@ -225,25 +226,27 @@ Corren contra `scripts/modelo_objetivo.py` y compañía. No requieren API ni edi
 #### P-35 — `validar_modelo.py` sigue en 0 errores
 
 - **Qué comprueba:** que retirar `Precision_GPS` no deja huérfana la entrada `"Precision del GPS"`
-  de `COBERTURA` (`scripts/validar_modelo.py:249`).
+  de `COBERTURA` (`scripts/validar_modelo.py:323`).
 - **Precondición:** `ORDEN-004` aplicada.
 - **Acción:** `python scripts/validar_modelo.py`
 - **Resultado esperado:** `ERRORES: ninguno` y `APTO PARA DESPLEGAR`. Verificado hoy antes de
-  `ORDEN-004`: `Tablas: 28 | Columnas: 211 | Referencias: 39 | Reglas: 21`, 3 avisos, ninguno sobre
-  `Precision_GPS` ni `V-13`, ninguno `V-18`. Tras `ORDEN-004`: `Reglas: 19` (se van `RG-02` y
-  `RG-19`) y `Columnas: 210` (se va `Precision_GPS`).
+  `ORDEN-004` (con `ESPEC-005` ya aplicada): `Tablas: 28 | Columnas: 211 | Referencias: 39 |
+  Reglas: 23`, 3 avisos (`V-06` x2, `V-14`), ninguno sobre `Precision_GPS` ni `V-13`, ninguno `V-18`.
+  Tras `ORDEN-004`: `Reglas: 21` (23 menos `RG-02` y `RG-19`) y `Columnas: 210` (se va
+  `Precision_GPS`). **La cifra de 19 que citaba la versión anterior de esta prueba quedó obsoleta en
+  cuanto `ESPEC-005` añadió `RG-35`/`RG-36`** (21→23 antes de `ORDEN-004`); no se repite el error.
 - **Cómo se distingue el fallo:** aparece `[V-13] El flujo 'Precision del GPS' necesita
   MAN_Mantenimientos.Precision_GPS, que no existe`.
 
 #### P-36 — `verificar_datos.py` (`G-05`) no seguiría citando un defecto ya cerrado — y aparece un aviso nuevo legítimo que no hay que confundir con una regresión
 
 - **Qué comprueba:** dos cosas, no una. **Primero**, que el comentario de cabecera de `G-05`
-  (`scripts/verificar_datos.py:213-214`, hoy cita `RG-19` como ejemplo del defecto que persigue) se
+  (`scripts/verificar_datos.py:218`, hoy cita `RG-19` como ejemplo del defecto que persigue) se
   actualiza o se sustituye por un ejemplo vigente, tal como pide `ESPEC-004` §4. **Segundo**, algo
-  que `ESPEC-004` §2.9 verificó por simulación y que la versión anterior de esta prueba no
-  contemplaba: en cuanto el fixture de la Familia C exista, `G-05` va a mostrar un aviso **nuevo y
-  esperado**, no relacionado con `Precision_GPS`, sobre `UbicacionEscaneo_LatLong`/`RG-13` — hay que
-  saber distinguirlo de una regresión antes de que aparezca, no después.
+  que `ESPEC-004` §2.11 verificó por simulación: en cuanto el fixture de la Familia C exista, `G-05`
+  va a mostrar un aviso **nuevo y esperado**, no relacionado con `Precision_GPS`, sobre
+  `UbicacionEscaneo_LatLong`/`RG-13` — hay que saber distinguirlo de una regresión antes de que
+  aparezca, no después.
 - **Precondición (primera parte):** `ORDEN-004` aplicada, **antes** de crear el fixture.
 - **Acción:**
   ```bash
@@ -254,14 +257,14 @@ Corren contra `scripts/modelo_objetivo.py` y compañía. No requieren API ni edi
   defecto que `G-05` persigue. La ejecución sigue en `DATOS COHERENTES`, sin ningún `G-05` sobre
   `MAN_Mantenimientos` ni `OT_OrdenesTrabajo` — las dos tablas siguen vacías en este punto, así que
   `G-04` sigue cubriéndolas y `G-05` sigue sin nada que mirar en ellas.
-- **Resultado esperado (después del fixture, verificado por simulación en `ESPEC-004` §2.9):**
+- **Resultado esperado (después del fixture, verificado por simulación en `ESPEC-004` §2.11):**
   ```
   ! [G-05] MAN_Mantenimientos.UbicacionEscaneo_LatLong esta vacia en las 2 filas y de ella depende
     RG-13. La regla queda configurada y sin efecto: no da error, no hace nada
   ```
   Este aviso **es esperado y no es un defecto de `ESPEC-004`**: `UbicacionEscaneo_LatLong` no se
   llena mientras el QR siga fuera de alcance, con fixture o sin él, y `RG-13` ya está fuera de
-  alcance de este `ESPEC` (§2.5). No debe registrarse como hallazgo nuevo ni bloquear el cierre de
+  alcance de este `ESPEC` (§2.6). No debe registrarse como hallazgo nuevo ni bloquear el cierre de
   esta tanda.
 - **Cómo se distingue el fallo:** antes del fixture, el `grep` devuelve la línea original sin
   ninguna nota de cierre. Después del fixture, un `G-05` que mencione `Precision_GPS` (que ya no
@@ -281,11 +284,12 @@ Corren contra `scripts/modelo_objetivo.py` y compañía. No requieren API ni edi
   CERRADA` sin ningún `F-12`, y sin ningún `F-11` sobre `OT_OrdenesTrabajo`/`PLA_PlanMantenimiento`
   (`ORDEN-005` ya las movió a `CLAVE_GENERADA`, que `F-11` exime).
 - **Cómo se distingue el fallo:** el bloque `F-12` sigue presente y compara `Precision_GPS` —columna
-  que ya no existe— contra `CierreConExcepcion`. **O**, señal del riesgo de secuencia que `ESPEC-004`
-  §2.9 documenta: aparece `[F-11] OT_OrdenesTrabajo: clave legible, coherente con CLAVE_LEGIBLE` —
-  eso no es un fallo de `ESPEC-004`, es la prueba de que se está corriendo este script contra un
-  `modelo_objetivo.py` que no tiene `ORDEN-005` completa. Si aparece, se detiene esta tanda entera:
-  el orden de las dos especificaciones no se cumplió.
+  que ya no existe— contra `CierreConExcepcion`. **O**, red de seguridad residual (`ESPEC-005` ya
+  está aplicada y cerrada, así que esto no debería poder ocurrir — `ESPEC-004` §2.2): si aparece
+  `[F-11] OT_OrdenesTrabajo: clave legible, coherente con CLAVE_LEGIBLE`, no es un fallo de
+  `ESPEC-004` sino la prueba de que se está corriendo este script contra un `modelo_objetivo.py` que
+  no refleja el estado real del repositorio. Si aparece, se detiene esta tanda entera y se corrige el
+  archivo contra el que se está verificando antes de seguir.
 
 #### P-38 — `generar_diccionario_bd.py` ya no atribuye `UMBRAL_GPS` a `RG-19`
 
@@ -302,22 +306,27 @@ Corren contra `scripts/modelo_objetivo.py` y compañía. No requieren API ni edi
   muestra `UMBRAL_GPS` con la columna «Quién lo lee» en `—`.
 - **Cómo se distingue el fallo:** `docs/bd.md` sigue diciendo `RG-19` en esa fila.
 
-#### P-39 — Los seis generadores dejaron de instruir un mecanismo retirado — sin esta prueba, la tanda daba verde con documentos generados describiendo una columna que ya no existe
+#### P-39 — Siete scripts dejaron de instruir un mecanismo retirado, y tres se regeneran solos — sin esta prueba, la tanda daba verde con documentos generados describiendo una columna que ya no existe
 
-- **Qué comprueba:** el hallazgo de `ESPEC-004` §2.7 que la versión anterior de esta tanda no
-  probaba en absoluto: tres scripts (`generar_prompt_expresiones.py`, `generar_guia_funcional.py`,
+- **Qué comprueba:** el hallazgo de `ESPEC-004` §2.9, recontado el 2026-08-11 (once scripts tocan
+  este cambio, no los seis que contaba la versión anterior de esta prueba — nueve por citar
+  `Precision_GPS` literal, uno más, `generar_diccionario_bd.py`, por citar `RG-19` con otro nombre y
+  cubierto aparte en `P-38`): tres de ellos (`generar_prompt_expresiones.py`, `generar_guia_funcional.py`,
   `generar_manual_despliegue.py`) citan `Precision_GPS`/`RG-02`/`RG-19` con texto **fijo**, no
   derivado de `MODELO`/`REGLAS`. Regenerarlos sin editarlos produce documentos que le dicen al
   ejecutor que configure algo que `ESPEC-004` acaba de retirar — el peor caso posible para un
-  documento generado.
-- **Precondición:** `ORDEN-004` aplicada, incluyendo la edición a mano de los tres scripts (§4 de
-  `ESPEC-004`).
+  documento generado. Y **`generar_prompt_cableado.py` es un cuarto script que cita `RG-19`**, pero
+  de forma dinámica (`next(r for r in REGLAS if r["id"]=="RG-19")`): no necesita edición, y esta
+  prueba comprueba también que desaparece solo.
+- **Precondición:** `ORDEN-004` aplicada, incluyendo la edición a mano de los scripts que la
+  requieren (§4 de `ESPEC-004`, tabla de §2.9).
 - **Acción:**
   ```bash
   python scripts/generar_prompt_expresiones.py
   python scripts/generar_guia_funcional.py
   python scripts/generar_manual_despliegue.py
-  grep -n "Precision_GPS\|USERLOCATIONACCURACY\|RG-02\b\|RG-19\b" docs/PROMPT_EXPRESIONES.md docs/GUIA_IMPLEMENTACION_FUNCIONAL.md docs/MANUAL_DESPLIEGUE.md
+  python scripts/generar_prompt_cableado.py
+  grep -n "Precision_GPS\|USERLOCATIONACCURACY\|RG-02\b\|RG-19\b" docs/PROMPT_EXPRESIONES.md docs/GUIA_IMPLEMENTACION_FUNCIONAL.md docs/MANUAL_DESPLIEGUE.md docs/PROMPT_CABLEADO.md
   python scripts/generar_tipos_esperados.py
   python -c "
   import sys; sys.path.insert(0,'scripts')
@@ -328,8 +337,10 @@ Corren contra `scripts/modelo_objetivo.py` y compañía. No requieren API ni edi
 - **Resultado esperado:** el `grep` devuelve, como mucho, menciones históricas explícitamente
   marcadas como cerradas o superadas (ninguna que instruya a poner `Precision_GPS`, `Initial value =
   USERLOCATIONACCURACY()`, o la `App formula` de `RG-19` como algo vigente); ninguna de las tres
-  cuenta ya "cuatro columnas no editables" en `MAN_Mantenimientos` — deben ser tres. Los otros dos
-  regeneran sin error (no requieren edición, §2.7 de `ESPEC-004`).
+  cuenta ya "cuatro columnas no editables" en `MAN_Mantenimientos` — deben ser tres.
+  `docs/PROMPT_CABLEADO.md` ya no incluye el párrafo "La que más se olvida es `RG-19`..." (era
+  condicional a que `RG-19` siguiera en `REGLAS`; desapareció solo). Los otros dos regeneran sin
+  error (no requieren edición, tabla de §2.9 de `ESPEC-004`).
 - **Cómo se distingue el fallo:** el `grep` devuelve una línea con `Deja \`Precision_GPS\` con tipo
   \`Number\` y sin \`Initial value\`` (u otra instrucción equivalente): el encargo generado le está
   diciendo al ejecutor que configure una columna retirada. Es el fallo más caro de toda esta tanda,
@@ -358,7 +369,7 @@ con el caso lejano rechazado); sesión iniciada con `ivan.salcedo@concesiondelsi
   se conoce de antemano).
 - **Acción:** abrir esa orden en el formulario del técnico, iniciar el mantenimiento,
   `EstadoActivoID = EST-01`, marcar la casilla cuya `Description` ahora pregunta explícitamente
-  «¿La app no alcanzó buena precisión al capturar la posición de cierre?» (`ESPEC-004` §2.11),
+  «¿La app no alcanzó buena precisión al capturar la posición de cierre?» (`ESPEC-004` §2.13),
   **intentar guardar sin escribir el motivo**, y luego escribir `"PRUEBA-004 — cobertura deficiente
   simulada"` en `Motivo de excepción` y guardar de nuevo. `Observaciones = "TEST — PRUEBA-004
   (positiva), borrar tras P-42"`.
@@ -453,16 +464,15 @@ disco los archivos `BD/instantaneas/*prueba-004*.json` que esta tanda generó.
 
 #### P-45 — `Precision_GPS` no existe en ningún sitio del editor, y si sobrevive como columna huérfana está declarado y no es un fallo
 
-- **Qué comprueba:** que la columna se retiró de verdad del uso, no solo de `REGLAS`. **A
-  diferencia de la versión anterior de esta prueba**, `ESPEC-004` §2.8 ya adelantó que puede quedar
-  como columna huérfana en `Data > Columns` si `MAN_Mantenimientos` se dio de alta antes de este
-  cambio (Rama A) — eso no es, por sí solo, un fallo: lo es solo si sigue teniendo `Initial value` o
-  aparece en el formulario.
+- **Qué comprueba:** que la columna se retiró de verdad del uso, no solo de `REGLAS`. `ESPEC-004`
+  §2.10 declara que puede quedar como columna huérfana en `Data > Columns` si `MAN_Mantenimientos` se
+  dio de alta antes de este cambio (Rama A) — eso no es, por sí solo, un fallo: lo es solo si sigue
+  teniendo `Initial value` o aparece en el formulario.
 - **Precondición:** `ORDEN-004` aplicada.
 - **Acción:** en *Data > Columns* de `MAN_Mantenimientos`, buscar `Precision_GPS`. Si aparece,
   copiar su `Type` e `Initial value`. En el formulario de captura, confirmar que no hay ningún campo
   de precisión GPS visible al técnico.
-- **Resultado esperado — Rama B de `ESPEC-004` §2.8** (se hizo *Delete and re-add* de la tabla):
+- **Resultado esperado — Rama B de `ESPEC-004` §2.10** (se hizo *Delete and re-add* de la tabla):
   `Precision_GPS` ausente por completo de *Data > Columns*.
 - **Resultado esperado — Rama A** (nunca se llegó a cablear, se dejó huérfana a propósito):
   `Precision_GPS` puede seguir en *Data > Columns*, pero **sin `Initial value`** (nunca se llegó a
@@ -477,7 +487,7 @@ disco los archivos `BD/instantaneas/*prueba-004*.json` que esta tanda generó.
 
 - **La vista del supervisor que cuenta cierres con excepción por técnico y por activo**
   (`Manuales/MANUAL_DE_USUARIO.md` §3.4). **BLOQUEADA POR `D-12`**: el modelo no declara vistas ni
-  *slices*, y `ESPEC-004` §5 dice explícitamente que no la construye. `ESPEC-004` §6.4 adopta, hasta
+  *slices*, y `ESPEC-004` §5 dice explícitamente que no la construye. `ESPEC-004` §6 adopta, hasta
   que `D-12` la entregue, un dueño y una cadencia provisionales para ese vacío — no cambia que esta
   prueba siga bloqueada.
 - **`RG-13` y `RG-18`.** No se escribe prueba: `ESPEC-004` §5 las deja fuera de alcance a propósito.
@@ -497,10 +507,12 @@ concreto:
 
 - `P-34` a `P-39` (Familia A) son la condición de entrada: si alguna falla, `ORDEN-004` está
   incompleta y no tiene sentido seguir con las siguientes. **`P-37` en particular puede detener toda
-  la tanda** si delata un problema de secuencia con `ESPEC-005` (§2.9 de `ESPEC-004`).
+  la tanda** si aparece la señal residual descrita en su «Cómo se distingue el fallo».
 - `P-40`, `P-41`, `P-42` y `P-43` son innegociables. Sin las cuatro, no hay evidencia de que un
-  técnico pueda, alguna vez, dejar constancia auditable de un cierre con GPS deficiente.
-- `P-44` y `P-45` cierran los dos límites explícitos de `ESPEC-004` §3 y §2.8.
+  técnico pueda, alguna vez, dejar constancia auditable de un cierre con GPS deficiente. **`P-43` es
+  la más importante de las cuatro** (`ESPEC-004` §2.7, §7): si sale `Text`, ninguna de las otras tres
+  cuenta hasta retipar y repetir.
+- `P-44` y `P-45` cierran los dos límites explícitos de `ESPEC-004` §3 y §2.10.
 - Las pruebas de la sección 3 se cierran **declarando** su bloqueo, no ejecutándolas a la fuerza.
 - El aviso nuevo de `G-05` sobre `UbicacionEscaneo_LatLong`/`RG-13` que aparece tras crear el fixture
   (`P-36`) **no cuenta como hallazgo ni bloquea el cierre**: está declarado y explicado por

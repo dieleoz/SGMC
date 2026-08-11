@@ -507,7 +507,7 @@ python -c "import sys;sys.path.insert(0,'scripts');import modelo_objetivo as M;p
 **El resultado esperado es que la ACEPTE.** Ese es el punto: queda documentado que un despliegue
 verde no distingue la expresión correcta de la trampa. Se anota con su salida literal.
 
-**Paso 2 — demostrar que nadie cayó.** Recorrer las 21 reglas, las slices y las virtuales, y
+**Paso 2 — demostrar que nadie cayó.** Recorrer las 23 reglas, las slices y las virtuales, y
 comprobar que ninguna cita los once nombres **sobre la tabla del caso**.
 
 **Paso 3 — dejar la columna inerte.** Tipo `Text` —hay que **deshacer la inferencia automática en
