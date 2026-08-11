@@ -128,16 +128,25 @@ la prueba fallaría de verdad, no en apariencia.
 
 ```
 $ python scripts/generar_prompt_cableado.py
-$ grep -n "FOT_Fotografias.*Ubicacion_LatLong\|Ubicacion_LatLong.*FOT_Fotografias" docs/PROMPT_CABLEADO.md
+$ grep -n "^| \`FOT_Fotografias\` | \`Ubicacion_LatLong\`" docs/PROMPT_CABLEADO.md
 491:| `FOT_Fotografias` | `Ubicacion_LatLong` | `Initial value` | `HERE()` |
 ```
+
+> **El patrón va anclado a principio de fila y a las dos celdas, y no es cosmético.** El patrón
+> suelto que tenía antes (`FOT_Fotografias.*Ubicacion_LatLong`) devuelve **dos** líneas, no una: casa
+> también la línea 377, que es prosa sobre el tipo de la columna y no la fila de la tabla. Una prueba
+> que dice «devuelve esto» y devuelve otra cosa no es literal, y aquí la literalidad es el método.
 
 **Paso 2 — predicho sobre copia, con `RG-39` aplicado y SIN el parche del generador:**
 
 ```
-$ grep -n "FOT_Fotografias.*Ubicacion_LatLong" docs/PROMPT_CABLEADO.md
-(sin resultado en la tabla de Initial value; solo quedan PrecisionGPS y Usuario)
+$ grep -n "^| \`FOT_Fotografias\` | \`Ubicacion_LatLong\`" docs/PROMPT_CABLEADO.md
+(sin resultado)
 ```
+
+> Con el patrón anclado, «sin resultado» es literal. Con el patrón suelto **no lo era**: seguía
+> devolviendo la línea 377 de prosa, así que el Paso 2 habría parecido fallar cuando en realidad
+> pasaba.
 
 **Paso 3 — predicho sobre la misma copia, aplicando además el parche exacto de `ESPEC-008` §2.6/§4:**
 
@@ -171,11 +180,18 @@ esta tabla, a diferencia de la de `PROMPT_CABLEADO.md`, no se ve afectada:
 
 ```
 $ python scripts/generar_manual_despliegue.py
-$ grep -n "^| \`Ubicacion_LatLong\`" docs/MANUAL_DESPLIEGUE.md
-| `Ubicacion_LatLong` | `LatLong` | `Initial value` = `HERE()` |
+$ sed -n '/^## `FOT_Fotografias`/,/^## /p' docs/MANUAL_DESPLIEGUE.md | grep -c "^| \`Ubicacion_LatLong\`"
+1
 ```
 
-**Pasa si:** la fila aparece con `Initial value = HERE()` incluso sin el parche de `P-72` aplicado
+> **Acotado a la sección de `FOT_Fotografias`, y esta corrección es la que salva la prueba.** El
+> patrón anterior —`^| \`Ubicacion_LatLong\` | \`LatLong\``— casa **cuatro** filas de cuatro tablas
+> distintas (`ACT_Activos`, `FOT_Fotografias`, `NOV_Novedades`, `SED_Sedes`), y dos de ellas traen
+> `HERE()`. **Habría pasado aunque la fila de `FOT_Fotografias` desapareciera del todo**, porque la de
+> `NOV_Novedades` sola ya satisfacía el patrón. Es la misma clase de fallo que el arquitecto cazó en
+> `PRUEBA-007` `P-66`: una prueba que no puede fallar ocupa el sitio de la que sí comprobaría.
+
+**Pasa si:** el conteo es **exactamente 1** incluso sin el parche de `P-72` aplicado
 — confirma que `docs/MANUAL_DESPLIEGUE.md:1127-1129` recorre todas las columnas sin depender de
 `REGLAS`, y por tanto sigue siendo una referencia completa aunque `PROMPT_CABLEADO.md` no lo sea
 todavía.

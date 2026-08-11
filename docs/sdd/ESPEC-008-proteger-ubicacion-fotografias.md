@@ -2,7 +2,9 @@
 
 ## 0. Por qué este documento es corto, y por qué eso es la conclusión y no un atajo
 
-El mecanismo que hace falta ya existe, ya está probado en producción y no exige ninguna decisión de
+El mecanismo que hace falta ya existe, ya está **cableado y verificado por lectura de vuelta** en
+producción —no *probado*: `MAN_Mantenimientos` tiene 0 filas, así que nunca se guardó una por ese
+formulario (§2.3)— y no exige ninguna decisión de
 producto: `RG-20` resolvió exactamente este defecto para tres columnas de `MAN_Mantenimientos` en
 `ESPEC-004`/`ORDEN-004`, y `ACTA-004` §1 confirma que `Coordenadas_Cierre_LatLong.Editable_If` **ya
 está en `FALSE` en el editor de producción**. Aquí no hay que inventar el candado, hay que ponerlo en
@@ -340,12 +342,30 @@ introduce esta especificación** — `es_parte_de=True` está en el modelo desde
 y no tiene relación de mecanismo con `Editable_If` ni con `HERE()`. Pero en un sistema cuyo propósito
 es que la evidencia sea difícil de falsificar, que la evidencia se pueda hacer desaparecer borrando su
 padre es la misma familia de problema, y no se puede dejar sin nombrar solo porque no es el defecto
-que motivó este documento. **Se decide fuera de esta especificación** (§5): resolverlo bien —decidir
-si `MantenimientoID` debe dejar de ser `IsPartOf`, con el coste de que entonces habría que borrar la
-evidencia a mano en dos sitios— es una decisión de diseño distinta a "impedir que se arrastre un
-pin", y merece su propio documento si alguna vez se prioriza.
+que motivó este documento.
 
-### 2.8 Un hallazgo tangencial, verificado y también fuera de alcance: la identidad tampoco está protegida
+**Pero está más neutralizado de lo que esta sección llegó a decir, y quitar `IsPartOf` no lo
+arreglaría.** `RG-15` ya retira `Deletes` de `MAN_Mantenimientos`, y su propia descripción lo dice:
+*«Protegido aqui arriba, el IsPartOf de FOT, FIR y CHK nunca llega a dispararse»*. Dentro de la
+aplicación **no hay botón que borre** una fila padre. El residuo real es otro: **borrado a mano en
+el Sheets**, que dos cuentas tienen permiso para hacer — y un borrado en la hoja **no dispara
+cascada ninguna**: deja huérfanos. Retirar `IsPartOf` tendría coste sin beneficio.
+
+Y son **cuatro** hijos, no uno: `FOT_Fotografias`, `FIR_Firmas`, `CHK_Checklists`, y
+`CHD_ChecklistDetalle` como nieta.
+
+**No merece documento propio.** Queda en `docs/HALLAZGOS_ABIERTOS.md`, con su comando.
+
+### 2.8 Un hallazgo tangencial, verificado y fuera de alcance: la identidad tampoco está protegida
+
+> **Corregido tras el dictamen: son cuatro columnas en tres tablas, no dos en dos.** Y las dos que
+> faltaban son **las más explotables**, porque son `Ref` —un desplegable— y no texto:
+> `MAN_Mantenimientos.TecnicoID` y `NOV_Novedades.UsuarioID`, las dos con
+> `LOOKUP(USEREMAIL(), "USR_Usuarios", "Correo", "UsuarioID")` como valor inicial y `editable=None`.
+> Lo que se rompe: *un técnico abre el mantenimiento, elige a otro técnico en el desplegable, y la
+> ejecución queda atribuida a un compañero.* Se hace con un toque. **Va a `ESPEC-009`**, porque a
+> diferencia del pin sí tiene una decisión de diseño detrás: si `TecnicoID` deja de ser editable,
+> hay que decir quién la asigna.
 
 ```
 $ python -c "
@@ -399,6 +419,19 @@ le toque:
 - **Que las fotografías de un mismo mantenimiento coincidan entre sí en coordenada.** No es un
   defecto: cada `HERE()` es independiente y es correcto que varíen ligeramente si el técnico se movió
   alrededor del activo entre una foto y otra.
+- **Qué pasa si `HERE()` no está disponible** —sin señal, o con la ubicación denegada en el
+  dispositivo—. Esta rama faltaba, y la señaló el arquitecto: **`Editable_If = FALSE` elimina
+  también la única vía de corrección**. Si `HERE()` deja el campo vacío, la columna es obligatoria y
+  **el técnico no puede guardar la fotografía**; si escribe `0, 0`, queda una evidencia falsa **e
+  incorregible**. No hay página en `docs/BASE_CONOCIMIENTO_APPSHEET.md` que fije cuál de las dos
+  ocurre, así que entra en su tabla de supuestos sin verificar.
+
+  **Y la asimetría que hay que decir:** `MAN_Mantenimientos` tiene válvula de escape para el GPS
+  malo —`CierreConExcepcion` más `MotivoExcepcion`, que `ESPEC-004` acaba de desbloquear—.
+  `FOT_Fotografias` **no tendría ninguna**. Se acepta porque es medible barato en la misma sesión
+  de editor —abrir el formulario con la ubicación denegada y mirar— y porque la alternativa
+  —dejar el pin arrastrable— es peor: hoy la evidencia se puede mover **siempre**, no solo cuando
+  falla el GPS.
 
 No se propone ningún `Valid_If` que compare esta coordenada contra la del cierre del mantenimiento
 (el equivalente de `RG-01` para fotografías). Sería una decisión de producto nueva —con qué margen,
@@ -440,11 +473,40 @@ Todo en `scripts/modelo_objetivo.py`, dos puntos, más una corrección de códig
        descripcion=("Mismo mecanismo que RG-20: HERE() es Initial value, no App formula, y un "
                     "Initial value SI es editable. Sin esto la coordenada de la fotografia se "
                     "dibuja como un pin arrastrable y la evidencia queda donde el tecnico quiera "
-                    "dejarla, no donde tomo la foto. ESPEC-008.")),
+                    "dejarla, no donde tomo la foto. CABLEAR DESPUES del Initial value = HERE(): "
+                    "al reves la columna queda obligatoria, no editable y vacia, y ningun "
+                    "tecnico puede guardar una fotografia. ESPEC-008.")),
   ```
+
+  **La instrucción de orden va dentro de `descripcion`, y no es un detalle de estilo.** `RG-39`
+  llega a quien cablea a través de `docs/sdd/RECONSTRUCCION_EXPRESIONES.md`, y allí aparece como
+  *«Tipo: `Editable_If` · `FALSE`»*: si la advertencia vive solo en §6 de este documento, el
+  operador la pega en `Update Behavior > Editable?`, no toca `Initial value` porque **ese**
+  documento no lo menciona, y si estaba vacío **ningún técnico puede volver a guardar una
+  fotografía**. El campo `descripcion` se propaga solo a los tres documentos generados; la prosa de
+  una especificación, no.
 
   No se modifica el `dict` de `RG-20`: sigue cubriendo exactamente las mismas tres columnas de
   `MAN_Mantenimientos` que hoy.
+
+- **`RG-40`, sobre `NOV_Novedades.Ubicacion_LatLong`**, idéntica salvo la tabla, y su `col()` con
+  `editable=False`:
+
+  ```python
+  dict(id="RG-40", tabla="NOV_Novedades", columna="Ubicacion_LatLong",
+       tipo="Editable_If", cubre="Prueba de presencia",
+       expresion="FALSE",
+       descripcion=("Igual que RG-39, sobre la novedad en vez de la fotografia. Sin esto un "
+                    "tecnico registra una novedad en ruta, arrastra el pin y el hallazgo queda "
+                    "georreferenciado donde el quiera. CABLEAR DESPUES del Initial value = "
+                    "HERE(). ESPEC-008.")),
+  ```
+
+  **Entró después del dictamen, y conviene decir por qué.** Este documento la había dejado fuera
+  por el título —«fotografías»—, y el arquitecto la señaló como *«el único de los tres aplazados
+  que nombra la misma rotura que motivó la especificación»*. Es el mismo defecto, el mismo
+  mecanismo y el mismo arreglo: **una regla más, cero decisiones nuevas.** Escribir una `ESPEC-009`
+  para repetir el argumento con otro nombre de tabla habría sido crecimiento sin contenido.
 
 - **`scripts/generar_prompt_cableado.py:327-331`** (código, no modelo): corregir el filtro de
   "expresiones huérfanas" para que compare por propiedad, no solo por columna — el cambio exacto y

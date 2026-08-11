@@ -380,7 +380,7 @@ inventario entero al telefono.
 |---|---|
 | Ninguna en rojo | El panel de errores del editor, vacio |
 | `Deletes` quitado | En las dos tablas |
-| Las cuatro no editables | `Editable_If = FALSE` en las cuatro de captura |
+| Las no editables | `Editable_If = FALSE`. Hoy son 3, en 1 tabla: `MAN_Mantenimientos` |
 | El umbral con `ISBLANK` | Leala entera, no de por hecho que se pego bien |
 
 # Etapa 8 — Las vistas

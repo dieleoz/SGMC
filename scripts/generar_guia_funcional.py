@@ -429,7 +429,21 @@ w("| Que | Como se ve |")
 w("|---|---|")
 w("| Ninguna en rojo | El panel de errores del editor, vacio |")
 w("| `Deletes` quitado | En las dos tablas |")
-w("| Las cuatro no editables | `Editable_If = FALSE` en las cuatro de captura |")
+# No se cuentan a mano. El literal "las cuatro de captura" mandaba a buscar una cuarta
+# columna en MAN_Mantenimientos que no existe -son tres-, y con RG-39/RG-40 pasaran a ser
+# cinco repartidas en TRES tablas. Se deriva de REGLAS, que es donde vive la proteccion
+# real: `editable=False` en el col() no lo lee ningun generador (ESPEC-008 2.4).
+# Se cuenta desde `editable=False` y NO desde REGLAS, aunque la proteccion real viaje
+# por REGLAS. Motivo: RG-20 declara `columna="(varias)"`, o sea que la regla NO dice
+# cuales cubre. El unico sitio del repositorio que nombra las columnas concretas es el
+# `editable=False` del col(). Las dos mitades del mismo hecho viven separadas y ninguna
+# esta completa: contar reglas daria 1, que engana tanto como el "cuatro" que habia.
+_noed = [(t, c["nombre"]) for t in MODELO for c in MODELO[t]["columnas"]
+         if c.get("editable") is False]
+_tbl = sorted({t for t, _ in _noed})
+w("| Las no editables | `Editable_If = FALSE`. Hoy son %d, en %d tabla%s: %s |"
+  % (len(_noed), len(_tbl), "s" if len(_tbl) != 1 else "",
+     ", ".join("`%s`" % x for x in _tbl)))
 w("| El umbral con `ISBLANK` | Leala entera, no de por hecho que se pego bien |")
 w("")
 
