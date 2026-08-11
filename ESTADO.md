@@ -103,7 +103,8 @@ sirve: se repone entero.** No es una lista de retoques, es el procedimiento comp
 | 3 | **Los dos filtros de seguridad**: activos por unidad funcional, órdenes por técnico | Ídem |
 | 4 | **Las cuatro marcas de tiempo** como `ChangeTimestamp` del servidor | Ídem |
 | 5 | **Retirar `Deletes`** en `OT_OrdenesTrabajo` y `MAN_Mantenimientos` | Ídem |
-| 6 | **Correr `PRUEBA-003`** | [`docs/sdd/PRUEBA-003-despliegue.md`](docs/sdd/PRUEBA-003-despliegue.md) |
+| 6 | **Los tipos de columna**: AppSheet adivinó los de las 8 tablas vacías, y una regla sobre una columna mal tipada no da error, no hace nada | [`docs/TIPOS_ESPERADOS.md`](docs/TIPOS_ESPERADOS.md) |
+| 7 | **Correr `PRUEBA-003`** | [`docs/sdd/PRUEBA-003-despliegue.md`](docs/sdd/PRUEBA-003-despliegue.md) |
 
 **El orden del 5 no es opcional.** Se marca `IsPartOf` en cuatro referencias, y eso es borrado en
 cascada: borrar un mantenimiento se lleva sus fotografías, su firma y su checklist. Solo es seguro
