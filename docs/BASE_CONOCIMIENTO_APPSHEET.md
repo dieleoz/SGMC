@@ -544,3 +544,55 @@ falta su inversa.
 figura aparte de los seis verificadores precisamente por estos tres límites. Sostiene también que
 `docs/CORRECCIONES_CABLEADO.md` **se genere y no se escriba**: el reparto entre verificadas,
 compatibles, ciegas y ausentes cambia con cada corrección y no se puede mantener a mano.
+
+## 17. El tipo mal no solo rompe reglas: falsea lo que la API devuelve
+
+**Observado el 2026-08-11**, en `USR_Usuarios`, al retipar dos columnas durante la Tanda 2.
+
+Sabíamos que un tipo equivocado deja una regla decorativa —`RG-03` comparaba `Text` contra el
+booleano `TRUE`, siempre falso y sin error—. Lo que no sabíamos es que **también corrompe la
+lectura de vuelta**, que es el instrumento con el que verificamos todo lo demás.
+
+`USR_Usuarios.Telefono` estaba tipada `Number` y debía ser `Phone`:
+
+```
+la hoja tiene      '+57321654987'
+la API devolvia    '57321654987'     tipada Number, se comia el '+'
+la API devuelve    '+57321654987'    tipada Phone, lee lo que hay
+```
+
+El `+` **estaba en la hoja desde el principio** — se comprueba en el volcado generado, fila 12 de
+`USR_Usuarios`. No lo escribió nadie al cambiar el tipo: lo que cambió es que el lector dejó de
+truncarlo. Igual con `FechaIngreso`, tipada `DateTime` cuando la hoja no guarda hora: la API añadía
+un `00:00:00` que no existe en ningún sitio.
+
+### Por qué esto importa más de lo que parece
+
+**Un tipo mal es invisible por construcción**, porque el error vive en el lector. Se corrió un
+contraste Excel↔app que encontró 2.351 celdas distintas y las clasificó como «representación»
+(`TRUE`→`Y`, formato de fecha, el `+57`). **Al menos una de esas tres categorías no era
+representación: era una columna mal tipada**, y quedó archivada como diferencia benigna.
+
+Regla que deja: cuando una comparación de instantáneas sale con cambios justo después de retipar
+una columna, **hay que preguntarse en qué dirección se movió el dato antes de llamarlo escritura**.
+Compara contra la hoja, no contra la instantánea anterior — la anterior también la escribió el
+lector roto.
+
+### Cómo se distingue en tres comandos
+
+```bash
+python -c "import openpyxl; ..."          lo que hay en la hoja
+python -c "import json; ..."              lo que devolvia la API antes
+python -c "import json; ..."              lo que devuelve ahora
+```
+
+Si el valor nuevo coincide con la hoja y el viejo no, **el tipo corrigió el instrumento**. Si el
+nuevo se aleja de la hoja, entonces sí escribió y hay que revertir.
+
+### Qué sostiene
+
+Que `instantanea.py comparar` salga con código 1 y el texto «LA APLICACION ESCRIBIO EN LOS DATOS`»
+es una **alarma, no un veredicto**. El texto está bien —hace parar, que es lo que debe hacer— pero
+la lectura la pone quien mira. Sostiene también por qué `docs/TIPOS_ESPERADOS.md` ordena su trabajo
+por «reglas que usan la columna»: ese orden mide el daño a las reglas, y este hallazgo añade un
+segundo daño que ese orden no ve.
