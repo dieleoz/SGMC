@@ -741,3 +741,50 @@ value` y un `Initial value` es editable»* sin mencionarlo.
 **Fuentes:**
 - <https://support.google.com/appsheet/answer/10106789?hl=en>
 - <https://support.google.com/appsheet/answer/10107405?hl=en>
+
+## 21. El GPS sí funciona sin cobertura, pero el modo offline hay que activarlo
+
+**Verificado el 2026-08-11 contra la fuente oficial**, porque en este proyecto se llegó a usar «sin
+señal» como sinónimo de «sin ubicación», y no lo es.
+
+### Lo que funciona sin cobertura
+
+> *«It's possible to capture the user's current location with a `LatLong` input because this can use
+> the device's GPS.»*
+
+El GPS habla con satélites, no con antenas. Un técnico en un tramo sin cobertura **sí** registra su
+posición. Lo que **no** funciona es dibujar el mapa: eso necesita las capas de Google Maps y por
+tanto internet. La coordenada se guarda; el mapa no se ve.
+
+### Lo que hay que activar, y nadie ha comprobado
+
+**El modo offline no viene puesto: es una configuración.** `Settings > Offline mode` —en la
+navegación antigua, `Behavior > Offline/Sync`—, y se decide por tabla.
+
+**Si no está activado, un técnico sin cobertura no puede trabajar**, por mucho que el GPS le funcione.
+En un corredor vial de 137 km eso no es un caso extremo, es un martes.
+
+**Nadie ha mirado si está activado en esta aplicación.** No se puede ver por API —es configuración,
+no datos— y entra en la cola de sesiones de editor.
+
+### Qué cuesta dinero y qué no
+
+| | |
+|---|---|
+| Offline básico: los datos se copian al dispositivo y se sincronizan al volver | **gratis** |
+| `Server caching`, `Delta sync`, `Quick sync` | **plan Core o superior** |
+
+O sea que el offline elemental está disponible en la cuenta de hoy. Lo que se paga es que sincronice
+rápido, no que funcione. Es una restricción distinta de la de §6 —los bots programados, que
+sencillamente **no corren**— y de la de §19 —los correos, que **van todos al creador**—.
+
+### La distinción que hay que mantener, porque se usó mal
+
+**`HERE()` lee; el icono de captura manual mide.** Al abrir un formulario, `HERE()` devuelve el último
+sondeo —hasta un minuto de antigüedad, §20—. El icono dispara una medición nueva de hasta 30
+segundos. Decir que «la ubicación se toma al abrir el formulario» es cierto solo en el sentido débil:
+se **lee** al abrirlo.
+
+**Fuentes:**
+- <https://support.google.com/appsheet/answer/10107724?hl=en>
+- <https://support.google.com/appsheet/answer/10106789?hl=en>

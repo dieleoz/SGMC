@@ -232,3 +232,18 @@ filas, no esquema. Hay que mirarlas a ojo, y el orden lo da la gravedad, no el a
 
 De las 3 del bloqueo duro, las tres se miraron el 2026-08-11 y **las tres estaban mal**. De las otras
 46, ninguna.
+
+## Nadie ha comprobado si el modo offline está activado
+
+`Settings > Offline mode` es una **configuración que hay que activar**, tabla por tabla, y no viene
+puesta. **Si no lo está, un técnico sin cobertura no puede trabajar** —aunque su GPS funcione, que
+funciona (`docs/BASE_CONOCIMIENTO_APPSHEET.md` §21)—.
+
+En un corredor vial de 137 km, trabajar sin cobertura no es un caso extremo.
+
+**No se puede ver por API**: es configuración, no datos. Se mira en el editor, en esa misma pantalla,
+y se anota por tabla —interesan sobre todo las ocho de movimiento, que son las que se llenan en
+campo—.
+
+El offline básico **es gratuito**; lo que exige plan Core o superior es `Server caching`, `Delta sync`
+y `Quick sync`, o sea la velocidad de sincronización, no la capacidad de trabajar sin red.
