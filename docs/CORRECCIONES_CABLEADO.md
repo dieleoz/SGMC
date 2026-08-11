@@ -14,7 +14,8 @@ costo cara una vez.
 
 ## Antes de tocar nada, por que importa
 
-`ACT_Activos.TipoActivoID` apunta hoy a `SED_Sedes`. Con eso, **cada activo lee el checklist
+El 2026-08-10, `ACT_Activos.TipoActivoID` apuntaba a `SED_Sedes` —ya corregido—. Con eso, cada
+activo leía el checklist
 de una sede**, y la regla del geofencing falla con un mensaje que despista:
 
 ```
