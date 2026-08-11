@@ -430,28 +430,90 @@ En *Data > Columns*, marca la casilla **`Label`** de estas columnas:
 | Tabla | Referencias que la apuntan | `Label` |
 |---|---|---|
 | `USR_Usuarios` | 7 | **`Nombres`** |
-| `ACT_Activos` | 3 | **`Nombre`** |
-| `FRM_Formularios` | 3 | **`Nombre`** |
 | `UNF_UnidadesFuncionales` | 3 | **`Nombre`** |
+| `FRM_Formularios` | 3 | **`Nombre`** |
+| `ACT_Activos` | 3 | **`Nombre`** |
 | `MAN_Mantenimientos` | 3 | *ninguna: la clave la identifica, y está decidido así* |
-| `FRE_Frecuencias` | 2 | **`Nombre`** |
-| `EST_Activo` | 2 | **`Nombre`** |
 | `TIP_TiposActivo` | 2 | **`Nombre`** |
-| `FRM_Preguntas` | 2 | **`Pregunta`** |
 | `OT_OrdenesTrabajo` | 2 | *ninguna: la clave la identifica, y está decidido así* |
-| `MOT_MotivosPendiente` | 1 | **`Nombre`** |
-| `EOT_EstadosOrden` | 1 | **`Nombre`** |
+| `EST_Activo` | 2 | **`Nombre`** |
+| `FRE_Frecuencias` | 2 | **`Nombre`** |
+| `FRM_Preguntas` | 2 | **`Pregunta`** |
+| `CAL_Calzadas` | 1 | **`Nombre`** |
 | `ROL_Roles` | 1 | **`Nombre`** |
+| `CHK_Checklists` | 1 | *ninguna: la clave la identifica, y está decidido así* |
 | `TPR_TiposRespuesta` | 1 | **`Nombre`** |
 | `FAL_ModosFalla` | 1 | **`Nombre`** |
 | `FRM_Secciones` | 1 | **`Nombre`** |
 | `SED_Sedes` | 1 | **`Nombre`** |
-| `CHK_Checklists` | 1 | *ninguna: la clave la identifica, y está decidido así* |
-| `CAL_Calzadas` | 1 | **`Nombre`** |
 | `SEN_Sentidos` | 1 | **`Nombre`** |
+| `EOT_EstadosOrden` | 1 | **`Nombre`** |
+| `MOT_MotivosPendiente` | 1 | **`Nombre`** |
 
-> Las tres sin etiqueta **no son un hueco**: una orden se identifica por su número y su fecha,
-> una ejecución por su orden y su hora. Está decidido, no olvidado.
+> Las 3 sin etiqueta **no son un hueco**: se identifican por su clave y su fecha. Está
+> decidido, no olvidado.
+
+## Paso 5 — Las 49 expresiones que no son reglas, y por eso no salen en ningún otro sitio
+
+El modelo las declara en la columna, **sin `REGLA` propia**. Y los documentos de expresiones
+—`RECONSTRUCCION_EXPRESIONES.md` y `PROMPT_EXPRESIONES.md`— se generan recorriendo `REGLAS`,
+así que **ninguna aparece ahí**. Si no se ponen aquí, no las pone nadie.
+
+La mayoría son `TRUE` en columnas `Activo`, y saltárselas solo deja el valor en blanco. Pero
+las hay que sostienen la evidencia: quién registró un mantenimiento, dónde y con quién se tomó
+una fotografía. Esas nacen vacías y nadie lo nota.
+
+| Tabla | Columna | Propiedad | Expresión |
+|---|---|---|---|
+| `ASG_AsignacionZona` | `Activo` | `Initial value` | `TRUE` |
+| `CAL_Calzadas` | `Activo` | `Initial value` | `TRUE` |
+| `CHD_ChecklistDetalle` | `Contestada` | `Initial value` | `FALSE` |
+| `CHK_Checklists` | `FechaInicio` | `Initial value` | `NOW()` |
+| `CHK_Checklists` | `Finalizado` | `Initial value` | `FALSE` |
+| `EOT_EstadosOrden` | `Activo` | `Initial value` | `TRUE` |
+| `EOT_EstadosOrden` | `EsFinal` | `Initial value` | `FALSE` |
+| `EST_Activo` | `Activo` | `Initial value` | `TRUE` |
+| `EST_Activo` | `GeneraAlerta` | `Initial value` | `FALSE` |
+| `FAL_ModosFalla` | `Activo` | `Initial value` | `TRUE` |
+| `FOT_Fotografias` | `PrecisionGPS` | `Initial value` | `USERLOCATIONACCURACY()` |
+| `FOT_Fotografias` | `Ubicacion_LatLong` | `Initial value` | `HERE()` |
+| `FOT_Fotografias` | `Usuario` | `Initial value` | `USEREMAIL()` |
+| `FRE_Frecuencias` | `Activo` | `Initial value` | `TRUE` |
+| `FRM_Formularios` | `Activo` | `Initial value` | `TRUE` |
+| `FRM_Formularios` | `Version` | `Initial value` | `1` |
+| `FRM_Preguntas` | `Activo` | `Initial value` | `TRUE` |
+| `FRM_Preguntas` | `Obligatoria` | `Initial value` | `TRUE` |
+| `FRM_Preguntas` | `RequiereFirma` | `Initial value` | `FALSE` |
+| `FRM_Preguntas` | `RequiereFoto` | `Initial value` | `FALSE` |
+| `FRM_Preguntas` | `RequiereGPS` | `Initial value` | `FALSE` |
+| `FRM_Preguntas` | `Version` | `Initial value` | `1` |
+| `FRM_Secciones` | `Activo` | `Initial value` | `TRUE` |
+| `LST_ValoresLista` | `Activo` | `Initial value` | `TRUE` |
+| `MAN_Mantenimientos` | `Activo` | `Initial value` | `TRUE` |
+| `MAN_Mantenimientos` | `AprobadoSupervisor` | `Initial value` | `FALSE` |
+| `MAN_Mantenimientos` | `FechaHoraInicio` | `Initial value` | `NOW()` |
+| `MAN_Mantenimientos` | `OrigenApertura` | `Initial value` | `Lista` |
+| `MAN_Mantenimientos` | `RequiereSegundaVisita` | `Initial value` | `FALSE` |
+| `MAN_Mantenimientos` | `TecnicoID` | `Initial value` | `LOOKUP(USEREMAIL(), "USR_Usuarios", "Correo", "UsuarioID")` |
+| `MAN_Mantenimientos` | `UsuarioRegistro` | `Initial value` | `USEREMAIL()` |
+| `MOT_MotivosPendiente` | `Activo` | `Initial value` | `TRUE` |
+| `MOT_MotivosPendiente` | `GeneraSeguimiento` | `Initial value` | `TRUE` |
+| `NOV_Novedades` | `Estado` | `Initial value` | `Reportada` |
+| `NOV_Novedades` | `Ubicacion_LatLong` | `Initial value` | `HERE()` |
+| `NOV_Novedades` | `UsuarioID` | `Initial value` | `LOOKUP(USEREMAIL(), "USR_Usuarios", "Correo", "UsuarioID")` |
+| `OT_OrdenesTrabajo` | `Activo` | `Initial value` | `TRUE` |
+| `PAR_Parametros` | `Activo` | `Initial value` | `TRUE` |
+| `PLA_PlanMantenimiento` | `Activo` | `Initial value` | `TRUE` |
+| `ROL_Roles` | `Activo` | `Initial value` | `TRUE` |
+| `SED_Sedes` | `Activo` | `Initial value` | `TRUE` |
+| `SEN_Sentidos` | `Activo` | `Initial value` | `TRUE` |
+| `TIP_TiposActivo` | `Activo` | `Initial value` | `TRUE` |
+| `TIP_TiposActivo` | `RadioGeofencingKm` | `Initial value` | `0.2` |
+| `TIP_TiposActivo` | `RequiereGPS` | `Initial value` | `TRUE` |
+| `TIP_TiposActivo` | `TieneQR` | `Initial value` | `TRUE` |
+| `TPR_TiposRespuesta` | `Activo` | `Initial value` | `TRUE` |
+| `UNF_UnidadesFuncionales` | `Activo` | `Initial value` | `TRUE` |
+| `USR_Usuarios` | `Activo` | `Initial value` | `TRUE` |
 
 ## Paso 5 — Las 21 reglas
 

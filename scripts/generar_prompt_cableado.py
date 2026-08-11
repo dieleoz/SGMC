@@ -282,9 +282,37 @@ for _t, _e, _n in etiquetas_pendientes():
     w("| `%s` | %d | %s |" % (_t, _n,
       "**`%s`**" % _e if _e else "*ninguna: la clave la identifica, y está decidido así*"))
 w("")
-w("> Las tres sin etiqueta **no son un hueco**: una orden se identifica por su número y su fecha,")
-w("> una ejecución por su orden y su hora. Está decidido, no olvidado.")
+_sin = [x for x in etiquetas_pendientes() if not x[1]]
+if _sin:
+    w("> Las %d sin etiqueta **no son un hueco**: se identifican por su clave y su fecha. Está"
+      % len(_sin))
+    w("> decidido, no olvidado.")
 w("")
+
+_huerfanas = [(t, c["nombre"], k, c[k])
+              for t in MODELO for c in MODELO[t]["columnas"]
+              for k in ("valor_inicial", "formula", "valid_if")
+              if c.get(k) and (t, c["nombre"]) not in {(r["tabla"], r.get("columna"))
+                                                       for r in REGLAS}]
+if _huerfanas:
+    _NOMBRE = {"valor_inicial": "Initial value", "formula": "App formula",
+               "valid_if": "Valid If"}
+    w("## Paso 5 — Las %d expresiones que no son reglas, y por eso no salen en ningún otro sitio"
+      % len(_huerfanas))
+    w("")
+    w("El modelo las declara en la columna, **sin `REGLA` propia**. Y los documentos de expresiones")
+    w("—`RECONSTRUCCION_EXPRESIONES.md` y `PROMPT_EXPRESIONES.md`— se generan recorriendo `REGLAS`,")
+    w("así que **ninguna aparece ahí**. Si no se ponen aquí, no las pone nadie.")
+    w("")
+    w("La mayoría son `TRUE` en columnas `Activo`, y saltárselas solo deja el valor en blanco. Pero")
+    w("las hay que sostienen la evidencia: quién registró un mantenimiento, dónde y con quién se tomó")
+    w("una fotografía. Esas nacen vacías y nadie lo nota.")
+    w("")
+    w("| Tabla | Columna | Propiedad | Expresión |")
+    w("|---|---|---|---|")
+    for _t, _c, _k, _v in sorted(_huerfanas):
+        w("| `%s` | `%s` | `%s` | `%s` |" % (_t, _c, _NOMBRE[_k], _v))
+    w("")
 
 w("## Paso 5 — Las %d reglas" % len(REGLAS))
 w("")
