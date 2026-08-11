@@ -153,7 +153,24 @@ Con una salvedad que sí conviene tener presente: **`RG-10` es la que crea la or
 `PRUEBA-005` `P-11` y `P-12` prueban justo que la crea o no la crea. Esas dos pruebas no pueden pasar
 hoy por una razón distinta de la que declaran.
 
-## `docs/sdd/RECONSTRUCCION_EXPRESIONES.md` no propaga `descripcion` — la advertencia de `RG-39`/`RG-40` no llega por ese canal
+## ~~`docs/sdd/RECONSTRUCCION_EXPRESIONES.md` no propaga `descripcion` — la advertencia de `RG-39`/`RG-40` no llega por ese canal~~ — corregido
+
+**Superado. Verificado al investigar `ESPEC-009` (2026-08-11):**
+
+```bash
+grep -c descripcion scripts/generar_reconstruccion.py
+```
+
+Devuelve `4`, no `0`. `generar_reconstruccion.py` ya lee `r["descripcion"]`, y
+`docs/sdd/RECONSTRUCCION_EXPRESIONES.md` ya muestra el bloque citado de `RG-39` y `RG-40` completo,
+con la frase «CABLEAR DESPUES del Initial value» incluida — comprobado con
+`grep -A6 "RG-39" docs/sdd/RECONSTRUCCION_EXPRESIONES.md`. Alguien lo corrigió después de escribir la
+entrada de abajo, sin actualizarla. Se deja el texto original íntegro porque el modo de fallo —una
+entrada de hallazgo que envejece sin que nadie la revise— es tan instructivo como el hallazgo mismo.
+
+---
+
+### El texto original, ya superado
 
 `ESPEC-008` §4 afirma: *«El campo `descripcion` se propaga solo a los tres documentos generados; la
 prosa de una especificación, no»* — y usa esa propagación como el motivo para poner la instrucción

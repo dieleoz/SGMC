@@ -673,3 +673,71 @@ familia: **el plan degrada silenciosamente cosas que el editor acepta configurar
 bot con destinatario correcto, guardado sin error, entregando a otra dirección, es el mismo patrón
 que este proyecto persigue desde el principio — configurado, bien escrito, sin error, y haciendo otra
 cosa.
+
+## 20. `HERE()` no mide: devuelve un sondeo de hasta un minuto de antigüedad
+
+**Verificado el 2026-08-11 contra la fuente oficial**, después de que una decisión de diseño se
+tomara sin conocer estos hechos.
+
+La página de captura de GPS describe **cuatro** modos para una columna `LatLong`, no uno:
+
+| Modo | Qué hace |
+|---|---|
+| `App formula` con `HERE()` | rellena con *«the most recent polled location»* en cada edición |
+| `Initial value` con `HERE()` | igual, pero **solo al crear** la fila |
+| Columna `ChangeLocation` | captura al ocurrir un cambio concreto |
+| **Captura manual** | un icono que el usuario pulsa: *«will try to obtain the most accurate current location it can for up to 30 seconds or until an estimated accuracy of 10m is reached»* |
+
+### Los dos hechos que cambian decisiones
+
+**1. `HERE()` no dispara una medición.** Devuelve *«the most recent polled location»*, y la ubicación
+*«is polled once per minute»*. **La coordenada puede tener hasta un minuto de antigüedad.**
+
+Importa especialmente aquí: los radios de geofencing de este proyecto son de **0,05 km \u2014 cincuenta
+metros** (`catalogo_tipos.py`). Un técnico que camina un minuto recorre más que eso, así que el
+desfase puede rechazar un cierre legítimo o aceptar uno que no lo es.
+
+**2. Google recomienda la captura manual POR ENCIMA de `HERE()` cuando importa la precisión**, con
+estas palabras:
+
+> *«The manual capture mode of the `LatLong` input provides the highest available accuracy and is
+> recommended over use of the `HERE()` function in cases where high accuracy is especially
+> important.»*
+
+### La tensión que esto destapa, y que no está resuelta
+
+`RG-20`, `RG-39` y `RG-40` ponen `Editable_If = FALSE` sobre columnas `LatLong` **para impedir que el
+técnico arrastre el pin**. Es el defecto que `ESPEC-008` cierra, y es real.
+
+Pero **el icono de captura manual y el arrastre del pin son las dos cosas «editable»**. Si
+`Editable_If = FALSE` quita las dos, entonces esas tres reglas **cambiaron precisión por antifraude
+sin saberlo**, y dejaron como única fuente el sondeo por minuto.
+
+**La documentación no dice si se pueden separar.** No aclara si el icono de captura manual depende de
+que la columna sea editable. Es medible en la aplicación real —abrir un formulario con la columna
+protegida y otro con una columna `LatLong` editable, y comparar— y **no se puede ver desde el
+editor**.
+
+### Sobre el `0,0`, y sobre «sin señal»
+
+La página confirma que la ubicación puede no estar disponible, y lo atribuye a permisos denegados
+—*«If you have ever denied Location Services for AppSheet, the system will remember this and block
+AppSheet from retrieving location information»*— y a limitaciones del dispositivo. Que en ese caso
+escriba `0.000000, 0.000000` está **medido por nosotros** (`docs/sdd/ACTA-011` §2), no documentado.
+
+Y una precisión sobre el vocabulario, porque se usó mal en este proyecto: **«sin señal» no es «sin
+ubicación»**. El API de geolocalización usa *«a variety of available mechanisms, including Global
+Positioning System (GPS) and location inferred from network signals such as IP address, RFID, WiFi
+and Bluetooth MAC addresses»*. Sin red, el GPS sigue funcionando por satélite; lo que se pierde es la
+asistencia que lo hace rápido y preciso.
+
+### Qué sostiene
+
+Que **citar una página no es haberla leído entera**. `ESPEC-004` §2.1 cita esta misma página para
+demostrar que `USERLOCATIONACCURACY()` no existe, y el dato era correcto. Pero el modo de captura
+manual estaba en la misma página, y `ESPEC-008` construyó su argumento sobre *«`HERE()` es `Initial
+value` y un `Initial value` es editable»* sin mencionarlo.
+
+**Fuentes:**
+- <https://support.google.com/appsheet/answer/10106789?hl=en>
+- <https://support.google.com/appsheet/answer/10107405?hl=en>
