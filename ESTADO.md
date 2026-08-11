@@ -33,7 +33,7 @@ aplicadas y ampliada a `NOV_Novedades`. Falta su `ORDEN-008`. El guion de lo que
 está en [`docs/LO_QUE_SE_HACE_A_MANO.md`](docs/LO_QUE_SE_HACE_A_MANO.md).**
 
 ```
-FASE A   hoja generada, 28 tablas, 210 columnas          CERRADA
+FASE A   hoja generada, 28 tablas, 209 columnas          CERRADA
 FASE B   39 referencias, auditor en 0 correcciones       CERRADA
 FASE C   21 configurables · 9 cotejadas · 0 imposibles   EN CURSO
 CLAVES   8 con UNIQUEID(): las 8 puestas, Key marcada, verificadas a ojo   EN CURSO
@@ -50,7 +50,7 @@ BOTS     RG-06 y RG-10 CREADOS y los dos INCOMPLETOS: el modelo no dice quien
          crear, y su riesgo de correos NO existe en cuenta gratuita (BASE 19) ABIERTO
 ```
 
-**Las cifras de arriba se leen distinto según su origen.** `21 configurables` son las **21 reglas**
+**Las cifras de arriba se leen distinto según su origen.** `21 configurables` son las **23 reglas**
 que declara hoy el modelo, y se rederivan, no se citan —`ESPEC-004`/`ORDEN-004` retiraron `RG-02` y
 `RG-19`, que eran las que no podían funcionar—. Las de `CLAVES`, `TIPOS`, `LABEL` y `BOTS` en cambio
 son **lecturas a ojo del editor de hoy** —no hay comando que las recupere, la API v2 devuelve filas,
@@ -227,7 +227,7 @@ ya están aplicadas al modelo.
 `Modelo_Datos_10082026` sale generada del modelo, no heredada de nada.
 
 ```
-28 pestañas de datos más _LEEME · 210 columnas · ninguna de sobra
+28 pestañas de datos más _LEEME · 209 columnas · ninguna de sobra
 ACT_Activos        368 activos, un solo inventario, códigos SOS-001 / SWIT-001
 TIP_TiposActivo     27 tipos, con radio de cierre poblado en los 27
 FRM_Formularios     27 formularios, uno por tipo
@@ -253,7 +253,7 @@ python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"
 
 ### El modelo
 
-`scripts/modelo_objetivo.py` es la fuente única: **28 tablas, 210 columnas, 39 referencias, 21
+`scripts/modelo_objetivo.py` es la fuente única: **28 tablas, 209 columnas, 39 referencias, 23
 reglas.** De ahí se generan el diccionario, el manual de despliegue, la guía funcional y la lista de
 reposición de expresiones. Nada de eso se escribe a mano.
 
@@ -356,7 +356,7 @@ sirve: se repone entero.** No es una lista de retoques, es el procedimiento comp
 | # | Qué | Dónde está escrito |
 |---|---|---|
 | 1 | **Las 39 referencias**, con `IsPartOf` en las cuatro que lo llevan | [`docs/PROMPT_CABLEADO.md`](docs/PROMPT_CABLEADO.md) — el encargo. Cuántas faltan **hoy**: `python scripts/auditar_cableado.py` |
-| 2 | **Las 21 reglas**: geofencing, umbral de GPS, `Editable_If`, los bots, las 2 etiquetas virtuales | [`docs/PROMPT_EXPRESIONES.md`](docs/PROMPT_EXPRESIONES.md) — el encargo de la Fase C, con la cadena de referencias que atraviesa cada una. **Dónde está cada control en pantalla**: `python scripts/navegacion_editor.py` |
+| 2 | **Las 23 reglas**: geofencing, umbral de GPS, `Editable_If`, los bots, las 2 etiquetas virtuales | [`docs/PROMPT_EXPRESIONES.md`](docs/PROMPT_EXPRESIONES.md) — el encargo de la Fase C, con la cadena de referencias que atraviesa cada una. **Dónde está cada control en pantalla**: `python scripts/navegacion_editor.py` |
 | 3 | **Los dos filtros de seguridad**: activos por unidad funcional, órdenes por técnico | Ídem |
 | 4 | **Las cuatro marcas de tiempo** como `ChangeTimestamp` del servidor | Ídem |
 | 5 | **Retirar `Deletes`** en `OT_OrdenesTrabajo` y `MAN_Mantenimientos` | Ídem |
