@@ -596,3 +596,40 @@ es una **alarma, no un veredicto**. El texto está bien —hace parar, que es lo
 la lectura la pone quien mira. Sostiene también por qué `docs/TIPOS_ESPERADOS.md` ordena su trabajo
 por «reglas que usan la columna»: ese orden mide el daño a las reglas, y este hallazgo añade un
 segundo daño que ese orden no ve.
+
+
+## 18. El icono `=` no es un visor: es un conmutador, y sobre un booleano tumba la app
+
+**Observado el 2026-08-11**, en `MAN_Mantenimientos.CierreConExcepcion`, durante una sesión cuyo
+encargo era **de solo lectura**.
+
+Junto a campos como `Editable?` o `Require?` el editor muestra un icono `=`. Parece un visor —«déjame
+ver si esto tiene expresión»— y no lo es: **cambia el campo de casilla booleana a expresión**, y lo
+deja con la expresión **vacía**. Al guardar:
+
+```
+Column Name 'CierreConExcepcion' in Schema 'MAN_Mantenimientos_Schema' of Column Type 'Yes/No'
+has an invalid Editable_If constraint '='. Empty expression
+
+The _SISGA_-323965761 app did not load successfully.
+version 1.000111 is not runnable --- please contact the app creator.
+```
+
+**La aplicación dejó de cargar entera.** No la columna: la app.
+
+### Cómo se sale
+
+Con la **`X`** del campo de expresión, que devuelve el control a casilla —no con `Ctrl+Z`, que no
+deshace el cambio de modo— y comprobando que el botón `SAVE` vuelve a **gris** antes de seguir.
+
+### Lo que deja escrito
+
+**Inspeccionar no es gratis.** Un encargo puede decir «solo lectura» y aun así romper producción, si
+la interfaz confunde ver con editar. Para saber si un campo trae expresión, **no se pulsa**: se mira
+si el icono aparece resaltado.
+
+Y una consecuencia para el método: la instantánea **no habría cazado esto**. `MAN_Mantenimientos`
+tiene 0 filas, la comparación dijo `NINGUNA CELDA CAMBIO`, y la app llevaba un rato caída. El
+contraste de filas no ve el esquema —por construcción—, así que **lo único que detectó el fallo fue
+el mensaje de error de AppSheet en pantalla**. Por eso los encargos dicen: si AppSheet muestra un
+error, ese error describe algo real; cópialo literal y para.
