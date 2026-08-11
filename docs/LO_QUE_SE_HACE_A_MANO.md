@@ -100,10 +100,15 @@ documento y su lectura:
 python -c "import sys;sys.path.insert(0,'scripts');from modelo_objetivo import REGLAS;ids=[r['id'] for r in REGLAS];print('RG-37' in ids, 'RG-38' in ids)"
 ```
 
-Corrido hoy (2026-08-11): `False False` — `RG-37`/`RG-38` todavía no están en el modelo, así que las
-fases 6, 9 y 10 no aplican todavía. `RG-08`/`RG-12` siguen declaradas como bot programado
-(`RG-08 True, RG-12 True` con el mismo tipo de comando sobre esos dos ids): **no crear ninguno de los
-dos como bot mientras esta condición siga siendo cierta.**
+Corrido tras aplicar `ORDEN-006` (2026-08-11): **`True True`** — `RG-37` y `RG-38` **ya están en el
+modelo**, así que las fases 6, 9 y 10 **sí aplican**. Y sobre los otros dos, el mismo comando devuelve
+**`RG-08 False, RG-12 False`**: están retirados. **No los crees como bot** — ya no existen ni en el
+modelo ni en el editor, y en la cuenta gratuita un bot programado no se ejecuta nunca.
+
+> Este párrafo decía `False False` cuando se escribió, unas horas antes de que `ORDEN-006`
+> aterrizara. **Corre el comando tú mismo antes de estas tres fases** en vez de fiarte de esta línea:
+> el modelo cambia más deprisa que el documento, y por eso la condición se escribió como comando y
+> no como afirmación.
 
 ## 3. Detalle, fase por fase
 
