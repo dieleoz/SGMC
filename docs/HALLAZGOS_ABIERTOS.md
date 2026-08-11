@@ -233,6 +233,37 @@ filas, no esquema. Hay que mirarlas a ojo, y el orden lo da la gravedad, no el a
 De las 3 del bloqueo duro, las tres se miraron el 2026-08-11 y **las tres estaban mal**. De las otras
 46, ninguna.
 
+## `USR_Usuarios.Telefono` es obligatoria en el editor y opcional en el modelo
+
+Lo dijo la API al rechazar una fila el 2026-08-11, con su texto literal:
+
+```
+Can't add or update a row because a required value is missing.
+	Row ID to correct: USR-012
+	Missing value in column: Telefono
+	Expected data type: Phone
+```
+
+```bash
+python -c "import sys;sys.path.insert(0,'scripts');from modelo_objetivo import MODELO;print([(c['nombre'],bool(c.get('obligatoria'))) for c in MODELO['USR_Usuarios']['columnas']])"
+```
+
+El modelo declara `Telefono` con `obligatoria=False`. **El editor la exige.**
+
+Es la cuarta divergencia modelo↔editor del día, y la única que se descubrió **sin mirar el
+editor**: la API la delató sola al rechazar la escritura. Las otras tres —los tipos, el
+`Initial value` y los bots— hubo que ir a verlas.
+
+**No se corrige a ciegas.** Puede que el editor tenga razón y el modelo se quedara corto, o al
+revés. Y hay un tercer camino que nadie ha mirado: que la exigencia venga de un `Required_If`
+puesto en el editor que no está en `REGLAS`. Se mira en `Data > Columns > USR_Usuarios >
+Telefono > Require?`.
+
+**Y abre la pregunta general**, que es la que de verdad importa: **¿cuántas columnas más son
+obligatorias en el editor sin que el modelo lo diga?** Ninguna se puede saber por comando —la API
+devuelve filas, no esquema— salvo por este camino: intentar escribir y ver qué rechaza. Que es
+caro y no siempre posible.
+
 ## La cuenta que abre la app **no está en `USR_Usuarios`**, y eso vacía tres expresiones
 
 ```bash
@@ -275,6 +306,20 @@ Lo destapó el arquitecto de `ESPEC-009` y se verificó contra los datos el 2026
 
 Lo urgente no es elegir: es **saberlo antes de congelar nada**, porque después el síntoma es «no se
 puede guardar un mantenimiento» y la causa parece el cableado cuando no lo es.
+
+### Resuelto el 2026-08-11 por la salida 1
+
+Se añadió **`USR-012`** por API: `dieleoz@gmail.com`, `RolID = ROL-01` (Administrador), `Activo`.
+`USR_Usuarios` pasa de 11 a 12 filas y la comparación de instantáneas confirma que **ese fue el
+único cambio**.
+
+Va con rol de **Administrador** a propósito, no de técnico: los `Security Filter` `RG-04` y `RG-05`
+filtran por rol, y con `ROL-03` la cuenta de prueba dejaría de ver media aplicación en cuanto se
+pongan —y nadie sabría si es el filtro funcionando o un error.
+
+**Al terminar se marca `Activo = N`, no se borra.** Es el patrón que la propia tabla ya usa:
+`USR-009` y `USR-010` están dados de baja así. Un técnico borrado dejaría rota la referencia de
+cualquier mantenimiento que hubiera hecho.
 
 ## Si una columna `Signature` se puede capturar sin cobertura
 
