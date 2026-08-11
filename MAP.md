@@ -51,7 +51,8 @@ D:\@Proyect\Sisga\
 │   │                               auditar_cableado.py contra la aplicación en vivo
 │   ├── images/                    fig_01 a fig_07, figuras de los documentos
 │   └── sdd/                       Artefactos vigentes del pipeline: ESPEC-003 (bloqueada),
-│                                   PRUEBA-003 y RECONSTRUCCION_EXPRESIONES
+│                                   PRUEBA-003, RECONSTRUCCION_EXPRESIONES y ESPEC-004
+│                                   (especificada, pendiente de prueba y arquitecto)
 │
 ├── Manuales/                     Manual de usuario
 │   └── MANUAL_DE_USUARIO.md
@@ -137,6 +138,7 @@ D:\@Proyect\Sisga\
 | [docs/CORRECCIONES_CABLEADO.md](docs/CORRECCIONES_CABLEADO.md) | Qué referencias quedan mal en el editor y en qué orden se arreglan, más **las que el método no puede ver** | Vigente. **Se regenera, no se edita.** Vale para la lectura con que se generó, no para siempre |
 | [docs/sdd/RECONSTRUCCION_EXPRESIONES.md](docs/sdd/RECONSTRUCCION_EXPRESIONES.md) | Los nombres renombrados y las 21 reglas a reponer, sin cortar | Vigente |
 | [docs/sdd/PRUEBA-003-despliegue.md](docs/sdd/PRUEBA-003-despliegue.md) | Las pruebas de aceptación del despliegue reconstruido | Vigente |
+| [docs/sdd/ESPEC-004-cierre-excepcion-manual.md](docs/sdd/ESPEC-004-cierre-excepcion-manual.md) | `RG-02`/`RG-19` dependen de `USERLOCATIONACCURACY()`, que no existe en AppSheet: `CierreConExcepcion` nunca se dispara. Corrige a que el técnico la marque | **Especificada. Pendiente de `PRUEBA-004` y del arquitecto**; nada de esto está aplicado aún en `scripts/modelo_objetivo.py` ni en el editor |
 
 ### Plataforma
 

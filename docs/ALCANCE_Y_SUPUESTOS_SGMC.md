@@ -89,7 +89,7 @@ expresión existe escrita y verificada, no que esté configurada.
 | Evidencia | Fotografías y firma con una sola vía de captura | **Declarado.** `FOT_Fotografias` y `FIR_Firmas` como tablas hijas con `IsPartOf`, y los campos embebidos retirados |
 | Control | Geofencing operativo con excepción supervisada | **Declarado**, con el radio por tipo poblado en los 27. **Sin poner en la aplicación y sin probar**: falta la coordenada real (D-01) |
 | Reportes | Los seis reportes propuestos, construidos y con datos | **No.** El modelo no declara vistas, acciones ni slices |
-| Datos | Toda la base poblada con datos de prueba realistas | **A medias.** 368 filas en `ACT_Activos` —334 sintéticas y 34 del juego de arranque— y los catálogos completos, pero **ningún registro transaccional**: `OT`, `MAN`, `CHK`, `CHD`, `FOT`, `FIR`, `NOV` y `PLA` están vacías. Y **`ACT_Activos.Ubicacion_LatLong` está vacía en las 368**: se perdió al renombrar la columna, y ninguna de las que había era real |
+| Datos | Toda la base poblada con datos de prueba realistas | **A medias.** 368 filas en `ACT_Activos` —334 sintéticas y 34 del juego de arranque— y los catálogos completos, pero **ningún registro transaccional**: `OT`, `MAN`, `CHK`, `CHD`, `FOT`, `FIR`, `NOV` y `PLA` están vacías. Y **`ACT_Activos.Ubicacion_LatLong` está poblada en las 368, con 368 valores distintos**, pero **derivados del `PK` sobre el trazado**: ninguna se levantó en campo |
 | Documentación | Manual de uso por rol, con modos, usos y reportes explicados | Reparto por rol en `INDICACIONES_POR_ROL.md`. El manual de usuario **no se entrega** |
 
 ---
@@ -146,7 +146,7 @@ en `FUNCIONAL_SGMC.md` §4.
 
 | # | Qué falta decidir | Quién |
 |---|---|---|
-| D-01 | Las coordenadas reales. **`ACT_Activos.Ubicacion_LatLong` está vacía en las 368 filas** de `BD/Modelo_Datos_PLANTILLA.xlsx`, así que ya ni siquiera hay una coordenada inventada con la que ensayar. Hasta cargarlas, `RG-01` compara contra blanco y **rechaza también el cierre legítimo** | Operación |
+| D-01 | Las coordenadas reales. `ACT_Activos.Ubicacion_LatLong` está poblada en las 368 con valores distintos, **derivados del `PK` sobre el trazado del corredor: ninguna se midió en campo**. `RG-01` compara contra un punto inventado, así que el geofencing puede estar perfectamente cableado y **no significar nada**. Se rederiva en cada pasada del generador, de modo que un renombrado no puede volver a vaciarla | Operación |
 | — | El **PR de INVÍAS** de cada activo, con su `TramoINVIAS`. Las dos columnas existen y están vacías en las 368; lo que está poblado es el `PK`, que es lineal y del proyecto. No se inventan: el corredor tiene dos puntos distintos llamados `PR 0+000` | Operación |
 | — | Dónde están las otras cinco sedes. `SED_Sedes` tiene sus columnas de ubicación y solo el peaje de Machetá las trae —`UNF-01`, `PR 27+240`, ruta `5607`—; ninguna de las seis tiene `PK` ni `Ubicacion_LatLong` | Operación |
 | — | Qué equipo va dentro de cada sede. `ACT_Activos.SedeID` existe, es opcional y **está vacía en las 368 filas**, así que el equipo bajo techo —servidores, portátiles, impresoras, NAS, video wall— sigue colgando solo de la unidad funcional. Mientras esté vacía, `RG-34` no tiene nada que comparar | Operación |

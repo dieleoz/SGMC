@@ -232,6 +232,12 @@ de los 27 tipos **rechaza el cierre legítimo, igual que cuando estaba vacía, p
 en blanco que lo delate**. Publicar antes de cargar las coordenadas reales entrega un sistema donde
 ningún técnico puede cerrar una orden, y se descubre con el técnico delante.
 
+**Y el cierre con excepción por GPS deficiente, tal como estaba declarado, no podía dispararse
+nunca**: dependía de `USERLOCATIONACCURACY()`, que no existe en AppSheet. La corrección —que el
+técnico marque la excepción en vez de que la calcule una fórmula inexistente— está especificada en
+[`docs/sdd/ESPEC-004-cierre-excepcion-manual.md`](docs/sdd/ESPEC-004-cierre-excepcion-manual.md),
+todavía sin probar ni aprobar.
+
 ## 6. Estado, hallazgos y bloqueantes
 
 Todos en [`ESTADO.md`](ESTADO.md), que se actualiza; aquí no, para que no se contradigan.
@@ -319,7 +325,7 @@ archivo/       Material de origen, no versionado
 | [docs/CONTEXTO_OPERACION.md](docs/CONTEXTO_OPERACION.md) | Cómo se mantiene el corredor, y la procedencia de cada documento de contexto |
 | [docs/COMUNICACION_PROPIETARIO_APP.md](docs/COMUNICACION_PROPIETARIO_APP.md) | Qué decirle al dueño de la aplicación anterior |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Fases con criterio de cierre verificable |
-| [docs/sdd/](docs/sdd/) | Especificaciones y pruebas del pipeline (`ESPEC-003`, `PRUEBA-003`, `RECONSTRUCCION_EXPRESIONES`) |
+| [docs/sdd/](docs/sdd/) | Especificaciones y pruebas del pipeline (`ESPEC-003`, `PRUEBA-003`, `RECONSTRUCCION_EXPRESIONES`, `ESPEC-004`) |
 | [Manuales/MANUAL_DE_USUARIO.md](Manuales/MANUAL_DE_USUARIO.md) | Guía de operación por rol. **No se entrega todavía**: describe funciones que aún no están montadas, y lo dice en su cabecera |
 | [MAP.md](MAP.md) | Índice maestro y referencias cruzadas |
 | [CLAUDE.md](CLAUDE.md) | Reglas de trabajo para agentes sobre este repositorio |
