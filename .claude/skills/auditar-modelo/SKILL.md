@@ -93,10 +93,14 @@ esa marca no sirve.
 Distingue **estructura** de **población**: que exista la columna no significa que tenga datos, y
 que la tabla exista no significa que el flujo se haya ejercitado.
 
-- `MAN_Mantenimientos`: ¿tiene `Coordenadas_Cierre_LatLong` y `Precision_GPS`? Verificado el 2026-08-10
-  contra `scripts/modelo_objetivo.py`: hoy sí están, en las 28 tablas del modelo y en la hoja
-  generada de él. Si una hoja que estés auditando no las trae, es la hoja la que quedó atrás, no la
-  regla la que cambió.
+- `MAN_Mantenimientos`: ¿tiene `Coordenadas_Cierre_LatLong`? Verificado contra
+  `scripts/modelo_objetivo.py`: hoy sí está, en las 28 tablas del modelo y en la hoja generada de
+  él. Si una hoja que estés auditando no la trae, es la hoja la que quedó atrás, no la regla la que
+  cambió. **`Precision_GPS` es al revés desde el 2026-08-11** (`ESPEC-004`/`ORDEN-004`): se retiró
+  del modelo —usaba `USERLOCATIONACCURACY()`, que no existe en AppSheet—, así que si el modelo o la
+  plantilla local la traen, es lo que quedó atrás. **La hoja de producción es la excepción**: sigue
+  teniendo `Precision_GPS` como columna huérfana a propósito —no se tocó el Sheets de producción—,
+  y eso no es un hallazgo, hasta que alguien haga *Delete and re-add* de la tabla.
 - `ACT_Activos.Ubicacion_LatLong`: ¿cuántas coordenadas **distintas** hay? Si es una sola, el geofencing es
   inoperante por mucho que la fórmula esté bien. En `BD/Modelo_Datos_PLANTILLA.xlsx`, 34 de los 368
   activos comparten la coordenada `4.728512, -74.114531` (Bogotá): son de fixture, no del terreno.
@@ -181,11 +185,17 @@ distinto: el **tipo** de su columna (`RG-03`, `Text` comparado contra el boolean
 de la columna que lee (`RG-06`, con `GeneraAlerta` vacía en los cuatro estados) y una **función que
 no existe** (`RG-02`, `USERLOCATIONACCURACY()`).
 
-**Tres reglas no se pueden poner hoy, y no son las mismas de antes.** `RG-02`, `RG-19` y `RG-03`
-dependen de `USERLOCATIONACCURACY()`, que **no existe en AppSheet**: espera a `ESPEC-004`, que sigue
-**BLOQUEADA** —segunda pasada, quince hallazgos—. **`RG-10` y `RG-12` ya no están bloqueadas**:
-`ESPEC-005` está aplicada al modelo y `OTID`/`PlanID` se generan solos. No las reportes como
-esperando a nadie.
+**Cuatro reglas dejaron de existir el 2026-08-11, y no las reportes como pendientes ni como
+bloqueadas: están retiradas.** `RG-02` y `RG-19` dependían de `USERLOCATIONACCURACY()`, que **no
+existe en AppSheet**; `ESPEC-004` se aprobó (tercera versión) y `ORDEN-004` las retiró del modelo.
+`RG-03` ya no depende de ninguna de las dos: solo le falta el cableado de rutina en el editor, igual
+que el resto. `RG-08` y `RG-12` eran bots programados que no corren en la cuenta gratuita;
+`ESPEC-006` se cerró y `ORDEN-006` las retiró, reemplazándolas por `RG-37` (columna virtual
+`EstaVencida` sobre `OT_OrdenesTrabajo`) y `RG-38` (vista + acción sobre `PLA_PlanMantenimiento`,
+no un bot). Si encuentras cualquiera de las cuatro puesta en el editor, es la aplicación la que
+quedó atrás, no el modelo. **`RG-10` nunca estuvo bloqueada** por esto —es un bot distinto, sobre
+`MAN_Mantenimientos`— y desde `ESPEC-005` genera `OTID`/`PlanID` solo con `UNIQUEID()`. No la
+reportes como esperando a nadie.
 
 **De `ESPEC-005` queda la mitad que vive en el editor**, y es lo que hay que ir a mirar: las dos
 **columnas virtuales** `Etiqueta` de `OT_OrdenesTrabajo` y `PLA_PlanMantenimiento` (`RG-35`,
@@ -194,12 +204,12 @@ columna virtual la calcula AppSheet y no se guarda en el Sheets, así que vive s
 `inferencia.ETIQUETA_VIRTUAL`. Que no aparezca en el volcado **no es un hallazgo**.
 
 Antes de reportar una regla como puesta, corre `python scripts/verificar_datos.py`: su comprobación
-**G-05** cruza el alcance real de las **23** reglas contra los datos y dice cuáles leen una columna
+**G-05** cruza el alcance real de las **21** reglas contra los datos y dice cuáles leen una columna
 vacía, y **G-04** avisa de las tablas tipadas a ciegas. No cubren los otros dos casos —el tipo vive
 en el editor, la función es un hecho de la plataforma—, así que esos se miran.
 
 **El alcance de una regla se pregunta a `python scripts/alcance_reglas.py`, no al nombre de la
-columna.** Atribuir por nombre suelto daba 94 columnas «con regla» donde hay **39 de 211**: como
+columna.** Atribuir por nombre suelto daba 94 columnas «con regla» donde hay **39 de 210**: como
 `[Activo]` está en `RG-04` y en `RG-16`, las 23 columnas llamadas `Activo` cargaban con las dos.
 
 **Y antes de decir que algo «está sin poner», comprueba que alguien pueda verlo.** `python

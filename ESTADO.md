@@ -22,25 +22,28 @@ no se repite: aquí solo va lo que falta.
 
 **La hoja de datos está terminada. Las 28 tablas y las 39 referencias están puestas y auditadas.
 `ESPEC-005` es el primer dictamen del pipeline que pasó el gate y ya está aplicada al modelo —falta
-la mitad que vive en el editor—. `ESPEC-004` sigue bloqueada, y con ella tres reglas que no pueden
-funcionar como están declaradas.**
+la mitad que vive en el editor—. `ESPEC-004` y `ESPEC-006` pasaron el gate y se aplicaron al modelo
+el 2026-08-11 (`ORDEN-004`, `ORDEN-006`): `RG-02`, `RG-19`, `RG-08` y `RG-12` se retiraron —ya no
+existen—, `RG-37` y `RG-38` las reemplazan, y `Precision_GPS` se retiró del modelo. Falta cablear
+todo eso en el editor.**
 
 ```
-FASE A   hoja generada, 28 tablas, 211 columnas          CERRADA
+FASE A   hoja generada, 28 tablas, 210 columnas          CERRADA
 FASE B   39 referencias, auditor en 0 correcciones       CERRADA
-FASE C   20 configurables · 9 cotejadas · 3 imposibles   EN CURSO
+FASE C   21 configurables · 9 cotejadas · 0 imposibles   EN CURSO
 CLAVES   8 con UNIQUEID(): 6 puestas, 2 por poner        EN CURSO
-TIPOS    107 columnas a mano · 22 de 28 tablas hechas    EN CURSO
+TIPOS    106 columnas a mano · 22 de 28 tablas hechas    EN CURSO
 LABEL    18 por marcar + 2 columnas virtuales por crear  ABIERTO
-BOTS     5, sin empezar                                  ABIERTO
+BOTS     3 por evento sin empezar · RG-37/RG-38 por cablear (no son bots)  ABIERTO
 ```
 
-**Las cifras se rederivan, no se citan.** `20 configurables` son las **23 reglas** que declara el
-modelo menos las 3 que `ESPEC-004` deja inertes; `18` y `2` salen de `inferencia.py`:
+**Las cifras se rederivan, no se citan.** `21 configurables` son las **21 reglas** que declara hoy
+el modelo: ya no hay ninguna inerte —`ESPEC-004`/`ORDEN-004` retiraron `RG-02` y `RG-19`, que eran
+las que no podían funcionar—; `18` y `2` salen de `inferencia.py`:
 
 ```bash
-python scripts/validar_modelo.py     # Tablas 28 | Columnas 211 | Referencias 39 | Reglas 23
-python scripts/inferencia.py         # a mano 107 · nombre 17 · contenido 87
+python scripts/validar_modelo.py     # Tablas 28 | Columnas 210 | Referencias 39 | Reglas 21
+python scripts/inferencia.py         # a mano 106 · nombre 17 · contenido 87
 python -c "import sys;sys.path.insert(0,'scripts');from inferencia import etiquetas_pendientes as e;p=e();print(len(p),'destinos ·',sum(1 for x in p if x[1]),'con Label')"
 ```
 
@@ -52,12 +55,13 @@ abierto.
 | Frente | Estado | Espera a |
 |---|---|---|
 | **`ESPEC-005`** · claves `OTID` y `PlanID` | **APLICADA AL MODELO.** Primer dictamen que pasa el gate. `CLAVE_LEGIBLE` 22→20, `CLAVE_GENERADA` 6→8, reglas 21→23 con `RG-35` y `RG-36`. **Pendiente la mitad del editor** | Crear las 2 columnas virtuales `Etiqueta`, marcar `Show?` y `Label`. Encargo en [`docs/PROMPT_CABLEADO.md`](docs/PROMPT_CABLEADO.md) |
-| **`ESPEC-004`** · `CierreConExcepcion` manual | **BLOQUEADA.** Segunda pasada del arquitecto, **quince hallazgos**. No se aplica | Rehacerla con los quince |
-| `RG-02` · `RG-19` · `RG-03` | No se pueden poner | `ESPEC-004` |
+| **`ESPEC-004`** · `CierreConExcepcion` manual | **APROBADA CON RIESGOS ACEPTADOS** (tercera versión) y **APLICADA AL MODELO** por `ORDEN-004` el 2026-08-11. `RG-02` y `RG-19` se retiraron —ya no existen—, `Precision_GPS` se retiró del modelo. **Pendiente la mitad del editor** | Quitar la `App formula` de `CierreConExcepcion` en `Data > Columns`, resolver `MotivoExcepcion` (`Required_If` vs `Valid_If`) y ejecutar `PRUEBA-004` `P-40` a `P-45`. Ver [`ORDEN-004`](docs/sdd/ORDEN-004-cierre-excepcion-manual.md) §6 |
+| `RG-02` · `RG-19` | **Retiradas del modelo, no existen.** `RG-03` ya no depende de ellas: solo le falta el cableado de rutina en el editor, igual que el resto | — |
 | Las **8 claves** con `UNIQUEID()` | **6 puestas** en el editor. Faltan `OT_OrdenesTrabajo` y `PLA_PlanMantenimiento`, que `ESPEC-005` acaba de desbloquear | Nada. Ya se puede |
-| Los **107 tipos** de columna | En curso. **22 de las 28 tablas hechas** en la sesión del editor; faltan `UNF_UnidadesFuncionales` y `USR_Usuarios` sin terminar | Nada. Es mecánico |
+| Los **106 tipos** de columna | En curso. **22 de las 28 tablas hechas** en la sesión del editor; faltan `UNF_UnidadesFuncionales` y `USR_Usuarios` sin terminar | Nada. Es mecánico |
 | El **`Label`**: 18 por marcar + 2 virtuales | Las 22 tablas de la sesión llevan tipos **y etiquetas**. Las 2 columnas virtuales `Etiqueta` **no están creadas** | Nada. Ya se puede |
-| Los **5 bots** | **Sin empezar.** `RG-10` y `RG-12` ya no están bloqueados: `OTID` y `PlanID` se generan solos | Nada. Ya se puede |
+| Los **3 bots por evento** (`RG-06`, `RG-07`, `RG-10`) | **Sin empezar.** `RG-10` ya no está bloqueado: `OTID` y `PlanID` se generan solos | Nada. Ya se puede |
+| `RG-37` (columna virtual `EstaVencida`) y `RG-38` (vista + acción) | **Reemplazan a `RG-08` y `RG-12`** (`ESPEC-006`/`ORDEN-006`, 2026-08-11): esos dos bots programados no corrían en la cuenta gratuita. Ninguno de los dos es un bot: `RG-37` es una columna virtual sobre `OT_OrdenesTrabajo`, `RG-38` es una vista más una acción sobre `PLA_PlanMantenimiento` que pulsa el supervisor. **Sin cablear en el editor** | Nada. Ya se puede |
 | **Crear órdenes desde la aplicación** | **Desbloqueado por `ESPEC-005`.** Hasta que las 2 virtuales estén en el editor, las órdenes se siguen creando en el Sheets **saltándose todas las validaciones** | Las 2 columnas virtuales |
 | Los **2 `Security Filter`** | Van **los últimos**: al ponerlos, la API deja de ver esa tabla y los dos instrumentos mecánicos se quedan ciegos (`lectura_de_vuelta.FILTROS_AL_FINAL`) | Todo lo anterior |
 | **`MAN_Mantenimientos.OTID`** de `Text` a `Ref` | Pendiente de `ESPEC-003`. **La ventana barata se cierra con el primer fixture** — ver abajo | Decidir si se hace. Si se hace, **antes** del primer fixture |
@@ -146,14 +150,16 @@ Lo que cambió en el modelo, y se cuenta con un comando:
 
 ```bash
 python -c "import sys;sys.path.insert(0,'scripts');import modelo_objetivo as M;print(len(M.CLAVE_LEGIBLE),len(M.CLAVE_GENERADA),len(M.REGLAS))"
-# 20 8 23
+# 20 8 21 — hoy. Cuando ESPEC-005 se aplicó, este comando daba 20 8 23; RG-35 y RG-36 siguen
+# vivas, pero ORDEN-004/ORDEN-006 (2026-08-11) retiraron RG-02, RG-19, RG-08 y RG-12 y añadieron
+# RG-37/RG-38, así que el total volvió a bajar a 21 por un camino distinto
 ```
 
-| | Antes | Ahora |
-|---|---|---|
-| `CLAVE_LEGIBLE` | 22 | **20** — salen `OT_OrdenesTrabajo` y `PLA_PlanMantenimiento` |
-| `CLAVE_GENERADA` | 6 | **8** — entran las dos, con `UNIQUEID()` |
-| `REGLAS` | 21 | **23** — entran `RG-35` y `RG-36` |
+| | Antes de `ESPEC-005` | Tras `ESPEC-005` | Hoy (tras `ORDEN-004`/`ORDEN-006`) |
+|---|---|---|---|
+| `CLAVE_LEGIBLE` | 22 | 20 — salen `OT_OrdenesTrabajo` y `PLA_PlanMantenimiento` | **20**, sin cambio |
+| `CLAVE_GENERADA` | 6 | 8 — entran las dos, con `UNIQUEID()` | **8**, sin cambio |
+| `REGLAS` | 21 | 23 — entran `RG-35` y `RG-36` | **21** — salen `RG-02`, `RG-19`, `RG-08`, `RG-12`; entran `RG-37`, `RG-38` |
 
 **`RG-35` y `RG-36` no son columnas de la hoja: son columnas VIRTUALES llamadas `Etiqueta`**, que
 AppSheet calcula y no se guardan en el Sheets. Por eso no están en `MODELO` —`F-02` no las exige, no
@@ -170,19 +176,22 @@ saltándose todas las validaciones. Lo que falta para cobrarlo es la mitad que v
 crear las dos columnas virtuales, marcarles `Show?` y marcarles `Label`. El encargo lo trae
 [`docs/PROMPT_CABLEADO.md`](docs/PROMPT_CABLEADO.md), paso 5.
 
-### La decisión que sigue abierta, y hasta que se cierre la Fase C no acaba
+### La decisión que ya se cerró: `ESPEC-004`, tercera versión, aplicada
 
-| | Qué pasa | Qué bloquea |
+| | Qué pasó | Qué queda |
 |---|---|---|
-| [`ESPEC-004`](docs/sdd/ESPEC-004-cierre-excepcion-manual.md) · **BLOQUEADA** | `RG-02` usa `USERLOCATIONACCURACY()`, que **no existe en AppSheet**. Sin ella `Precision_GPS` nunca se puebla, `RG-19` compara blanco y `RG-03` no pide nunca el motivo | `RG-02` · `RG-19` · `RG-03` |
+| [`ESPEC-004`](docs/sdd/ESPEC-004-cierre-excepcion-manual.md) · **APROBADA CON RIESGOS ACEPTADOS, APLICADA AL MODELO** | `RG-02` usaba `USERLOCATIONACCURACY()`, que **no existe en AppSheet**: `Precision_GPS` nunca se poblaba, `RG-19` comparaba blanco y `RG-03` no pedía nunca el motivo. `ORDEN-004` (2026-08-11) retiró `RG-02` y `RG-19` del modelo y retiró `Precision_GPS`; `CierreConExcepcion` pasa a ser una casilla que marca el técnico | Cablear en el editor: quitar la `App formula` de `CierreConExcepcion`, resolver `MotivoExcepcion` y ejecutar `PRUEBA-004` `P-40` a `P-45` |
 
-**Segunda pasada del arquitecto: quince hallazgos. No se aplica.** La primera versión recibió doce
-condiciones y se rehizo con las once que faltaban; la versión rehecha volvió con quince. Sigue en el
-pipeline, sin aplicar en `modelo_objetivo.py` ni en el editor.
+**Segunda pasada del arquitecto: quince hallazgos, después una tercera versión bajo la vara de
+`CLAUDE.md` §7.18.** La primera versión recibió doce condiciones y se rehizo con las once que
+faltaban; la versión rehecha volvió con quince; la tercera pasó con dos hallazgos que sobreviven
+como bloqueantes de editor y un riesgo aceptado. Aplicada en `modelo_objetivo.py` por `ORDEN-004`;
+**el editor sigue pendiente** (§6 de esa orden).
 
 **Nada se aplica hasta que el arquitecto lo tumbe o lo deje pasar.** Es la regla que nos saltamos el
-2026-08-10 por la mañana, y costó un dictamen de veinte observaciones. `ESPEC-005` es la prueba de
-que el ciclo termina en algo: entró, la tumbaron, se rehizo contra el archivo y pasó.
+2026-08-10 por la mañana, y costó un dictamen de veinte observaciones. `ESPEC-005` fue el primer
+dictamen en pasar el gate; `ESPEC-004` y `ESPEC-006` lo pasaron después, el 2026-08-11, y las tres
+ya están aplicadas al modelo.
 
 > **Lo que bloquea el piloto no ha cambiado en todo el día:** las 368 coordenadas se derivan del
 > `PK` sobre el trazado y **ninguna se midió en campo**. El geofencing puede quedar perfecto y estar
@@ -197,7 +206,7 @@ que el ciclo termina en algo: entró, la tumbaron, se rehizo contra el archivo y
 `Modelo_Datos_10082026` sale generada del modelo, no heredada de nada.
 
 ```
-28 pestañas de datos más _LEEME · 211 columnas · ninguna de sobra
+28 pestañas de datos más _LEEME · 210 columnas · ninguna de sobra
 ACT_Activos        368 activos, un solo inventario, códigos SOS-001 / SWIT-001
 TIP_TiposActivo     27 tipos, con radio de cierre poblado en los 27
 FRM_Formularios     27 formularios, uno por tipo
@@ -214,14 +223,24 @@ python scripts/generar_plantilla.py
 python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"
 ```
 
+> **El archivo local ya está en 210; la hoja de producción `Modelo_Datos_10082026` todavía no.**
+> `ORDEN-004` (2026-08-11) retiró `Precision_GPS` de `scripts/modelo_objetivo.py` y regeneró
+> `BD/Modelo_Datos_PLANTILLA.xlsx` —confirmado: ya no trae esa columna—, pero **no tocó el Sheets de
+> producción**, por prohibición explícita de la sesión. Ahí `Precision_GPS` sigue existiendo como
+> columna huérfana (211), hasta que alguien haga *Delete and re-add* de `MAN_Mantenimientos` por otro
+> motivo. Los dos archivos no coinciden hoy, y es esperado, no un error.
+
 ### El modelo
 
-`scripts/modelo_objetivo.py` es la fuente única: **28 tablas, 211 columnas, 39 referencias, 23
+`scripts/modelo_objetivo.py` es la fuente única: **28 tablas, 210 columnas, 39 referencias, 21
 reglas.** De ahí se generan el diccionario, el manual de despliegue, la guía funcional y la lista de
 reposición de expresiones. Nada de eso se escribe a mano.
 
-**Eran 21 reglas hasta que `ESPEC-005` añadió `RG-35` y `RG-36`.** La cifra la imprime
-`python scripts/validar_modelo.py` en su primera línea; no se cita de memoria.
+**Fueron 23 reglas mientras `ESPEC-005` (que añadió `RG-35` y `RG-36`) estuvo aplicada sin
+`ESPEC-004`/`ESPEC-006`.** El 2026-08-11, `ORDEN-004` retiró `RG-02` y `RG-19`, y `ORDEN-006` retiró
+`RG-08` y `RG-12` y añadió `RG-37` y `RG-38`: el total volvió a 21, por una composición distinta a
+la de antes de `ESPEC-005`. La cifra la imprime `python scripts/validar_modelo.py` en su primera
+línea; no se cita de memoria.
 
 ### La aplicación
 
@@ -293,7 +312,7 @@ sirve: se repone entero.** No es una lista de retoques, es el procedimiento comp
 | # | Qué | Dónde está escrito |
 |---|---|---|
 | 1 | **Las 39 referencias**, con `IsPartOf` en las cuatro que lo llevan | [`docs/PROMPT_CABLEADO.md`](docs/PROMPT_CABLEADO.md) — el encargo. Cuántas faltan **hoy**: `python scripts/auditar_cableado.py` |
-| 2 | **Las 23 reglas**: geofencing, umbral de GPS, `Editable_If`, los bots, las 2 etiquetas virtuales | [`docs/PROMPT_EXPRESIONES.md`](docs/PROMPT_EXPRESIONES.md) — el encargo de la Fase C, con la cadena de referencias que atraviesa cada una. **Dónde está cada control en pantalla**: `python scripts/navegacion_editor.py` |
+| 2 | **Las 21 reglas**: geofencing, umbral de GPS, `Editable_If`, los bots, las 2 etiquetas virtuales | [`docs/PROMPT_EXPRESIONES.md`](docs/PROMPT_EXPRESIONES.md) — el encargo de la Fase C, con la cadena de referencias que atraviesa cada una. **Dónde está cada control en pantalla**: `python scripts/navegacion_editor.py` |
 | 3 | **Los dos filtros de seguridad**: activos por unidad funcional, órdenes por técnico | Ídem |
 | 4 | **Las cuatro marcas de tiempo** como `ChangeTimestamp` del servidor | Ídem |
 | 5 | **Retirar `Deletes`** en `OT_OrdenesTrabajo` y `MAN_Mantenimientos` | Ídem |
@@ -414,7 +433,7 @@ radio.
 | **Cablear la aplicación** | [`docs/PROMPT_CABLEADO.md`](docs/PROMPT_CABLEADO.md) — el encargo entero, generado del modelo: las 39 referencias con su destino, los tipos y el orden |
 | **Cambiar algo del modelo** | [`docs/REGLAS_DEL_MODELO_DE_DATOS.md`](docs/REGLAS_DEL_MODELO_DE_DATOS.md) — las diez reglas del motor, con el fallo del que salió cada una y quién la hace cumplir |
 | **Construir la aplicación** | [`docs/MANUAL_DESPLIEGUE.md`](docs/MANUAL_DESPLIEGUE.md) — diez pasos y una ficha por tabla, columna por columna |
-| **La expresión exacta de una regla** | [`docs/sdd/RECONSTRUCCION_EXPRESIONES.md`](docs/sdd/RECONSTRUCCION_EXPRESIONES.md) — las 23 sin cortar |
+| **La expresión exacta de una regla** | [`docs/sdd/RECONSTRUCCION_EXPRESIONES.md`](docs/sdd/RECONSTRUCCION_EXPRESIONES.md) — las 21 sin cortar |
 | **Dónde está ese control en el editor** | `python scripts/navegacion_editor.py` — el nombre de la regla **no es** el nombre del control |
 | **Quién comprueba lo que acabo de hacer** | `python scripts/lectura_de_vuelta.py` — y si contesta «a ojo», es que no hay comando |
 | **Probar que funciona** | [`docs/sdd/PRUEBA-003-despliegue.md`](docs/sdd/PRUEBA-003-despliegue.md) |
@@ -464,12 +483,12 @@ Y tres instrumentos que no son verificadores pero declaran lo que nadie declarab
 |---|---|
 | **`scripts/lectura_de_vuelta.py`** | Por clase de cambio, **quién lo comprueba**: `referencias`, `datos` y `estructura` tienen comando; **`tipos`, `expresiones`, `permisos` y `etiqueta` no tiene nadie**. Tres con comando, **cuatro a ojo** — y las cuatro son justo las que sobrevivieron a tres informes de «hecho». Un paso sin comprobación declarada se lee como comprobado |
 | **`scripts/navegacion_editor.py`** | El **mapa de clics** del editor. Los nombres de las reglas **no son los de los controles**: `Required_If` se llama **`Require?`** y **no es una casilla que se marque** —hay que pulsar el icono `=` de al lado—. El 2026-08-10 acabó escrita en `Valid If` |
-| **`scripts/alcance_reglas.py`** | Qué columnas toca **de verdad** cada regla, **con su tabla**. Son **39 de las 211**. Atribuyendo por nombre suelto salían **94**: como `[Activo]` aparece en `RG-04` y en `RG-16`, las **23 columnas llamadas `Activo`** de 23 tablas distintas salían con esas dos reglas encima. Y eso no es cosmética: esa atribución **ordena el trabajo del ejecutor**, así que inflarla convierte la prioridad en ruido |
+| **`scripts/alcance_reglas.py`** | Qué columnas toca **de verdad** cada regla, **con su tabla**. Son **39 de las 210**. Atribuyendo por nombre suelto salían **94**: como `[Activo]` aparece en `RG-04` y en `RG-16`, las **23 columnas llamadas `Activo`** de 23 tablas distintas salían con esas dos reglas encima. Y eso no es cosmética: esa atribución **ordena el trabajo del ejecutor**, así que inflarla convierte la prioridad en ruido |
 
 ```bash
 python scripts/lectura_de_vuelta.py   # quién lee de vuelta cada cosa, y quién no
 python scripts/navegacion_editor.py   # dónde está cada control en pantalla
-python scripts/alcance_reglas.py      # 39 de 211, con su tabla
+python scripts/alcance_reglas.py      # 39 de 210, con su tabla
 ```
 
 ---

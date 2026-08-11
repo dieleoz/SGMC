@@ -309,10 +309,13 @@ Sobre la plantilla, **el literal `1.0` ya no se usa**, y `PAR_Parametros.RADIO_G
 como valor provisional histórico: la regla no lo lee. Un documento que mande el literal `1.0` sin
 decir que habla de la hoja de producción describe un estado superado.
 
-Y la regla no basta por sí sola: las cuatro columnas de captura de `MAN_Mantenimientos`
-—`Coordenadas_Cierre_LatLong`, `Precision_GPS`, `UbicacionEscaneo_LatLong` y `FechaHoraEscaneo`—
+Y la regla no basta por sí sola: las tres columnas de captura de `MAN_Mantenimientos`
+—`Coordenadas_Cierre_LatLong`, `UbicacionEscaneo_LatLong` y `FechaHoraEscaneo`—
 van con `Editable_If = FALSE` (RG-20). Sin eso, `Coordenadas_Cierre_LatLong` dibuja un pin
 arrastrable sobre el mapa, el técnico lo suelta encima del activo y RG-01 valida sin protestar.
+**`Precision_GPS` era la cuarta hasta `ESPEC-004`/`ORDEN-004` (2026-08-11): se retiró del modelo**
+—usaba `USERLOCATIONACCURACY()`, que no existe en AppSheet—, y `RG-20` pasó a cubrir tres columnas,
+no cuatro.
 
 **El nombre completo es `UbicacionEscaneo_LatLong`**, no `UbicacionEscaneo`. La descripción de
 RG-20 en `scripts/modelo_objetivo.py` todavía la abrevia; al configurarla en el editor manda el
@@ -453,10 +456,12 @@ siempre se abren, y el viewport cambia de tamaño entre llamadas y desplaza las 
   la aplicación.
 - Prefiere leer el backend con el conector de Google Drive antes que navegar la interfaz.
 
-Lo que sí está verificado como resuelto: `Coordenadas_Cierre_LatLong` y `Precision_GPS` existen en
+Lo que sí está verificado como resuelto: `Coordenadas_Cierre_LatLong` existe en
 `MAN_Mantenimientos`, y la columna `Observaciones` ya no está duplicada. **El recuento de columnas
-de esa tabla se deriva, no se cita de memoria** —el modelo declara hoy 23— porque esa cifra cambió
-tres veces y cada versión sobrevivió en algún documento.
+de esa tabla se deriva, no se cita de memoria** —el modelo declara hoy 22— porque esa cifra cambió
+varias veces y cada versión sobrevivió en algún documento. `Precision_GPS` fue una de esas 23 hasta
+`ORDEN-004` (2026-08-11), que la retiró del modelo por depender de
+`USERLOCATIONACCURACY()`, que no existe en AppSheet.
 
 ## 7.4 Los siete verificadores: cuándo se corre cada uno
 
@@ -506,13 +511,16 @@ tocar el editor, no después.
 |---|---|
 | `scripts/lectura_de_vuelta.py` | **Quién comprueba cada clase de cambio** —3 con comando, 4 a ojo—, `FILTROS_AL_FINAL` y `VOLCADO_CIEGO_A` (7.15) |
 | `scripts/navegacion_editor.py` | **Dónde está cada control en pantalla.** `Required_If` se llama `Require?` y no es una casilla |
-| `scripts/alcance_reglas.py` | **Qué columnas toca de verdad cada regla, con su tabla**: 39 de 211. Por nombre suelto salían 94 |
+| `scripts/alcance_reglas.py` | **Qué columnas toca de verdad cada regla, con su tabla**: 39 de 210. Por nombre suelto salían 94 |
 
 **Lo que ninguno mide es si algo es buena idea.** Para eso está el arquitecto, y por eso su
-veredicto no se sustituye por «los scripts pasan». **`ESPEC-005` es la prueba de que ese gate
+veredicto no se sustituye por «los scripts pasan». **`ESPEC-005` fue la prueba de que ese gate
 termina en algo**: entró, la tumbaron con catorce hallazgos, se rehizo contra el archivo y pasó —el
-primer dictamen del pipeline que lo consigue—. `ESPEC-004` va por la segunda pasada y quince
-hallazgos, y sigue sin aplicarse.
+primer dictamen del pipeline que lo consiguió—. `ESPEC-004` y `ESPEC-006` la siguieron: la primera
+tras una segunda pasada de quince hallazgos y una tercera versión bajo la vara de `CLAUDE.md`
+§7.18, la segunda en su tercera pasada con cuatro riesgos aceptados. Las dos ya están **aplicadas
+al modelo** por `ORDEN-004` y `ORDEN-006` el 2026-08-11; lo que sigue pendiente es cablearlas en el
+editor de AppSheet, no la especificación.
 
 ## 7.5 Una sola forma por propósito (regla nueva, 2026-08-07)
 
@@ -760,13 +768,13 @@ error, y sin efecto.** Tres casos el mismo día, cada uno por un motivo distinto
 | `RG-02` | `USERLOCATIONACCURACY()` **no existe en AppSheet** |
 
 **`verificar_datos.py` caza el segundo caso** desde que existe `G-05`: cruza el alcance real de las
-23 reglas —por `(tabla, columna)`, con `scripts/alcance_reglas.py`— contra los datos, y dice cuáles
+21 reglas —por `(tabla, columna)`, con `scripts/alcance_reglas.py`— contra los datos, y dice cuáles
 leen una columna vacía.
 
 **Y el alcance hay que preguntárselo a `alcance_reglas.py`, no al nombre de la columna.** Los
 generadores atribuían las reglas **por nombre suelto**: como `[Activo]` aparece en `RG-04` y en
 `RG-16`, las 23 columnas llamadas `Activo` de 23 tablas distintas salían con esas dos reglas encima,
-y daban **94** columnas «con regla» donde de verdad hay **39 de 211**. Una expresión se lee **desde
+y daban **94** columnas «con regla» donde de verdad hay **39 de 210**. Una expresión se lee **desde
 la tabla de su regla**, y los puntos saltan siguiendo las referencias; dentro de un
 `SELECT(Tabla[…], …)` el contexto cambia. Esa atribución es lo que **ordena el trabajo del
 ejecutor**, así que inflarla no es cosmética: convierte la prioridad en ruido.
@@ -791,8 +799,9 @@ que ir a instalar a mano en el editor.
 Cada vez que se escribe un atributo en `MODELO` **sin escribir al lado quién lo hace cumplir**, se
 ha declarado un deseo y se ha guardado donde se guardan los hechos. Las tres facturas del día:
 
-- **`tipo`**: 107 columnas necesitan mano, y el encargo nombraba 61. Lo resuelve
-  `scripts/inferencia.py`, que clasifica las 211 por quién consigue el tipo.
+- **`tipo`**: 106 columnas necesitan mano —eran 107 hasta que `ORDEN-004` retiró `Precision_GPS`—,
+  y el encargo nombraba 61. Lo resuelve `scripts/inferencia.py`, que clasifica las 210 por quién
+  consigue el tipo.
 - **`pk`**: las 8 tablas vacías se quedaron con `_RowNumber` de clave, y solo 3 avisan —las que
   tienen hijas—. Las otras 5 fallan en silencio.
 - **`Label`**: no lo declaraba nadie. Es lo que el técnico ve en los 39 desplegables, y AppSheet

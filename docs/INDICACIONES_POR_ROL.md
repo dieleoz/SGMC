@@ -23,7 +23,7 @@ Si usted acaba de llegar, busque su rol y empiece por ahí.
 
 ## Lo primero, y sin adornos
 
-**La aplicación tiene las 28 tablas dadas de alta y nada más.** Las 39 referencias, las 23 reglas,
+**La aplicación tiene las 28 tablas dadas de alta y nada más.** Las 39 referencias, las 21 reglas,
 los dos filtros de seguridad y las cuatro marcas de tiempo del servidor **están sin poner**. No es
 una lista de retoques: el cableado se repone entero, y es el trabajo del Funcional.
 
@@ -86,7 +86,7 @@ Cada una con el comando que la produce. Si alguna no cuadra dentro de un mes, ma
 
 | Hecho | Valor | Cómo se comprueba |
 |---|---|---|
-| Tablas, columnas, referencias, reglas del modelo | 28 · 211 · 39 · 21 | `python scripts/validar_modelo.py` |
+| Tablas, columnas, referencias, reglas del modelo | 28 · 210 · 39 · 21 | `python scripts/validar_modelo.py` |
 | El modelo consigo mismo | 0 errores, 3 avisos, `APTO PARA DESPLEGAR` | `python scripts/validar_modelo.py` |
 | La hoja contra el modelo | `FASE A CERRADA`, **82 conformes**, 4 avisos, 0 fallos. **El recuento se lee de la salida y no se cita de memoria**: `F-11` y `F-20` emiten una línea por cada tabla poblada —20 y 20—, así que el total se mueve con cada tabla que se llena o se vacía | `python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"` |
 | La prosa contra el modelo | `DOCUMENTOS CONSISTENTES CON EL MODELO`, 0 fallos. **El número de documentos y de avisos se mueve** según se retira material y se declaran columnas sin decidir | `python scripts/verificar_documentos.py` |
@@ -183,7 +183,7 @@ de alta y nada más: el cableado se repone entero.**
 
 > **El encargo completo es [`docs/PROMPT_CABLEADO.md`](PROMPT_CABLEADO.md), y es autocontenido.**
 > Se genera del modelo, así que trae los cinco pasos en orden con las 39 referencias, los 12
-> desplegables con sus valores, las 6 coordenadas, las 4 marcas de tiempo y las 23 reglas, sin nada
+> desplegables con sus valores, las 6 coordenadas, las 4 marcas de tiempo y las 21 reglas, sin nada
 > que deducir. **Es lo que hay que seguir dentro del editor.** Lo que viene abajo es el resumen para
 > saber qué se está haciendo y cuánto falta, no una segunda versión del procedimiento: si los dos
 > difieren, manda el generado.
@@ -219,16 +219,20 @@ va con el punto 1:** las cuatro referencias con `IsPartOf` crean borrado en casc
 seguro porque el mantenimiento nunca se borra.
 *Verificable: la casilla desmarcada en las dos tablas.*
 
-**3. Las 23 reglas.** Las cuatro que no pueden faltar:
+**3. Las 21 reglas.** Las cuatro que no pueden faltar:
 
 - **El geofencing de cierre**, en `MAN_Mantenimientos.Coordenadas_Cierre_LatLong`, comparando contra
   `[OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]`. **El radio va por tipo y está poblado en
   los 27**; el literal `1.0` describe el sistema anterior y no se usa.
-- **`Editable_If = FALSE`** en las cuatro columnas de captura —`Coordenadas_Cierre_LatLong`,
-  `Precision_GPS`, `UbicacionEscaneo_LatLong` y `FechaHoraEscaneo`—. **Sin esto el geofencing es
+- **`Editable_If = FALSE`** en las tres columnas de captura —`Coordenadas_Cierre_LatLong`,
+  `UbicacionEscaneo_LatLong` y `FechaHoraEscaneo`—. **Sin esto el geofencing es
   decorativo:** el técnico arrastra el pin del mapa y cierra desde donde quiera.
-- **El umbral de GPS** en `CierreConExcepcion`, con el `OR(ISBLANK(...))` entero. Sin él, borrar la
-  fila del parámetro hace que **todos los cierres salgan limpios y nadie se entere**.
+- **El motivo de excepción obligatorio** (`RG-03`) en `MAN_Mantenimientos.MotivoExcepcion`,
+  `Required_If [CierreConExcepcion] = TRUE`. `CierreConExcepcion` **ya no se calcula sola**: desde
+  `ESPEC-004`/`ORDEN-004` (2026-08-11) es una casilla `Yes/No` que marca el técnico cuando la app no
+  le mostró buena precisión al capturar el cierre —el cálculo automático con `USERLOCATIONACCURACY()`
+  se retiró porque esa función no existe en AppSheet—. Sin `RG-03`, un cierre marcado con excepción
+  no exige justificación escrita.
 - **Los dos filtros de seguridad**: activos por unidad funcional, órdenes por técnico. No son solo
   control de acceso: sin ellos cada técnico se descarga el inventario entero al teléfono.
 

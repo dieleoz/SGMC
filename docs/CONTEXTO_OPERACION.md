@@ -169,9 +169,9 @@ sobra nada.
 portal; auditar licencias es una revisión en un navegador; monitorear el SLA del ISP es leer un NMS.
 Ninguno tiene coordenada.
 
-Todo el diseño —RG-01 geofencing, cadena de evidencia, `Precision_GPS`, firma en sitio— asume
-desplazamiento. **Para esos cinco no aplica**, y hay que decidir si se les da un camino sin
-evidencia de ubicación o si salen del alcance.
+Todo el diseño —RG-01 geofencing, cadena de evidencia, la excepción manual por GPS deficiente, firma
+en sitio— asume desplazamiento. **Para esos cinco no aplica**, y hay que decidir si se les da un
+camino sin evidencia de ubicación o si salen del alcance.
 
 **Y «A demanda» no es una periodicidad: es la ausencia de una.** `PLA_PlanMantenimiento` no puede
 programar los 29 portátiles: solo existen cuando se rompen.
