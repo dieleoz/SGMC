@@ -245,6 +245,32 @@ seguimiento y no trae el mapeo de columnas. Están en
 > nadie la había medido. Al pagar el plan, el riesgo vuelve entero
 > ([`BASE_CONOCIMIENTO_APPSHEET.md`](docs/BASE_CONOCIMIENTO_APPSHEET.md) §19).
 
+> **Lo más grave del 2026-08-11: había un bloqueo vivo en producción, ya corregido.**
+> `MAN_Mantenimientos.Coordenadas_Cierre_LatLong` tenía `Initial value` **vacío**, con
+> `Editable_If = FALSE` y siendo obligatoria: **ningún técnico podía cerrar un mantenimiento**, la
+> función principal del sistema. La causa era un defecto de `generar_prompt_cableado.py`, que dejaba
+> de emitir el `Initial value` de una columna en cuanto cualquier regla la tocaba; `ORDEN-008` lo
+> corrigió el mismo día
+> ([`ACTA-011`](docs/sdd/ACTA-011-bloqueo-vivo-y-here-sin-senal.md)). **Y abre un frente**: 49
+> columnas declaran `valor_inicial` en el modelo, ninguna se puede comprobar por comando, y de las
+> tres de bloqueo duro que se miraron ese día, las tres estaban mal.
+>
+> **Y la precisión del cierre por GPS sigue en revisión, no cerrada.** `HERE()` no mide: sondea la
+> ubicación **una vez por minuto**, con hasta un minuto de antigüedad, contra radios de geofencing de
+> 50 metros. Existe un cuarto modo —la captura manual— que Google recomienda **por encima** de
+> `HERE()` cuando importa la precisión, y no está claro si `Editable_If = FALSE` quita también ese
+> icono y no solo el arrastre del pin. Sin señal, `HERE()` escribe el literal
+> `0.000000, 0.000000` —medido en el formulario real— y `FOT_Fotografias`/`NOV_Novedades` no tienen
+> ninguna válvula de excepción como sí la tiene `MAN_Mantenimientos`. Sin resolver, en
+> [`BASE_CONOCIMIENTO_APPSHEET.md`](docs/BASE_CONOCIMIENTO_APPSHEET.md) §20 y
+> [`docs/HALLAZGOS_ABIERTOS.md`](docs/HALLAZGOS_ABIERTOS.md).
+>
+> **Y nadie ha comprobado si el modo offline está activado.** Es una configuración que hay que
+> encender tabla por tabla; no viene puesta. El GPS **sí** funciona sin cobertura —habla con
+> satélites, no con antenas—; lo que no funciona sin activar el modo offline es sincronizar. El
+> offline básico es gratis; lo que exige plan Core es la velocidad de sincronización
+> ([`BASE_CONOCIMIENTO_APPSHEET.md`](docs/BASE_CONOCIMIENTO_APPSHEET.md) §21).
+
 El guion paso a paso de lo que queda por hacer a mano está en
 [`docs/LO_QUE_SE_HACE_A_MANO.md`](docs/LO_QUE_SE_HACE_A_MANO.md).
 
@@ -341,7 +367,7 @@ archivo/       Material de origen, no versionado
 
 | Archivo | Estado |
 |---|---|
-| [`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTILLA.xlsx) | **El entregable de datos.** Generado del modelo: 28 pestañas de datos más `_LEEME`, 210 columnas, ninguna de sobra. 27 tipos de activo, 27 formularios y 368 activos |
+| [`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTILLA.xlsx) | **El entregable de datos.** Generado del modelo: 28 pestañas de datos más `_LEEME`, 209 columnas, ninguna de sobra. 27 tipos de activo, 27 formularios y 368 activos |
 
 > **No hay carpeta `entregables/`.** Las catorce decisiones que contenían los documentos enviados a
 > Dirección viven hoy como supuestos adoptados en

@@ -518,9 +518,13 @@ veredicto no se sustituye por «los scripts pasan». **`ESPEC-005` fue la prueba
 termina en algo**: entró, la tumbaron con catorce hallazgos, se rehizo contra el archivo y pasó —el
 primer dictamen del pipeline que lo consiguió—. `ESPEC-004` y `ESPEC-006` la siguieron: la primera
 tras una segunda pasada de quince hallazgos y una tercera versión bajo la vara de `CLAUDE.md`
-§7.18, la segunda en su tercera pasada con cuatro riesgos aceptados. Las dos ya están **aplicadas
-al modelo** por `ORDEN-004` y `ORDEN-006` el 2026-08-11; lo que sigue pendiente es cablearlas en el
-editor de AppSheet, no la especificación.
+§7.18, la segunda en su tercera pasada con cuatro riesgos aceptados. Las dos están **aplicadas al
+modelo y cableadas en el editor** —`ORDEN-004` y `ORDEN-006`, y el cableado el mismo 2026-08-11,
+en `docs/sdd/ACTA-009-cableado-editor.md`—. `ESPEC-007` y `ESPEC-008` pasaron el mismo gate esa
+sesión y también quedaron aplicadas (`ORDEN-007`, `ORDEN-008`); `ESPEC-008` quedó además cableada,
+pero **en revisión** — ver `docs/HALLAZGOS_ABIERTOS.md`. `ESPEC-003` sigue **bloqueada** desde el
+2026-08-09, y `ESPEC-009` está escrita, pendiente todavía del arquitecto. El estado de cada una,
+con su motivo, está en `docs/ROADMAP.md` §3.2.
 
 ## 7.5 Una sola forma por propósito (regla nueva, 2026-08-07)
 
@@ -981,6 +985,44 @@ tipos, el editor.
 
 Cuando una ronda de revisión documental empieza a encontrar solo desajustes de prosa, la respuesta
 no es otra ronda: es **ir a mirar**.
+
+## 7.19 Citar una página no es haberla leído entera (regla nueva, 2026-08-11)
+
+`ESPEC-004` §2.1 citó la página oficial de captura de GPS para probar que `USERLOCATIONACCURACY()`
+**no existe** en AppSheet. Era correcto. Esa misma página describe también un **cuarto modo** de
+captura —un icono de medición manual que Google recomienda **por encima** de `HERE()` cuando
+importa la precisión— y nadie lo vio, porque la cita se sacó buscando el término que hacía falta,
+no leyendo la página completa. `ESPEC-008` construyó después su argumento —*«`HERE()` es `Initial
+value` y un `Initial value` es editable»*— sin ese cuarto modo, y quedó sin poder decir si
+`Editable_If = FALSE` también lo quita a él, no solo el arrastre del pin. Verificado el 2026-08-11
+contra la fuente: `docs/BASE_CONOCIMIENTO_APPSHEET.md` §20.
+
+**La regla: una cita prueba lo que dice, no lo que la página entera dice.** Antes de usar una URL
+como evidencia de que algo NO existe o de que un mecanismo es el único, léela de punta a punta, no
+solo hasta encontrar la frase que se estaba buscando.
+
+## 7.20 Escribir en producción no se deduce, se autoriza (regla nueva, 2026-08-11)
+
+`docs/sdd/ACTA-011-bloqueo-vivo-y-here-sin-senal.md` §1 registra el caso: a mitad de una sesión de
+editor, el coordinador dedujo un riesgo real —`MAN_Mantenimientos.Coordenadas_Cierre_LatLong`
+bloqueaba el cierre de todo mantenimiento— e instruyó una escritura sobre una columna **fuera** del
+alcance aprobado para esa sesión, que cubría `RG-39` y `RG-40`, no `RG-20`. El arreglo era el que el
+modelo declara y cerró un bloqueo real en producción. **Eso no lo vuelve correcto en el método:**
+el orden es consultarlo primero y escribir después, nunca al revés, aunque la urgencia sea real y
+la conclusión sea buena. Es la misma forma que la regla de §3 sobre quien aplica un cambio y toca
+la comprobación que lo mide: un buen resultado no valida un mal procedimiento.
+
+## 7.21 Un agente de navegador a la vez (regla nueva, 2026-08-11)
+
+La misma sesión de `ACTA-011` corrió **dos** agentes de navegador sobre el mismo Chrome, pese a que
+el riesgo se había avisado antes de empezar. AppSheet respondió `A newer version of the app exists.
+Please reload the page`, una pestaña quedó con cambios sin guardar y bloqueada por un diálogo nativo
+`Leave site?` que **ninguna** herramienta de automatización puede aceptar, y hubo que abrir una
+pestaña limpia, reverificar el estado real del servidor y rehacer lo que no había persistido.
+
+**La regla: un solo agente de navegador contra el editor de AppSheet a la vez.** No es una
+preferencia de rendimiento — un diálogo nativo bloqueado detiene la sesión entera y no hay forma
+programática de cerrarlo.
 
 ## 8. Deriva documental: ahora es mecanica
 

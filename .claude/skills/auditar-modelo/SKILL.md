@@ -154,6 +154,25 @@ que la tabla exista no significa que el flujo se haya ejercitado.
   encuentras las ocho todavía vacías, eso no es un pendiente: es el activo que queda por gastar, y se
   reporta como tal.**
 - Datos de prueba sin limpiar: nombres donde deberían ir identificadores, `NOW()` como texto.
+- **`Initial value`, sobre todo si la columna es obligatoria y `Editable_If = FALSE`.** El modelo
+  declara `valor_inicial` en **49 columnas** y **ninguna se puede comprobar por comando**: la API
+  devuelve filas, no esquema. Solo se ve en el editor. De esas 49, **3 son bloqueo duro** —obligatoria
+  y no editable a la vez—: si a una de esas tres le falta el `Initial value`, el formulario **no se
+  puede guardar**. El 2026-08-11 se miraron las tres y **las tres estaban mal**
+  (`docs/sdd/ACTA-011-bloqueo-vivo-y-here-sin-senal.md`): una de ellas,
+  `MAN_Mantenimientos.Coordenadas_Cierre_LatLong`, bloqueaba el cierre de todo mantenimiento en
+  producción. Ya está corregida, pero las otras 46 columnas nunca se han mirado. Si vas a auditar el
+  cableado, esto pesa más que casi cualquier otro hallazgo posible: es la diferencia entre «una regla
+  no hace lo que debería» y «nadie puede usar la aplicación».
+- **La precisión del GPS de cierre, y el modo offline: se miden en la aplicación real, no en el
+  editor ni por comando.** `HERE()` no dispara una medición: sondea la ubicación una vez por minuto,
+  así que puede tener hasta un minuto de antigüedad, contra radios de geofencing de 50 metros.
+  Existe un cuarto modo, la captura manual, que Google recomienda por encima de `HERE()` cuando
+  importa la precisión, y no está verificado si `Editable_If = FALSE` también lo bloquea a él y no
+  solo el arrastre del pin. Sin señal, `HERE()` escribe el literal `0.000000, 0.000000`, medido. Y
+  el modo offline (`Settings > Offline mode`) no viene puesto por defecto: sin él, un técnico sin
+  cobertura no puede trabajar aunque su GPS funcione. Ninguna de las dos cosas se ve en el volcado
+  ni en la API. Fuente: `docs/BASE_CONOCIMIENTO_APPSHEET.md` §20 y §21.
 
 ## Lo que la lectura de datos NO puede decirte
 
@@ -195,13 +214,30 @@ que el resto. `RG-08` y `RG-12` eran bots programados que no corren en la cuenta
 no un bot). Si encuentras cualquiera de las cuatro puesta en el editor, es la aplicación la que
 quedó atrás, no el modelo. **`RG-10` nunca estuvo bloqueada** por esto —es un bot distinto, sobre
 `MAN_Mantenimientos`— y desde `ESPEC-005` genera `OTID`/`PlanID` solo con `UNIQUEID()`. No la
-reportes como esperando a nadie.
+reportes como esperando a nadie por ese motivo.
 
-**De `ESPEC-005` queda la mitad que vive en el editor**, y es lo que hay que ir a mirar: las dos
-**columnas virtuales** `Etiqueta` de `OT_OrdenesTrabajo` y `PLA_PlanMantenimiento` (`RG-35`,
-`RG-36`), con `Show?` activo y `Label` marcado. **No las busques en la hoja ni en `MODELO`**: una
-columna virtual la calcula AppSheet y no se guarda en el Sheets, así que vive solo en `REGLAS` y en
-`inferencia.ETIQUETA_VIRTUAL`. Que no aparezca en el volcado **no es un hallazgo**.
+**`Automation > Bots` estaba vacío hasta el 2026-08-11: ningún bot se había creado nunca.** Ese día
+se crearon `RG-06` y `RG-10` (`docs/sdd/ACTA-009-cableado-editor.md`), y **los dos quedaron
+incompletos, no por un fallo de la sesión sino porque el modelo no declara lo que AppSheet exige
+para guardarlos**: `RG-06` dice que envía correo *«al CCO y al supervisor»* y el modelo no dice
+quién es el CCO; `RG-10` dice que genera una orden de seguimiento y el modelo no trae el mapeo de
+columnas —AppSheet lo pidió literal: *«The data action ... does not define a column to set»*—. No
+se completaron a ojo, y está bien: inventar un destinatario o un mapeo es decidir por operación en
+una pantalla. Están en `docs/HALLAZGOS_ABIERTOS.md`, no en esta lista de retiradas.
+
+**Y una precaución de este proyecto que resultó falsa, verificada el 2026-08-11 al crear `RG-06`:**
+en la cuenta gratuita **todo** correo de bot llega al creador de la app, sin importar a quién se
+configure — el editor lo avisa literal: *«The account is free. All emails are therefore being sent
+to the app creator»*. `RG-07`, tratado con pinzas porque *«manda correos reales a una dirección
+corporativa»*, no puede hacerlo hoy en esta cuenta. Al pagar el plan el riesgo vuelve entero
+(`docs/BASE_CONOCIMIENTO_APPSHEET.md` §19).
+
+**De `ESPEC-005` ya no queda nada pendiente en el editor.** Las dos **columnas virtuales**
+`Etiqueta` de `OT_OrdenesTrabajo` y `PLA_PlanMantenimiento` (`RG-35`, `RG-36`), con `Show?` activo y
+`Label` marcado, se confirmaron a ojo el 2026-08-11 (`docs/sdd/ACTA-010-cotejo-ocho-tablas.md`).
+**No las busques en la hoja ni en `MODELO`**: una columna virtual la calcula AppSheet y no se guarda
+en el Sheets, así que vive solo en `REGLAS` y en `inferencia.ETIQUETA_VIRTUAL`. Que no aparezca en
+el volcado **no es un hallazgo**.
 
 Antes de reportar una regla como puesta, corre `python scripts/verificar_datos.py`: su comprobación
 **G-05** cruza el alcance real de las **21** reglas contra los datos y dice cuáles leen una columna
@@ -236,6 +272,23 @@ La URL vigente es la que `python scripts/sistema.py` declara como `APP_URL` — 
 `appName` copiado de una aplicación anterior: cada reconstrucción cambia los dos. Antes de tocar el
 editor, confirma que exista una copia de respaldo de la aplicación: *Regenerate Structure* advierte
 explícitamente que no se puede deshacer.
+
+**Un solo agente de navegador a la vez.** Corrieron dos el 2026-08-11 sobre el mismo Chrome, pese al
+riesgo avisado de antemano: AppSheet respondió `A newer version of the app exists`, una pestaña
+quedó bloqueada por un diálogo nativo `Leave site?` que ninguna automatización puede aceptar, y hubo
+que abrir una pestaña limpia y rehacer lo que no había persistido.
+
+**Inspeccionar no es gratis, ni siquiera en un encargo de solo lectura.** El icono `=` junto a
+campos como `Editable?` o `Require?` no es un visor: es un conmutador. Pulsarlo sobre un campo
+booleano lo cambia a expresión y lo deja **vacío**, y al guardar la aplicación entera deja de
+cargar —no la columna, la app—. Se sale con la `X` del campo de expresión, nunca con `Ctrl+Z`, y se
+comprueba que `SAVE` vuelva a gris antes de seguir. Para saber si un campo trae expresión sin
+arriesgarse, se mira si el icono aparece resaltado; no se pulsa. Verificado el 2026-08-11 sobre
+`MAN_Mantenimientos.CierreConExcepcion`: `docs/BASE_CONOCIMIENTO_APPSHEET.md` §18.
+
+**Y una vez dentro, escribir sobre una columna fuera del encargo no se decide sola.** Aunque el
+riesgo que se ve sea real y el arreglo sea correcto, se consulta antes de escribir, no después
+(`CLAUDE.md` §7.20).
 
 ## Al terminar
 

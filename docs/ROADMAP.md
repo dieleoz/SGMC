@@ -61,7 +61,7 @@ De ahí salen tres clases, y el orden entre ellas no es negociable:
 | # | Paso | Contenido | Depende de |
 |---|---|---|---|
 | **0** | **Cablear la aplicación entera** | **Las 39 referencias**, con `IsPartOf` en las cuatro que lo llevan; **las 23 reglas**; los dos filtros de seguridad; las cuatro marcas de tiempo como `ChangeTimestamp`; retirar `Deletes` en `OT_OrdenesTrabajo` y `MAN_Mantenimientos`; y correr `PRUEBA-003` | **En curso, y su estado no se lee aquí:** `python scripts/auditar_cableado.py`. Ficha por tabla en [`MANUAL_DESPLIEGUE.md`](MANUAL_DESPLIEGUE.md); expresión completa en [`sdd/RECONSTRUCCION_EXPRESIONES.md`](sdd/RECONSTRUCCION_EXPRESIONES.md) |
-| **1** | **Esquema completo** | `TAR_Tareas` · poblar `ROL_Roles` con los 12 · `ETR_Estructuras`, que es lo que queda de la jerarquía de ubicación · columnas de tiempo en la orden · retirar `ACT.FrecuenciaID` y `TIP.FormularioID`, **que `verificar_documentos.py` avisa como descartadas y vivas con fecha tope 2026-08-31** | `ESPEC-003` y su veredicto |
+| **1** | **Esquema completo** | `TAR_Tareas` · poblar `ROL_Roles` con los 12 · `ETR_Estructuras`, que es lo que queda de la jerarquía de ubicación · columnas de tiempo en la orden · retirar `ACT.FrecuenciaID` y `TIP.FormularioID`, **que `verificar_documentos.py` avisa como descartadas y vivas con fecha tope 2026-08-31** | `ESPEC-003`, **bloqueada** desde el 2026-08-09 por decisiones de operación y de plan de licenciamiento, no del editor (§3.2) |
 | **2** | **Carga del inventario real** | Los 355 con identidad, serie y ubicación. **Los que hay hoy son sintéticos** y lo dicen de sí mismos. Aquí entran también las cuatro columnas que existen y están vacías en las 368: `Ubicacion_LatLong`, `PR`, `TramoINVIAS` y `SedeID` | Paso 1, y que operación confirme que 355 son los de este corredor |
 | **3** | **Reglas de integridad** | Imponer `QuienCambia` · estado de rechazo · valores de `TipoFirma` | Paso 1 |
 | **4** | **Piloto de campo** | El levantamiento de coordenadas **como primera orden de trabajo** | Pasos 2 y 3 |
@@ -219,18 +219,21 @@ una especificación entra, la tumban, se rehace contra el archivo y pasa. **El e
 con su motivo, está en [`../MAP.md`](../MAP.md) §3 y en [`ESTADO.md`](../ESTADO.md) §0.** Lo que el
 orden necesita saber es qué queda inerte mientras tanto:
 
-**Las dos que bloqueaban aquí ya se aplicaron (2026-08-11), y una tercera pasó el gate el mismo día
-y sigue esperando su orden** —el molde sigue vivo para la próxima especificación que quede en
-espera—:
+**El 2026-08-11 fue el día que más de estas se movieron.** Cinco pasaron el gate ese día; de las
+cuatro que quedaron aplicadas al modelo, tres se cablearon además en el editor la misma sesión
+([`ACTA-009`](sdd/ACTA-009-cableado-editor.md), [`ACTA-011`](sdd/ACTA-011-bloqueo-vivo-y-here-sin-senal.md)).
+Una sigue bloqueada desde antes y una está escrita, sin pasar todavía por el arquitecto —el molde
+sigue vivo para la próxima especificación que quede en espera—:
 
 | Espera | Deja sin poder ponerse | Estado |
 |---|---|---|
-| [`ESPEC-004`](sdd/ESPEC-004-cierre-excepcion-manual.md) · cierre con excepción manual | `RG-02`, `RG-19` y `RG-03`. `RG-02` dependía de una función que **no existe en AppSheet** | **Aplicada** (`ORDEN-004`): `RG-02`/`RG-19` retiradas, `RG-03` ya se puede cablear |
-| [`ESPEC-006`](sdd/ESPEC-006-reemplazo-bots-programados.md) · reemplazo de los bots programados | `RG-08` y `RG-12`, que no corren en esta cuenta (§6) | **Aplicada** (`ORDEN-006`): retiradas, sustituidas por `RG-37`/`RG-38` |
-| [`ESPEC-007`](sdd/ESPEC-007-precision-gps-fotografias.md) · retirar `FOT_Fotografias.PrecisionGPS` | Nada del cableado la necesita: ninguna regla del modelo lee esa columna | **Aprobada con riesgos aceptados** el 2026-08-11, primera pasada de arquitecto. **Sin aplicar**: falta `ORDEN-007` |
-
-**`ESPEC-008` está aprobada con riesgos aceptados** (2026-08-11) y ampliada a `NOV_Novedades`: no entra en esta tabla porque todavía no
-llegó al arquitecto.
+| [`ESPEC-003`](sdd/ESPEC-003-modelo-de-dominio.md) · modelo de dominio (`TAR_Tareas`, `ETR_Estructuras`…) | El paso 1, esquema completo (§2) | **BLOQUEADA** por el arquitecto desde el 2026-08-09, con 14 condiciones sin resolver. Revisado el 2026-08-11: sus condiciones son de **operación o de plan de licenciamiento**, no de lo que un ejecutor pueda decidir en el editor, así que no se destraba sin esas decisiones |
+| [`ESPEC-004`](sdd/ESPEC-004-cierre-excepcion-manual.md) · cierre con excepción manual | `RG-02`, `RG-19` y `RG-03`. `RG-02` dependía de una función que **no existe en AppSheet** | **Aplicada y cableada** (`ORDEN-004`; `ACTA-009` el 2026-08-11): `RG-02`/`RG-19` retiradas del modelo, y la `App formula` que `RG-19` había dejado físicamente en la columna `CierreConExcepcion` —el defecto real que bloqueaba la casilla— ya está borrada en el editor |
+| [`ESPEC-005`](sdd/ESPEC-005-clave-otid-planid.md) · separar clave de etiqueta legible | Creación de órdenes desde la app (§4.5) | **Aplicada al modelo y al editor**: `RG-35`/`RG-36`, las columnas virtuales `Etiqueta` de `OT_OrdenesTrabajo` y `PLA_PlanMantenimiento`, con `Show?` y `Label` puestos, confirmado a ojo en [`ACTA-010`](sdd/ACTA-010-cotejo-ocho-tablas.md) |
+| [`ESPEC-006`](sdd/ESPEC-006-reemplazo-bots-programados.md) · reemplazo de los bots programados | `RG-08` y `RG-12`, que no corren en esta cuenta (§6) | **Aplicada y cableada** (`ORDEN-006`; `ACTA-009` el 2026-08-11): retiradas del modelo, sustituidas por `RG-37`/`RG-38`, las dos cableadas en el editor |
+| [`ESPEC-007`](sdd/ESPEC-007-precision-gps-fotografias.md) · retirar `FOT_Fotografias.PrecisionGPS` | Nada del cableado la necesita: ninguna regla del modelo lee esa columna | **Aplicada** (`ORDEN-007`, 2026-08-11). Confirmada en el editor: `Initial value` vacío en `PrecisionGPS` — Rama A, la retirada fue limpia ([`ACTA-011`](sdd/ACTA-011-bloqueo-vivo-y-here-sin-senal.md)) |
+| [`ESPEC-008`](sdd/ESPEC-008-proteger-ubicacion-fotografias.md) · proteger `Ubicacion_LatLong` de `FOT_Fotografias`/`NOV_Novedades` | El pin arrastrable sobre esas dos tablas | **Aplicada y cableada** (`ORDEN-008`, 2026-08-11: `RG-39`/`RG-40`) — **pero en revisión**: `HERE()` no mide y puede haber quitado también la captura manual, no solo el arrastre del pin; sin señal escribe `0,0`, medido. No se decide todavía; ver `ACTA-011` §2 y [`HALLAZGOS_ABIERTOS.md`](HALLAZGOS_ABIERTOS.md) |
+| [`ESPEC-009`](sdd/ESPEC-009-proteger-identidad.md) · proteger la identidad (`USEREMAIL()` en cuatro columnas, dos `Ref`) | — | **Escrita** (2026-08-11), **pendiente del arquitecto**: no ha pasado dictamen todavía |
 
 > ### Una regla puede estar puesta y no hacer nada
 >
@@ -296,7 +299,7 @@ porque solo hay uno** — y por eso esta fase no se reabre.
 | `IsPartOf` sobre `MAN_Mantenimientos.OTID` | **Va sin él.** La ejecución es el registro histórico y sobrevive a su orden |
 | Borrado del histórico | Se retira `Deletes` en `OT_OrdenesTrabajo` y `MAN_Mantenimientos` (RG-14 y RG-15). Un error se corrige con `Activo = FALSE` |
 | Reportes históricos | RG-18: un histórico nunca filtra por el estado actual del activo, o al dar de baja uno desaparecen sus mantenimientos pasados |
-| Creación de órdenes desde la app | **Desbloqueada, pendiente de aplicar.** El motivo del aplazamiento era que `OTID` hacía de clave y de etiqueta legible a la vez; `ESPEC-005` lo separa —clave con `UNIQUEID()`, columna `Etiqueta` aparte— y `RG-14` ya declara `Updates, Adds`. Hasta que se aplique, las órdenes se crean en el Sheets, que **se salta todas las validaciones**: aceptable en el piloto por volumen, no como procedimiento |
+| Creación de órdenes desde la app | **Aplicada al modelo y al editor** (2026-08-11, ver §3.2). El motivo del aplazamiento era que `OTID` hacía de clave y de etiqueta legible a la vez; `ESPEC-005` lo separó —clave con `UNIQUEID()`, columna `Etiqueta` aparte— y `RG-14` ya declara `Updates, Adds`. Mientras las órdenes reales se sigan creando en el Sheets en vez de en la app, siguen **saltándose todas las validaciones**: aceptable en el piloto por volumen, no como procedimiento |
 | Quién edita el Sheets | **Sin resolver.** Sigue sin haber una regla escrita, y hay dos cuentas con permiso |
 
 Las actas y especificaciones que produjeron esa tabla no están en el árbol de trabajo: describían
@@ -387,7 +390,7 @@ suya volverá a hacerlo: se pregunta con `python scripts/auditar_cableado.py`.
 
 > ### Antes de las reglas van las referencias, y cuántas faltan no se lee aquí
 >
-> **Doce de las 21 reglas desreferencian** —`RG-01`, `RG-04`, `RG-05`, `RG-06`, `RG-09`,
+> **Doce de las 23 reglas desreferencian** —`RG-01`, `RG-04`, `RG-05`, `RG-06`, `RG-09`,
 > `RG-11`, `RG-16`, `RG-17`, `RG-34`, `RG-35`, `RG-36` y `RG-37`; la lista se saca buscando `].[` en
 > las expresiones del modelo—, y cada una **falla o, peor, resuelve contra lo que no es** si la
 > referencia de debajo está mal puesta. Y «mal puesta» no significa ausente: ha pasado que `ACT_Activos.TipoActivoID` apuntara
@@ -401,6 +404,13 @@ suya volverá a hacerlo: se pregunta con `python scripts/auditar_cableado.py`.
 > en el editor una a una, o se siembra una fila en el destino y se vuelve a correr. **Confundir «no lo
 > puedo ver» con «está bien» es como se llegó a las cuatro de arriba.**
 >
+> **Las seis, y las ocho tablas de movimiento enteras, ya se miraron una a una el 2026-08-11**
+> ([`ACTA-010`](sdd/ACTA-010-cotejo-ocho-tablas.md)): las ocho salieron conformes, y de paso se
+> confirmó que `MAN_Mantenimientos.OTID` es `Ref` y va **sin** `Is a part of`. **Mirado no es
+> medido**: sigue sin haber comando que lo compruebe, y esa lectura visual se guarda con fecha
+> porque caduca. Medirlas de verdad sigue costando lo mismo que cerrar la ventana barata: sembrar
+> una fila en el destino.
+>
 > ```bash
 > python scripts/auditar_cableado.py
 > ```
@@ -411,9 +421,11 @@ Declarado en el modelo, con su expresión completa en
 - [ ] **Terminar las referencias de `ACT_Activos`.** Cuáles faltan **no se copia de aquí**: se corre
       `python scripts/auditar_cableado.py`, que reemite
       [`CORRECCIONES_CABLEADO.md`](CORRECCIONES_CABLEADO.md) con lo que quede
-- [ ] **Mirar en el editor las seis que el auditor no puede juzgar**, una a una, y anotar su
+- [x] **Mirar en el editor las seis que el auditor no puede juzgar**, una a una, y anotar su
       `Source table`. Son las que apuntan a tablas vacías: `CHD→CHK`, `CHK→MAN`, `FIR→MAN`,
-      `FOT→MAN`, `MAN→OT` y la autorreferencia `OT_OrdenesTrabajo.OTOrigenID`
+      `FOT→MAN`, `MAN→OT` y la autorreferencia `OT_OrdenesTrabajo.OTOrigenID`. Hecho el 2026-08-11
+      ([`ACTA-010`](sdd/ACTA-010-cotejo-ocho-tablas.md)) — mirado, no medido: sigue sin haber comando
+      que lo compruebe
 - [ ] **Y al cablear `ACT_Activos.EstadoActivoID` se despierta `RG-16`**, que es una `App formula` y
       por tanto **escribe en la hoja**. Hoy `Activo` está poblada a mano en las 368 y hay **un solo
       activo con `EST-04` (Retirado)**, que ya trae `Activo = FALSE`: la regla no debería cambiar
@@ -439,7 +451,7 @@ Declarado en el modelo, con su expresión completa en
 
 Pendiente, y además no declarado todavía en el modelo:
 
-- [ ] Imponer `QuienCambia`: la columna está poblada en las siete filas y **ninguna de las 21 reglas
+- [ ] Imponer `QuienCambia`: la columna está poblada en las siete filas y **ninguna de las 23 reglas
       la lee**, así que hoy nada impide que un técnico ponga «Cerrada» él mismo
 - [ ] Estado de rechazo. `MAN_Mantenimientos.ObservacionRechazo` existe y la orden no tiene a dónde
       volver: falta una fila `Devuelta` en `EOT_EstadosOrden`, que es dato y no esquema
