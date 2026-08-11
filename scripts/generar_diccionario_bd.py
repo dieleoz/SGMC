@@ -156,7 +156,10 @@ if "PAR_Parametros" in hojas:
     iu = hdr.index("Unidad") if "Unidad" in hdr else 3
     w("| Parámetro | Valor en la hoja | Unidad | Declarado en el modelo | Quién lo lee |")
     w("|---|---|---|---|---|")
-    lectores = {"UMBRAL_GPS": "RG-19", "RADIO_GEOFENCING_KM": "RG-01",
+    # UMBRAL_GPS ya no tiene lector: RG-19 se retiro con ESPEC-004/ORDEN-004 (calculaba
+    # CierreConExcepcion con Precision_GPS, que nunca se poblaba). Hoy UMBRAL_GPS es solo
+    # referencia para el juicio del tecnico, sin ninguna regla que la lea.
+    lectores = {"RADIO_GEOFENCING_KM": "RG-01",
                 "DISTANCIA_ESCANEO_CIERRE_KM": "RG-13"}
     for r in ws.iter_rows(min_row=2, values_only=True):
         if not r or r[0] in (None, ""):

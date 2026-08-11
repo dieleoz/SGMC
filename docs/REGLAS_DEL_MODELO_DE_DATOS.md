@@ -226,7 +226,7 @@ la columna `TYPE` contra la ficha del anexo de `MANUAL_DESPLIEGUE.md`**. No hay 
 | `IsPartOf` | 4 | Es una decisión de borrado en cascada, no un tipo |
 | Valores de `Enum` | 12 columnas | AppSheet no sabe qué valores son válidos |
 | `ChangeTimestamp` | 4 | Nunca se infiere; llega como texto |
-| Expresiones | 23 reglas | `Valid_If`, `Editable_If`, `Initial value`, bots |
+| Expresiones | 21 reglas | `Valid_If`, `Editable_If`, `Initial value`, bots |
 
 **Y una trampa propia de las tablas vacías.** Las 8 que llegan sin filas —las de movimiento—
 no le dan a AppSheet ningún dato del que inferir la clave, así que la elige a ciegas. Son las

@@ -43,7 +43,7 @@ La Fase A renombro columnas en la hoja. Toda expresion que cite un nombre viejo 
 y `Activo` —la bandera Si/No—. Una formula que diga `Activo` **no da error**: apunta a la bandera
 y devuelve lista vacia.
 
-## 2. Las 23 reglas, con su expresion completa
+## 2. Las 21 reglas, con su expresion completa
 
 ### RG-01 — `MAN_Mantenimientos` · `Coordenadas_Cierre_LatLong`
 
@@ -100,14 +100,6 @@ CONCATENATE([ActivoID].[Nombre], " - ", [FrecuenciaID].[Nombre])
 
 ```
 OR(ISBLANK([SedeID]), [UnidadFuncionalID] = [SedeID].[UnidadFuncionalID])
-```
-
-### RG-02 — `MAN_Mantenimientos` · `Precision_GPS`
-
-**Tipo:** Initial value · cubre RF-011
-
-```
-USERLOCATIONACCURACY()
 ```
 
 ### RG-03 — `MAN_Mantenimientos` · `MotivoExcepcion`
@@ -196,14 +188,6 @@ DISTANCE([UbicacionEscaneo_LatLong], [Coordenadas_Cierre_LatLong]) <= 0.5
 
 ```
 FALSE
-```
-
-### RG-19 — `MAN_Mantenimientos` · `CierreConExcepcion`
-
-**Tipo:** App formula · cubre D-04
-
-```
-OR(ISBLANK(LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor")), [Precision_GPS] > LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor"))
 ```
 
 ### RG-16 — `ACT_Activos` · `Activo`
@@ -336,7 +320,7 @@ anterior; en una construida de cero no sobrevive ninguna.
 
 ## 5. Lo que NO se repone: columnas retiradas
 
-**48 columnas.** Siguen en la hoja a proposito. En la aplicacion: tipo `Text`, `Show?`
+**49 columnas.** Siguen en la hoja a proposito. En la aplicacion: tipo `Text`, `Show?`
 desmarcado, sin formula. **No se borran.**
 
 | Tabla | Columna | Por que | |
@@ -380,6 +364,7 @@ desmarcado, sin formula. **No se borran.**
 | `MAN_Mantenimientos` | `Imagen_Final` | Sustituido por FOT_Fotografias con Tipo=Despues. |  |
 | `MAN_Mantenimientos` | `Imagen_Inicio` | Sustituido por FOT_Fotografias con Tipo=Antes. |  |
 | `MAN_Mantenimientos` | `Localizacion` | Ambiguo y redundante con Coordenadas_Cierre. |  |
+| `MAN_Mantenimientos` | `Precision_GPS` | USERLOCATIONACCURACY() no existe en AppSheet (ESPEC-004 2.1): la columna nunca se poblaba, RG-19 comparaba siempre numero > blanco y RG-03 no pedia MotivoExcepcion nunca. Retirada por ESPEC-004/ORDEN-004. Si MAN_Mantenimientos ya estaba dada de alta en el editor con esta columna sin usar (Rama A, ESPEC-004 2.10), retirarla del modelo no la borra de la hoja: queda huerfana, sin Initial value y sin uso, y eso no es un fallo (ACTA-004; PRUEBA-004 P-45). Si ya estaba cableada con Initial value puesto (Rama B), hace falta Delete and re-add de la tabla completa (ESPEC-004 2.10). |  |
 | `MAN_Mantenimientos` | `Repuestos_Utilizados` | Gestion de repuestos esta fuera de alcance. |  |
 | `MAN_Mantenimientos` | `Requiere_Repuesto` | Se cubre con MotivoPendienteID = Falta de repuesto. |  |
 | `MAN_Mantenimientos` | `Tipo` | El tipo es de la orden, no de la ejecucion. |  |

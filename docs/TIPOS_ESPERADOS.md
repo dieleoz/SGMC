@@ -23,7 +23,7 @@ Infiere el tipo de **dos** señales, y aquí las dos fallan:
 > `TRUE` es **siempre falso y no da error**: el motivo de excepción no se pide nunca, y el técnico
 > cierra con excepción sin justificar. La regla existe, está bien redactada, y no hace nada.
 
-## Empieza por estas 90
+## Empieza por estas 89
 
 Son las que AppSheet tuvo que adivinar. **El resto también hay que mirarlo**, pero si el tiempo
 es poco, aquí está donde se concentra el error.
@@ -60,8 +60,7 @@ es poco, aquí está donde se concentra el error.
 | `MAN_Mantenimientos` | `FechaHoraEscaneo` | **`DateTime`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `MAN_Mantenimientos` | `EstadoActivoID` | **`Ref`** | `RG-06` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `MAN_Mantenimientos` | `Coordenadas_Cierre_LatLong` | **`LatLong`** | `RG-01`, `RG-13` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
-| `MAN_Mantenimientos` | `Precision_GPS` | **`Number`** | `RG-02`, `RG-19` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato; su nombre dispara la inferencia a **LatLong**, y no lo es |
-| `MAN_Mantenimientos` | `CierreConExcepcion` | **`Yes/No`** | `RG-03`, `RG-19` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
+| `MAN_Mantenimientos` | `CierreConExcepcion` | **`Yes/No`** | `RG-03` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `MAN_Mantenimientos` | `MotivoExcepcion` | **`LongText`** | `RG-03` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `MAN_Mantenimientos` | `RequiereSegundaVisita` | **`Yes/No`** | `RG-10` | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
 | `MAN_Mantenimientos` | `MotivoPendienteID` | **`Ref`** | — | la tabla llegó **vacía**: el tipo se eligió sin un solo dato |
@@ -323,7 +322,6 @@ es poco, aquí está donde se concentra el error.
 | `FechaHoraEscaneo` | **`DateTime`** |  |
 | `EstadoActivoID` | **`Ref`** | → `EST_Activo` · obligatoria |
 | `Coordenadas_Cierre_LatLong` | **`LatLong`** | obligatoria |
-| `Precision_GPS` | **`Number`** |  |
 | `CierreConExcepcion` | **`Yes/No`** |  |
 | `MotivoExcepcion` | **`LongText`** |  |
 | `RequiereSegundaVisita` | **`Yes/No`** |  |

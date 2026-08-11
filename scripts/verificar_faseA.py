@@ -304,20 +304,14 @@ for tabla in CLAVE_GENERADA:
         falla("F-11", "%s esta en CLAVE_GENERADA y tambien en CLAVE_LEGIBLE. Su clave sera "
                       "aleatoria en cuanto la app cree una fila: no puede estar en las dos" % tabla)
 
-# ------------- F-12 el dato no puede contradecir a la regla que lo calcula
-# RG-19 calcula CierreConExcepcion como [Precision_GPS] > 50 (umbral D-04). Si
-# el dato de la hoja dice otra cosa, la regla lo SOBREESCRIBE en cuanto alguien
-# toque la fila, porque es una App formula. Y con MotivoExcepcion ya escrito, la
-# fila acaba diciendo dos cosas.
-#
-# Es la misma forma que tuvo el defecto de RG-16: una regla cuyo dato la
-# desmiente, y ninguna comprobacion que lo viera.
-# El umbral NO se codifica aqui: vive en PAR_Parametros y el administrador lo
-# ajusta con las pruebas de campo. Este script lee el de la hoja si existe, y si
-# no cae al declarado en el modelo. Que la hoja y el modelo digan cosas distintas
-# es en si un fallo.
-UMBRAL_GPS = PARAMETROS["UMBRAL_GPS"][0]
-
+# ------------- F-13 la hoja de parametros coincide con lo que el modelo declara
+# RG-19 (calculaba CierreConExcepcion cruzando Precision_GPS contra este umbral)
+# se retiro con ESPEC-004/ORDEN-004: USERLOCATIONACCURACY() no existe en
+# AppSheet y esa columna nunca se poblaba. El bloque F-12 que cruzaba
+# Precision_GPS contra CierreConExcepcion se retiro con ella (PRUEBA-004 P-37).
+# UMBRAL_GPS sigue siendo un parametro valido -es la referencia para el juicio
+# del tecnico, ESPEC-004 2.13-, asi que esta comprobacion general de que la hoja
+# de PAR_Parametros coincide con el modelo se conserva.
 if "PAR_Parametros" in wb.sheetnames:
     h = encabezados("PAR_Parametros")
     if "ParametroID" in h and "Valor" in h:
@@ -331,10 +325,6 @@ if "PAR_Parametros" in wb.sheetnames:
                 continue
             esperado = PARAMETROS[clave][0]
             actual = r[iv]
-            # El umbral solo se adopta si es un numero: adoptarlo antes de
-            # comprobarlo hacia que F-12 comparase float contra str y reventara.
-            if clave == "UMBRAL_GPS" and isinstance(actual, (int, float))                     and not isinstance(actual, bool):
-                UMBRAL_GPS = actual
             if actual is None:
                 falla("F-13", "PAR_Parametros '%s' esta vacio. Las reglas que lo leen no "
                               "resolveran" % clave)
@@ -356,34 +346,9 @@ if "PAR_Parametros" in wb.sheetnames:
                                     wb["PAR_Parametros"].iter_rows(min_row=2, values_only=True)
                                     if r and r[0] not in (None, "")}
         if faltan:
-            falla("F-13", "PAR_Parametros no tiene %s. RG-19 y RG-01 los leen con LOOKUP()"
-                  % sorted(faltan))
+            falla("F-13", "PAR_Parametros no tiene %s" % sorted(faltan))
         else:
             oks.append("PAR_Parametros tiene los %d parametros que declara el modelo" % len(PARAMETROS))
-
-if "MAN_Mantenimientos" in wb.sheetnames:
-    h = encabezados("MAN_Mantenimientos")
-    if "Precision_GPS" in h and "CierreConExcepcion" in h:
-        ip, ic = h.index("Precision_GPS"), h.index("CierreConExcepcion")
-        ws = wb["MAN_Mantenimientos"]
-        revisadas = 0
-        for r in ws.iter_rows(min_row=2, values_only=True):
-            if not r or r[0] in (None, "") or len(r) <= max(ip, ic):
-                continue
-            precision, marca = r[ip], r[ic]
-            if precision is None or marca is None:
-                continue
-            revisadas += 1
-            esperado = precision > UMBRAL_GPS
-            actual = str(marca).strip().upper() in ("TRUE", "VERDADERO", "1", "SI")
-            if esperado != actual:
-                falla("F-12", "MAN_Mantenimientos '%s': Precision_GPS=%s, luego RG-19 calculara "
-                              "CierreConExcepcion=%s, pero la hoja dice %s. La App formula "
-                              "sobreescribira el dato en cuanto alguien toque la fila"
-                      % (r[0], precision, esperado, actual))
-        if revisadas:
-            oks.append("Las %d filas de MAN_Mantenimientos coinciden con RG-19 (umbral %d m)"
-                       % (revisadas, UMBRAL_GPS))
 
 # ------------- F-14 OT_OrdenesTrabajo y EST_Activo tienen Activo = TRUE
 for tabla in ("OT_OrdenesTrabajo", "EST_Activo"):

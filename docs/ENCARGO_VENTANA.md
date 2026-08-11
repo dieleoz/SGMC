@@ -45,7 +45,7 @@ saltarse:
 - **`Label` marcado** — y si la tabla ya tenía otra columna con `Label`, **desmárcala primero**.
   Solo puede haber una por tabla.
 
-## Paso 2 — Cotejar 54 tipos, y dejar constancia
+## Paso 2 — Cotejar 53 tipos, y dejar constancia
 
 **Esto no es para cambiarlos: es para mirarlos.** Lo más probable es que ya estén, porque una
 sesión anterior recorrió estas tablas. Pero *reportado* no es *verificado*, y de eso este
@@ -93,7 +93,7 @@ devuelve filas, no esquema. Tu anotación es la única evidencia que va a existi
 | `PrecisionGPS` | **`Number`** |
 | `Tipo` | **`Enum`** · valores: `Antes` · `Despues` · `Novedad` |
 
-### `MAN_Mantenimientos` — 15 columnas
+### `MAN_Mantenimientos` — 14 columnas
 
 | Columna | Debe ser |
 |---|---|
@@ -109,7 +109,6 @@ devuelve filas, no esquema. Tu anotación es la única evidencia que va a existi
 | `ObservacionRechazo` | **`LongText`** |
 | `Observaciones` | **`LongText`** |
 | `OrigenApertura` | **`Enum`** · valores: `QR` · `Lista` |
-| `Precision_GPS` | **`Number`** |
 | `RequiereSegundaVisita` | **`Yes/No`** |
 | `TecnicoID` | **`Ref`** → `USR_Usuarios` |
 
@@ -155,7 +154,7 @@ devuelve filas, no esquema. Tu anotación es la única evidencia que va a existi
 | `UNF_UnidadesFuncionales` y `USR_Usuarios` | Tienen filas. Su ventana se cerró hace tiempo, así que pueden esperar |
 | Los bots | No dependen de la ventana |
 | `RG-04` y `RG-05`, los `Security Filter` | Van **los últimos**. Al ponerlos, la API deja de devolver las filas de esa tabla y ni `auditar_cableado.py` ni `instantanea.py` pueden volver a mirarla |
-| `RG-02`, `RG-19`, `RG-03` | `ESPEC-004` está bloqueada. `RG-02` usa una función que no existe en AppSheet |
+| `RG-03` | Ya **entra**: `ESPEC-004`/`ORDEN-004` la desbloqueó — `CierreConExcepcion` deja de calcularse sola y pasa a ser una casilla que marca el técnico. `RG-02` y `RG-19` se retiraron del modelo (`RG-02` usaba `USERLOCATIONACCURACY()`, que no existe en AppSheet) |
 
 ### Dónde está cada cosa en el editor
 

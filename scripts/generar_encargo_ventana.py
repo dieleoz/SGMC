@@ -138,7 +138,7 @@ w("|---|---|")
 w("| `UNF_UnidadesFuncionales` y `USR_Usuarios` | Tienen filas. Su ventana se cerró hace tiempo, así que pueden esperar |")
 w("| Los bots | No dependen de la ventana |")
 w("| `RG-04` y `RG-05`, los `Security Filter` | Van **los últimos**. Al ponerlos, la API deja de devolver las filas de esa tabla y ni `auditar_cableado.py` ni `instantanea.py` pueden volver a mirarla |")
-w("| `RG-02`, `RG-19`, `RG-03` | `ESPEC-004` está bloqueada. `RG-02` usa una función que no existe en AppSheet |")
+w("| `RG-03` | Ya **entra**: `ESPEC-004`/`ORDEN-004` la desbloqueó — `CierreConExcepcion` deja de calcularse sola y pasa a ser una casilla que marca el técnico. `RG-02` y `RG-19` se retiraron del modelo (`RG-02` usaba `USERLOCATIONACCURACY()`, que no existe en AppSheet) |")
 w("")
 
 w(mapa_markdown())

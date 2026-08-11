@@ -7,7 +7,7 @@ las cadenas de referencias salen de `scripts/modelo_objetivo.py`.
 
 ---
 
-Vas a poner **23 reglas** en la aplicación **`_SISGA_-323965761`** de Google AppSheet.
+Vas a poner **21 reglas** en la aplicación **`_SISGA_-323965761`** de Google AppSheet.
 Las 39 referencias son el paso anterior. **Este documento no sabe si están puestas** —sale del
 modelo, así que describe el destino—. Compruébalo antes de empezar:
 
@@ -118,7 +118,7 @@ contains a cyclical table reference to 'EST_Activo'.
 Ya pasó el 2026-08-10. **Antes de tocar una columna, comprueba en qué tabla estás.** Cada regla
 de abajo dice la suya, y no es negociable: la misma columna en otra tabla es otra cosa.
 
-## Las 23 reglas
+## Las 21 reglas
 
 Cada una: entra a la **tabla**, abre la **columna**, y pon la expresión en la **propiedad** que
 dice. Las que **escriben en la hoja** van al final a propósito.
@@ -136,18 +136,16 @@ dice. Las que **escriben en la hoja** van al final a propósito.
 | 9 | `RG-34` | `ACT_Activos` | `UnidadFuncionalID` | `Valid_If` | `SED_Sedes` |
 | 10 | `RG-35` | `OT_OrdenesTrabajo` | `(tabla)` | `App formula` | `ACT_Activos` |
 | 11 | `RG-36` | `PLA_PlanMantenimiento` | `(tabla)` | `App formula` | `ACT_Activos` · `FRE_Frecuencias` |
-| 12 | `RG-02` | `MAN_Mantenimientos` | `Precision_GPS` | `Initial value` | — |
-| 13 | `RG-06` | `MAN_Mantenimientos` | `(tabla)` | `Bot` | `EST_Activo` |
-| 14 | `RG-07` | `OT_OrdenesTrabajo` | `(tabla)` | `Bot` | — |
-| 15 | `RG-08` | `OT_OrdenesTrabajo` | `EstadoOrdenID` | `Bot programado` | `EOT_EstadosOrden` |
-| 16 | `RG-09` | `CHK_Checklists` | `VersionFormulario` | `Initial value` | `FRM_Formularios` |
-| 17 | `RG-10` | `MAN_Mantenimientos` | `(tabla)` | `Bot` | — |
-| 18 | `RG-11` | `PLA_PlanMantenimiento` | `ProximaFecha` | `App formula` | `FRE_Frecuencias` |
-| 19 | `RG-12` | `PLA_PlanMantenimiento` | `(tabla)` | `Bot programado` | — |
-| 20 | `RG-16` | `ACT_Activos` | `Activo` | `App formula` | `EST_Activo` |
-| 21 | `RG-19` | `MAN_Mantenimientos` | `CierreConExcepcion` | `App formula` | — |
-| 22 | `RG-04` | `ACT_Activos` | `(tabla)` | `Security Filter` | `USR_Usuarios` |
-| 23 | `RG-05` | `OT_OrdenesTrabajo` | `(tabla)` | `Security Filter` | `USR_Usuarios` · `USR_Usuarios` |
+| 12 | `RG-06` | `MAN_Mantenimientos` | `(tabla)` | `Bot` | `EST_Activo` |
+| 13 | `RG-07` | `OT_OrdenesTrabajo` | `(tabla)` | `Bot` | — |
+| 14 | `RG-08` | `OT_OrdenesTrabajo` | `EstadoOrdenID` | `Bot programado` | `EOT_EstadosOrden` |
+| 15 | `RG-09` | `CHK_Checklists` | `VersionFormulario` | `Initial value` | `FRM_Formularios` |
+| 16 | `RG-10` | `MAN_Mantenimientos` | `(tabla)` | `Bot` | — |
+| 17 | `RG-11` | `PLA_PlanMantenimiento` | `ProximaFecha` | `App formula` | `FRE_Frecuencias` |
+| 18 | `RG-12` | `PLA_PlanMantenimiento` | `(tabla)` | `Bot programado` | — |
+| 19 | `RG-16` | `ACT_Activos` | `Activo` | `App formula` | `EST_Activo` |
+| 20 | `RG-04` | `ACT_Activos` | `(tabla)` | `Security Filter` | `USR_Usuarios` |
+| 21 | `RG-05` | `OT_OrdenesTrabajo` | `(tabla)` | `Security Filter` | `USR_Usuarios` · `USR_Usuarios` |
 
 > Las de `App formula`, `Initial value` y las de tipo bot **escriben**. Ponerlas antes de haber
 > comprobado las demás significa soltarlas sobre el inventario entero sin saber qué escriben.
@@ -159,7 +157,7 @@ dice. Las que **escriben en la hoja** van al final a propósito.
 
 ## Los 5 bots no van en una columna, y esto es lo que faltaba
 
-Las otras 18 se ponen en una propiedad de una columna o de una tabla. **Un bot no.** Vive en
+Las otras 16 se ponen en una propiedad de una columna o de una tabla. **Un bot no.** Vive en
 `Automation > Bots` —el icono del rayo— y tiene tres partes, no una expresión suelta:
 
 ```
@@ -293,7 +291,7 @@ NO filtrar los reportes historicos por la bandera Activo del activo padre. Un re
 FALSE
 ```
 
-Sobre Coordenadas_Cierre, Precision_GPS, UbicacionEscaneo y FechaHoraEscaneo. SIN ESTO EL GEOFENCING ES DECORATIVO: HERE() y USERLOCATIONACCURACY() son Initial value, no App formula, y un Initial value SI es editable. Coordenadas_Cierre es un LatLong, que en un formulario AppSheet dibuja como un pin arrastrable sobre un mapa, y la ubicacion del activo esta visible en la app: el tecnico arrastra el pin encima del activo y RG-01 valida sin protestar. La regla se cumplia y la presencia no quedaba probada.
+Sobre Coordenadas_Cierre, UbicacionEscaneo y FechaHoraEscaneo (tres columnas desde ESPEC-004/ORDEN-004: Precision_GPS se retiro del modelo, ver CAMPOS_RETIRADOS). SIN ESTO EL GEOFENCING ES DECORATIVO: HERE() es Initial value, no App formula, y un Initial value SI es editable. Coordenadas_Cierre es un LatLong, que en un formulario AppSheet dibuja como un pin arrastrable sobre un mapa, y la ubicacion del activo esta visible en la app: el tecnico arrastra el pin encima del activo y RG-01 valida sin protestar. La regla se cumplia y la presencia no quedaba probada.
 
 ### RG-34 — `ACT_Activos.UnidadFuncionalID`
 
@@ -346,16 +344,6 @@ Atraviesa **2 referencias distintas**:
 
 Si el error nombra una de esas tablas y no es la que toca, el fallo está en ese salto,
 no en la expresión.
-
-### RG-02 — `MAN_Mantenimientos.Precision_GPS`
-
-**Initial value** · cubre `RF-011`
-
-```
-USERLOCATIONACCURACY()
-```
-
-Registra el error del satelite en metros, para distinguir un cierre legitimo de uno dudoso.
 
 ### RG-06 — `MAN_Mantenimientos.(tabla)`
 
@@ -472,16 +460,6 @@ Atraviesa **1 referencia**:
 Si el error nombra una de esas tablas y no es la que toca, el fallo está en ese salto,
 no en la expresión.
 
-### RG-19 — `MAN_Mantenimientos.CierreConExcepcion`
-
-**App formula** · cubre `D-04`
-
-```
-OR(ISBLANK(LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor")), [Precision_GPS] > LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor"))
-```
-
-Marca el cierre como excepcional cuando el error del satelite supera el umbral. Sin ella la columna existe y nadie la puebla: un cierre con 45 m de error seria indistinguible de uno con 8 m, y ahi se cae la cadena de evidencia. EL UMBRAL ES UN PARAMETRO, no un numero en la expresion: se calibra con las pruebas de campo y lo ajusta el administrador en una celda, sin abrir el editor. FALLA DE FORMA RUIDOSA: si el umbral no se puede leer, el OR con ISBLANK marca el cierre COMO EXCEPCIONAL. Sin eso, borrar la fila del parametro haria que todos los cierres saliesen limpios y nadie se enterase, que es la forma exacta del defecto de RG-16. Provisional 40 m, unas ocho veces la precision tipica de un movil a cielo abierto (4,9 m segun GPS.gov) y deja margen para montana y estructuras. D-04 decia 50; se baja a 40 tras comprobar que 45 m ya es nueve veces la norma.
-
 ### RG-04 — `ACT_Activos.(tabla)`
 
 **Security Filter** · cubre `RF-004`
@@ -526,29 +504,35 @@ no en la expresión.
 Por eso este paso se cierra **copiando literalmente lo que ves**, incluso
 cuando coincida. «Coincide» no es evidencia; el texto sí.
 
-## Dos que hoy NO se pueden poner, y hay que saberlo antes de intentarlo
+## Una que ya NO se pone, y una que dejó de estar inerte (ESPEC-004/ORDEN-004)
 
-**`RG-02` es imposible tal como está declarada.** Usa `USERLOCATIONACCURACY()`, y esa función
-**no existe en AppSheet**: la plataforma no expone la precisión del GPS al motor de expresiones.
-La captura manual sí muestra al técnico los metros en pantalla, pero ese número no se puede
-guardar en una columna. Deja `Precision_GPS` con tipo `Number` y **sin `Initial value`**.
+**`RG-02` ya no existe.** Usaba `USERLOCATIONACCURACY()`, y esa función **no existe en
+AppSheet**: la plataforma no expone la precisión del GPS al motor de expresiones. La columna
+`Precision_GPS` se retiró del modelo (`CAMPOS_RETIRADOS`); si `MAN_Mantenimientos` ya estaba
+dada de alta en el editor con ella sin usar, queda huérfana —sin `Initial value`, sin uso— y eso
+no es un fallo. **No la vuelvas a poner.**
 
-Y arrastra dos más, así que no las des por buenas aunque las pongas:
+**`RG-19` también se retiró.** Calculaba `CierreConExcepcion` comparando `Precision_GPS` contra
+el umbral, y como `Precision_GPS` nunca se poblaba, la comparación era siempre falsa. Deja el
+`App formula` de `CierreConExcepcion` **vacío**.
+
+**`RG-03` deja de estar inerte.** `CierreConExcepcion` pasa a ser una casilla `Yes/No` que marca
+el técnico directamente, no una fórmula. Dos cosas más, fuera de esta sección de expresiones:
 
 ```
-RG-02   Precision_GPS = USERLOCATIONACCURACY()       no existe -> nunca se puebla
-RG-19   CierreConExcepcion = Precision_GPS > umbral   blanco > numero -> siempre falso
-RG-03   MotivoExcepcion obligatorio si excepcion      nunca se pide
+1. Confirmar el Type de CierreConExcepcion en Data > Columns. Tiene que ser Yes/No, no Text
+   (S-30, ESPEC-004 2.7). Si sale Text, retipar antes de seguir: con Text, [CierreConExcepcion]
+   = TRUE compara texto contra booleano y es siempre falso, sin error.
+2. Fijar la Description de CierreConExcepcion (no viaja por ningun generador, se escribe a
+   mano): "¿La app no alcanzó buena precisión al capturar la posición de cierre? Marque si es
+   así." (ESPEC-004 2.13)
 ```
-
-Tres reglas bien configuradas y el mecanismo entero inerte. **Está pendiente de decidir** si
-`CierreConExcepcion` pasa a ser una casilla que marca el técnico; hasta entonces, ponlas y no las
-cuentes como funcionando.
 
 > Es el patrón del día: una regla puede estar puesta, bien escrita, sin dar un solo error, y no
-> hacer nada. Pasó por el tipo (`RG-03`), por el dato (`RG-06`, con `GeneraAlerta` vacía) y aquí
-> por una función que no existe. `python scripts/verificar_datos.py` caza el segundo caso —G-05—;
-> los otros dos solo se ven mirando.
+> hacer nada. Pasó por el tipo (`RG-03`, mientras `CierreConExcepcion` no tenía forma de ser
+> `TRUE`), por el dato (`RG-06`, con `GeneraAlerta` vacía) y por una función que no existe
+> (`RG-02`, ya retirada). `python scripts/verificar_datos.py` caza el segundo caso —G-05—; los
+> otros dos solo se ven mirando.
 
 ## Al terminar
 

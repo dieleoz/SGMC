@@ -53,7 +53,7 @@ el editor —tipos, claves, `Label`, reglas, bots— es trabajo manual de quien 
 
 ## 3. El modelo
 
-28 tablas, 211 columnas, 39 referencias, 23 reglas — la cifra la imprime `python
+28 tablas, 210 columnas, 39 referencias, 21 reglas — la cifra la imprime `python
 scripts/validar_modelo.py` en su primera línea, no se cita de memoria. Vive entera en
 `scripts/modelo_objetivo.py`; se lee formateada en
 [`docs/ARQUITECTURA_OBJETIVO_SGMC.md`](ARQUITECTURA_OBJETIVO_SGMC.md) (generado, no editar) y se

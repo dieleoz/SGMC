@@ -130,15 +130,23 @@ En túnel, corte de montaña o bajo vegetación densa, el teléfono puede no fij
 precisión suficiente.
 
 1. Espere unos segundos a que la antena busque posición.
-2. Si la precisión sigue siendo insuficiente, marque **`Cierre con excepción`**.
-3. **Escriba el motivo** en `Motivo de excepción`. Es obligatorio.
+2. **La app no le muestra un número de precisión que pueda comparar solo.** La aplicación no tiene
+   forma de leer ni guardar la precisión del GPS del teléfono. Sea usted quien decide, a ojo, si la
+   señal fue mala: mire el ícono de precisión de la captura manual, o simplemente su propio juicio de
+   cuánto tardó en fijar posición y en qué condiciones (túnel, corte de montaña, vegetación densa).
+3. Si considera que la precisión no fue buena, marque **`Cierre con excepción`**.
+4. **Escriba el motivo** en `Motivo de excepción`. Es obligatorio en cuanto marca la casilla.
 
-La excepción **no es un rodeo: queda registrada y es auditable**. El supervisor ve cuántos cierres
-con excepción tiene cada técnico y cada activo. Un activo que siempre se cierra con excepción
-señala que su coordenada está mal o que el sitio no tiene cobertura satelital, y eso se corrige.
+La excepción **no es un rodeo: queda registrada y es auditable**. Hoy **no existe un reporte que
+cuente** cuántos cierres con excepción tiene cada técnico o cada activo (pendiente, D-12); mientras
+tanto el supervisor revisa `Observaciones`/`Motivo de excepción` uno por uno, al aprobar cada cierre.
+Un activo que se cierra con excepción con frecuencia señala que su coordenada está mal o que el
+sitio no tiene cobertura satelital, y eso se corrige.
 
-El umbral de precisión no está escondido en el código: lo ajusta el administrador en la tabla de
-parámetros.
+**El umbral de precisión (`PAR_Parametros.UMBRAL_GPS`, 40 m) es una referencia para su propio
+criterio, no una comparación que la app haga sola.** Ninguna regla lo lee ni lo compara contra nada;
+lo ajusta el administrador en la tabla de parámetros como cifra de referencia, y es usted quien
+decide si su caso la supera.
 
 > **No use** el campo de observaciones para justificar un problema de GPS. Ese texto no se puede
 > contar ni auditar. Para eso está el cierre con excepción.
@@ -283,8 +291,12 @@ la aplicación.
 
 ### 5.4 Parámetros
 
-El umbral de precisión de GPS se ajusta **en la tabla de parámetros**, sin abrir el editor de la
-aplicación. Hoy vale **40 metros**.
+El umbral de precisión de GPS (`UMBRAL_GPS`) se ajusta **en la tabla de parámetros**, sin abrir el
+editor de la aplicación. Hoy vale **40 metros**. **Ninguna regla de la aplicación lo lee ni lo
+compara**: la app no tiene forma de leer la precisión del GPS del teléfono, así que este número es
+solo la referencia que se le da al técnico para su propio criterio al decidir si marca `Cierre con
+excepción` (ver 3.4). Cambiarlo aquí no dispara ni evita nada automáticamente; solo cambia la cifra
+que el técnico ve como referencia.
 
 **El radio de cierre no está ahí: va por tipo de activo**, en el campo `RadioGeofencingKm` de la
 tabla de tipos, y está poblado en los 27 —los valores están en 3.5—. La tabla de parámetros

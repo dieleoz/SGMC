@@ -16,7 +16,7 @@ paso de vistas de los manuales generados **declara que no está especificado y p
 se haga**, en vez de decir «se construye sola» — que es la clase de instrucción que este proyecto
 tiene prohibida.
 
-**28 tablas · 211 columnas · 39 referencias · 23 reglas**
+**28 tablas · 210 columnas · 39 referencias · 21 reglas**
 
 ---
 
@@ -87,6 +87,7 @@ resto son campos que guardaban por segunda vez un dato alcanzable por referencia
 | `Tipo` | El tipo es de la orden, no de la ejecucion. |
 | `Fecha` | Redundante con FechaHoraInicio. |
 | `Estado_Intervencion` | Redundante con el estado de la orden. |
+| `Precision_GPS` | USERLOCATIONACCURACY() no existe en AppSheet (ESPEC-004 2.1): la columna nunca se poblaba, RG-19 comparaba siempre numero > blanco y RG-03 no pedia MotivoExcepcion nunca. Retirada por ESPEC-004/ORDEN-004. Si MAN_Mantenimientos ya estaba dada de alta en el editor con esta columna sin usar (Rama A, ESPEC-004 2.10), retirarla del modelo no la borra de la hoja: queda huerfana, sin Initial value y sin uso, y eso no es un fallo (ACTA-004; PRUEBA-004 P-45). Si ya estaba cableada con Initial value puesto (Rama B), hace falta Delete and re-add de la tabla completa (ESPEC-004 2.10). |
 
 **`OT_OrdenesTrabajo`**
 
@@ -517,8 +518,7 @@ Ejecucion real en campo. Cuelga de la orden y es padre de la evidencia.
 | `FechaHoraEscaneo` | DateTime |  |  |  | Con FechaHoraFin da la duracion real de la intervencion |
 | `EstadoActivoID` | Ref |  | `EST_Activo` | Sí | Estado en que queda el activo tras la intervencion. No existe en produccion: se crea. El Excel local tiene 'Estado Final', que produccion no tiene |
 | `Coordenadas_Cierre_LatLong` | LatLong |  |  | Sí | Valor inicial: `HERE()` |
-| `Precision_GPS` | Number |  |  |  | Valor inicial: `USERLOCATIONACCURACY()` |
-| `CierreConExcepcion` | Yes/No |  |  |  | Se calcula, no se edita (RG-19). El umbral vive en PAR_Parametros |
+| `CierreConExcepcion` | Yes/No |  |  |  | El tecnico la marca cuando la app no le mostro buena precision al capturar el cierre. Criterio de referencia: PAR_Parametros.UMBRAL_GPS. Antes se calculaba con RG-19 y USERLOCATIONACCURACY(), que no existe en AppSheet; ver ESPEC-004. Su Description en el editor formula la pregunta explicitamente, ver ESPEC-004 2.13 |
 | `MotivoExcepcion` | LongText |  |  |  | Obligatorio si CierreConExcepcion es verdadero |
 | `RequiereSegundaVisita` | Yes/No |  |  |  | Valor inicial: `FALSE` |
 | `MotivoPendienteID` | Ref |  | `MOT_MotivosPendiente` |  |  |
@@ -735,16 +735,6 @@ OR(ISBLANK([SedeID]), [UnidadFuncionalID] = [SedeID].[UnidadFuncionalID])
 
 Cubre: RF-002
 
-### RG-02 · Initial value sobre `MAN_Mantenimientos`.`Precision_GPS`
-
-Registra el error del satelite en metros, para distinguir un cierre legitimo de uno dudoso.
-
-```
-USERLOCATIONACCURACY()
-```
-
-Cubre: RF-011
-
 ### RG-03 · Required_If sobre `MAN_Mantenimientos`.`MotivoExcepcion`
 
 Si el tecnico cierra con excepcion por GPS deficiente, debe justificarlo por escrito.
@@ -847,23 +837,13 @@ Cubre: Prueba de presencia
 
 ### RG-20 · Editable_If sobre `MAN_Mantenimientos`.`(varias)`
 
-Sobre Coordenadas_Cierre, Precision_GPS, UbicacionEscaneo y FechaHoraEscaneo. SIN ESTO EL GEOFENCING ES DECORATIVO: HERE() y USERLOCATIONACCURACY() son Initial value, no App formula, y un Initial value SI es editable. Coordenadas_Cierre es un LatLong, que en un formulario AppSheet dibuja como un pin arrastrable sobre un mapa, y la ubicacion del activo esta visible en la app: el tecnico arrastra el pin encima del activo y RG-01 valida sin protestar. La regla se cumplia y la presencia no quedaba probada.
+Sobre Coordenadas_Cierre, UbicacionEscaneo y FechaHoraEscaneo (tres columnas desde ESPEC-004/ORDEN-004: Precision_GPS se retiro del modelo, ver CAMPOS_RETIRADOS). SIN ESTO EL GEOFENCING ES DECORATIVO: HERE() es Initial value, no App formula, y un Initial value SI es editable. Coordenadas_Cierre es un LatLong, que en un formulario AppSheet dibuja como un pin arrastrable sobre un mapa, y la ubicacion del activo esta visible en la app: el tecnico arrastra el pin encima del activo y RG-01 valida sin protestar. La regla se cumplia y la presencia no quedaba probada.
 
 ```
 FALSE
 ```
 
 Cubre: Prueba de presencia
-
-### RG-19 · App formula sobre `MAN_Mantenimientos`.`CierreConExcepcion`
-
-Marca el cierre como excepcional cuando el error del satelite supera el umbral. Sin ella la columna existe y nadie la puebla: un cierre con 45 m de error seria indistinguible de uno con 8 m, y ahi se cae la cadena de evidencia. EL UMBRAL ES UN PARAMETRO, no un numero en la expresion: se calibra con las pruebas de campo y lo ajusta el administrador en una celda, sin abrir el editor. FALLA DE FORMA RUIDOSA: si el umbral no se puede leer, el OR con ISBLANK marca el cierre COMO EXCEPCIONAL. Sin eso, borrar la fila del parametro haria que todos los cierres saliesen limpios y nadie se enterase, que es la forma exacta del defecto de RG-16. Provisional 40 m, unas ocho veces la precision tipica de un movil a cielo abierto (4,9 m segun GPS.gov) y deja margen para montana y estructuras. D-04 decia 50; se baja a 40 tras comprobar que 45 m ya es nueve veces la norma.
-
-```
-OR(ISBLANK(LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor")), [Precision_GPS] > LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor"))
-```
-
-Cubre: D-04
 
 ### RG-16 · App formula sobre `ACT_Activos`.`Activo`
 

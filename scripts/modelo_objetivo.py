@@ -335,11 +335,12 @@ MODELO = {
             col("Coordenadas_Cierre_LatLong", "LatLong", obligatoria=True, valor_inicial="HERE()", editable=False,
                 valid_if="DISTANCE([Coordenadas_Cierre_LatLong], [OTID].[ActivoID].[Ubicacion_LatLong]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]",
                 mensaje_error="Ubicacion fuera de rango: debe estar junto al activo para cerrar."),
-            col("Precision_GPS", "Number", valor_inicial="USERLOCATIONACCURACY()", editable=False),
             col("CierreConExcepcion", "Yes/No",
-                formula=('OR(ISBLANK(LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor")), '
-                      '[Precision_GPS] > LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor"))'),
-                nota="Se calcula, no se edita (RG-19). El umbral vive en PAR_Parametros"),
+                nota="El tecnico la marca cuando la app no le mostro buena precision al capturar "
+                     "el cierre. Criterio de referencia: PAR_Parametros.UMBRAL_GPS. Antes se "
+                     "calculaba con RG-19 y USERLOCATIONACCURACY(), que no existe en AppSheet; "
+                     "ver ESPEC-004. Su Description en el editor formula la pregunta "
+                     "explicitamente, ver ESPEC-004 2.13"),
             col("MotivoExcepcion", "LongText", nota="Obligatorio si CierreConExcepcion es verdadero"),
             col("RequiereSegundaVisita", "Yes/No", valor_inicial="FALSE"),
             col("MotivoPendienteID", "Ref", ref="MOT_MotivosPendiente"),
@@ -584,6 +585,15 @@ CAMPOS_RETIRADOS = {
         "Tipo": "El tipo es de la orden, no de la ejecucion.",
         "Fecha": "Redundante con FechaHoraInicio.",
         "Estado_Intervencion": "Redundante con el estado de la orden.",
+        "Precision_GPS": ("USERLOCATIONACCURACY() no existe en AppSheet (ESPEC-004 2.1): la "
+                          "columna nunca se poblaba, RG-19 comparaba siempre numero > blanco y "
+                          "RG-03 no pedia MotivoExcepcion nunca. Retirada por ESPEC-004/ORDEN-004. "
+                          "Si MAN_Mantenimientos ya estaba dada de alta en el editor con esta "
+                          "columna sin usar (Rama A, ESPEC-004 2.10), retirarla del modelo no la "
+                          "borra de la hoja: queda huerfana, sin Initial value y sin uso, y eso no "
+                          "es un fallo (ACTA-004; PRUEBA-004 P-45). Si ya estaba cableada con "
+                          "Initial value puesto (Rama B), hace falta Delete and re-add de la tabla "
+                          "completa (ESPEC-004 2.10)."),
     },
     "OT_OrdenesTrabajo": {
         "FormularioID": "El formulario lo determina el tipo del activo, no la orden.",
@@ -761,10 +771,15 @@ RETIPADOS = {
 # que no puede pasar es que la hoja diga una cosa y las reglas asuman otra.
 PARAMETROS = {
     "UMBRAL_GPS": (40, "m",
-                   "Error del satelite por encima del cual el cierre se marca como excepcional "
-                   "(RG-19). La precision tipica de un movil a cielo abierto es de 4,9 m segun "
-                   "GPS.gov, asi que 40 deja unas ocho veces de margen para montana y estructuras. "
-                   "D-04 decia 50; se baja a 40 al comprobar que 45 m ya es nueve veces la norma."),
+                   "Referencia para el juicio del tecnico al decidir si marca CierreConExcepcion "
+                   "(ESPEC-004): ninguna regla la lee desde ESPEC-004/ORDEN-004, RG-19 se retiro. "
+                   "Antes la leia RG-19 para calcular la excepcion sola; USERLOCATIONACCURACY() no "
+                   "existe en AppSheet y esa columna nunca se poblaba. La precision tipica de un "
+                   "movil a cielo abierto es de 4,9 m segun GPS.gov, asi que 40 deja unas ocho "
+                   "veces de margen para montana y estructuras. D-04 decia 50; se bajo a 40 al "
+                   "comprobar que 45 m ya es nueve veces la norma. Mismo precedente que "
+                   "RADIO_GEOFENCING_KM: parametro sin lector automatico, riesgo de sincronizacion "
+                   "manual aceptado."),
     "RADIO_GEOFENCING_KM": (1.0, "km",
                             "Valor de respaldo, calibrable por el administrador. RG-01 NO lo lee: "
                             "el radio va por tipo, en TIP_TiposActivo.RadioGeofencingKm, poblado "
@@ -1060,7 +1075,10 @@ DECISIONES = [
      "La sede es un edificio; la asignacion es un tramo. RETIRADA el 2026-08-10", ""),
     ("Cierre sin GPS valido",
      "MAN_Mantenimientos.CierreConExcepcion", "Nota libre en Observaciones",
-     "Una excepcion tiene que ser contable y auditable, no un texto"),
+     "Una excepcion tiene que ser contable y auditable, no un texto. El valor lo pone el tecnico, "
+     "marcando la casilla, no una formula: USERLOCATIONACCURACY() no existe en AppSheet "
+     "(ESPEC-004). La exposicion que queda -el tecnico que cierra con GPS malo y no marca la "
+     "casilla- esta nombrada en ESPEC-004 2.14."),
     ("Que hizo falta un repuesto",
      "MAN_Mantenimientos.MotivoPendienteID", "MAN_Mantenimientos.Requiere_Repuesto",
      "Dos sitios que dicen lo mismo permiten decir cosas distintas"),
@@ -1123,10 +1141,6 @@ REGLAS = [
                       "la unidad funcional se guardaria en dos sitios -en el activo y en su "
                       "sede- y podrian decir cosas distintas sin que nada protestara. Con ella "
                       "hay un solo sitio donde mirar: si el activo tiene sede, manda la sede.")),
-    dict(id="RG-02", tabla="MAN_Mantenimientos", columna="Precision_GPS",
-         tipo="Initial value", cubre="RF-011",
-         expresion="USERLOCATIONACCURACY()",
-         descripcion="Registra el error del satelite en metros, para distinguir un cierre legitimo de uno dudoso."),
     dict(id="RG-03", tabla="MAN_Mantenimientos", columna="MotivoExcepcion",
          tipo="Required_If", cubre="D-04",
          expresion="[CierreConExcepcion] = TRUE",
@@ -1174,31 +1188,15 @@ REGLAS = [
     dict(id="RG-20", tabla="MAN_Mantenimientos", columna="(varias)",
          tipo="Editable_If", cubre="Prueba de presencia",
          expresion="FALSE",
-         descripcion=("Sobre Coordenadas_Cierre, Precision_GPS, UbicacionEscaneo y "
-                      "FechaHoraEscaneo. SIN ESTO EL GEOFENCING ES DECORATIVO: HERE() y "
-                      "USERLOCATIONACCURACY() son Initial value, no App formula, y un Initial "
+         descripcion=("Sobre Coordenadas_Cierre, UbicacionEscaneo y FechaHoraEscaneo (tres "
+                      "columnas desde ESPEC-004/ORDEN-004: Precision_GPS se retiro del modelo, ver "
+                      "CAMPOS_RETIRADOS). SIN ESTO EL GEOFENCING ES DECORATIVO: HERE() es Initial "
+                      "value, no App formula, y un Initial "
                       "value SI es editable. Coordenadas_Cierre es un LatLong, que en un "
                       "formulario AppSheet dibuja como un pin arrastrable sobre un mapa, y la "
                       "ubicacion del activo esta visible en la app: el tecnico arrastra el pin "
                       "encima del activo y RG-01 valida sin protestar. La regla se cumplia y la "
                       "presencia no quedaba probada.")),
-    dict(id="RG-19", tabla="MAN_Mantenimientos", columna="CierreConExcepcion",
-         tipo="App formula", cubre="D-04",
-         expresion=('OR(ISBLANK(LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor")), '
-                    '[Precision_GPS] > LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor"))'),
-         descripcion=("Marca el cierre como excepcional cuando el error del satelite supera el "
-                      "umbral. Sin ella la columna existe y nadie la puebla: un cierre con 45 m de "
-                      "error seria indistinguible de uno con 8 m, y ahi se cae la cadena de "
-                      "evidencia. EL UMBRAL ES UN PARAMETRO, no un numero en la expresion: se "
-                      "calibra con las pruebas de campo y lo ajusta el administrador en una celda, "
-                      "sin abrir el editor. FALLA DE FORMA RUIDOSA: si el umbral no se puede "
-                      "leer, el OR con ISBLANK marca el cierre COMO EXCEPCIONAL. Sin eso, borrar la "
-                      "fila del parametro haria que todos los cierres saliesen limpios y nadie se "
-                      "enterase, que es la forma exacta del defecto de RG-16. Provisional 40 m, "
-                      "unas ocho veces la precision "
-                      "tipica de un movil a cielo abierto (4,9 m segun GPS.gov) y deja margen para "
-                      "montana y estructuras. D-04 decia 50; se baja a 40 tras comprobar que 45 m "
-                      "ya es nueve veces la norma.")),
     dict(id="RG-16", tabla="ACT_Activos", columna="Activo",
          tipo="App formula", cubre="Baja de activos",
          expresion='[EstadoActivoID].[Nombre] <> "Retirado"',

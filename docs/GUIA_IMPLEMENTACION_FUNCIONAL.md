@@ -275,7 +275,7 @@ Las dos en verde. **Se cierra sin dar a `Done`.**
 **Duracion: 0.** Se conserva numerada para que quien tenga una copia antigua de esta guia sepa que
 este trabajo salio del plan, y no crea que se le olvido.
 
-Esta etapa mandaba ocultar, una por una, las 48 columnas que el modelo no declara, mas las tres que
+Esta etapa mandaba ocultar, una por una, las 49 columnas que el modelo no declara, mas las tres que
 AppSheet convertia en `Ref` sola por coincidencia de nombre. **Todas ellas venian de un libro
 heredado. La hoja vigente se genera del modelo y no trae ninguna**, asi que no hay nada que
 esconder ni ninguna referencia que deshacer.
@@ -289,7 +289,7 @@ python scripts/verificar_faseA.py "BD/Modelo_Datos_PLANTILLA.xlsx"
 Entre los conformes tiene que salir esta linea, que es la regla `F-19`:
 
 ```
-ok Hoja limpia: ninguna de las 48 columnas retiradas existe ya. No hay nada que ocultar
+ok Hoja limpia: ninguna de las 49 columnas retiradas existe ya. No hay nada que ocultar
 ```
 
 > **Si no sale, no oculte nada todavia: pare y reportelo.** Significa que la hoja contra la que
@@ -300,7 +300,7 @@ ok Hoja limpia: ninguna de las 48 columnas retiradas existe ya. No hay nada que 
 
 **Duracion:** 45 minutos. **Aqui esta el valor del sistema.**
 
-Son 23. Las expresiones completas, sin truncar, en
+Son 21. Las expresiones completas, sin truncar, en
 `docs/sdd/RECONSTRUCCION_EXPRESIONES.md` §2.
 
 ### 7.1 El geofencing, y por que sin `Editable_If` no vale nada
@@ -331,23 +331,29 @@ anterior.
 **El `Editable_If = FALSE` no es un detalle.** Sin el, el tecnico arrastra el pin del mapa y
 cierra desde su casa. La regla existiria, se veria, y no probaria nada.
 
-Lo mismo en `Precision_GPS`, `UbicacionEscaneo_LatLong` y `FechaHoraEscaneo`.
+Lo mismo en `UbicacionEscaneo_LatLong` y `FechaHoraEscaneo` (tres columnas, no cuatro: desde
+ESPEC-004/ORDEN-004 `Precision_GPS` se retiro del modelo).
 
 > **Y un supuesto que sigue sin verificar, el peor del sistema.** No hay pagina oficial que
 > confirme si AppSheet evalua un `Valid_If` sobre una columna con `Editable_If = FALSE`. **Si no lo
 > evalua, la regla parece funcionar por no ejercitarse nunca.** Se detecta en la etapa 9.
 
-### 7.2 El umbral de GPS, entero
+### 7.2 La excepcion por GPS deficiente, marcada por el tecnico
 
-En `MAN_Mantenimientos.CierreConExcepcion`, `App formula`:
+`RG-19` (el `App formula` que calculaba `CierreConExcepcion` con `Precision_GPS`) se retiro con
+ESPEC-004/ORDEN-004: `USERLOCATIONACCURACY()` no existe en AppSheet, la columna nunca se
+poblaba, y la comparacion daba siempre falso. Hoy `CierreConExcepcion` es una casilla `Yes/No`
+**libre**, sin `App formula`, que marca el propio tecnico. Dos cosas a cablear en su lugar:
 
 ```
-OR(ISBLANK(LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor")),
-   [Precision_GPS] > LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor"))
+Type:          Yes/No (confirmar en Data > Columns; si sale Text, retipar antes de seguir -
+               S-30, ESPEC-004 2.7)
+Description:   "¿La app no alcanzó buena precisión al capturar la posición de cierre? Marque
+               si es así." (no viaja por ningun generador, se escribe a mano - ESPEC-004 2.13)
 ```
 
-**El `ISBLANK` no sobra.** Sin el, si alguien borra la fila del parametro **todos los cierres
-salen limpios y nadie se entera**. Con el, falla hacia el lado seguro.
+`PAR_Parametros.UMBRAL_GPS` se conserva sin lector: es la cifra de referencia para el juicio
+del tecnico, no una comparacion automatica.
 
 ### 7.3 Retirar el borrado
 
@@ -513,7 +519,7 @@ Etapa 5   referencias puestas .................... [  ]   cuantas de 39:
 Etapa 6   RETIRADA. No se ejecuta: la hoja vigente no trae columnas que ocultar
           F-19 en verde .......................... [  ]   salida:
 
-Etapa 7   reglas puestas ......................... [  ]   cuantas de 23:
+Etapa 7   reglas puestas ......................... [  ]   cuantas de 21:
           Deletes quitado en OT y MAN ............ [  ]
           umbral con ISBLANK ..................... [  ]
 

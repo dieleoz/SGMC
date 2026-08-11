@@ -11,9 +11,9 @@
 | Plataforma | Google AppSheet sobre Google Sheets |
 | Fuente del modelo | `scripts/modelo_objetivo.py`. Este manual se genera de ahi |
 | Tablas | **28** |
-| Columnas | **211** |
+| Columnas | **210** |
 | Referencias | **39** |
-| Reglas | **23** |
+| Reglas | **21** |
 
 ## Los cinco documentos, y cual se usa cuando
 
@@ -25,7 +25,7 @@ una parte sin leer el resto. Si el que despliega es usted, le basta con este.
 |---|---|---|---|
 | `MANUAL_DESPLIEGUE.md` | Este. La ruta completa, de cero a aplicacion funcionando | Siempre. Es el camino | el **destino** |
 | [`PROMPT_CABLEADO.md`](PROMPT_CABLEADO.md) | Encargo autocontenido de las 39 referencias y de los tipos | Se copia integro a quien cablee | el **destino** |
-| [`PROMPT_EXPRESIONES.md`](PROMPT_EXPRESIONES.md) | Idem para las 23 reglas, con la **cadena de referencias** que atraviesa cada una | Se copia integro despues del cableado | el **destino** |
+| [`PROMPT_EXPRESIONES.md`](PROMPT_EXPRESIONES.md) | Idem para las 21 reglas, con la **cadena de referencias** que atraviesa cada una | Se copia integro despues del cableado | el **destino** |
 | [`TIPOS_ESPERADOS.md`](TIPOS_ESPERADOS.md) | La lista larga, tabla por tabla | Abierto al lado mientras se recorre *Data > Columns* | el **destino** |
 | [`CORRECCIONES_CABLEADO.md`](CORRECCIONES_CABLEADO.md) | **Generado contra la aplicacion viva** | Antes de empezar, y despues de cada tanda | el **estado de HOY** |
 
@@ -84,7 +84,7 @@ columna la produjo hay que preguntarselo al modelo, que es justo lo que se estab
 vive en el destino, asi que de una referencia cuya tabla destino esta vacia el auditor no puede
 decir nada. No la da por buena: la separa.
 
-La ultima instantanea guardada -`BD/instantaneas/tras-tipos.json`- trae **953 filas** repartidas en las
+La ultima instantanea guardada -`BD/instantaneas/despues-de-rg19.json`- trae **953 filas** repartidas en las
 28 tablas, y **8 de ellas estan vacias**:
 
 ```
@@ -307,7 +307,7 @@ Estas 8 tablas crean filas desde la aplicacion. Sin esto, no sabe que identifica
 | `OT_OrdenesTrabajo` | `OTID` | `UNIQUEID()` |
 | `PLA_PlanMantenimiento` | `PlanID` | `UNIQUEID()` |
 
-## Paso 4 — El tipo de las 211 columnas
+## Paso 4 — El tipo de las 210 columnas
 
 **Subir el Excel arregla la hoja, no la aplicacion.** Son dos sitios distintos. El Excel fija
 que columnas hay y que datos tienen; **el tipo de cada columna vive en el esquema de
@@ -341,7 +341,7 @@ python scripts/inferencia.py
 
 | Quien lo consigue | Cuantas | Que significa |
 |---|---|---|
-| **Nadie: a mano** | **107** | ningun contenido de la hoja las produce, o su propio nombre empuja a AppSheet al tipo equivocado |
+| **Nadie: a mano** | **106** | ningun contenido de la hoja las produce, o su propio nombre empuja a AppSheet al tipo equivocado |
 | El **nombre** | 17 | la cabecera lleva una palabra que AppSheet reconoce |
 | El **contenido** | 87 | AppSheet deberia acertar leyendo los valores, **cuando los hay** |
 
@@ -350,20 +350,18 @@ cabecera Y el contenido de las filas**. Las palabras que disparan un tipo son co
 -`latlong` y `geolocation` para una coordenada, `birthday` o `day` para una fecha, una cabecera
 acabada en `?` para un Yes/No-. Ver `BASE_CONOCIMIENTO_APPSHEET.md` seccion 13.
 
-### Las 107 que no consigue nadie si no las pone usted
+### Las 106 que no consigue nadie si no las pone usted
 
-Por tipo: **39** `Ref` · **38** `Yes/No` · **12** `Enum` · **9** `LongText` · **4** `ChangeTimestamp` · **2** `Image` · **2** `Number` · **1** `Signature`.
+Por tipo: **39** `Ref` · **38** `Yes/No` · **12** `Enum` · **9** `LongText` · **4** `ChangeTimestamp` · **2** `Image` · **1** `Number` · **1** `Signature`.
 
 **Estan ordenadas por cuantas reglas dependen de cada una**, que es lo que ordena el trabajo:
 una columna mal tipada **sin** regla encima molesta al usuario; **con** una regla encima
-**rompe la regla en silencio**, que es lo que paso con `RG-03`. Las 24 primeras llevan regla.
+**rompe la regla en silencio**, que es lo que paso con `RG-03`. Las 23 primeras llevan regla.
 
 | Tabla | Columna | `TYPE` | Reglas | Por que no se consigue sola |
 |---|---|---|---|---|
 | `ACT_Activos` | `EstadoActivoID` | **`Ref`** → `EST_Activo` | `RG-16`, `RG-17` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `ACT_Activos` | `UnidadFuncionalID` | **`Ref`** → `UNF_UnidadesFuncionales` | `RG-04`, `RG-34` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
-| `MAN_Mantenimientos` | `CierreConExcepcion` | **`Yes/No`** | `RG-03`, `RG-19` | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
-| `MAN_Mantenimientos` | `Precision_GPS` | **`Number`** | `RG-02`, `RG-19` | su nombre dispara la inferencia a LatLong y NO lo es (observado: Precision_GPS salio LatLong el 2026-08-10 estando su tabla VACIA: no pudo ser el contenido) |
 | `OT_OrdenesTrabajo` | `ActivoID` | **`Ref`** → `ACT_Activos` | `RG-01`, `RG-35` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `PLA_PlanMantenimiento` | `FrecuenciaID` | **`Ref`** → `FRE_Frecuencias` | `RG-11`, `RG-36` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `ACT_Activos` | `Activo` | **`Yes/No`** | `RG-16` | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
@@ -375,6 +373,7 @@ una columna mal tipada **sin** regla encima molesta al usuario; **con** una regl
 | `CHK_Checklists` | `FormularioID` | **`Ref`** → `FRM_Formularios` | `RG-09` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `EOT_EstadosOrden` | `EsFinal` | **`Yes/No`** | `RG-08` | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
 | `EST_Activo` | `GeneraAlerta` | **`Yes/No`** | `RG-06` | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
+| `MAN_Mantenimientos` | `CierreConExcepcion` | **`Yes/No`** | `RG-03` | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
 | `MAN_Mantenimientos` | `EstadoActivoID` | **`Ref`** → `EST_Activo` | `RG-06` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `MAN_Mantenimientos` | `MotivoExcepcion` | **`LongText`** | `RG-03` | indistinguible de Text por contenido |
 | `MAN_Mantenimientos` | `OTID` | **`Ref`** → `OT_OrdenesTrabajo` | `RG-01` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
@@ -660,7 +659,7 @@ bien puesta hacia el destino equivocado **no avisan**.
 > ```
 >
 > ```
-> ok Hoja limpia: ninguna de las 48 columnas retiradas existe ya. No hay nada que ocultar
+> ok Hoja limpia: ninguna de las 49 columnas retiradas existe ya. No hay nada que ocultar
 > ```
 >
 > **Lo mismo vale para las marcas `OCULTAR` y `TRAMPA` del anexo:** describen una hoja que ya no se
@@ -684,7 +683,7 @@ Si alguna vez aparecen —trabajando sobre una copia antigua del libro—, lo qu
 dejarlas en `Text` y desmarcar `Show?`. Como `Ref` dibujan rutas de navegacion que el modelo
 prohibe y aparecen en la aplicacion como si fueran buenas.
 
-## Paso 7 — Las 23 reglas
+## Paso 7 — Las 21 reglas
 
 Las expresiones enteras, con la **cadena de referencias que atraviesa cada una**, estan en
 [`PROMPT_EXPRESIONES.md`](PROMPT_EXPRESIONES.md) —que es lo que se le pasa a quien las ponga— y
@@ -725,7 +724,7 @@ retirada.
 **Y compruebe en que tabla esta antes de abrir la columna**, por lo que dice el paso 5: el
 mismo nombre es clave en una tabla y referencia en otra.
 
-### Las 23, y las 12 que van al final
+### Las 21, y las 10 que van al final
 
 | # | Regla | Tabla | Columna | Propiedad | Escribe |
 |---|---|---|---|---|---|
@@ -740,20 +739,18 @@ mismo nombre es clave en una tabla y referencia en otra.
 | 9 | RG-18 | `ACT_Activos` | `(tabla)` | Doctrina de reportes | no |
 | 10 | RG-20 | `MAN_Mantenimientos` | `(varias)` | Editable_If | no |
 | 11 | RG-34 | `ACT_Activos` | `UnidadFuncionalID` | Valid_If | no |
-| 12 | RG-02 | `MAN_Mantenimientos` | `Precision_GPS` | Initial value | **SI** |
-| 13 | RG-06 | `MAN_Mantenimientos` | `(tabla)` | Bot | **SI** |
-| 14 | RG-07 | `OT_OrdenesTrabajo` | `(tabla)` | Bot | **SI** |
-| 15 | RG-08 | `OT_OrdenesTrabajo` | `EstadoOrdenID` | Bot programado | **SI** |
-| 16 | RG-09 | `CHK_Checklists` | `VersionFormulario` | Initial value | **SI** |
-| 17 | RG-10 | `MAN_Mantenimientos` | `(tabla)` | Bot | **SI** |
-| 18 | RG-11 | `PLA_PlanMantenimiento` | `ProximaFecha` | App formula | **SI** |
-| 19 | RG-12 | `PLA_PlanMantenimiento` | `(tabla)` | Bot programado | **SI** |
-| 20 | RG-16 | `ACT_Activos` | `Activo` | App formula | **SI** |
-| 21 | RG-19 | `MAN_Mantenimientos` | `CierreConExcepcion` | App formula | **SI** |
-| 22 | RG-35 | `OT_OrdenesTrabajo` | `(tabla)` | App formula | **SI** |
-| 23 | RG-36 | `PLA_PlanMantenimiento` | `(tabla)` | App formula | **SI** |
+| 12 | RG-06 | `MAN_Mantenimientos` | `(tabla)` | Bot | **SI** |
+| 13 | RG-07 | `OT_OrdenesTrabajo` | `(tabla)` | Bot | **SI** |
+| 14 | RG-08 | `OT_OrdenesTrabajo` | `EstadoOrdenID` | Bot programado | **SI** |
+| 15 | RG-09 | `CHK_Checklists` | `VersionFormulario` | Initial value | **SI** |
+| 16 | RG-10 | `MAN_Mantenimientos` | `(tabla)` | Bot | **SI** |
+| 17 | RG-11 | `PLA_PlanMantenimiento` | `ProximaFecha` | App formula | **SI** |
+| 18 | RG-12 | `PLA_PlanMantenimiento` | `(tabla)` | Bot programado | **SI** |
+| 19 | RG-16 | `ACT_Activos` | `Activo` | App formula | **SI** |
+| 20 | RG-35 | `OT_OrdenesTrabajo` | `(tabla)` | App formula | **SI** |
+| 21 | RG-36 | `PLA_PlanMantenimiento` | `(tabla)` | App formula | **SI** |
 
-### Las 12 que escriben en la hoja van al final, y antes se toma una instantanea
+### Las 10 que escriben en la hoja van al final, y antes se toma una instantanea
 
 Las de `App formula`, `Initial value` y las de tipo bot **escriben en la hoja**. A diferencia de
 un tipo de columna, **lo que escriben no se revierte cambiando un desplegable**: hay que saber
@@ -761,7 +758,7 @@ que habia antes. Por eso van las ultimas, cuando ya se puede comprobar que escri
 
 ```bash
 python scripts/instantanea.py guardar antes-de-las-que-escriben
-#   ... se ponen las 12 ...
+#   ... se ponen las 10 ...
 python scripts/instantanea.py guardar despues
 python scripts/instantanea.py comparar antes-de-las-que-escriben despues
 ```
@@ -798,11 +795,11 @@ python -c "import openpyxl;s=openpyxl.load_workbook('BD/Modelo_Datos_PLANTILLA.x
 Sobre la hoja vigente devuelve **27 tipos, 27 con radio**. Si devuelve alguno sin radio, pare:
 ese tipo de activo no se podra cerrar en campo.
 
-**No editables** — en `MAN_Mantenimientos`, `Editable_If = FALSE` en las cuatro columnas de
-captura:
+**No editables** — en `MAN_Mantenimientos`, `Editable_If = FALSE` en las tres columnas de
+captura (no cuatro: desde ESPEC-004/ORDEN-004 `Precision_GPS` se retiro del modelo):
 
 ```
-Coordenadas_Cierre_LatLong · Precision_GPS · UbicacionEscaneo_LatLong · FechaHoraEscaneo
+Coordenadas_Cierre_LatLong · UbicacionEscaneo_LatLong · FechaHoraEscaneo
 ```
 
 **Sin esto el geofencing es decorativo:** el tecnico arrastra el pin del mapa y cierra desde
@@ -816,19 +813,24 @@ donde quiera. La regla parece funcionar y no prueba nada.
 
 **Excepcion por GPS deficiente** — en `MAN_Mantenimientos.CierreConExcepcion`:
 
+`RG-19`, el `App formula` que calculaba esta columna con `Precision_GPS`, se retiro con
+ESPEC-004/ORDEN-004 (`USERLOCATIONACCURACY()` no existe en AppSheet, la columna nunca se
+poblaba). Hoy `CierreConExcepcion` es una casilla `Yes/No` **libre**, sin `App formula`, que
+marca el propio tecnico:
+
 ```
-App formula:
-OR(ISBLANK(LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor")),
-   [Precision_GPS] > LOOKUP("UMBRAL_GPS", "PAR_Parametros", "ParametroID", "Valor"))
+Type:          Yes/No
+App formula:   (vacio)
+Description:   "¿La app no alcanzó buena precisión al capturar la posición de cierre? Marque
+               si es así." (a mano; ningun generador emite Description — ESPEC-004 2.13)
 ```
 
-**El `ISBLANK` no sobra.** Sin el, borrar la fila del parametro hace que **todos los cierres
-salgan limpios y nadie se entere**. Con el, si el umbral no se puede leer el cierre se marca
-como excepcional: falla hacia el lado seguro.
+**Confirme el `Type` antes de dar por buena esta tabla.** Si `CierreConExcepcion` quedo `Text`
+(el escenario que documenta `S-30`), `RG-03` —que compara contra el booleano `TRUE`— deja de
+pedir el motivo aunque la casilla se marque, sin ningun mensaje de error (`ESPEC-004` §2.7).
 
-**Y esta columna es la del paso 4.** Si `CierreConExcepcion` quedo `Text`, esta `App formula` le
-escribe texto y `RG-03` —que compara contra el booleano `TRUE`— deja de pedir el motivo. Dos
-reglas puestas, ninguna de las dos haciendo nada, y ni un mensaje de error.
+`PAR_Parametros.UMBRAL_GPS` se conserva sin lector automatico: es la referencia que el tecnico
+consulta para decidir si marca la casilla, no una comparacion que corra sola.
 
 **Filtros de seguridad** — *Data → Tables → [tabla] → Security Filter*:
 
@@ -964,7 +966,7 @@ ACT_Activos.TipoActivoID    estaba: Ref -> SED_Sedes     lo dejo: Ref -> TIP_Tip
 SED_Sedes.TramoINVIAS       estaba: Number               lo dejo: Text
 ```
 
-**Y para las 12 reglas que escriben en la hoja, la anotacion no sirve: hace falta la
+**Y para las 10 reglas que escriben en la hoja, la anotacion no sirve: hace falta la
 instantanea.** Lo que escriben no vive en el esquema, vive en el dato, y hay que haberlo
 fotografiado **antes**:
 
@@ -1017,7 +1019,7 @@ contra la que se valida. Si una columna no aparece aqui, no deberia estar visibl
 > ```
 >
 > ```
-> ok Hoja limpia: ninguna de las 48 columnas retiradas existe ya. No hay nada que ocultar
+> ok Hoja limpia: ninguna de las 49 columnas retiradas existe ya. No hay nada que ocultar
 > ```
 >
 > La plantilla se rehace entera con `python scripts/generar_plantilla.py` y sale con las columnas
@@ -1317,7 +1319,6 @@ Ejecucion real en campo. Cuelga de la orden y es padre de la evidencia.
 | `FechaHoraEscaneo` | `DateTime` |  |
 | `EstadoActivoID` | `Ref` | `Ref` -> `EST_Activo` · IsPartOf desmarcado |
 | `Coordenadas_Cierre_LatLong` | `LatLong` | `Initial value` = `HERE()` |
-| `Precision_GPS` | `Number` | `Initial value` = `USERLOCATIONACCURACY()` |
 | `CierreConExcepcion` | `Yes/No` |  |
 | `MotivoExcepcion` | `LongText` |  |
 | `RequiereSegundaVisita` | `Yes/No` | `Initial value` = `FALSE` |
@@ -1344,6 +1345,7 @@ Ejecucion real en campo. Cuelga de la orden y es padre de la evidencia.
 | `Imagen_Final` | **OCULTAR** | Sustituido por FOT_Fotografias con Tipo=Despues. |
 | `Imagen_Inicio` | **OCULTAR** | Sustituido por FOT_Fotografias con Tipo=Antes. |
 | `Localizacion` | **OCULTAR** | Ambiguo y redundante con Coordenadas_Cierre. |
+| `Precision_GPS` | **OCULTAR** | USERLOCATIONACCURACY() no existe en AppSheet (ESPEC-004 2.1): la columna nunca se poblaba, RG-19 comparaba siempre numero > blanco y RG-03 no pedia MotivoExcepcion nunca. Retirada por ESPEC-004/ORDEN-004. Si MAN_Mantenimientos ya estaba dada de alta en el editor con esta columna sin usar (Rama A, ESPEC-004 2.10), retirarla del modelo no la borra de la hoja: queda huerfana, sin Initial value y sin uso, y eso no es un fallo (ACTA-004; PRUEBA-004 P-45). Si ya estaba cableada con Initial value puesto (Rama B), hace falta Delete and re-add de la tabla completa (ESPEC-004 2.10). |
 | `Repuestos_Utilizados` | **OCULTAR** | Gestion de repuestos esta fuera de alcance. |
 | `Requiere_Repuesto` | **OCULTAR** | Se cubre con MotivoPendienteID = Falta de repuesto. |
 | `Tipo` | **OCULTAR** | El tipo es de la orden, no de la ejecucion. |

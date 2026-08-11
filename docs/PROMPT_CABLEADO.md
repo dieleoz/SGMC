@@ -237,7 +237,7 @@ así que el parecido se rompe. Hay que ponerlas las 39.
 > llevarlo por simetría con las otras, y no. Con `IsPartOf`, borrar una orden se llevaría el
 > mantenimiento entero y con él toda su evidencia.
 
-## Paso 4 — Los tipos. **Las 211, no una lista de excepciones**
+## Paso 4 — Los tipos. **Las 210, no una lista de excepciones**
 
 **Este paso se llamaba «los tipos que no se infieren» y enumeraba 61 columnas.** Era una lista
 blanca de excepciones sobre un default que se presumía bueno: las otras 150 se daban por
@@ -249,7 +249,7 @@ de excepción no se pide nunca. La regla existe y es decorativa.
 Y el «qué reportar» cerraba el bucle en falso —«cualquier tipo distinto del que dice este
 documento»—: **nadie puede reportar una diferencia contra un valor que nunca se le dio.**
 
-### Las 107 que NADIE pone si no las pones tú
+### Las 106 que NADIE pone si no las pones tú
 
 Ningún contenido de la hoja las produce, o su propio nombre empuja a AppSheet al tipo
 equivocado. **Están ordenadas por las reglas que dependen de cada una**, que es lo que ordena el
@@ -260,8 +260,6 @@ trabajo: una columna mal tipada sin regla encima molesta al usuario; con una reg
 |---|---|---|---|---|
 | `ACT_Activos` | `EstadoActivoID` | **`Ref`** → `EST_Activo` | `RG-16`, `RG-17` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `ACT_Activos` | `UnidadFuncionalID` | **`Ref`** → `UNF_UnidadesFuncionales` | `RG-04`, `RG-34` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
-| `MAN_Mantenimientos` | `CierreConExcepcion` | **`Yes/No`** | `RG-03`, `RG-19` | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
-| `MAN_Mantenimientos` | `Precision_GPS` | **`Number`** | `RG-02`, `RG-19` | su nombre dispara la inferencia a LatLong y NO lo es (observado: Precision_GPS salio LatLong el 2026-08-10 estando su tabla VACIA: no pudo ser el contenido) |
 | `OT_OrdenesTrabajo` | `ActivoID` | **`Ref`** → `ACT_Activos` | `RG-01`, `RG-35` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `PLA_PlanMantenimiento` | `FrecuenciaID` | **`Ref`** → `FRE_Frecuencias` | `RG-11`, `RG-36` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `ACT_Activos` | `Activo` | **`Yes/No`** | `RG-16` | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
@@ -273,6 +271,7 @@ trabajo: una columna mal tipada sin regla encima molesta al usuario; con una reg
 | `CHK_Checklists` | `FormularioID` | **`Ref`** → `FRM_Formularios` | `RG-09` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `EOT_EstadosOrden` | `EsFinal` | **`Yes/No`** | `RG-08` | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
 | `EST_Activo` | `GeneraAlerta` | **`Yes/No`** | `RG-06` | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
+| `MAN_Mantenimientos` | `CierreConExcepcion` | **`Yes/No`** | `RG-03` | no hay gatillo de nombre: depende de que AppSheet lea TRUE/FALSE en el contenido. VERIFICADO en 28 columnas con datos -la API devuelve Y/N, que es lo que devuelve una Yes/No y no una Text- y ABIERTO en las de tablas vacias, que es donde ya fallo: CierreConExcepcion salio Text y dejo RG-03 sin efecto (S-30) |
 | `MAN_Mantenimientos` | `EstadoActivoID` | **`Ref`** → `EST_Activo` | `RG-06` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 | `MAN_Mantenimientos` | `MotivoExcepcion` | **`LongText`** | `RG-03` | indistinguible de Text por contenido |
 | `MAN_Mantenimientos` | `OTID` | **`Ref`** → `OT_OrdenesTrabajo` | `RG-01` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
@@ -447,21 +446,21 @@ En *Data > Columns*, marca la casilla **`Label`** de estas columnas:
 | `MAN_Mantenimientos` | 3 | *ninguna: la clave la identifica, y está decidido así* |
 | `ACT_Activos` | 3 | **`Nombre`** |
 | `UNF_UnidadesFuncionales` | 3 | **`Nombre`** |
-| `TIP_TiposActivo` | 2 | **`Nombre`** |
 | `FRM_Preguntas` | 2 | **`Pregunta`** |
 | `OT_OrdenesTrabajo` | 2 | **`Etiqueta`** |
 | `EST_Activo` | 2 | **`Nombre`** |
 | `FRE_Frecuencias` | 2 | **`Nombre`** |
-| `TPR_TiposRespuesta` | 1 | **`Nombre`** |
-| `CHK_Checklists` | 1 | *ninguna: la clave la identifica, y está decidido así* |
+| `TIP_TiposActivo` | 2 | **`Nombre`** |
+| `FRM_Secciones` | 1 | **`Nombre`** |
 | `ROL_Roles` | 1 | **`Nombre`** |
 | `SED_Sedes` | 1 | **`Nombre`** |
+| `CHK_Checklists` | 1 | *ninguna: la clave la identifica, y está decidido así* |
+| `TPR_TiposRespuesta` | 1 | **`Nombre`** |
 | `MOT_MotivosPendiente` | 1 | **`Nombre`** |
-| `FAL_ModosFalla` | 1 | **`Nombre`** |
-| `FRM_Secciones` | 1 | **`Nombre`** |
-| `SEN_Sentidos` | 1 | **`Nombre`** |
 | `CAL_Calzadas` | 1 | **`Nombre`** |
+| `SEN_Sentidos` | 1 | **`Nombre`** |
 | `EOT_EstadosOrden` | 1 | **`Nombre`** |
+| `FAL_ModosFalla` | 1 | **`Nombre`** |
 
 > Las 2 sin etiqueta **no son un hueco**: se identifican por su clave y su fecha. Está
 > decidido, no olvidado.
@@ -528,14 +527,12 @@ una fotografía. Esas nacen vacías y nadie lo nota.
 | `UNF_UnidadesFuncionales` | `Activo` | `Initial value` | `TRUE` |
 | `USR_Usuarios` | `Activo` | `Initial value` | `TRUE` |
 
-## Paso 7 — Las 23 reglas
+## Paso 7 — Las 21 reglas
 
 Están **enteras y sin cortar** en [`sdd/RECONSTRUCCION_EXPRESIONES.md`](sdd/RECONSTRUCCION_EXPRESIONES.md),
 con su tabla, su columna y su tipo —`Valid_If`, `Initial value`, `App formula`, bot—. Cópialas de
 ahí. **No las escribas de memoria ni las adaptes.**
 
-La que más se olvida es **RG-19**, el umbral de GPS con su `OR(ISBLANK(...))`: sin ese `ISBLANK`,
-si alguien borra la fila del parámetro **todos los cierres salen limpios y nadie se entera**.
 
 ## Paso 8 — Comprobar, y aquí está lo que solo se puede ver ahora
 

@@ -215,8 +215,13 @@ for t in MODELO:
 #   RG-03  bien escrita sobre una columna que AppSheet tipo Text
 #   RG-06  [EstadoActivoID].[GeneraAlerta] = TRUE, y GeneraAlerta esta VACIA
 #          en las 4 filas del catalogo: el bot no se dispara nunca
-#   RG-19  compara Precision_GPS, que nadie puebla porque la funcion que la
-#          poblaria no existe en AppSheet
+#   RG-13  depende de UbicacionEscaneo_LatLong, que solo se llena con
+#          OrigenApertura = QR, y el QR esta fuera de alcance: la columna
+#          queda vacia y la regla queda configurada y sin efecto
+#
+# (RG-19 era el tercer ejemplo historico -comparaba Precision_GPS, que nadie
+# poblaba porque la funcion que la poblaria no existe en AppSheet- y se retiro
+# con ESPEC-004/ORDEN-004. El defecto que ilustraba sigue vivo en RG-13.)
 #
 # Las tres estan CONFIGURADAS. Ninguna da error. Ninguna hace nada.
 #

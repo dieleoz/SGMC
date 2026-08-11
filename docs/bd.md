@@ -26,9 +26,9 @@ forma de que mienta es que mienta el archivo**.
 | Concepto | Cuántos | Dónde se resuelve |
 |---|---|---|
 | Columnas que siguen siendo `Text` y deben ser `Ref` | **14** | Fase B, `ESPEC-002` |
-| Columnas marcadas como retiradas que siguen en la hoja | **48** | Pasada posterior, con datos ya migrados |
+| Columnas marcadas como retiradas que siguen en la hoja | **49** | Pasada posterior, con datos ya migrados |
 | Columnas presentes sin decidir todavía | **0** | Decisión de operación |
-| **Total a ocultar al dar de alta las tablas** | **48** | `MANUAL_DESPLIEGUE.md`, anexo |
+| **Total a ocultar al dar de alta las tablas** | **49** | `MANUAL_DESPLIEGUE.md`, anexo |
 | Tablas marcadas como retiradas que siguen en la hoja | 0 | Idem |
 | Tablas del modelo objetivo que ya existen | 28 de 28 | — |
 
@@ -76,7 +76,7 @@ número escondido dentro de una expresión no se puede calibrar.
 
 | Parámetro | Valor en la hoja | Unidad | Declarado en el modelo | Quién lo lee |
 |---|---|---|---|---|
-| `UMBRAL_GPS` | 40 | m | 40 | RG-19 |
+| `UMBRAL_GPS` | 40 | m | 40 | — |
 | `RADIO_GEOFENCING_KM` | 1 | km | 1.0 | RG-01 |
 | `DISTANCIA_ESCANEO_CIERRE_KM` | 0.5 | km | 0.5 | RG-13 |
 
@@ -355,7 +355,7 @@ Ejecucion real en campo. Cuelga de la orden y es padre de la evidencia.
 | 8 | `FechaHoraEscaneo` | DateTime |  |
 | 9 | `EstadoActivoID` | Ref → `EST_Activo` |  |
 | 10 | `Coordenadas_Cierre_LatLong` | LatLong |  |
-| 11 | `Precision_GPS` | Number |  |
+| 11 | `Precision_GPS` | — | **Retirada.** USERLOCATIONACCURACY() no existe en AppSheet (ESPEC-004 2.1): la columna nunca se poblaba, RG-19 comparaba siempre numero > blanco y RG-03 no pedia MotivoExcepcion nunca. Retirada por ESPEC-004/ORDEN-004. Si MAN_Mantenimientos ya estaba dada de alta en el editor con esta columna sin usar (Rama A, ESPEC-004 2.10), retirarla del modelo no la borra de la hoja: queda huerfana, sin Initial value y sin uso, y eso no es un fallo (ACTA-004; PRUEBA-004 P-45). Si ya estaba cableada con Initial value puesto (Rama B), hace falta Delete and re-add de la tabla completa (ESPEC-004 2.10). |
 | 12 | `CierreConExcepcion` | Yes/No |  |
 | 13 | `MotivoExcepcion` | LongText |  |
 | 14 | `RequiereSegundaVisita` | Yes/No | Antes `Requiere_Segunda_Visita`. Convencion de nombres. |

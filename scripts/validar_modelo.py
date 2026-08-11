@@ -320,7 +320,9 @@ for tabla, campos in CAMPOS_RETIRADOS.items():
 # ------------------------------------------------ V-13 cobertura de los flujos
 COBERTURA = {
     "Geofencing de cierre": ("MAN_Mantenimientos", "Coordenadas_Cierre_LatLong"),
-    "Precision del GPS": ("MAN_Mantenimientos", "Precision_GPS"),
+    # "Precision del GPS" se retiro con ESPEC-004/ORDEN-004: USERLOCATIONACCURACY() no existe
+    # en AppSheet, Precision_GPS se retiro del modelo (CAMPOS_RETIRADOS). La excepcion por GPS
+    # deficiente ahora es una marca del tecnico, cubierta por el flujo de abajo.
     "Excepcion por GPS deficiente": ("MAN_Mantenimientos", "CierreConExcepcion"),
     "Segunda visita": ("MAN_Mantenimientos", "RequiereSegundaVisita"),
     "Devolucion del supervisor": ("MAN_Mantenimientos", "ObservacionRechazo"),
