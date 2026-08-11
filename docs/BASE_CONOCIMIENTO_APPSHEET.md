@@ -788,3 +788,55 @@ se **lee** al abrirlo.
 **Fuentes:**
 - <https://support.google.com/appsheet/answer/10107724?hl=en>
 - <https://support.google.com/appsheet/answer/10106789?hl=en>
+
+## 22. Qué se pierde offline, y por qué a este proyecto casi no le afecta
+
+**Verificado el 2026-08-11 contra la fuente oficial**, antes de activar el modo, que es el orden
+correcto: saber qué deja de funcionar **antes** y no descubrirlo con un técnico en la vía.
+
+### Lo que NO funciona offline
+
+| Tipo de columna | Lo que dice la fuente |
+|---|---|
+| `Video` | *«unavailable offline, are read-only, and do not (currently) support data capture»* |
+| `File` | *«not stored locally at the moment, unlike images and other data»* |
+| audio | no se guarda localmente |
+| **el mapa** | *«AppSheet is unable to cache Google map data for offline use because it would violate Google's terms of service»* |
+
+### Por qué a este modelo casi no le afecta
+
+```
+python -c "import sys;sys.path.insert(0,'scripts');from modelo_objetivo import MODELO;[print(x, [(t,c['nombre']) for t in MODELO for c in MODELO[t]['columnas'] if c['tipo']==x]) for x in ('Image','Signature','Drawing','File','Video')]"
+```
+
+**Cero columnas `Video` y cero `File`.** Las tres de riesgo que hay son `Image` y `Signature`:
+
+| | |
+|---|---|
+| `FOT_Fotografias.Archivo` | `Image` |
+| `NOV_Novedades.Fotografia` | `Image` |
+| `FIR_Firmas.Imagen` | `Signature` |
+
+Y para `Image` la fuente es explícita en lo que importa: **se pueden capturar offline y sincronizan
+después**. La cadena de evidencia \u2014foto en sitio, sin cobertura, subida al volver\u2014 funciona.
+
+### Dos matices que sí hay que tener presentes
+
+**Capturar no es ver.** *«images and documents are not copied to the device by default»*: una foto
+tomada ayer por otro técnico **no se ve** sin cobertura, salvo que se active el `offline content
+caching` aparte. Capturar una nueva sí funciona siempre.
+
+**El mapa no se dibuja.** La coordenada **se registra** \u2014el GPS no depende de la red (§21)\u2014 pero el
+técnico **no verá el mapa** mientras esté sin cobertura. En una app cuyo cierre depende de un
+geofencing sobre un mapa, conviene que operación lo sepa antes de que pase.
+
+### Lo que queda sin verificar
+
+**Si una columna `Signature` se puede capturar offline.** La fuente lista `Video`, `File` y audio como
+limitados, y trata `Image` explícitamente, pero **no menciona `Signature`**. Es razonable suponer que
+sí \u2014la firma se dibuja en el dispositivo, no se descarga\u2014 pero es un supuesto, no una cita. Y afecta
+a `FIR_Firmas`, que es la mitad de la cadena de evidencia.
+
+Se mide igual que todo lo demás: sin cobertura, abrir el formulario de firma y ver si deja firmar.
+
+**Fuente:** <https://support.google.com/appsheet/answer/10107724?hl=en>

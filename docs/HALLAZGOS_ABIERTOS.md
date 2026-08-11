@@ -233,6 +233,19 @@ filas, no esquema. Hay que mirarlas a ojo, y el orden lo da la gravedad, no el a
 De las 3 del bloqueo duro, las tres se miraron el 2026-08-11 y **las tres estaban mal**. De las otras
 46, ninguna.
 
+## Si una columna `Signature` se puede capturar sin cobertura
+
+La documentación de offline trata `Image` explícitamente —se captura offline y sincroniza después— y
+lista `Video`, `File` y audio como limitados. **No menciona `Signature`.**
+
+Afecta a `FIR_Firmas.Imagen`, que es **la mitad de la cadena de evidencia**: un mantenimiento se cierra
+con fotos y con la firma de quien lo recibe. Si la firma no se puede capturar sin cobertura, el cierre
+se bloquea en los tramos sin red aunque las fotos sí funcionen.
+
+Es razonable suponer que sí funciona —la firma se dibuja en el dispositivo, no se descarga— **pero es
+un supuesto, no una cita**. Se mide sin cobertura, abriendo el formulario de firma. Detalle en
+`docs/BASE_CONOCIMIENTO_APPSHEET.md` §22.
+
 ## Nadie ha comprobado si el modo offline está activado
 
 `Settings > Offline mode` es una **configuración que hay que activar**, tabla por tabla, y no viene

@@ -72,43 +72,64 @@ Ordenado por **cuándo se hace**. Ejecuta de arriba abajo.
   copiando literalmente lo que se ve, **aunque coincida con lo esperado** — «coincide» no es
   evidencia, el texto sí.
 
-## 2. Orden de ejecución
+## 2. Qué queda por hacer — actualizado el 2026-08-11, por la tarde
 
-| # | Fase | Pantalla | ¿Tiene comando de verificación? |
+> **Este documento se escribió por la mañana con trece pasos, y por la tarde nueve estaban hechos.**
+> Entregarlo sin actualizar mandaba a rehacer trabajo — pasó: una sesión propuso borrar una `App
+> formula` que ya estaba borrada. Lo que sigue es el estado de esta tarde, con las actas que lo
+> prueban.
+
+### Ya está hecho — no lo repitas
+
+| | Dónde consta |
+|---|---|
+| Las 8 claves `UNIQUEID()` con `Key` marcada | `ACTA-005-pruebas` `P-09` |
+| Las 2 columnas virtuales `Etiqueta`, con `Show?` y `Label` | `ACTA-005-pruebas` |
+| Los tipos de las 8 tablas de movimiento, **cotejados uno por uno** | `ACTA-010` |
+| El `Label` movido de la clave a la columna legible, ~14 tablas | `ACTA-009` |
+| La `Description` de `CierreConExcepcion` | `ACTA-004` |
+| **La `App formula` de `RG-19` borrada** — la casilla ya es del técnico | `ACTA-009` |
+| `RG-37`: la virtual `EstaVencida`, con `Show?` y sin `Label` | `ACTA-009` |
+| `RG-38`: el slice `Vence en 7 dias` y su acción, mapeo de 6 columnas | `ACTA-009` |
+| `RG-39` y `RG-40`: `HERE()` + `Editable_If = FALSE` en las dos columnas de evidencia | `ACTA-011` |
+| **El bloqueo vivo de `Coordenadas_Cierre_LatLong`** — ya se puede cerrar un mantenimiento | `ACTA-011` |
+
+### Lo que queda, en orden
+
+| # | Qué | Pantalla | Espera a |
 |---|---|---|---|
-| 1 | Columnas virtuales `Etiqueta` (`RG-35`/`RG-36`) | `Data > Columns > TABLA` | No (`Show?`/`Label`); el valor, una vez hay filas, sí |
-| 2 | Cotejo de tipos, tabla por tabla | `Data > Columns > TABLA` | No |
-| 3 | Expresiones de cada regla (`Valid_If`, `Required_If`, `App formula`, `Initial value`, `Editable_If`) | `Data > Columns > TABLA` | No |
-| 4 | `Description` de `CierreConExcepcion` — **ya hecho** | `Data > Columns > MAN_Mantenimientos` | No |
-| 5 | `Key` en `OTID`/`PlanID` — **ya hecho** | Lista de columnas de `OT_OrdenesTrabajo` y `PLA_PlanMantenimiento` | No |
-| 6 | Columna virtual `EstaVencida` (`RG-37`) — condicional | `Data > Columns > OT_OrdenesTrabajo` | No (el valor sí se lee por API, medido) |
-| 7 | Bots: `RG-06`, `RG-10`, y **`RG-07` último** | `Automation > Bots` | No |
-| 8 | `Data > Actions` de `RG-10` | `Data > Actions` | No (la configuración); sí, indirecto, el resultado |
-| 9 | Vista + acción de `RG-38` — condicional | `Data > Slices`, `Data > Actions` | No (la configuración); sí, indirecto, el resultado |
-| 10 | `EOT_EstadosOrden.QuienCambia` (`Vencida`, `Programada`) — condicional | Hoja local y Sheets de producción | **Sí** |
-| 11 | Inventario de vistas/slices/acciones/filtros | `UX > Views`, `Data > Slices`, `Behavior > Actions` | No |
-| 12 | `Are updates allowed` por tabla | `Data > Tables > TABLA > Table settings` | No |
-| 13 | Security Filters `RG-04`/`RG-05` — **los últimos, siempre** | `Data > Tables > TABLA > Table settings > Security` | No directo (efecto indirecto observable) |
-| — | **Punto sin retorno**: primera fila real en cualquiera de las 8 tablas de movimiento | La aplicación misma | Ver Fase 14 |
+| 1 | **Activar el modo offline** por tabla | `Settings > Offline mode` | nada, se puede ya |
+| 2 | **Medir si `Editable_If = FALSE` quita el icono de captura manual** | la app real, no el editor | nada. **Dos minutos y decide si `ESPEC-008` costó precisión** |
+| 3 | El `Initial value` de las **49 columnas** que lo declaran | `Data > Columns > TABLA > Auto Compute` | nada. 3 de 3 miradas estaban mal |
+| 4 | Completar `RG-06` (destinatarios) y `RG-10` (mapeo) | `Automation > Bots` | **operación**: quién es el CCO |
+| 5 | Crear `RG-07` | `Automation > Bots` | los anteriores |
+| 6 | `Are updates allowed` por tabla | `Data > Tables > TABLA` | — |
+| 7 | Inventario de vistas, slices y acciones | `UX > Views`, `Data > Slices` | — |
+| 8 | Los 2 `Security Filter` | `Data > Tables > TABLA > Security` | **todo lo anterior**. Ciegan la API |
+| — | **Punto sin retorno**: la primera fila real | la aplicación | **decisión del usuario** |
 
-Las fases 6, 9 y 10 son condicionales a que `docs/sdd/ESPEC-006-reemplazo-bots-programados.md`
-(`ORDEN-006`) ya se haya aplicado a `scripts/modelo_objetivo.py`. Se comprueba así, y hay que volver a
-correrlo antes de ejecutar esas fases, porque el modelo puede cambiar entre la escritura de este
-documento y su lectura:
+**El paso 2 es el que más valor tiene por minuto invertido.** Si `Editable_If = FALSE` quita también
+el icono de captura manual, entonces `RG-20`, `RG-39` y `RG-40` cambiaron **precisión por
+antifraude** sin que nadie lo supiera, y hay que reabrir `ESPEC-008`. Se mira abriendo dos
+formularios y comparando:
 
-```bash
-python -c "import sys;sys.path.insert(0,'scripts');from modelo_objetivo import REGLAS;ids=[r['id'] for r in REGLAS];print('RG-37' in ids, 'RG-38' in ids)"
+```
+FOT_Fotografias, foto nueva      ¿hay icono de captura, o solo pin fijo?
+ACT_Activos, editar un activo    ¿ahi si hay icono? ¿se arrastra el pin?
 ```
 
-Corrido tras aplicar `ORDEN-006` (2026-08-11): **`True True`** — `RG-37` y `RG-38` **ya están en el
-modelo**, así que las fases 6, 9 y 10 **sí aplican**. Y sobre los otros dos, el mismo comando devuelve
-**`RG-08 False, RG-12 False`**: están retirados. **No los crees como bot** — ya no existen ni en el
-modelo ni en el editor, y en la cuenta gratuita un bot programado no se ejecuta nunca.
+Sin guardar ninguno de los dos. Abrir y cancelar no crea filas.
 
-> Este párrafo decía `False False` cuando se escribió, unas horas antes de que `ORDEN-006`
-> aterrizara. **Corre el comando tú mismo antes de estas tres fases** en vez de fiarte de esta línea:
-> el modelo cambia más deprisa que el documento, y por eso la condición se escribió como comando y
-> no como afirmación.
+### Lo que NO cierra ninguna sesión de editor
+
+| | Espera a |
+|---|---|
+| Las **368 coordenadas reales** | operación en campo. **Es el bloqueo del piloto** |
+| Las **288 preguntas en borrador** de 333 | operación |
+| Las **6 sedes** sin `PK` ni coordenada | operación |
+| `Server caching`, `Delta sync`, `Quick sync` | **plan Core o superior** |
+| Una prueba de `RG-02` con GPS real | un técnico con un teléfono |
+
 
 ## 3. Detalle, fase por fase
 
