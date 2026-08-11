@@ -50,6 +50,33 @@ Updates  si        Adds  si        Deletes  NO
 checklist. Eso solo es seguro porque el mantenimiento nunca se borra. **La cascada existe desde
 el momento en que se marca la primera; la protección tiene que estar puesta ya.**
 
+## Paso 2 — Las claves de las 8 tablas que llegaron vacías
+
+**Sin un solo dato, AppSheet elige la clave a ciegas — y elige `_RowNumber`.** Contra una
+clave que no es la declarada, ninguna referencia resuelve de forma estable, y el error que
+acaba dando es este:
+
+```
+That Table or Slice uses RowNumber as a key which is not a stable key.
+```
+
+En *Data > Columns*, marca **`Key`** en la columna que dice la tabla y **desmarca `_RowNumber`**:
+
+| Tabla | `Key` | ¿AppSheet avisará? |
+|---|---|---|
+| `CHD_ChecklistDetalle` | **`DetalleID`** | **no. Nadie la referencia, así que falla en silencio** |
+| `CHK_Checklists` | **`ChecklistID`** | sí, 1 referencias la apuntan |
+| `FIR_Firmas` | **`FirmaID`** | **no. Nadie la referencia, así que falla en silencio** |
+| `FOT_Fotografias` | **`FotoID`** | **no. Nadie la referencia, así que falla en silencio** |
+| `MAN_Mantenimientos` | **`MantenimientoID`** | sí, 3 referencias la apuntan |
+| `NOV_Novedades` | **`NovedadID`** | **no. Nadie la referencia, así que falla en silencio** |
+| `OT_OrdenesTrabajo` | **`OTID`** | sí, 2 referencias la apuntan |
+| `PLA_PlanMantenimiento` | **`PlanID`** | **no. Nadie la referencia, así que falla en silencio** |
+
+> **Solo 3 de las 8 avisan.** AppSheet protesta cuando una tabla referenciada tiene clave
+> inestable; de las que nadie referencia no dice nada. Hazlas las 8 de una vez, o las cinco
+> restantes se descubrirán de una en una, cuando alguien intente usarlas.
+
 ## Paso 2 — Las 39 referencias
 
 **Cómo se lee de vuelta:**
@@ -133,7 +160,7 @@ así que el parecido se rompe. Hay que ponerlas las 39.
 > llevarlo por simetría con las otras, y no. Con `IsPartOf`, borrar una orden se llevaría el
 > mantenimiento entero y con él toda su evidencia.
 
-## Paso 3 — Los tipos. **Las 211, no una lista de excepciones**
+## Paso 3bis — Los tipos. **Las 211, no una lista de excepciones**
 
 **Este paso se llamaba «los tipos que no se infieren» y enumeraba 61 columnas.** Era una lista
 blanca de excepciones sobre un default que se presumía bueno: las otras 150 se daban por
@@ -323,25 +350,25 @@ En *Data > Columns*, marca la casilla **`Label`** de estas columnas:
 | Tabla | Referencias que la apuntan | `Label` |
 |---|---|---|
 | `USR_Usuarios` | 7 | **`Nombres`** |
-| `ACT_Activos` | 3 | **`Nombre`** |
 | `MAN_Mantenimientos` | 3 | *ninguna: la clave la identifica, y está decidido así* |
+| `ACT_Activos` | 3 | **`Nombre`** |
 | `UNF_UnidadesFuncionales` | 3 | **`Nombre`** |
 | `FRM_Formularios` | 3 | **`Nombre`** |
-| `TIP_TiposActivo` | 2 | **`Nombre`** |
 | `FRM_Preguntas` | 2 | **`Pregunta`** |
-| `FRE_Frecuencias` | 2 | **`Nombre`** |
-| `EST_Activo` | 2 | **`Nombre`** |
 | `OT_OrdenesTrabajo` | 2 | *ninguna: la clave la identifica, y está decidido así* |
-| `FAL_ModosFalla` | 1 | **`Nombre`** |
-| `ROL_Roles` | 1 | **`Nombre`** |
-| `SED_Sedes` | 1 | **`Nombre`** |
-| `EOT_EstadosOrden` | 1 | **`Nombre`** |
+| `EST_Activo` | 2 | **`Nombre`** |
+| `TIP_TiposActivo` | 2 | **`Nombre`** |
+| `FRE_Frecuencias` | 2 | **`Nombre`** |
 | `TPR_TiposRespuesta` | 1 | **`Nombre`** |
 | `MOT_MotivosPendiente` | 1 | **`Nombre`** |
-| `CHK_Checklists` | 1 | *ninguna: la clave la identifica, y está decidido así* |
-| `CAL_Calzadas` | 1 | **`Nombre`** |
 | `SEN_Sentidos` | 1 | **`Nombre`** |
+| `ROL_Roles` | 1 | **`Nombre`** |
+| `FAL_ModosFalla` | 1 | **`Nombre`** |
+| `CAL_Calzadas` | 1 | **`Nombre`** |
 | `FRM_Secciones` | 1 | **`Nombre`** |
+| `CHK_Checklists` | 1 | *ninguna: la clave la identifica, y está decidido así* |
+| `EOT_EstadosOrden` | 1 | **`Nombre`** |
+| `SED_Sedes` | 1 | **`Nombre`** |
 
 > Las tres sin etiqueta **no son un hueco**: una orden se identifica por su número y su fecha,
 > una ejecución por su orden y su hora. Está decidido, no olvidado.

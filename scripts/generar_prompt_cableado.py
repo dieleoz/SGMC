@@ -18,6 +18,21 @@ sys.path.insert(0, os.path.join(RAIZ, "scripts"))
 from modelo_objetivo import MODELO, REGLAS, CLAVE_GENERADA
 from sistema import APP_NOMBRE, APP_ID, APP_URL, HOJA_NOMBRE
 from inferencia import clasificar, etiquetas_pendientes
+import json as _json
+
+# Las tablas que llegaron VACIAS: AppSheet eligio su clave sin un solo dato.
+_foto = os.path.join(RAIZ, "BD", "instantaneas", "antes-de-fase-c.json")
+_vacias = []
+if os.path.exists(_foto):
+    _d = _json.load(open(_foto, encoding="utf-8"))
+    _entra = {}
+    for _t in MODELO:
+        for _c in MODELO[_t]["columnas"]:
+            if _c.get("ref"):
+                _entra[_c["ref"]] = _entra.get(_c["ref"], 0) + 1
+    _vacias = [(t, next(c["nombre"] for c in MODELO[t]["columnas"] if c.get("pk")),
+                _entra.get(t, 0))
+               for t in sorted(MODELO) if not _d.get(t)]
 from lectura_de_vuelta import bloque
 from alcance_reglas import por_columna
 
@@ -99,6 +114,33 @@ w("checklist. Eso solo es seguro porque el mantenimiento nunca se borra. **La ca
 w("el momento en que se marca la primera; la protección tiene que estar puesta ya.**")
 w("")
 
+if _vacias:
+    w("## Paso 2 — Las claves de las %d tablas que llegaron vacías" % len(_vacias))
+    w("")
+    w("**Sin un solo dato, AppSheet elige la clave a ciegas — y elige `_RowNumber`.** Contra una")
+    w("clave que no es la declarada, ninguna referencia resuelve de forma estable, y el error que")
+    w("acaba dando es este:")
+    w("")
+    w("```")
+    w("That Table or Slice uses RowNumber as a key which is not a stable key.")
+    w("```")
+    w("")
+    w("En *Data > Columns*, marca **`Key`** en la columna que dice la tabla y **desmarca `_RowNumber`**:")
+    w("")
+    w("| Tabla | `Key` | ¿AppSheet avisará? |")
+    w("|---|---|---|")
+    for _t, _pk, _n in _vacias:
+        w("| `%s` | **`%s`** | %s |" % (_t, _pk,
+          "sí, %d referencias la apuntan" % _n if _n
+          else "**no. Nadie la referencia, así que falla en silencio**"))
+    w("")
+    w("> **Solo %d de las %d avisan.** AppSheet protesta cuando una tabla referenciada tiene clave"
+      % (sum(1 for _, _, n in _vacias if n), len(_vacias)))
+    w("> inestable; de las que nadie referencia no dice nada. Hazlas las %d de una vez, o las cinco"
+      % len(_vacias))
+    w("> restantes se descubrirán de una en una, cuando alguien intente usarlas.")
+    w("")
+
 w("## Paso 2 — Las %d referencias" % len(refs))
 w("")
 w(bloque("referencias"))
@@ -140,7 +182,7 @@ w("> llevarlo por simetría con las otras, y no. Con `IsPartOf`, borrar una orde
 w("> mantenimiento entero y con él toda su evidencia.")
 w("")
 
-w("## Paso 3 — Los tipos. **Las %d, no una lista de excepciones**" % sum(len(MODELO[t]["columnas"]) for t in MODELO))
+w("## Paso 3bis — Los tipos. **Las %d, no una lista de excepciones**" % sum(len(MODELO[t]["columnas"]) for t in MODELO))
 w("")
 w("**Este paso se llamaba «los tipos que no se infieren» y enumeraba 61 columnas.** Era una lista")
 w("blanca de excepciones sobre un default que se presumía bueno: las otras 150 se daban por")
