@@ -458,11 +458,11 @@ Lo que sí está verificado como resuelto: `Coordenadas_Cierre_LatLong` y `Preci
 de esa tabla se deriva, no se cita de memoria** —el modelo declara hoy 23— porque esa cifra cambió
 tres veces y cada versión sobrevivió en algún documento.
 
-## 7.4 Los seis verificadores: cuándo se corre cada uno
+## 7.4 Los siete verificadores: cuándo se corre cada uno
 
 **Qué mide cada uno está en `docs/SISTEMA.md` §5**, junto con las cuatro cosas
 que ningún comando puede mirar. Aquí va lo que ese documento no dice: **cuándo te toca correrlo**.
-Ninguno sustituye a otro, y los seis se corren antes de dar nada por cerrado.
+Ninguno sustituye a otro, y los siete se corren antes de dar nada por cerrado.
 
 | Script | Cuándo se corre |
 |---|---|
@@ -472,8 +472,9 @@ Ninguno sustituye a otro, y los seis se corren antes de dar nada por cerrado.
 | `verificar_documentos.py` | Al escribir o tocar cualquier `.md` |
 | `verificar_enlaces.py` | Al mover, renombrar o retirar cualquier documento |
 | `verificar_reproducible.py` | Al tocar cualquier generador |
+| `verificar_sistema.py` | Al cambiar el modelo. Comprueba que [`docs/SISTEMA.md`](docs/SISTEMA.md) sigue siendo verdad, corriendo los comandos que ese documento cita |
 
-**`verificar_app.py` no es uno de los seis, aunque se llame igual.** Los seis leen **archivos** y
+**`verificar_app.py` no es uno de los siete, aunque se llame igual.** Los siete leen **archivos** y
 son gate. `verificar_app.py` pregunta a la **aplicación en vivo**, y por eso pertenece al otro
 grupo, con `auditar_cableado.py` e `instantanea.py`: los tres comparten un límite que los seis no
 tienen —lo que la API no devuelve no se puede ver— y **ninguno de los tres bloquea: informan**. Está

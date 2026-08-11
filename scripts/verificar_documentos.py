@@ -34,9 +34,16 @@ import sys
 from datetime import date
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from inferencia import columnas_virtuales as _cv
+
 from modelo_objetivo import (MODELO, RETIRADAS, PROPUESTAS, DECISIONES,
                              CAMPOS_RETIRADOS, COLUMNAS_PROPUESTAS,
-                             COLUMNAS_SIN_DECIDIR)
+                             COLUMNAS_SIN_DECIDIR, REGLAS)
+
+# Las columnas VIRTUALES no estan en MODELO a proposito: las calcula AppSheet y
+# no viven en la hoja, asi que se declaran en REGLAS. D-03 las daba por
+# inexistentes porque solo miraba MODELO, y marcaba como error una cita valida.
+_VIRTUALES = {(r["tabla"], n) for r, n in _cv(REGLAS)}
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -190,6 +197,12 @@ for ruta in documentos():
             continue          # citar lo retirado es legitimo: se habla de ello
         if (t, c) in COLUMNAS_PROPUESTAS:
             continue          # declarada como propuesta, con su motivo
+        if (t, c) in _VIRTUALES:
+            continue          # columna VIRTUAL: no esta en MODELO a proposito.
+                              # La calcula AppSheet, no vive en la hoja, y por
+                              # eso se declara en REGLAS. D-03 la daba por
+                              # inexistente porque solo miraba MODELO, y con eso
+                              # marcaba como error una cita perfectamente valida
         if (t, c) in COLUMNAS_SIN_DECIDIR:
             continue          # existe en la hoja, pendiente de decidir. Avisa D-06
         if c in ignorar_aqui or (t + '.' + c) in ignorar_aqui:

@@ -257,7 +257,7 @@ cada uno, en [`CLAUDE.md`](CLAUDE.md) §7.4.**
 
 | Grupo | Cuáles | Qué leen | ¿Bloquean? |
 |---|---|---|---|
-| **Los seis verificadores** | `validar_modelo.py`, `verificar_faseA.py`, `verificar_datos.py`, `verificar_documentos.py`, `verificar_enlaces.py`, `verificar_reproducible.py` | **Archivos**: el modelo, el `.xlsx`, la prosa, los enlaces | **Sí.** Son el gate, y ninguno sustituye a otro |
+| **Los siete verificadores** | `validar_modelo.py`, `verificar_faseA.py`, `verificar_datos.py`, `verificar_documentos.py`, `verificar_enlaces.py`, `verificar_reproducible.py`, `verificar_sistema.py` | **Archivos**: el modelo, el `.xlsx`, la prosa, los enlaces, y que [`docs/SISTEMA.md`](docs/SISTEMA.md) siga siendo verdad | **Sí.** Son el gate, y ninguno sustituye a otro |
 | **Los tres que miran producción** | `verificar_app.py`, `auditar_cableado.py`, `instantanea.py` | La **aplicación en vivo**, por API | **No: informan.** Comparten un límite —lo que la API no devuelve no se puede ver— y por eso no son gate |
 | **Los tres que no miden, declaran** | `lectura_de_vuelta.py`, `navegacion_editor.py`, `alcance_reglas.py` | Nada. Dicen quién comprueba cada clase de cambio, dónde está cada control en pantalla y qué columnas toca de verdad cada regla | No. Se consultan **antes** de tocar el editor |
 
