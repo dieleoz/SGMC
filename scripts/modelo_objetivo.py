@@ -1108,11 +1108,13 @@ REGLAS = [
     dict(id="RG-35", tabla="OT_OrdenesTrabajo", columna="(tabla)",
          tipo="App formula", cubre="Identificacion legible ante el tecnico",
          expresion='CONCATENATE([ActivoID].[Nombre], " - ", [FechaProgramada])',
+         nombre_virtual="Etiqueta", es_label=True,
          descripcion="Etiqueta, columna VIRTUAL (no en MODELO: F-02 no la exige, no toca "
                      "la hoja). Reemplaza a OTID como Label ahora que OTID es UNIQUEID()."),
     dict(id="RG-36", tabla="PLA_PlanMantenimiento", columna="(tabla)",
          tipo="App formula", cubre="Identificacion legible ante operacion",
          expresion='CONCATENATE([ActivoID].[Nombre], " - ", [FrecuenciaID].[Nombre])',
+         nombre_virtual="Etiqueta", es_label=True,
          descripcion="Etiqueta, columna VIRTUAL. Mismo mecanismo que RG-35."),
     dict(id="RG-34", tabla="ACT_Activos", columna="UnidadFuncionalID",
          tipo="Valid_If", cubre="RF-002",

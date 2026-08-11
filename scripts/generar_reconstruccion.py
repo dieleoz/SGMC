@@ -67,11 +67,20 @@ for r in REGLAS:
     # Delete-and-re-add. Emitia el identificador y la expresion, y con eso no se
     # puede reconstruir nada -falta el nombre de la columna, que sea virtual, y
     # que lleva el Label-.
+    # El nombre y el Label los declara la REGLA, no los supone este generador.
+    # Los suponia -«se llama Etiqueta y lleva Label»- porque las dos primeras
+    # virtuales eran etiquetas. ESPEC-006 propone una tercera, EstaVencida, que
+    # no es etiqueta: la suposicion habria emitido dos instrucciones falsas.
     if r.get("tipo") == "App formula" and r.get("columna") == "(tabla)":
+        _nombre = r.get("nombre_virtual", "(sin nombre declarado)")
         w("> **Es una COLUMNA VIRTUAL, no una columna de la hoja.** Se crea con")
-        w("> *Data > Columns > `Add virtual column`*, se llama **`Etiqueta`**, lleva esa expresión")
-        w("> en su `App formula`, y después **`Show?` activo** y **`Label` marcado**. Si la tabla ya")
-        w("> tenía otra columna con `Label`, se desmarca primero: solo puede haber una.")
+        w("> *Data > Columns > `Add virtual column`*, se llama **`%s`**, y lleva esa expresión"
+          % _nombre)
+        w("> en su `App formula`.")
+        if r.get("es_label"):
+            w("> ")
+            w("> Y además **`Show?` activo** y **`Label` marcado**. Si la tabla ya tenía otra")
+            w("> columna con `Label`, se desmarca primero: solo puede haber una.")
         w("")
     exp = str(r.get("expresion", "")).strip()
     if exp:

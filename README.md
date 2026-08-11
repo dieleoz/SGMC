@@ -3,61 +3,25 @@
 Aplicación de campo para la inspección y el mantenimiento de la infraestructura tecnológica,
 eléctrica y de TI del corredor vial de la **Concesión Transversal del Sisga S.A.S.**
 
-> ## El estado vive en [`ESTADO.md`](ESTADO.md)
+> **Este README dice por dónde se entra: qué resuelve el sistema, cómo está organizado el
+> repositorio y dónde está cada cosa. No dice en qué punto va.**
 >
-> **Léalo primero.** Este README explica qué es el sistema y cómo está organizado el repositorio;
-> `ESTADO.md` dice en qué punto está hoy, qué falta y quién lo bloquea. Si los dos discrepan, manda
-> `ESTADO.md`.
->
-> En una frase, a 2026-08-11: **la hoja de datos está terminada y verificada; la aplicación está a
-> medio cablear.** Las 28 tablas están dadas de alta, las 39 referencias auditadas en 0 correcciones
-> y en el editor están puestas las 6 claves con `UNIQUEID()` más los tipos y las etiquetas de 22 de
-> las 28 tablas. Faltan las 2 columnas virtuales `Etiqueta`, los 5 bots y los 2 filtros de
-> seguridad.
->
-> **`ESPEC-005` es el primer dictamen del pipeline que pasa el gate**, y ya está aplicada al modelo:
-> `OTID` y `PlanID` se generan con `UNIQUEID()`. `ESPEC-004` sigue bloqueada.
->
-> ## Y hay una ventana que se cierra sola
->
-> **Ocho tablas están hoy en cero filas, y eso no es «todavía no empezado»: es lo único que hace que
-> corregir un tipo o una clave cueste un clic.** Con una sola fila dentro, cada corrección pasa a ser
-> una migración. Las ocho son **transaccionales**, así que **el primer registro cierra la ventana
-> para siempre** — no se estrecha, desaparece.
->
-> **Nada avisa cuando eso pasa.** No hay error, ni aviso, ni log: el precio sube solo, y lo sube quien
-> siembra un fixture creyendo que no decide nada. Lo que cabe hacer dentro de la ventana está reunido
-> y generado en **[`docs/ENCARGO_VENTANA.md`](docs/ENCARGO_VENTANA.md)** —las 2 columnas virtuales
-> `Etiqueta` y el cotejo de 54 tipos—, con **lo que deja fuera y por qué**. El porqué del orden está
-> en [`docs/ROADMAP.md`](docs/ROADMAP.md) §2.1, y la regla general en [`CLAUDE.md`](CLAUDE.md) §7.17.
->
-> ```bash
-> python -c "import sys;sys.path.insert(0,'scripts');from inferencia import clasificar;from lectura_de_vuelta import VOLCADO_CIEGO_A;from modelo_objetivo import REGLAS;print(len(VOLCADO_CIEGO_A),'tablas |',sum(1 for t,c,m in clasificar()['a mano'] if t in VOLCADO_CIEGO_A),'tipos a cotejar |',sum(1 for r in REGLAS if r['tipo']=='App formula' and r.get('columna')=='(tabla)'),'columnas virtuales')"
-> ```
->
-> **Si esa cuenta ya no dice 8 tablas, la ventana se cerró y este párrafo caducó.**
->
-> **Dónde está el Excel:** [`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTILLA.xlsx). La
-> plantilla sale entera de `python scripts/generar_plantilla.py` y es el mismo archivo publicado como
-> `Modelo_Datos_10082026`, que es la hoja que la aplicación lee. **No se edita a mano.**
->
-> **Con qué comando se pregunta el estado real del cableado:**
->
-> ```bash
-> python scripts/auditar_cableado.py
-> ```
->
-> Lee la aplicación en vivo y reemite [`docs/CORRECCIONES_CABLEADO.md`](docs/CORRECCIONES_CABLEADO.md)
-> con lo que quede pendiente. **Ningún documento generado desde el modelo sabe qué está cableado**: el
-> modelo declara lo que tiene que existir, no lo que existe.
+> | Para saber | Lea |
+> |---|---|
+> | Qué está abierto, qué falta y qué lo bloquea | [`ESTADO.md`](ESTADO.md). **Si discrepa de aquí, manda `ESTADO.md`** |
+> | Qué es el sistema, en presente: modelo, decisiones de diseño, qué se puede comprobar y qué no, y sus límites | [`docs/sdd/ESPEC-000-sistema-actual.md`](docs/sdd/ESPEC-000-sistema-actual.md) |
+> | En qué orden se implementa lo que queda | [`docs/ROADMAP.md`](docs/ROADMAP.md) |
+> | Cómo se trabaja sobre este repositorio | [`CLAUDE.md`](CLAUDE.md) |
+> | Dónde está cada archivo | [`MAP.md`](MAP.md) |
 
 Construida sobre **Google AppSheet** con backend en **Google Sheets**. Sin servidores propios,
 sin compilación de APK, sin Play Console: los técnicos instalan la app de AppSheet e inician
 sesión con su cuenta corporativa.
 
-**La aplicación vigente es `_SISGA_-323965761`.** Las versiones anteriores se abandonaron
-el 2026-08-10 al limpiar el repositorio e iniciar la reconstrucción limpia sobre `Modelo_Datos_10082026`.
-El porqué está en [`BASE_CONOCIMIENTO_APPSHEET.md`](docs/BASE_CONOCIMIENTO_APPSHEET.md) §11 y §12.
+**Cuál es la aplicación vigente y cuál la hoja lo dice `python scripts/sistema.py`, y nada más**,
+que también nombra las superadas con el motivo por el que lo son. Por qué se reconstruye una
+aplicación en vez de repararla está en
+[`BASE_CONOCIMIENTO_APPSHEET.md`](docs/BASE_CONOCIMIENTO_APPSHEET.md) §11 y §12.
 
 ---
 
@@ -81,15 +45,15 @@ físicamente frente al equipo, y que la evidencia que lo respalda es difícil de
 La plantilla de datos, [`BD/Modelo_Datos_PLANTILLA.xlsx`](BD/Modelo_Datos_PLANTILLA.xlsx), contiene
 **368 activos** repartidos sobre los 137 km del corredor vial de la Concesión.
 
-**En la operación real hay 355 activos contables sobre 18 familias**, confirmados por operación el
-2026-08-07 desde el Plan Maestro. La aritmética y el desglose están en
-[`CONTEXTO_OPERACION.md`](docs/CONTEXTO_OPERACION.md).
+**En la operación real hay 355 activos contables sobre 18 familias**, según el Plan Maestro. La
+aritmética y el desglose están en [`CONTEXTO_OPERACION.md`](docs/CONTEXTO_OPERACION.md).
 **Tenemos el censo, no el registro**: sabemos cuántos postes SOS hay, no cuál es cada uno ni dónde
 está.
 
-Los **27 tipos** de la plantilla, en cuatro categorías. Eran 18 hasta el 2026-08-09, cuando se
-añadieron los nueve que faltaban: nueve familias del Plan Maestro colgaban del tipo de otra cosa y
-veían el checklist equivocado. La lista sale de `scripts/catalogo_tipos.py`, que es su fuente única:
+Los **27 tipos** del catálogo, en cuatro categorías. **No son las 18 familias del Plan Maestro**:
+aquel dice qué checklist ve el técnico, estas dicen cómo cuenta operación sus equipos, y la
+correspondencia entre las dos se comprueba, no se supone —`comprobar()` en
+`scripts/catalogo_tipos.py`, que es la fuente única de la lista—:
 
 - **ITS**, 14 — Postes SOS, CCTV, paneles de mensaje variable fijo y móvil (PMVF/PMVM), sensores
   meteorológicos y ambientales (SGM/SGE/SSA), báscula, báscula dinámica, carril de peaje,
@@ -99,13 +63,12 @@ veían el checklist equivocado. La lista sale de `scripts/catalogo_tipos.py`, qu
 - **TI**, 9 — Servidores, NAS, switches, switches de capa 3, routers, firewalls, videowall,
   computadores portátiles, impresoras
 
-> **Ninguna coordenada es la real.** `ACT_Activos.Ubicacion_LatLong` está poblada en las **368 de
-> 368** filas y sus **368 valores son distintos**, pero ninguno se levantó en campo: cada uno se
-> **deriva del `PK`** sobre el trazado del corredor, y se vuelve a derivar en **cada pasada** de
-> `generar_plantilla.py`. Esa es la razón de que el renombrado de `Ubicacion` a `Ubicacion_LatLong`,
-> que el 2026-08-10 dejó la columna vacía en las 368, no costara más que volver a generar: **un dato
-> derivable no se conserva, se vuelve a derivar.** Cargar las reales es el bloqueante D-01 para salir
-> a campo, y se comprueba con `python scripts/verificar_datos.py`.
+> **Ninguna coordenada es la real.** `ACT_Activos.Ubicacion_LatLong` está poblada y sus valores son
+> todos distintos, pero ninguno se levantó en campo: cada uno se **deriva del `PK`** sobre el
+> trazado del corredor, y se vuelve a derivar en **cada pasada** de `generar_plantilla.py`. Un dato
+> derivable no se conserva, se vuelve a derivar — por eso la columna no se restaura, se regenera.
+> **Cargar las reales es el bloqueante D-01 para salir a campo**, y se comprueba con
+> `python scripts/verificar_datos.py`.
 
 ## 3. Actores
 
@@ -116,8 +79,8 @@ veían el checklist equivocado. La lista sale de `scripts/catalogo_tipos.py`, qu
 | **Administrador** | Portal web | Gestiona usuarios, catálogos, activos y plantillas de inspección |
 | **Consulta** | Portal web | Solo lectura y reportes |
 
-El activo **se abre por lista, no por escaneo**: el código QR quedó fuera de alcance por decisión
-del 2026-08-07.
+El activo **se abre por lista, no por escaneo**: el código QR está fuera de alcance, con sus
+consecuencias en [`docs/ALCANCE_Y_SUPUESTOS_SGMC.md`](docs/ALCANCE_Y_SUPUESTOS_SGMC.md).
 
 ## 4. Cómo funciona
 
@@ -164,18 +127,15 @@ La fuente única es **[`scripts/modelo_objetivo.py`](scripts/modelo_objetivo.py)
 la validación, el diccionario, el manual de despliegue y la plantilla de datos. **Nada se documenta
 a mano.**
 
-**28 tablas · 211 columnas · 39 referencias · 23 reglas.** La cifra sale de
-`python scripts/validar_modelo.py`, que la imprime en su primera línea; no se cita de memoria.
-Eran 21 reglas hasta que `ESPEC-005` añadió `RG-35` y `RG-36`.
+El recuento —tablas, columnas, referencias y reglas— lo imprime `python scripts/validar_modelo.py`
+en su primera línea; no se cita de memoria. **Por qué el modelo es así** —qué protege la evidencia,
+por qué el radio de geofencing va por tipo, por qué ocho claves se generan con `UNIQUEID()` y por
+qué dos etiquetas son columnas virtuales— está en
+[`docs/sdd/ESPEC-000-sistema-actual.md`](docs/sdd/ESPEC-000-sistema-actual.md) §4.
 
-> **Dos de esas 23 no son columnas de la hoja.** `RG-35` y `RG-36` son **columnas virtuales**
-> llamadas `Etiqueta` que AppSheet calcula y no guarda en el Sheets, así que **no están en
-> `MODELO`**: viven en `REGLAS` y en `inferencia.ETIQUETA_VIRTUAL`. Buscarlas en la hoja no las
-> encuentra, y eso es correcto.
-
-> **Y el volcado local es ciego a ocho tablas.** `generar_plantilla.py` vacía a propósito las ocho
-> tablas de movimiento cada vez que corre, así que **una fila creada en la aplicación nunca aparece
-> en `BD/Modelo_Datos_PLANTILLA.xlsx`**. Para mirar datos de movimiento, `python
+> **El volcado local es ciego a las ocho tablas de movimiento.** `generar_plantilla.py` las vacía a
+> propósito cada vez que corre, así que **una fila creada en la aplicación nunca aparece en
+> `BD/Modelo_Datos_PLANTILLA.xlsx`**. Para mirar datos de movimiento, `python
 > scripts/instantanea.py`, que lee por API. Está declarado en `scripts/lectura_de_vuelta.py` como
 > `VOLCADO_CIEGO_A`.
 
@@ -299,6 +259,13 @@ las dos virtuales, marcarles `Show?` y marcarles `Label`, según
 > **dejó de mirar `OT_OrdenesTrabajo` y `PLA_PlanMantenimiento`**. Es correcto, pero su verde ya no
 > dice nada de esas dos: la clave de ambas solo se ve en el editor.
 
+**`RG-08` y `RG-12` son bots programados, y no corren en la cuenta gratuita** —verificado con cita
+oficial en `docs/BASE_CONOCIMIENTO_APPSHEET.md` §6—, y `RG-08` tiene además un defecto propio: movería
+la orden al estado `Vencida`, que es final, así que un técnico que llega tarde no podría cerrarla.
+[`ESPEC-006`](docs/sdd/ESPEC-006-reemplazo-bots-programados.md) lo especifica —**sin aplicar
+todavía**—: `RG-37`, una columna virtual `EstaVencida` que no escribe ni bloquea el cierre, y
+`RG-38`, una vista más una acción que el supervisor pulsa, sin depender de `Automation > Bots`.
+
 ## 6. Estado, hallazgos y bloqueantes
 
 Todos en [`ESTADO.md`](ESTADO.md), que se actualiza; aquí no, para que no se contradigan.
@@ -398,7 +365,7 @@ archivo/       Material de origen, no versionado
 | [docs/COMUNICACION_PROPIETARIO_APP.md](docs/COMUNICACION_PROPIETARIO_APP.md) | Qué decirle al dueño de la aplicación anterior |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Fases con criterio de cierre verificable. Su §2.1 es **la ventana barata**: lo que solo es gratis mientras ocho tablas sigan vacías |
 | [docs/ENCARGO_VENTANA.md](docs/ENCARGO_VENTANA.md) | El encargo autocontenido de esa ventana, generado del modelo. **Y lo que deja fuera, con su motivo** |
-| [docs/sdd/](docs/sdd/) | Especificaciones y pruebas del pipeline (`ESPEC-000`, `ESPEC-003`, `PRUEBA-003`, `RECONSTRUCCION_EXPRESIONES`, `ESPEC-004`, `ESPEC-005`) |
+| [docs/sdd/](docs/sdd/) | Especificaciones y pruebas del pipeline (`ESPEC-000`, `ESPEC-003`, `PRUEBA-003`, `RECONSTRUCCION_EXPRESIONES`, `ESPEC-004`, `ESPEC-005`, `ESPEC-006`) |
 | [Manuales/MANUAL_DE_USUARIO.md](Manuales/MANUAL_DE_USUARIO.md) | Guía de operación por rol. **No se entrega todavía**: describe funciones que aún no están montadas, y lo dice en su cabecera |
 | [MAP.md](MAP.md) | Índice maestro y referencias cruzadas |
 | [CLAUDE.md](CLAUDE.md) | Reglas de trabajo para agentes sobre este repositorio |

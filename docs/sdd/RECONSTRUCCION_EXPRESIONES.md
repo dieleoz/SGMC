@@ -69,9 +69,11 @@ En la hoja vigente estan **poblados los 27**, con 0.05 km en 18 · 0.1 km en 8 �
 **Tipo:** App formula · cubre Identificacion legible ante el tecnico
 
 > **Es una COLUMNA VIRTUAL, no una columna de la hoja.** Se crea con
-> *Data > Columns > `Add virtual column`*, se llama **`Etiqueta`**, lleva esa expresión
-> en su `App formula`, y después **`Show?` activo** y **`Label` marcado**. Si la tabla ya
-> tenía otra columna con `Label`, se desmarca primero: solo puede haber una.
+> *Data > Columns > `Add virtual column`*, se llama **`Etiqueta`**, y lleva esa expresión
+> en su `App formula`.
+> 
+> Y además **`Show?` activo** y **`Label` marcado**. Si la tabla ya tenía otra
+> columna con `Label`, se desmarca primero: solo puede haber una.
 
 ```
 CONCATENATE([ActivoID].[Nombre], " - ", [FechaProgramada])
@@ -82,9 +84,11 @@ CONCATENATE([ActivoID].[Nombre], " - ", [FechaProgramada])
 **Tipo:** App formula · cubre Identificacion legible ante operacion
 
 > **Es una COLUMNA VIRTUAL, no una columna de la hoja.** Se crea con
-> *Data > Columns > `Add virtual column`*, se llama **`Etiqueta`**, lleva esa expresión
-> en su `App formula`, y después **`Show?` activo** y **`Label` marcado**. Si la tabla ya
-> tenía otra columna con `Label`, se desmarca primero: solo puede haber una.
+> *Data > Columns > `Add virtual column`*, se llama **`Etiqueta`**, y lleva esa expresión
+> en su `App formula`.
+> 
+> Y además **`Show?` activo** y **`Label` marcado**. Si la tabla ya tenía otra
+> columna con `Label`, se desmarca primero: solo puede haber una.
 
 ```
 CONCATENATE([ActivoID].[Nombre], " - ", [FrecuenciaID].[Nombre])

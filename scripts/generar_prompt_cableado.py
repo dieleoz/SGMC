@@ -286,8 +286,11 @@ w("")
 w("No rompe nada, y por eso nadie lo miraba. Lo que pasa es que el técnico abre el desplegable para")
 w("asignar una orden y ve **`USR-001`, `USR-004`** en vez de los nombres.")
 w("")
-_virtuales = [(r["tabla"], r["expresion"]) for r in REGLAS
-              if r["tipo"] == "App formula" and r.get("columna") == "(tabla)"]
+# Solo las que la REGLA declara como etiqueta. No toda columna virtual lo es:
+# ESPEC-006 propone EstaVencida, que no lleva Label.
+_virtuales = [(r["tabla"], r.get("nombre_virtual", "?"), r["expresion"]) for r in REGLAS
+              if r["tipo"] == "App formula" and r.get("columna") == "(tabla)"
+              and r.get("es_label")]
 if _virtuales:
     w("### Antes de marcar nada: %d de esas etiquetas **hay que crearlas**" % len(_virtuales))
     w("")
@@ -298,8 +301,8 @@ if _virtuales:
     w("")
     w("| Tabla | Nombre | `App formula` |")
     w("|---|---|---|")
-    for _t, _e in sorted(_virtuales):
-        w("| `%s` | **`Etiqueta`** | `%s` |" % (_t, _e))
+    for _t, _n, _e in sorted(_virtuales):
+        w("| `%s` | **`%s`** | `%s` |" % (_t, _n, _e))
     w("")
     w("Y después, en esa misma columna virtual: **`Show?` activo** —sin eso AppSheet no acepta que")
     w("sea etiqueta— y **`Label` marcado**. Si la tabla ya tenía otra columna con `Label`,")
