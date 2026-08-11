@@ -118,52 +118,167 @@ así que el parecido se rompe. Hay que ponerlas las 39.
 > llevarlo por simetría con las otras, y no. Con `IsPartOf`, borrar una orden se llevaría el
 > mantenimiento entero y con él toda su evidencia.
 
-## Paso 3 — Los tipos que no se infieren
+## Paso 3 — Los tipos. **Las 211, no una lista de excepciones**
 
-### Las 4 marcas de tiempo del servidor
+**Este paso se llamaba «los tipos que no se infieren» y enumeraba 61 columnas.** Era una lista
+blanca de excepciones sobre un default que se presumía bueno: las otras 150 se daban por
+correctas por omisión. La plataforma garantiza lo contrario, y el precio fue `RG-03` —bien
+escrita, bien colocada— sobre una columna que AppSheet tipó `Text` cuando el modelo dice
+`Yes/No`. Comparar texto contra el booleano `TRUE` es **siempre falso y no da error**: el motivo
+de excepción no se pide nunca. La regla existe y es decorativa.
 
-Tipo **`ChangeTimestamp`**. AppSheet no lo infiere nunca: llegan como texto.
+Y el «qué reportar» cerraba el bucle en falso —«cualquier tipo distinto del que dice este
+documento»—: **nadie puede reportar una diferencia contra un valor que nunca se le dio.**
 
-- `MAN_Mantenimientos.FechaHoraRegistro`
-- `NOV_Novedades.FechaHora`
-- `FOT_Fotografias.FechaHora`
-- `FIR_Firmas.FechaHora`
+### Las 107 que NADIE pone si no las pones tú
 
-**Por qué importa.** `ChangeTimestamp` la escribe el servidor. Un `Initial value = NOW()` lo pone
-el teléfono, y el usuario puede cambiar la hora del teléfono. Sin esto, **la hora de cada
-fotografía y de cada firma no prueba nada**, que es justo lo que el sistema existe para sostener.
+Ningún contenido de la hoja las produce, o su propio nombre empuja a AppSheet al tipo
+equivocado. **Están ordenadas por las reglas que dependen de cada una**, que es lo que ordena el
+trabajo: una columna mal tipada sin regla encima molesta al usuario; con una regla encima
+**rompe la regla en silencio**.
 
-### Los 12 desplegables
+| Tabla | Columna | `TYPE` | Reglas | Por qué no se consigue sola |
+|---|---|---|---|---|
+| `ACT_Activos` | `EstadoActivoID` | **`Ref`** → `EST_Activo` | `RG-06`, `RG-16`, `RG-17` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `MAN_Mantenimientos` | `EstadoActivoID` | **`Ref`** → `EST_Activo` | `RG-06`, `RG-16`, `RG-17` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `ACT_Activos` | `Activo` | **`Yes/No`** | `RG-04`, `RG-16` | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `ACT_Activos` | `UnidadFuncionalID` | **`Ref`** → `UNF_UnidadesFuncionales` | `RG-04`, `RG-34` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `ASG_AsignacionZona` | `Activo` | **`Yes/No`** | `RG-04`, `RG-16` | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `ASG_AsignacionZona` | `UnidadFuncionalID` | **`Ref`** → `UNF_UnidadesFuncionales` | `RG-04`, `RG-34` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `CAL_Calzadas` | `Activo` | **`Yes/No`** | `RG-04`, `RG-16` | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `EOT_EstadosOrden` | `Activo` | **`Yes/No`** | `RG-04`, `RG-16` | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `EST_Activo` | `Activo` | **`Yes/No`** | `RG-04`, `RG-16` | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `FAL_ModosFalla` | `Activo` | **`Yes/No`** | `RG-04`, `RG-16` | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `FRE_Frecuencias` | `Activo` | **`Yes/No`** | `RG-04`, `RG-16` | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `FRM_Formularios` | `Activo` | **`Yes/No`** | `RG-04`, `RG-16` | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `FRM_Preguntas` | `Activo` | **`Yes/No`** | `RG-04`, `RG-16` | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `FRM_Secciones` | `Activo` | **`Yes/No`** | `RG-04`, `RG-16` | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `LST_ValoresLista` | `Activo` | **`Yes/No`** | `RG-04`, `RG-16` | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `MAN_Mantenimientos` | `Activo` | **`Yes/No`** | `RG-04`, `RG-16` | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `MAN_Mantenimientos` | `CierreConExcepcion` | **`Yes/No`** | `RG-03`, `RG-19` | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `MAN_Mantenimientos` | `Precision_GPS` | **`Number`** | `RG-02`, `RG-19` | su nombre dispara la inferencia a LatLong y NO lo es (observado: Precision_GPS salio LatLong el 2026-08-10 estando su tabla VACIA: no pudo ser el contenido) |
+| `MOT_MotivosPendiente` | `Activo` | **`Yes/No`** | `RG-04`, `RG-16` | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `OT_OrdenesTrabajo` | `Activo` | **`Yes/No`** | `RG-04`, `RG-16` | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `PAR_Parametros` | `Activo` | **`Yes/No`** | `RG-04`, `RG-16` | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `PLA_PlanMantenimiento` | `Activo` | **`Yes/No`** | `RG-04`, `RG-16` | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `ROL_Roles` | `Activo` | **`Yes/No`** | `RG-04`, `RG-16` | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `SED_Sedes` | `Activo` | **`Yes/No`** | `RG-04`, `RG-16` | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `SED_Sedes` | `UnidadFuncionalID` | **`Ref`** → `UNF_UnidadesFuncionales` | `RG-04`, `RG-34` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `SEN_Sentidos` | `Activo` | **`Yes/No`** | `RG-04`, `RG-16` | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `TIP_TiposActivo` | `Activo` | **`Yes/No`** | `RG-04`, `RG-16` | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `TPR_TiposRespuesta` | `Activo` | **`Yes/No`** | `RG-04`, `RG-16` | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `UNF_UnidadesFuncionales` | `Activo` | **`Yes/No`** | `RG-04`, `RG-16` | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `USR_Usuarios` | `Activo` | **`Yes/No`** | `RG-04`, `RG-16` | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `ACT_Activos` | `FrecuenciaID` | **`Ref`** → `FRE_Frecuencias` | `RG-11` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `ACT_Activos` | `SedeID` | **`Ref`** → `SED_Sedes` | `RG-34` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `ACT_Activos` | `TipoActivoID` | **`Ref`** → `TIP_TiposActivo` | `RG-01` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `ASG_AsignacionZona` | `UsuarioID` | **`Ref`** → `USR_Usuarios` | `RG-04` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `CHK_Checklists` | `FormularioID` | **`Ref`** → `FRM_Formularios` | `RG-09` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `EOT_EstadosOrden` | `EsFinal` | **`Yes/No`** | `RG-08` | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `EST_Activo` | `GeneraAlerta` | **`Yes/No`** | `RG-06` | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `FAL_ModosFalla` | `TipoActivoID` | **`Ref`** → `TIP_TiposActivo` | `RG-01` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `FRM_Preguntas` | `FormularioID` | **`Ref`** → `FRM_Formularios` | `RG-09` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `MAN_Mantenimientos` | `MotivoExcepcion` | **`LongText`** | `RG-03` | indistinguible de Text por contenido |
+| `MAN_Mantenimientos` | `OTID` | **`Ref`** → `OT_OrdenesTrabajo` | `RG-01` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `MAN_Mantenimientos` | `RequiereSegundaVisita` | **`Yes/No`** | `RG-10` | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `MAN_Mantenimientos` | `TecnicoID` | **`Ref`** → `USR_Usuarios` | `RG-05` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `NOV_Novedades` | `ActivoID` | **`Ref`** → `ACT_Activos` | `RG-01` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `NOV_Novedades` | `UsuarioID` | **`Ref`** → `USR_Usuarios` | `RG-04` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `OT_OrdenesTrabajo` | `ActivoID` | **`Ref`** → `ACT_Activos` | `RG-01` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `OT_OrdenesTrabajo` | `EstadoOrdenID` | **`Ref`** → `EOT_EstadosOrden` | `RG-08` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `OT_OrdenesTrabajo` | `SupervisorID` | **`Ref`** → `USR_Usuarios` | `RG-05` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `OT_OrdenesTrabajo` | `TecnicoID` | **`Ref`** → `USR_Usuarios` | `RG-05` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `PLA_PlanMantenimiento` | `ActivoID` | **`Ref`** → `ACT_Activos` | `RG-01` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `PLA_PlanMantenimiento` | `FrecuenciaID` | **`Ref`** → `FRE_Frecuencias` | `RG-11` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `TIP_TiposActivo` | `FormularioID` | **`Ref`** → `FRM_Formularios` | `RG-09` | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `ACT_Activos` | `CalzadaID` | **`Ref`** → `CAL_Calzadas` | — | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `ACT_Activos` | `Criticidad` | **`Enum`** · valores: `Alta` · `Media` · `Baja` | — | el contenido no declara el conjunto de valores permitidos |
+| `ACT_Activos` | `MotivoBaja` | **`Enum`** · valores: `Obsolescencia` · `Dano irreparable` · `Robo o vandalismo` · `Reemplazo` · `Retiro por obra` | — | el contenido no declara el conjunto de valores permitidos |
+| `ACT_Activos` | `Observaciones` | **`LongText`** | — | indistinguible de Text por contenido |
+| `ACT_Activos` | `SentidoID` | **`Ref`** → `SEN_Sentidos` | — | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `CHD_ChecklistDetalle` | `ChecklistID` | **`Ref`** → `CHK_Checklists` | — | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `CHD_ChecklistDetalle` | `Contestada` | **`Yes/No`** | — | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `CHD_ChecklistDetalle` | `Observacion` | **`LongText`** | — | indistinguible de Text por contenido |
+| `CHD_ChecklistDetalle` | `PreguntaID` | **`Ref`** → `FRM_Preguntas` | — | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `CHD_ChecklistDetalle` | `RespuestaBoolean` | **`Yes/No`** | — | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `CHD_ChecklistDetalle` | `RespuestaLista` | **`Enum`** | — | el contenido no declara el conjunto de valores permitidos |
+| `CHD_ChecklistDetalle` | `RespuestaTexto` | **`LongText`** | — | indistinguible de Text por contenido |
+| `CHK_Checklists` | `Finalizado` | **`Yes/No`** | — | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `CHK_Checklists` | `MantenimientoID` | **`Ref`** → `MAN_Mantenimientos` | — | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `EOT_EstadosOrden` | `QuienCambia` | **`Enum`** · valores: `Sistema` · `Tecnico` · `Supervisor` | — | el contenido no declara el conjunto de valores permitidos |
+| `FAL_ModosFalla` | `Criticidad` | **`Enum`** · valores: `Alta` · `Media` · `Baja` | — | el contenido no declara el conjunto de valores permitidos |
+| `FIR_Firmas` | `FechaHora` | **`ChangeTimestamp`** | — | lo escribe el servidor; por contenido no se distingue de una fecha cualquiera |
+| `FIR_Firmas` | `Imagen` | **`Signature`** | — | igual que Image |
+| `FIR_Firmas` | `MantenimientoID` | **`Ref`** → `MAN_Mantenimientos` | — | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `FIR_Firmas` | `TipoFirma` | **`Enum`** · valores: `Tecnico` | — | el contenido no declara el conjunto de valores permitidos |
+| `FOT_Fotografias` | `Archivo` | **`Image`** | — | la celda solo lleva un nombre de archivo |
+| `FOT_Fotografias` | `FechaHora` | **`ChangeTimestamp`** | — | lo escribe el servidor; por contenido no se distingue de una fecha cualquiera |
+| `FOT_Fotografias` | `MantenimientoID` | **`Ref`** → `MAN_Mantenimientos` | — | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `FOT_Fotografias` | `PrecisionGPS` | **`Number`** | — | su nombre dispara la inferencia a LatLong y NO lo es (observado: Precision_GPS salio LatLong el 2026-08-10 estando su tabla VACIA: no pudo ser el contenido) |
+| `FOT_Fotografias` | `Tipo` | **`Enum`** · valores: `Antes` · `Despues` · `Novedad` | — | el contenido no declara el conjunto de valores permitidos |
+| `FRM_Preguntas` | `Obligatoria` | **`Yes/No`** | — | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `FRM_Preguntas` | `RequiereFirma` | **`Yes/No`** | — | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `FRM_Preguntas` | `RequiereFoto` | **`Yes/No`** | — | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `FRM_Preguntas` | `RequiereGPS` | **`Yes/No`** | — | su nombre dispara la inferencia a LatLong y NO lo es (observado: Precision_GPS salio LatLong el 2026-08-10 estando su tabla VACIA: no pudo ser el contenido) |
+| `FRM_Preguntas` | `SeccionID` | **`Ref`** → `FRM_Secciones` | — | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `FRM_Preguntas` | `TipoRespuestaID` | **`Ref`** → `TPR_TiposRespuesta` | — | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `LST_ValoresLista` | `PreguntaID` | **`Ref`** → `FRM_Preguntas` | — | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `MAN_Mantenimientos` | `AprobadoSupervisor` | **`Yes/No`** | — | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `MAN_Mantenimientos` | `FechaHoraRegistro` | **`ChangeTimestamp`** | — | lo escribe el servidor; por contenido no se distingue de una fecha cualquiera |
+| `MAN_Mantenimientos` | `ModoFallaID` | **`Ref`** → `FAL_ModosFalla` | — | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `MAN_Mantenimientos` | `MotivoPendienteID` | **`Ref`** → `MOT_MotivosPendiente` | — | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `MAN_Mantenimientos` | `ObservacionRechazo` | **`LongText`** | — | indistinguible de Text por contenido |
+| `MAN_Mantenimientos` | `Observaciones` | **`LongText`** | — | indistinguible de Text por contenido |
+| `MAN_Mantenimientos` | `OrigenApertura` | **`Enum`** · valores: `QR` · `Lista` | — | el contenido no declara el conjunto de valores permitidos |
+| `MOT_MotivosPendiente` | `GeneraSeguimiento` | **`Yes/No`** | — | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `NOV_Novedades` | `Descripcion` | **`LongText`** | — | indistinguible de Text por contenido |
+| `NOV_Novedades` | `Estado` | **`Enum`** · valores: `Reportada` · `Aceptada` · `Descartada` | — | el contenido no declara el conjunto de valores permitidos |
+| `NOV_Novedades` | `FechaHora` | **`ChangeTimestamp`** | — | lo escribe el servidor; por contenido no se distingue de una fecha cualquiera |
+| `NOV_Novedades` | `Fotografia` | **`Image`** | — | la celda solo lleva un nombre de archivo |
+| `NOV_Novedades` | `Tipo` | **`Enum`** · valores: `Activo no inventariado` · `Falla detectada` | — | el contenido no declara el conjunto de valores permitidos |
+| `OT_OrdenesTrabajo` | `CerradaPor` | **`Ref`** → `USR_Usuarios` | — | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `OT_OrdenesTrabajo` | `OTOrigenID` | **`Ref`** → `OT_OrdenesTrabajo` | — | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `OT_OrdenesTrabajo` | `Observaciones` | **`LongText`** | — | indistinguible de Text por contenido |
+| `OT_OrdenesTrabajo` | `Tipo` | **`Enum`** · valores: `Preventivo` · `Correctivo` | — | el contenido no declara el conjunto de valores permitidos |
+| `PAR_Parametros` | `Descripcion` | **`LongText`** | — | indistinguible de Text por contenido |
+| `PLA_PlanMantenimiento` | `ResponsableID` | **`Ref`** → `USR_Usuarios` | — | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
+| `TIP_TiposActivo` | `Categoria` | **`Enum`** · valores: `ITS` · `Electrico` · `Comunicaciones` · `TI` | — | el contenido no declara el conjunto de valores permitidos |
+| `TIP_TiposActivo` | `RequiereGPS` | **`Yes/No`** | — | su nombre dispara la inferencia a LatLong y NO lo es (observado: Precision_GPS salio LatLong el 2026-08-10 estando su tabla VACIA: no pudo ser el contenido) |
+| `TIP_TiposActivo` | `TieneQR` | **`Yes/No`** | — | supuesto sin verificar: que el contenido TRUE/FALSE produzca Yes/No no esta en la documentacion ni lo hemos observado. Si falla, la columna sale Text y toda comparacion contra TRUE es siempre falsa, sin dar error |
+| `USR_Usuarios` | `RolID` | **`Ref`** → `ROL_Roles` | — | ningun contenido produce una referencia, y el prefijo de tabla rompe el parecido de nombre a proposito |
 
-Tipo `Enum`, y **los valores exactos**. No los deduzcas ni los traduzcas: son estos.
+### Las 17 que el NOMBRE consigue
 
-| Tabla | Columna | Valores |
-|---|---|---|
-| `TIP_TiposActivo` | `Categoria` | `ITS` · `Electrico` · `Comunicaciones` · `TI` |
-| `EOT_EstadosOrden` | `QuienCambia` | `Sistema` · `Tecnico` · `Supervisor` |
-| `ACT_Activos` | `Criticidad` | `Alta` · `Media` · `Baja` |
-| `ACT_Activos` | `MotivoBaja` | `Obsolescencia` · `Dano irreparable` · `Robo o vandalismo` · `Reemplazo` · `Retiro por obra` |
-| `OT_OrdenesTrabajo` | `Tipo` | `Preventivo` · `Correctivo` |
-| `MAN_Mantenimientos` | `OrigenApertura` | `QR` · `Lista` |
-| `NOV_Novedades` | `Tipo` | `Activo no inventariado` · `Falla detectada` |
-| `NOV_Novedades` | `Estado` | `Reportada` · `Aceptada` · `Descartada` |
-| `FAL_ModosFalla` | `Criticidad` | `Alta` · `Media` · `Baja` |
-| `FOT_Fotografias` | `Tipo` | `Antes` · `Despues` · `Novedad` |
-| `FIR_Firmas` | `TipoFirma` | `Tecnico` |
-| `CHD_ChecklistDetalle` | `RespuestaLista` | **sin declarar en el modelo. Pregunta antes de inventarlos** |
+Deberían haber entrado bien porque su nombre lleva la palabra que AppSheet reconoce.
+**Compruébalas igual**: es una heurística, no una garantía.
 
-### Las 6 coordenadas
+- `ACT_Activos.FechaBaja` → **`Date`**  ·  su nombre lo dispara (observado: ACT_Activos.FechaBaja salio DateTime estando vacia en las 368)
+- `ACT_Activos.Ubicacion_LatLong` → **`LatLong`**  ·  su nombre lo dispara (documentado: 13, tabla de palabras reconocidas)
+- `CHK_Checklists.FechaFin` → **`DateTime`**  ·  su nombre lo dispara (observado: ACT_Activos.FechaBaja salio DateTime estando vacia en las 368)
+- `CHK_Checklists.FechaInicio` → **`DateTime`**  ·  su nombre lo dispara (observado: ACT_Activos.FechaBaja salio DateTime estando vacia en las 368)
+- `FOT_Fotografias.Ubicacion_LatLong` → **`LatLong`**  ·  su nombre lo dispara (documentado: 13, tabla de palabras reconocidas)
+- `MAN_Mantenimientos.Coordenadas_Cierre_LatLong` → **`LatLong`**  ·  su nombre lo dispara (documentado: 13, tabla de palabras reconocidas)
+- `MAN_Mantenimientos.FechaAprobacion` → **`DateTime`**  ·  su nombre lo dispara (observado: ACT_Activos.FechaBaja salio DateTime estando vacia en las 368)
+- `MAN_Mantenimientos.FechaHoraEscaneo` → **`DateTime`**  ·  su nombre lo dispara (observado: ACT_Activos.FechaBaja salio DateTime estando vacia en las 368)
+- `MAN_Mantenimientos.FechaHoraFin` → **`DateTime`**  ·  su nombre lo dispara (observado: ACT_Activos.FechaBaja salio DateTime estando vacia en las 368)
+- `MAN_Mantenimientos.FechaHoraInicio` → **`DateTime`**  ·  su nombre lo dispara (observado: ACT_Activos.FechaBaja salio DateTime estando vacia en las 368)
+- `MAN_Mantenimientos.UbicacionEscaneo_LatLong` → **`LatLong`**  ·  su nombre lo dispara (documentado: 13, tabla de palabras reconocidas)
+- `NOV_Novedades.Ubicacion_LatLong` → **`LatLong`**  ·  su nombre lo dispara (documentado: 13, tabla de palabras reconocidas)
+- `OT_OrdenesTrabajo.FechaCierre` → **`DateTime`**  ·  su nombre lo dispara (observado: ACT_Activos.FechaBaja salio DateTime estando vacia en las 368)
+- `OT_OrdenesTrabajo.FechaProgramada` → **`DateTime`**  ·  su nombre lo dispara (observado: ACT_Activos.FechaBaja salio DateTime estando vacia en las 368)
+- `PLA_PlanMantenimiento.ProximaFecha` → **`Date`**  ·  su nombre lo dispara (observado: ACT_Activos.FechaBaja salio DateTime estando vacia en las 368)
+- `SED_Sedes.Ubicacion_LatLong` → **`LatLong`**  ·  su nombre lo dispara (documentado: 13, tabla de palabras reconocidas)
+- `USR_Usuarios.FechaIngreso` → **`Date`**  ·  su nombre lo dispara (observado: ACT_Activos.FechaBaja salio DateTime estando vacia en las 368)
 
-Deberían haber entrado ya como `LatLong`, porque su nombre lleva la palabra que AppSheet
-reconoce. **Compruébalas igual**, y si alguna salió `Text`, cámbiala: `DISTANCE()` no funciona
-sobre texto.
+### Las 87 que dependen del contenido
 
-- `SED_Sedes.Ubicacion_LatLong`
-- `ACT_Activos.Ubicacion_LatLong`
-- `MAN_Mantenimientos.UbicacionEscaneo_LatLong`
-- `MAN_Mantenimientos.Coordenadas_Cierre_LatLong`
-- `NOV_Novedades.Ubicacion_LatLong`
-- `FOT_Fotografias.Ubicacion_LatLong`
+AppSheet debería acertar leyendo los valores — **cuando los hay**. Las de una tabla vacía no
+tienen contenido que leer, así que estas también hay que mirarlas ahí. La lista completa, tabla
+por tabla, está en [`TIPOS_ESPERADOS.md`](TIPOS_ESPERADOS.md).
+
+> **El caso que desarma la confianza en el contenido:** `SED_Sedes.TramoINVIAS` tenía un valor
+> real y representativo, `5607`, y AppSheet la tipó **`Number`**. El modelo dice `Text`, y el día
+> que operación escriba `55CN03` no cabrá. Tener el dato correcto no basta.
 
 ## Paso 4 — Las 21 reglas
 

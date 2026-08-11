@@ -101,12 +101,34 @@ print("Archivo: %s" % _mostrado)
 print("")
 
 # ------------------------------------------- G-01  obligatoria y sin poblar
-print("G-01  Columnas obligatorias, en las tablas que tienen filas")
+print("G-01  Columnas obligatorias · G-04  tablas vacias, tipadas a ciegas")
 print("")
+# Una tabla vacia NO es "nada que medir": es donde se concentra el fallo.
+#
+# Este bucle hacia `continue` sobre ella, y con eso las 80 columnas de las ocho
+# tablas de movimiento eran estructuralmente invisibles para el verificador. No
+# porque estuvieran bien: porque no se miraban. Es la misma confusion que
+# auditar_cableado.py habia escrito ese mismo dia -«confundir no lo puedo ver
+# con esta bien»- aplicada a las referencias y no generalizada a los tipos.
+#
+# No cambia el criterio de G-01 -que mide la HOJA, y el tipo vive en el EDITOR-:
+# lo que cambia es que el silencio pase a ser una obligacion contada y con
+# fecha. Endurecer, no relajar.
+LIMITE_TIPOS_A_CIEGAS = "2026-08-31"
+
 for t in MODELO:
     filas = datos.get(t)
     if not filas:
-        continue        # tabla vacia: F-11 ya avisa, aqui no hay nada que medir
+        cuantas = len(MODELO[t]["columnas"])
+        import datetime
+        vencido = datetime.date(*map(int, LIMITE_TIPOS_A_CIEGAS.split("-")))             < datetime.date.today()
+        linea = ("%s llego VACIA, asi que AppSheet eligio el tipo de sus %d "
+                 "columnas sin un solo dato. Ninguna esta confirmada en el "
+                 "editor" % (t, cuantas))
+        (fallos if vencido else avisos).append(
+            "[G-04] %s%s" % (linea, ". El plazo vencio el %s" % LIMITE_TIPOS_A_CIEGAS
+                             if vencido else " (hasta el %s)" % LIMITE_TIPOS_A_CIEGAS))
+        continue
     for col in MODELO[t]["columnas"]:
         if not col.get("obligatoria"):
             continue

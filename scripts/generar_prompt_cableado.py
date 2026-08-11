@@ -17,6 +17,16 @@ sys.path.insert(0, os.path.join(RAIZ, "scripts"))
 
 from modelo_objetivo import MODELO, REGLAS, CLAVE_GENERADA
 from sistema import APP_NOMBRE, APP_ID, APP_URL, HOJA_NOMBRE
+from inferencia import clasificar
+
+clases = clasificar()
+reglas_de = {}
+import re as _re
+for _r in REGLAS:
+    for _n in _re.findall(r"\[(\w+)\]", _r.get("expresion") or ""):
+        reglas_de.setdefault(_n, set()).add(_r["id"])
+    if _r.get("columna"):
+        reglas_de.setdefault(_r["columna"], set()).add(_r["id"])
 
 SALIDA = os.path.join(RAIZ, "docs", "PROMPT_CABLEADO.md")
 
@@ -124,38 +134,58 @@ w("> llevarlo por simetría con las otras, y no. Con `IsPartOf`, borrar una orde
 w("> mantenimiento entero y con él toda su evidencia.")
 w("")
 
-w("## Paso 3 — Los tipos que no se infieren")
+w("## Paso 3 — Los tipos. **Las %d, no una lista de excepciones**" % sum(len(MODELO[t]["columnas"]) for t in MODELO))
 w("")
-w("### Las %d marcas de tiempo del servidor" % len(stamps))
+w("**Este paso se llamaba «los tipos que no se infieren» y enumeraba 61 columnas.** Era una lista")
+w("blanca de excepciones sobre un default que se presumía bueno: las otras 150 se daban por")
+w("correctas por omisión. La plataforma garantiza lo contrario, y el precio fue `RG-03` —bien")
+w("escrita, bien colocada— sobre una columna que AppSheet tipó `Text` cuando el modelo dice")
+w("`Yes/No`. Comparar texto contra el booleano `TRUE` es **siempre falso y no da error**: el motivo")
+w("de excepción no se pide nunca. La regla existe y es decorativa.")
 w("")
-w("Tipo **`ChangeTimestamp`**. AppSheet no lo infiere nunca: llegan como texto.")
+w("Y el «qué reportar» cerraba el bucle en falso —«cualquier tipo distinto del que dice este")
+w("documento»—: **nadie puede reportar una diferencia contra un valor que nunca se le dio.**")
 w("")
-for t, col in stamps:
-    w("- `%s.%s`" % (t, col))
+w("### Las %d que NADIE pone si no las pones tú" % len(clases["a mano"]))
 w("")
-w("**Por qué importa.** `ChangeTimestamp` la escribe el servidor. Un `Initial value = NOW()` lo pone")
-w("el teléfono, y el usuario puede cambiar la hora del teléfono. Sin esto, **la hora de cada")
-w("fotografía y de cada firma no prueba nada**, que es justo lo que el sistema existe para sostener.")
+w("Ningún contenido de la hoja las produce, o su propio nombre empuja a AppSheet al tipo")
+w("equivocado. **Están ordenadas por las reglas que dependen de cada una**, que es lo que ordena el")
+w("trabajo: una columna mal tipada sin regla encima molesta al usuario; con una regla encima")
+w("**rompe la regla en silencio**.")
 w("")
-w("### Los %d desplegables" % len(enums))
+w("| Tabla | Columna | `TYPE` | Reglas | Por qué no se consigue sola |")
+w("|---|---|---|---|---|")
+for t, c, motivo in sorted(clases["a mano"],
+                           key=lambda x: (-len(reglas_de.get(x[1]["nombre"], ())), x[0], x[1]["nombre"])):
+    rr = reglas_de.get(c["nombre"], set())
+    detalle = ""
+    if c.get("ref"):
+        detalle = " → `%s`" % c["ref"]
+    elif c.get("valores"):
+        detalle = " · valores: %s" % " · ".join("`%s`" % v for v in c["valores"])
+    w("| `%s` | `%s` | **`%s`**%s | %s | %s |"
+      % (t, c["nombre"], c["tipo"], detalle,
+         ", ".join("`%s`" % x for x in sorted(rr)) if rr else "—", motivo))
 w("")
-w("Tipo `Enum`, y **los valores exactos**. No los deduzcas ni los traduzcas: son estos.")
+
+w("### Las %d que el NOMBRE consigue" % len(clases["nombre"]))
 w("")
-w("| Tabla | Columna | Valores |")
-w("|---|---|---|")
-for t, col, valores in enums:
-    w("| `%s` | `%s` | %s |"
-      % (t, col, " · ".join("`%s`" % v for v in valores) if valores
-         else "**sin declarar en el modelo. Pregunta antes de inventarlos**"))
+w("Deberían haber entrado bien porque su nombre lleva la palabra que AppSheet reconoce.")
+w("**Compruébalas igual**: es una heurística, no una garantía.")
 w("")
-w("### Las %d coordenadas" % len(latlong))
+for t, c, motivo in sorted(clases["nombre"], key=lambda x: (x[0], x[1]["nombre"])):
+    w("- `%s.%s` → **`%s`**  ·  %s" % (t, c["nombre"], c["tipo"], motivo))
 w("")
-w("Deberían haber entrado ya como `LatLong`, porque su nombre lleva la palabra que AppSheet")
-w("reconoce. **Compruébalas igual**, y si alguna salió `Text`, cámbiala: `DISTANCE()` no funciona")
-w("sobre texto.")
+
+w("### Las %d que dependen del contenido" % len(clases["contenido"]))
 w("")
-for t, col in latlong:
-    w("- `%s.%s`" % (t, col))
+w("AppSheet debería acertar leyendo los valores — **cuando los hay**. Las de una tabla vacía no")
+w("tienen contenido que leer, así que estas también hay que mirarlas ahí. La lista completa, tabla")
+w("por tabla, está en [`TIPOS_ESPERADOS.md`](TIPOS_ESPERADOS.md).")
+w("")
+w("> **El caso que desarma la confianza en el contenido:** `SED_Sedes.TramoINVIAS` tenía un valor")
+w("> real y representativo, `5607`, y AppSheet la tipó **`Number`**. El modelo dice `Text`, y el día")
+w("> que operación escriba `55CN03` no cabrá. Tener el dato correcto no basta.")
 w("")
 
 w("## Paso 4 — Las %d reglas" % len(REGLAS))

@@ -240,3 +240,22 @@ Un supuesto corregido no es un error del método: es el método funcionando.
 - `docs/INDICACIONES_POR_ROL.md` reparte por rol lo que sigue abierto en el apartado 3.3.
 - La directiva de construcción original, `PROMPT_CONSTRUCCION_SGMC.md`, y la que la sucedió,
   `PROMPT_CONTINUAR_DESPLIEGUE.md`, se retiraron en la limpieza del 2026-08-10.
+
+### S-nuevo · Que el contenido `TRUE`/`FALSE` produzca `Yes/No` (2026-08-10)
+
+**38 columnas del modelo son `Yes/No` — el 18 % — y ninguna cumple un gatillo de nombre
+documentado:** ni acaban en `?` ni empiezan por `is`/`has`, que es lo único que §13 de la base de
+conocimiento reconoce. Que AppSheet las tipe `Yes/No` depende de que lea `TRUE`/`FALSE` en el
+contenido, **y eso no está en la documentación oficial ni lo hemos observado aquí.**
+
+**Si el supuesto es falso**, esas 38 salen `Text`, y entonces toda comparación contra el booleano
+`TRUE` es **siempre falsa y no da error**. Ya ocurrió con una: `MAN_Mantenimientos.CierreConExcepcion`
+salió `Text`, y `RG-03` —bien escrita y bien colocada— dejó de pedir el motivo de excepción.
+
+**27 de las 38 las nombra alguna regla.** `RG-04` y `RG-16` solas cabalgan sobre las 24 columnas
+`Activo`, de modo que si el supuesto falla, el filtro de seguridad que decide qué activos ve cada
+técnico compara contra blanco.
+
+**Cómo se cierra:** o una cita de la documentación oficial de AppSheet, o confirmarlas una a una en
+`Data > Columns`. Mientras tanto, `PROMPT_CABLEADO.md` las lista entre las que hay que poner a mano.
+
