@@ -929,6 +929,50 @@ casos el defecto no es de nadie que se equivoque, es de que **el sistema no emit
 única defensa que ha funcionado en este proyecto es la misma en los dos: **que lo diga el propio
 artefacto, generado, y no una persona que se acuerde.**
 
+## 7.18 El gate tiene entrada y no tenía salida (regla nueva, 2026-08-11)
+
+El pipeline SDD define al arquitecto como **«refutar, no aprobar»**. Es un papel cuyo criterio de
+éxito es *encontrar algo*, y a un revisor al que se le pide que encuentre siempre le queda algo por
+encontrar. Nadie había definido «suficiente».
+
+`ESPEC-006` llegó a su tercera pasada. La curva de lo que cada ronda encontró es el dato:
+
+| | Qué encontró |
+|---|---|
+| Ronda 1 | una función que no existe en la plataforma · claves sin generador. **Rompen en producción** |
+| Ronda 2 | `V-11` no validaba columnas · el volcado ciego. **Reales** |
+| Ronda 3 | una precondición **inventada**, fundada en un instrumento incapaz de observarla · prosa describiendo el estado anterior |
+
+Menos daño real y más desajuste de documento en cada vuelta. El propio arquitecto lo diagnosticó:
+*«la presión por producir hallazgos nuevos en cada ronda produjo uno falso, y ese falso es el que
+deja fuera de alcance las 9 pruebas que importan»*.
+
+### La vara
+
+**Un hallazgo bloquea solo si nombra qué se rompe en producción.** Si no puede decir *«un técnico
+hará X y pasará Y»*, no es bloqueante: es una **nota**. Se apunta, se arregla después, y no detiene
+la ejecución.
+
+Aplicada a los nueve de esa ronda 3: **tres bloquean y seis son notas.**
+
+### El límite
+
+**Dos pasadas de arquitecto por especificación.** A la tercera, lo que quede se escribe como **riesgo
+aceptado**, con su nombre y su fecha, y se ejecuta.
+
+No porque las objeciones dejen de ser válidas. Porque **una especificación que no se ejecuta nunca
+protege exactamente igual que una regla que no hace nada** — que es el defecto de §7.13, aplicado al
+proceso en vez de al producto.
+
+### Y lo que esto enseña sobre dónde mirar
+
+Todo defecto real del 2026-08-10 y 11 se encontró **tocando la cosa**, no leyendo documentos sobre
+ella. La función inexistente la dijo el editor. Las claves, el editor. La caché, el editor. Los
+tipos, el editor.
+
+Cuando una ronda de revisión documental empieza a encontrar solo desajustes de prosa, la respuesta
+no es otra ronda: es **ir a mirar**.
+
 ## 8. Deriva documental: ahora es mecanica
 
 Este archivo llevaba una lista escrita a mano de contradicciones conocidas entre documentos. Esa

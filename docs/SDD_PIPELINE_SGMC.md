@@ -83,6 +83,26 @@ graph LR
 
 ### Por qué estos modelos y no todo en el más barato
 
+## El gate tiene salida, y hasta hoy no la tenía
+
+El arquitecto está definido como **«refutar, no aprobar»**, y eso es correcto para entrar. Pero un
+papel cuyo criterio de éxito es *encontrar algo* siempre encuentra algo, y `ESPEC-006` llegó a una
+tercera pasada en la que **se inventó un bloqueo que no existía**, fundado en un instrumento
+incapaz de observarlo.
+
+Dos reglas, y están en `CLAUDE.md` §7.18 con el análisis entero:
+
+**Un hallazgo bloquea solo si nombra qué se rompe en producción.** Si no puede decir «un técnico
+hará X y pasará Y», es una **nota**: se apunta, se arregla después, y no detiene la ejecución.
+
+**Dos pasadas de arquitecto por especificación.** A la tercera, lo que quede se escribe como
+**riesgo aceptado** —con nombre y fecha— y se ejecuta. Una especificación que no se ejecuta nunca
+protege igual que una regla que no hace nada.
+
+Y una consecuencia práctica: cuando una ronda empieza a encontrar solo desajustes de prosa, la
+respuesta no es otra ronda. Es **ir a mirar el editor**, que es donde han salido todos los defectos
+reales.
+
 El criterio no es el precio por token sino **el costo del error de cada rol**.
 
 - **El arquitecto va en el modelo más fuerte** porque es el único gate. Un especificador flojo
