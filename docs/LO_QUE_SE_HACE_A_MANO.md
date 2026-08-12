@@ -72,6 +72,46 @@ Ordenado por **cuándo se hace**. Ejecuta de arriba abajo.
   copiando literalmente lo que se ve, **aunque coincida con lo esperado** — «coincide» no es
   evidencia, el texto sí.
 
+## 1bis. Antes de entrar: con qué cuenta, y dónde está el texto de las reglas
+
+**Un lector en frío leyó esta entrega el 2026-08-11 y calculó que podía ejecutar un 40%.** Sus dos
+primeros bloqueantes eran estos dos, y no estaban escritos en ninguna parte.
+
+### Con qué cuenta se entra
+
+La aplicación es **`_SISGA_-323965761`** y su cuenta dueña es **`dieleoz@gmail.com`**. Se entra por
+[appsheet.com](https://www.appsheet.com/), o desde el celular instalando **AppSheet** de Play Store
+o App Store y entrando con esa cuenta.
+
+> **Y una cosa que no es obvia y bloquea pruebas enteras.** Varias columnas se autorrellenan con
+> `LOOKUP(USEREMAIL(), "USR_Usuarios", "Correo", "UsuarioID")`, que **devuelve vacío si el correo
+> con el que entraste no está en `USR_Usuarios`**. Dos de esas columnas son obligatorias, así que
+> con el `LOOKUP` vacío **no se puede guardar un mantenimiento ni una novedad** — y el síntoma
+> parece un error de cableado cuando no lo es.
+>
+> Los once usuarios originales son `@concesiondelsisga.com.co`. `dieleoz@gmail.com` se añadió como
+> **`USR-012`**, rol Administrador, el 2026-08-11. Si entras con otra cuenta, comprueba primero que
+> está en la lista:
+>
+> ```bash
+> python -c "import json,glob,os;f=max(glob.glob('BD/instantaneas/despues-*.json'),key=os.path.getmtime);print([r.get('Correo') for r in json.load(open(f,encoding='utf-8'))['USR_Usuarios']])"
+> ```
+
+### Dónde está el texto literal de cada regla
+
+**Este documento dice qué hacer y dónde, pero no trae las expresiones.** Para cablear hace falta el
+texto exacto, y **no se escribe de memoria**:
+
+| Necesitas | Está en |
+|---|---|
+| El encargo completo del editor, paso a paso | [`docs/PROMPT_CABLEADO.md`](PROMPT_CABLEADO.md) |
+| Las 23 expresiones íntegras, sin truncar, con el porqué de cada una | [`docs/sdd/RECONSTRUCCION_EXPRESIONES.md`](sdd/RECONSTRUCCION_EXPRESIONES.md) |
+| Qué tipo debe tener cada columna | [`docs/TIPOS_ESPERADOS.md`](TIPOS_ESPERADOS.md) |
+| Dónde se hace clic para cada cosa | `scripts/navegacion_editor.py` |
+
+Los tres primeros son **generados del modelo**: si contradicen a este documento, tienen razón
+ellos.
+
 ## 2. Qué queda por hacer — actualizado el 2026-08-11, por la tarde
 
 > **Este documento se escribió por la mañana con trece pasos, y por la tarde nueve estaban hechos.**

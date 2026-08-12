@@ -84,6 +84,25 @@ w("")
 w("Todo lo que sigue vive dentro de esa ventana. Lo que no está aquí es porque no.")
 w("")
 
+# Este documento se genera del MODELO, y el modelo no sabe si alguien ya paso
+# por el editor -la API devuelve filas, no esquema-. Asi que lista sus pasos
+# como pendientes SIEMPRE, aunque esten hechos.
+#
+# No es una hipotesis: el 2026-08-11 un lector siguio este encargo y propuso
+# rehacer trabajo cerrado horas antes. El aviso es lo unico que un documento
+# generado puede hacer al respecto.
+w("> **Antes de ejecutar nada, comprueba si ya está hecho.** Este documento se genera del modelo, y")
+w("> el modelo **no puede saber si alguien ya pasó por el editor**: la API de AppSheet devuelve filas,")
+w("> no esquema. Así que lista sus pasos como pendientes **siempre**, estén hechos o no.")
+w("> ")
+w("> Lo que sí lo sabe son las actas, y el estado vigente vive en")
+w("> [`LO_QUE_SE_HACE_A_MANO.md`](LO_QUE_SE_HACE_A_MANO.md), que separa lo hecho de lo que queda con")
+w("> el acta que lo respalda. **Míralo primero.**")
+w("> ")
+w("> No es una precaución teórica: el 2026-08-11 alguien siguió este encargo y propuso rehacer trabajo")
+w("> cerrado unas horas antes.")
+w("")
+
 w("## Paso 1 — Las %d columnas virtuales `Etiqueta`" % len(virtuales))
 w("")
 w("**No son columnas de la hoja.** Son columnas **virtuales**: las calcula AppSheet y no se guardan")

@@ -532,6 +532,17 @@ resultado — y confirmado corriendo `verificar_faseA.py` sobre la copia con el 
 
 ## 6. Riesgos y dependencias
 
+**Antes de la lista, el límite de lo que esto garantiza, porque es fácil leerlo de más.**
+`Editable_If = FALSE` es una regla de **la capa de aplicación**: impide que un técnico cambie la
+identidad **desde la app**. Las dos cuentas con permiso de edición sobre `Modelo_Datos_10082026`
+pueden reescribir `TecnicoID` **directamente en el Sheets** y la prueba de identidad desaparece
+sin dejar rastro.
+
+La identidad queda **inviolable en la app, no en el backend**. Este documento menciona esa
+edición manual más abajo como el **remedio** de una autoatribución equivocada —y lo es—, pero es
+también **el agujero de la garantía**, y las dos cosas son la misma puerta. Es el mismo límite que
+`ESPEC-004` §2.14 declara para `RG-03`: no se resuelve aquí, se nombra.
+
 - **No se sabe si `TecnicoID`, `UsuarioID`, `UsuarioRegistro` o `Usuario` ya tienen algo cableado en
   el editor de producción** (§2.9). Es el mismo riesgo que `ESPEC-008` §6 nombró para
   `Ubicacion_LatLong`, y ya no es hipotético: `docs/sdd/ACTA-011` midió, el mismo día, tres columnas
@@ -570,6 +581,15 @@ resultado — y confirmado corriendo `verificar_faseA.py` sobre la copia con el 
 
 ## 7. Supuestos adoptados
 
+- **Que una columna `Ref` se dibuja como un selector desplegable, y por eso es más explotable que
+  una `Text`.** Es el supuesto sobre el que descansa toda la jerarquía de este documento —dos
+  columnas de clase 1, dos de clase 2— y estaba declarado en la prosa del §1 **sin subir a esta
+  tabla**, que es donde se le mira la cara a un supuesto. **Qué lo rompe:** que AppSheet dibuje un
+  `Ref` de otra forma en el formulario —un campo de texto con autocompletado, por ejemplo—, en cuyo
+  caso las cuatro columnas son igual de explotables y el orden de prioridad da lo mismo. **Qué tan
+  barato es reabrirlo:** no cambia la decisión —las cuatro se protegen igual—, solo el argumento de
+  por qué dos urgen más. Y **se mide mirando un formulario**, no hay que preguntarle a nadie.
+
 - **Se adopta que `MAN_Mantenimientos.TecnicoID` (ejecución) y `OT_OrdenesTrabajo.TecnicoID`
   (asignación) son conceptos distintos y que esta especificación solo congela el primero.**
   Verificado en el §2.7: mecanismos distintos, sin relación declarada entre ambos. **Qué lo rompe:**
@@ -602,11 +622,47 @@ resultado — y confirmado corriendo `verificar_faseA.py` sobre la copia con el 
 
 ## 8. Cierre — qué se acepta como riesgo, y qué no entra aquí
 
-**Sin dictamen del arquitecto todavía.** Esta es la última especificación prevista de esta tanda y se
-entrega para su revisión; no se inventa un veredicto. Lo que sigue es lo que el arquitecto necesita
-para dictaminar, no una aprobación.
+**APROBADA CON RIESGOS ACEPTADOS el 2026-08-11**, en primera pasada. Las **seis condiciones** del
+dictamen están aplicadas: el paso 0 de `P-83` —comprobar que el correo de quien prueba esté en
+`USR_Usuarios`—, su tercera comprobación reescrita para una tabla en 0 filas, el discriminante
+entre las dos causas de un campo vacío, el límite de la garantía en §6, el supuesto del `Ref` como
+selector subido a §7, y este cierre.
 
-### Lo que un dictamen tendría que mirar
+El arquitecto reprodujo las cuatro afirmaciones de carga por su cuenta —no las leyó—, incluida la
+que sostiene el documento entero: que `OT_OrdenesTrabajo.TecnicoID` es otra columna y la
+reasignación no se rompe. Y revirtió él mismo el parche de `ORDEN-008` para comprobar que `P-80`
+falla de verdad.
+
+### Riesgos aceptados
+
+1. **2026-08-11 — El `LOOKUP` puede devolver vacío aunque el `Initial value` esté perfecto.**
+   `LOOKUP(USEREMAIL(), "USR_Usuarios", "Correo", "UsuarioID")` no encuentra nada si el correo
+   logueado no está en la tabla, y entonces `TecnicoID` —obligatoria— queda vacía y congelada: **no
+   se puede guardar un mantenimiento**. Es una **segunda vía al mismo bloqueo** que el orden de
+   cableado no cubre. Lo encontró el arquitecto y se verificó contra los datos el mismo día: la
+   cuenta dueña de la aplicación no estaba en `USR_Usuarios`. **Se acepta** porque `P-83` ahora
+   lo comprueba antes de nada y porque añadir un correo cuesta una fila.
+
+2. **2026-08-11 — La garantía vive solo en la aplicación.** Dos cuentas pueden reescribir la
+   identidad directamente en el Sheets (§6). Aceptado, no resuelto — mismo criterio que
+   `ESPEC-004` §2.14 para `RG-03`.
+
+3. **2026-08-11 — El dato de identidad se guarda dos veces y puede divergir sin arreglo.**
+   `MAN.TecnicoID` (`Ref`) y `MAN.UsuarioRegistro` (`Text`) registran el mismo hecho, y congeladas
+   las dos pueden separarse de forma permanente **justo cuando el `LOOKUP` falla y `USEREMAIL()`
+   no**. El arquitecto lo señaló como argumento **a favor** de conservar `UsuarioRegistro`, contra
+   su candidatura a retiro del §5: es el registro en crudo que sobrevive al `LOOKUP` fallido.
+
+4. **2026-08-11 — `FIR_Firmas` no tiene columna de identidad propia.** Quién firmó se deriva por
+   `MantenimientoID` → `MAN_Mantenimientos.TecnicoID`, así que **`RG-41` es lo único que protege la
+   identidad de la firma**. Se acepta y se nombra: refuerza el cambio y deja el hueco identificado.
+
+5. **2026-08-11 — El `alias_justificado` de `OT_OrdenesTrabajo.TecnicoID` dice «quien ejecuta»** y
+   este documento lo trata como «a quién se asigna». El argumento **mecánico** —sin `valor_inicial`,
+   sin `Editable_If`, y `RG-38` la mapea desde `PLA_PlanMantenimiento.ResponsableID`— está verificado
+   y no depende del alias. Corregir el alias queda para una pasada futura.
+
+### Lo que un dictamen tenía que mirar, y miró
 
 1. **El riesgo del §2.9 es real y tiene precedente medido, no solo argumentado.** `TecnicoID` y
    `UsuarioID` son obligatorias; si su `Initial value` no está cableado en el editor de producción y

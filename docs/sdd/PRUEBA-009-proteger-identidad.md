@@ -257,6 +257,22 @@ tanda.
 que decidir qué mirar, y en el orden que `ESPEC-009` §2.9 y §6 fijan como obligatorio.
 
 - **Precondición:** `ESPEC-009` aplicada al modelo, `RG-41` a `RG-44` cableadas.
+- **Paso 0 — comprobar que TU correo está en `USR_Usuarios.Correo`, antes que nada.**
+  `Data > Tables > USR_Usuarios > View Data`, columna `Correo`.
+
+  ```bash
+  python -c "import json,glob,os;f=max(glob.glob('BD/instantaneas/despues-*.json'),key=os.path.getmtime);print([r.get('Correo') for r in json.load(open(f,encoding='utf-8'))['USR_Usuarios']])"
+  ```
+
+  **Sin esto la prueba entera engaña.** `LOOKUP(USEREMAIL(), "USR_Usuarios", "Correo",
+  "UsuarioID")` devuelve **vacío** si el correo con el que estás dentro de AppSheet no figura en
+  esa lista, **por muy bien cableado que esté el `Initial value`**. Es una segunda vía al mismo
+  bloqueo, y el orden del paso 1 no protege contra ella.
+
+  Se descubrió el 2026-08-11 y no era hipotético: los once usuarios eran
+  `@concesiondelsisga.com.co` y la cuenta dueña de la aplicación, `dieleoz@gmail.com`, **no
+  estaba**. Se añadió como `USR-012` con rol Administrador
+  (`docs/HALLAZGOS_ABIERTOS.md`).
 - **Paso 1, antes de cambiar nada — leer el `Initial value` de las cuatro, sin activar el icono `=`**
   (incidente ya documentado en `ACTA-004` §5: activarlo sobre un campo sin expresión previa puede
   dejarlo en un estado inválido y tumbar la app):
@@ -278,12 +294,35 @@ que decidir qué mirar, y en el orden que `ESPEC-009` §2.9 y §6 fijan como obl
   `Initial value` está vacío y `Editable?` ya está en `FALSE`, se aplicó en el orden equivocado —el
   riesgo nombrado en `ESPEC-009` §2.9 y §6— y hay que revertir `Editable_If` a `TRUE` antes de que
   cualquier técnico intente guardar un mantenimiento o una novedad.
+
+  > **Y hay una tercera causa que se confunde con esa, así que hay que distinguirla.** Si el campo
+  > sale vacío en el formulario **pero el paso 1 confirmó que el `Initial value` sí está puesto**,
+  > el problema es el **paso 0**: tu correo no está en `USR_Usuarios`. **No revertir `Editable_If`
+  > por eso** — se revertiría un cableado correcto y el fallo seguiría igual.
+  >
+  > ```
+  > Initial value VACIO   + campo vacio  ->  el cableado. Revertir y rehacer en orden
+  > Initial value PUESTO  + campo vacio  ->  tu correo. Arreglar USR_Usuarios
+  > ```
 - **Tercera comprobación, en el formulario, no en `Data > Columns`:** abrir `Add a new
   MAN_Mantenimientos` y confirmar que `TecnicoID` se ve como el nombre del usuario que abrió el
   formulario, **sin poder tocarse** (a diferencia de como se comportaría hoy, antes de este cambio,
-  donde es un desplegable normal). Abrir por separado `Data: OT_OrdenesTrabajo > Edit` sobre una
-  orden existente y confirmar que `TecnicoID` **sigue siendo editable** ahí — es la comprobación
-  directa de que la reasignación de un supervisor no quedó bloqueada (`ESPEC-009` §2.7, `P-79`).
+  donde es un desplegable normal).
+
+  Y por separado, confirmar que `OT_OrdenesTrabajo.TecnicoID` **sigue siendo editable** — es la
+  comprobación directa de que la reasignación de un supervisor no quedó bloqueada (`ESPEC-009`
+  §2.7, `P-79`). **Se hace sobre el formulario `Add`, no sobre una orden existente**, porque
+  `OT_OrdenesTrabajo` tiene **0 filas** y no hay ninguna que editar:
+
+  ```bash
+  python scripts/verificar_app.py    # OT_OrdenesTrabajo -> 0
+  ```
+
+  Abrir `Add a new OT_OrdenesTrabajo` y comprobar que `TecnicoID` se despliega y deja elegir. **No
+  guardar**: la primera fila cierra la ventana barata para siempre. Abrir y cancelar es gratis.
+
+  La versión anterior de esta prueba decía «sobre una orden existente» y era **inejecutable**: la
+  escribió alguien que no comprobó cuántas filas hay.
 
 ## Lo que esta tanda NO prueba, y por qué
 

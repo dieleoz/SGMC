@@ -23,6 +23,17 @@ entren órdenes y mantenimientos no vuelven a estar vacías nunca.
 
 Todo lo que sigue vive dentro de esa ventana. Lo que no está aquí es porque no.
 
+> **Antes de ejecutar nada, comprueba si ya está hecho.** Este documento se genera del modelo, y
+> el modelo **no puede saber si alguien ya pasó por el editor**: la API de AppSheet devuelve filas,
+> no esquema. Así que lista sus pasos como pendientes **siempre**, estén hechos o no.
+> 
+> Lo que sí lo sabe son las actas, y el estado vigente vive en
+> [`LO_QUE_SE_HACE_A_MANO.md`](LO_QUE_SE_HACE_A_MANO.md), que separa lo hecho de lo que queda con
+> el acta que lo respalda. **Míralo primero.**
+> 
+> No es una precaución teórica: el 2026-08-11 alguien siguió este encargo y propuso rehacer trabajo
+> cerrado unas horas antes.
+
 ## Paso 1 — Las 2 columnas virtuales `Etiqueta`
 
 **No son columnas de la hoja.** Son columnas **virtuales**: las calcula AppSheet y no se guardan
