@@ -323,6 +323,24 @@ y por eso no hay forma de adelantarlo desde el repositorio.
       punto de la carretera que no es el equipo, y **rechaza el cierre legítimo** con 0,05 km de
       radio. **Que la celda tenga algo no es que el dato exista**, y esta es la partida donde más
       barato sale confundirlo
+- [ ] **Decidir qué pasa con `USR-012` al regenerar la plantilla.** Se añadió por API a producción
+      el 2026-08-11 —`dieleoz@gmail.com`, rol Administrador— porque sin él
+      `LOOKUP(USEREMAIL(), "USR_Usuarios", ...)` devuelve vacío y **no se puede guardar un
+      mantenimiento**. Pero `BD/Modelo_Datos_PLANTILLA.xlsx` se genera del catálogo del
+      repositorio, que tiene **11** usuarios, y producción tiene **12**:
+
+      ```bash
+      python -c "import openpyxl;print(openpyxl.load_workbook('BD/Modelo_Datos_PLANTILLA.xlsx',read_only=True)['USR_Usuarios'].max_row-1,'en local')"
+      ```
+
+      **Regenerar y subir la hoja borraría `USR-012`** y devolvería el bloqueo. O entra en el
+      catálogo del repositorio, o se repone a mano cada vez — y lo segundo se olvida.
+- [ ] **Resolver si `USR_Usuarios.Telefono` es obligatoria.** El editor la exige y el modelo la
+      declara opcional; lo delató la API al rechazar una escritura. Puede que el modelo se quedara
+      corto, que el editor esté mal, o que haya un `Required_If` puesto a mano que no está en
+      `REGLAS`. Se mira en `Data > Columns > USR_Usuarios > Telefono > Require?`. **Y abre la
+      pregunta general: cuántas columnas más son obligatorias en el editor sin que el modelo lo
+      diga.** No hay comando que lo responda.
 - [ ] Cargar `ACT_Activos.PR` y `ACT_Activos.TramoINVIAS`, vacías en las 368. **No se deducen del
       `PK`**: la conversión PK↔PR no es una fórmula sino una tabla de equivalencias que no existe, y
       el corredor tiene dos puntos distintos llamados `PR 0+000`

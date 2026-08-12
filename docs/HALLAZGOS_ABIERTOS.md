@@ -233,6 +233,67 @@ filas, no esquema. Hay que mirarlas a ojo, y el orden lo da la gravedad, no el a
 De las 3 del bloqueo duro, las tres se miraron el 2026-08-11 y **las tres estaban mal**. De las otras
 46, ninguna.
 
+## La hoja de producción y la plantilla del repositorio han divergido, medido
+
+Se compararon celda a celda el 2026-08-11. **El número de filas coincide en 27 de las 28 tablas**
+—solo `USR_Usuarios` difiere, por `USR-012`— pero las celdas no:
+
+| Celdas | Qué son |
+|---|---|
+| **2.351** | `TRUE`/`FALSE` contra `Y`/`N`. **Representación, no divergencia**: la hoja guarda una y la API devuelve la otra |
+| **4** | `EST_Activo.GeneraAlerta`: la plantilla trae valores, **producción las tiene VACÍAS las cuatro** |
+| **2** | `EOT_EstadosOrden.QuienCambia` en `Programada` y `Vencida`: `ORDEN-006` lo cambió a `Supervisor` **solo en la plantilla local** |
+
+```bash
+python scripts/instantanea.py guardar ahora
+# y comparar celda a celda contra BD/Modelo_Datos_PLANTILLA.xlsx
+```
+
+### Las cuatro de `GeneraAlerta` son un defecto vivo, no una diferencia
+
+```
+plantilla local              produccion
+  Operativo         FALSE      Operativo          (vacio)
+  En mantenimiento  FALSE      En mantenimiento   (vacio)
+  Fuera de servicio TRUE       Fuera de servicio  (vacio)   <<<
+  Retirado          FALSE      Retirado           (vacio)
+```
+
+**La condición de `RG-06` es `[EstadoActivoID].[GeneraAlerta] = TRUE`.** Con las cuatro vacías en
+producción, **esa comparación nunca es cierta y el bot no se dispara jamás**. `RG-06` es el que
+avisa al CCO y al supervisor cuando un activo queda fuera de servicio: la alerta que da sentido a
+la regla **no existe**.
+
+Y son tres capas del mismo problema sobre el mismo bot, descubiertas el mismo día:
+
+```
+1  no existia en el editor      -> se creo hoy
+2  no tiene destinatarios       -> el modelo no dice quien es el CCO
+3  su condicion nunca es cierta -> GeneraAlerta vacia en produccion
+```
+
+Es el patrón de siempre —configurado, bien escrito, sin error y sin efecto— en su versión más
+completa: **falla por tres motivos independientes a la vez**.
+
+### Por qué esto no lo caza ningún verificador
+
+`verificar_reproducible.py` compara **dos regeneraciones entre sí**, no la plantilla contra
+producción. `verificar_datos.py` mira la instantánea, no la plantilla. **Nadie compara los dos
+lados**, y por eso esta divergencia lleva ahí sin que nadie la viera.
+
+### Y una decisión que hay que tomar antes de tocar nada
+
+**Regenerar la plantilla y subirla arreglaría `GeneraAlerta` y `QuienCambia` — y borraría
+`USR-012`**, devolviendo el bloqueo del `LOOKUP`. Los tres viven en el mismo archivo y no se
+pueden separar sin decidir:
+
+1. **Meter `USR-012` en el catálogo del repositorio** y regenerar. Arregla los tres de una vez,
+   pero mete una cuenta de pruebas en el catálogo de producción.
+2. **Corregir las seis celdas por API** —cuatro de `GeneraAlerta`, dos de `QuienCambia`— y no tocar
+   la plantilla. Deja la divergencia viva pero no borra nada.
+3. **Regenerar, subir, y reponer `USR-012` a mano** después. Lo más limpio y lo más fácil de
+   olvidar.
+
 ## `USR_Usuarios.Telefono` es obligatoria en el editor y opcional en el modelo
 
 Lo dijo la API al rechazar una fila el 2026-08-11, con su texto literal:
