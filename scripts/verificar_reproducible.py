@@ -51,7 +51,21 @@ def contenido(ruta):
     """Todas las celdas de todas las pestanas. Sin metadatos: el .xlsx guarda la
     fecha de modificacion, asi que comparar los bytes daria distinto siempre."""
     wb = openpyxl.load_workbook(ruta, read_only=True, data_only=True)
-    return {h: [r for r in wb[h].iter_rows(values_only=True)] for h in wb.sheetnames}
+    try:
+        return {h: [r for r in wb[h].iter_rows(values_only=True)]
+                for h in wb.sheetnames}
+    finally:
+        # En modo read_only openpyxl deja el archivo ABIERTO hasta que se cierra
+        # a mano. En Windows eso hace que TemporaryDirectory reviente al limpiar
+        # -WinError 32, el proceso no tiene acceso al archivo- y el script sale
+        # con codigo 1 SIN HABER COMPARADO NADA.
+        #
+        # Es exactamente la trampa que este proyecto ya piso el 2026-08-11 con
+        # verificar_datos.py: un verificador que sale con 1 por un crash parece
+        # una deteccion, y se lee como si hubiera cazado algo. Peor aun al reves:
+        # aqui se leia como que la reproducibilidad fallaba, cuando ni siquiera
+        # se habia llegado a comprobar.
+        wb.close()
 
 
 ancho = "=" * 78
