@@ -19,7 +19,8 @@ import {
   RefreshCw,
   Layers,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Send
 } from "lucide-react";
 import { dbLocal, OrdenTrabajoLocal, MantenimientoEnCola, PreguntaChecklist } from "@/lib/db-offline";
 import { syncEngine } from "@/lib/sync-engine";
@@ -35,6 +36,11 @@ export default function TecnicoPage() {
   const [ordenes, setOrdenes] = useState<OrdenTrabajoLocal[]>([]);
   const [loadingOrdenes, setLoadingOrdenes] = useState(true);
   const [selectedOT, setSelectedOT] = useState<OrdenTrabajoLocal | null>(null);
+  
+  // Cola Outbox Offline
+  const [pendientesCount, setPendientesCount] = useState<number>(0);
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   
   // Preguntas dinámicas para la OT seleccionada
   const [preguntas, setPreguntas] = useState<PreguntaChecklist[]>([]);
@@ -59,18 +65,53 @@ export default function TecnicoPage() {
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [syncStatus, setSyncStatus] = useState<string | null>(null);
 
-  // 1. Monitoreo de conectividad
+  // Actualizar contador de pendientes encolados en IndexedDB
+  const refrescarContadorPendientes = useCallback(async () => {
+    try {
+      const count = await dbLocal.mantenimientosCola.filter((m) => !m.Sincronizado).count();
+      setPendientesCount(count);
+    } catch (e) {
+      console.warn("Error contando pendientes en IndexedDB:", e);
+    }
+  }, []);
+
+  // Forzar sincronización manual de la cola
+  const handleForceSync = async () => {
+    if (isSyncing) return;
+    setIsSyncing(true);
+    try {
+      const res = await syncEngine.sincronizarCola();
+      await refrescarContadorPendientes();
+      if (res.sincronizados > 0) {
+        setSyncStatus(`¡Sincronizado! ${res.sincronizados} mantenimiento(s) asentados en Supabase.`);
+        setTimeout(() => setSyncStatus(null), 4000);
+      } else if (res.fallidos > 0) {
+        setSyncStatus(`Hubo ${res.fallidos} orden(es) que no pudieron sincronizarse. Se reintentará.`);
+        setTimeout(() => setSyncStatus(null), 4000);
+      }
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  // 1. Monitoreo de conectividad y auto-sync
   useEffect(() => {
     setIsOnline(navigator.onLine);
+    refrescarContadorPendientes();
+
     const handleOnline = () => {
       setIsOnline(true);
+      setIsSyncing(true);
       syncEngine.sincronizarCola().then((res) => {
+        setIsSyncing(false);
+        refrescarContadorPendientes();
         if (res.sincronizados > 0) {
           setSyncStatus(`${res.sincronizados} mantenimiento(s) sincronizado(s) automáticamente.`);
           setTimeout(() => setSyncStatus(null), 4000);
         }
-      });
+      }).catch(() => setIsSyncing(false));
     };
+
     const handleOffline = () => setIsOnline(false);
 
     window.addEventListener("online", handleOnline);
@@ -79,7 +120,7 @@ export default function TecnicoPage() {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
     };
-  }, []);
+  }, [refrescarContadorPendientes]);
 
   // 2. Cargar usuario autenticado y órdenes
   const cargarDatos = useCallback(async () => {
@@ -148,20 +189,23 @@ export default function TecnicoPage() {
           await dbLocal.ordenes.bulkPut(mapped);
           setOrdenes(mapped);
           setLoadingOrdenes(false);
+          refrescarContadorPendientes();
           return;
         }
       }
 
       const offlineOTs = await dbLocal.ordenes.toArray();
       setOrdenes(offlineOTs);
+      refrescarContadorPendientes();
     } catch (err) {
       console.warn("[TecnicoPage] Error cargando órdenes desde Supabase, usando Dexie:", err);
       const offlineOTs = await dbLocal.ordenes.toArray();
       setOrdenes(offlineOTs);
+      refrescarContadorPendientes();
     } finally {
       setLoadingOrdenes(false);
     }
-  }, []);
+  }, [refrescarContadorPendientes]);
 
   useEffect(() => {
     cargarDatos();
@@ -351,9 +395,9 @@ export default function TecnicoPage() {
     return R * c;
   };
 
-  // 5. Guardar en cola local Offline y Sincronizar
+  // 5. Guardar en cola local Offline con Idempotencia y Sincronizar
   const handleGuardarCierre = async () => {
-    if (!selectedOT) return;
+    if (!selectedOT || isSubmitting) return;
 
     if (!geofencingResult?.valido && !cierreConExcepcion) {
       alert("Error: Validación GPS obligatoria. Debe estar dentro del radio del activo o justificar un 'Cierre con Excepción'.");
@@ -364,6 +408,8 @@ export default function TecnicoPage() {
       alert("Error: La firma táctil del técnico es obligatoria.");
       return;
     }
+
+    setIsSubmitting(true);
 
     const nuevoMantenimiento: MantenimientoEnCola = {
       OTID: selectedOT.OTID,
@@ -391,17 +437,32 @@ export default function TecnicoPage() {
     };
 
     try {
-      await dbLocal.mantenimientosCola.add(nuevoMantenimiento);
+      // Idempotencia en IndexedDB: Verificar si ya existe en cola para actualizar en lugar de duplicar
+      const existente = await dbLocal.mantenimientosCola
+        .where("OTID")
+        .equals(selectedOT.OTID)
+        .first();
+
+      if (existente?.id) {
+        await dbLocal.mantenimientosCola.put({ ...nuevoMantenimiento, id: existente.id });
+      } else {
+        await dbLocal.mantenimientosCola.add(nuevoMantenimiento);
+      }
+
+      await refrescarContadorPendientes();
       setSavedSuccess(true);
       
+      // Auto-sincronización si hay red
       if (typeof navigator !== "undefined" && navigator.onLine) {
-        syncEngine.sincronizarCola().then((res) => {
+        syncEngine.sincronizarCola().then(async (res) => {
           console.log("[TecnicoPage] Auto-sync resultado:", res);
+          await refrescarContadorPendientes();
         });
       }
 
       setTimeout(() => {
         setSavedSuccess(false);
+        setIsSubmitting(false);
         setSelectedOT(null);
         setCurrentCoords(null);
         setGeofencingResult(null);
@@ -413,31 +474,56 @@ export default function TecnicoPage() {
       }, 2000);
     } catch (err) {
       console.error("Error guardando en cola offline:", err);
+      setIsSubmitting(false);
       alert("Error al guardar mantenimiento en almacenamiento local");
     }
   };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Barra de Estado de Conectividad e Identidad */}
-      <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-900 border border-slate-800 text-xs shadow-sm">
-        <div className="flex items-center gap-2">
-          <div className={`w-2.5 h-2.5 rounded-full ${isOnline ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
-          <span className="font-semibold text-slate-300">
-            {isOnline ? "Modo En Línea (Supabase Sync)" : "Modo Offline Activo (Túneles/Vía)"}
-          </span>
+      {/* Barra de Estado de Conectividad, Cola Outbox e Identidad */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-2xl bg-slate-900 border border-slate-800 text-xs shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <div className={`w-2.5 h-2.5 rounded-full ${isOnline ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
+            <span className="font-semibold text-slate-300">
+              {isOnline ? "Modo En Línea" : "Modo Offline Activo (Túneles/Vía)"}
+            </span>
+          </div>
+
+          {/* Badge del Contador de Cola Outbox */}
+          {pendientesCount > 0 ? (
+            <button
+              onClick={handleForceSync}
+              disabled={isSyncing}
+              title="Clic para forzar sincronización"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold hover:bg-amber-500/30 transition-colors animate-pulse"
+            >
+              <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
+              <span>{pendientesCount} pendiente(s)</span>
+              <RefreshCw className={`w-3 h-3 ml-0.5 ${isSyncing ? "animate-spin" : ""}`} />
+            </button>
+          ) : (
+            <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>Cola al día (0 pendientes)</span>
+            </span>
+          )}
         </div>
-        <div className="flex items-center gap-2 text-slate-400">
-          {isOnline ? <Wifi className="w-4 h-4 text-emerald-400" /> : <WifiOff className="w-4 h-4 text-amber-400" />}
-          <span className="font-medium text-slate-300 truncate max-w-[220px]">
-            {usuarioNombre} ({usuarioEmail})
-          </span>
+
+        <div className="flex items-center justify-between sm:justify-end gap-2 text-slate-400">
+          <div className="flex items-center gap-1.5 truncate max-w-[220px]">
+            {isOnline ? <Wifi className="w-4 h-4 text-emerald-400" /> : <WifiOff className="w-4 h-4 text-amber-400" />}
+            <span className="font-medium text-slate-300 truncate">
+              {usuarioNombre}
+            </span>
+          </div>
           <button
             onClick={cargarDatos}
-            title="Refrescar órdenes"
+            title="Refrescar órdenes y cola"
             className="p-1 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loadingOrdenes ? "animate-spin" : ""}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${loadingOrdenes || isSyncing ? "animate-spin" : ""}`} />
           </button>
         </div>
       </div>
@@ -836,14 +922,23 @@ export default function TecnicoPage() {
             />
           </div>
 
-          {/* Botón de Cierre de Mantenimiento */}
+          {/* Botón de Cierre de Mantenimiento con Bloqueo Anti-Doble Clic */}
           <button
             onClick={handleGuardarCierre}
-            disabled={(!geofencingResult?.valido && !cierreConExcepcion) || !firmaBase64}
+            disabled={(!geofencingResult?.valido && !cierreConExcepcion) || !firmaBase64 || isSubmitting}
             className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold text-sm shadow-xl shadow-emerald-950 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            <Save className="w-5 h-5" />
-            <span>Guardar y Cerrar Mantenimiento (En Revisión)</span>
+            {isSubmitting ? (
+              <>
+                <RefreshCw className="w-5 h-5 animate-spin" />
+                <span>Guardando en Almacenamiento Local...</span>
+              </>
+            ) : (
+              <>
+                <Save className="w-5 h-5" />
+                <span>Guardar y Cerrar Mantenimiento (En Revisión)</span>
+              </>
+            )}
           </button>
         </div>
       )}
