@@ -68,7 +68,7 @@ flowchart TD
 * [x] **3. Órdenes en Estado Ejecutable:** Habilitadas órdenes en estado `Asignada` en la base de datos y conectada la vista `/tecnico` con Supabase y Dexie para recorrer el ciclo de ejecución real.
 * [x] **4. Normalización de Estados GPS y Tolerancias:** Tres estados claros (Válido / Excepción Justificada / Fuera de Rango) con umbral de precisión estricto (fail-closed) y validación pericial sin bypass.
 * [x] **5. Coordenada Real por Fotografía:** Captura georreferenciada en tiempo real en `CameraCapture` con estampa pericial y metadatos de ubicación.
-* [ ] **6. Blindaje RLS (31 Políticas Pendientes):** Ajustar políticas RLS para aislar acceso por técnico/supervisor/unidad en `ACT_Activos` y tablas maestras.
+* [x] **6. Blindaje RLS (31 Políticas Pendientes):** Políticas RLS blindadas en las 28 tablas con aislamiento por sujeto y Unidad Funcional (`ASG_AsignacionZona`). Verificado con JWT simulado: Técnico Iván Salcedo ve 146 activos de UF1 y 23 OTs; Supervisor Fernand Bolívar ve 368 activos y 111 OTs; Administrador Diego Zúñiga ve todas las 368 y 111.
 * [ ] **7. Formularios Dinámicos por Subsistema:** Asignación estricta de checklists según el `TipoActivoID` y versión de formulario.
 * [ ] **8. Almacenamiento Seguro en Supabase Storage:** Flujo directo y autenticado al bucket privado `evidencias-sgmc`.
 
