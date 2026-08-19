@@ -14,9 +14,11 @@ import {
   TrendingUp, 
   HardHat, 
   Layers,
-  FileSpreadsheet
+  FileText,
+  HelpCircle
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { generarInformeDisponibilidadPDF } from "@/lib/pdf-reporte-disponibilidad";
 
 interface DisponibilidadRow {
   TipoActivoID: string;
@@ -34,6 +36,7 @@ export default function ReportesPage() {
   const [anio, setAnio] = useState(2026);
   const [mes, setMes] = useState(8); // Agosto
   const [disponibilidad, setDisponibilidad] = useState<DisponibilidadRow[]>([]);
+  const [mostrarFormula, setMostrarFormula] = useState(true);
   
   // Resumen Parte Diario CCO
   const [parteDiario, setParteDiario] = useState({
@@ -43,6 +46,11 @@ export default function ReportesPage() {
     tecnicosActivos: 5,
     novedadesReportadas: 0,
   });
+
+  const mesesNombres = [
+    "", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+  ];
 
   const cargarDatosReporte = async () => {
     setLoading(true);
@@ -81,12 +89,44 @@ export default function ReportesPage() {
     cargarDatosReporte();
   }, [anio, mes]);
 
-  // Promedio General de Disponibilidad
+  // Cálculos consolidados
   const promedioGeneral = disponibilidad.length > 0
     ? (disponibilidad.reduce((acc, curr) => acc + curr.DisponibilidadPorcentaje, 0) / disponibilidad.length).toFixed(2)
     : "100.00";
 
   const totalCumplen = disponibilidad.filter((d) => d.CumpleMeta).length;
+  const horasProgTotal = disponibilidad.reduce((acc, curr) => acc + curr.HorasProgramadas, 0);
+  const horasFallaTotal = disponibilidad.reduce((acc, curr) => acc + curr.HorasIndisponibles, 0);
+
+  const handleDescargarPDF = () => {
+    generarInformeDisponibilidadPDF({
+      anio,
+      mes,
+      mesNombre: mesesNombres[mes] || "Agosto",
+      disponibilidadGlobal: promedioGeneral,
+      totalActivos: 368,
+      totalSubsistemas: disponibilidad.length,
+      subsistemasConformes: totalCumplen,
+      horasProgramadasTotal: horasProgTotal,
+      horasIndisponiblesTotal: horasFallaTotal,
+      filas: disponibilidad.map((d) => ({
+        codigo: d.TipoActivoID,
+        subsistema: d.TipoActivoNombre,
+        uf: d.UnidadFuncionalID,
+        activos: d.TotalActivos,
+        horasProg: d.HorasProgramadas,
+        horasFalla: d.HorasIndisponibles,
+        disponibilidad: d.DisponibilidadPorcentaje,
+        cumple: d.CumpleMeta,
+      })),
+      parteDiario: {
+        otsTotal: parteDiario.otsTotal,
+        otsCerradas: parteDiario.otsCerradas,
+        cierresExcepcion: parteDiario.cierresConExcepcion,
+        novedades: parteDiario.novedadesReportadas,
+      },
+    });
+  };
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -97,13 +137,13 @@ export default function ReportesPage() {
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>Indicadores Contractuales & Auditoría ANI (ESPEC-021)</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Disponibilidad & Reportes</h1>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Disponibilidad Contractual ($D_i$)</h1>
           <p className="text-slate-400 text-xs sm:text-sm mt-1">
-            Cálculo de Disponibilidad Contractual ($D_i \ge 98.5\%$) y Parte Diario de Operaciones del CCO.
+            Tablero oficial de cumplimiento para la Concesión Transversal del Sisga e Interventoría.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <select
             value={mes}
             onChange={(e) => setMes(parseInt(e.target.value))}
@@ -115,11 +155,11 @@ export default function ReportesPage() {
           </select>
 
           <button
-            onClick={() => window.print()}
-            className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-700 flex items-center gap-1.5 transition-all"
+            onClick={handleDescargarPDF}
+            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-950 flex items-center gap-1.5 transition-all"
           >
-            <Download className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Exportar Informe</span>
+            <FileText className="w-3.5 h-3.5" />
+            <span>Descargar Informe PDF (ANI)</span>
           </button>
 
           <button
@@ -130,6 +170,47 @@ export default function ReportesPage() {
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
           </button>
         </div>
+      </div>
+
+      {/* Cuadro Explicativo: Cómo se calcula Di */}
+      <div className="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl space-y-2">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-bold text-slate-200 flex items-center gap-2">
+            <HelpCircle className="w-4 h-4 text-blue-400" />
+            ¿Cómo se calcula la Disponibilidad Contractual ($D_i$)?
+          </h3>
+          <button
+            onClick={() => setMostrarFormula(!mostrarFormula)}
+            className="text-[11px] text-blue-400 hover:underline"
+          >
+            {mostrarFormula ? "Ocultar detalles" : "Ver fórmula y parámetros"}
+          </button>
+        </div>
+
+        {mostrarFormula && (
+          <div className="text-xs text-slate-400 space-y-2 pt-1 border-t border-slate-800/60 animate-in fade-in">
+            <p className="leading-relaxed">
+              De acuerdo con el <strong>Apéndice Técnico 1 de la ANI</strong>, la Disponibilidad Contractual ($D_i$) evalúa el tiempo efectivo que cada subsistema permanece operativo frente a las horas totales de servicio programadas en el mes:
+            </p>
+            <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 font-mono text-center text-xs text-emerald-400 font-semibold">
+              D_i = [ 1 - ( Σ Horas Indisponibles por Falla / ( N° Activos × 720 h ) ) ] × 100%
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] pt-1">
+              <div className="p-2 rounded-lg bg-slate-950/60 border border-slate-800/80">
+                <strong className="text-slate-300 block">Horas Programadas:</strong>
+                <span>720 horas/mes (30 días × 24h) multiplicadas por el número de activos del subsistema.</span>
+              </div>
+              <div className="p-2 rounded-lg bg-slate-950/60 border border-slate-800/80">
+                <strong className="text-slate-300 block">Horas Indisponibles:</strong>
+                <span>Tiempo acumulado de fallas no programadas registradas en <code className="text-amber-400">NOV_Novedades</code>.</span>
+              </div>
+              <div className="p-2 rounded-lg bg-slate-950/60 border border-slate-800/80">
+                <strong className="text-slate-300 block">Umbral Contractual ANI:</strong>
+                <span>Meta mínima de cumplimiento: <strong className="text-emerald-400">≥ 98.5%</strong>. Menor a 98.5% genera no conformidad.</span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Tarjetas de Indicadores Clave */}
@@ -150,7 +231,7 @@ export default function ReportesPage() {
           <span className="text-xs text-slate-400 font-medium">Mantenimientos Ejecutados</span>
           <div className="text-3xl font-extrabold text-white">{parteDiario.otsCerradas}</div>
           <p className="text-[11px] text-slate-400 font-medium">
-            De {parteDiario.otsTotal} órdenes programadas
+            De {parteDiario.otsTotal} órdenes en base de datos
           </p>
         </div>
 
@@ -158,7 +239,7 @@ export default function ReportesPage() {
           <span className="text-xs text-slate-400 font-medium">Cierres con Excepción GPS</span>
           <div className="text-3xl font-extrabold text-amber-400">{parteDiario.cierresConExcepcion}</div>
           <p className="text-[11px] text-slate-500">
-            Túneles o zonas sin cobertura satelital
+            Túneles o zonas sin señal justificados
           </p>
         </div>
 
@@ -166,7 +247,7 @@ export default function ReportesPage() {
           <span className="text-xs text-slate-400 font-medium">Novedades de Ruta</span>
           <div className="text-3xl font-extrabold text-blue-400">{parteDiario.novedadesReportadas}</div>
           <p className="text-[11px] text-slate-500">
-            Imprevistos atendidos con OT Correctiva
+            Imprevistos con OT Correctiva
           </p>
         </div>
       </div>
@@ -192,11 +273,11 @@ export default function ReportesPage() {
                 <tr>
                   <th className="p-3">Código</th>
                   <th className="p-3">Subsistema</th>
-                  <th className="p-3">Zona (UF)</th>
+                  <th className="p-3 text-center">Zona (UF)</th>
                   <th className="p-3 text-center">Activos</th>
                   <th className="p-3 text-right">Horas Prog.</th>
                   <th className="p-3 text-right">Horas Falla</th>
-                  <th className="p-3 text-right">Disponibilidad</th>
+                  <th className="p-3 text-right">Disponibilidad ($D_i$)</th>
                   <th className="p-3 text-center">Estado ANI</th>
                 </tr>
               </thead>
@@ -205,10 +286,12 @@ export default function ReportesPage() {
                   <tr key={idx} className="hover:bg-slate-850/50 transition-colors">
                     <td className="p-3 font-mono font-bold text-blue-400">{row.TipoActivoID}</td>
                     <td className="p-3 font-bold text-white">{row.TipoActivoNombre}</td>
-                    <td className="p-3">{row.UnidadFuncionalID}</td>
+                    <td className="p-3 text-center">{row.UnidadFuncionalID}</td>
                     <td className="p-3 text-center">{row.TotalActivos}</td>
                     <td className="p-3 text-right font-mono">{row.HorasProgramadas.toFixed(0)}h</td>
-                    <td className="p-3 text-right font-mono">{row.HorasIndisponibles.toFixed(1)}h</td>
+                    <td className="p-3 text-right font-mono" style={{ color: row.HorasIndisponibles > 0 ? "#f87171" : "#94a3b8" }}>
+                      {row.HorasIndisponibles.toFixed(1)}h
+                    </td>
                     <td className="p-3 text-right font-mono font-bold text-emerald-400">
                       {row.DisponibilidadPorcentaje.toFixed(2)}%
                     </td>
