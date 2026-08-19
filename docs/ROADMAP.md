@@ -62,7 +62,7 @@ flowchart TD
 * [x] **ESPEC-017 (Generador de Planes de Mantenimiento):** Programador automático mensual por Unidad Funcional (`PLA_PlanMantenimiento`).
 * [x] **ESPEC-018 (Protocolo de Prueba Piloto en Vía):** Matriz de 10 activos seleccionados en UF1/UF2 y procedimiento de certificación con Interventoría.
 
-### Fase 4: Ciclo de Escritura en Campo y Robustecimiento Operativo — **[EN EJECUCIÓN 🟡]**
+### Fase 4: Ciclo de Escritura en Campo y Robustecimiento Operativo — **[COMPLETADA ✅]**
 * [x] **1. ESPEC-020 (Corrección Atómica de Coordenadas de Cierre):** Relajado `NOT NULL` en `MAN_Mantenimientos.Coordenadas_Cierre_LatLong` y `FOT_Fotografias.Ubicacion_LatLong`. Retirado todo `COALESCE` con coordenadas simuladas/fabricadas en la RPC `sgmc_sincronizar_mantenimiento` y triggers geométricos.
 * [x] **2. Idempotencia en Sincronización Outbox:** Blindada la inserción en `sgmc_sincronizar_mantenimiento` para retornar éxito sin duplicar registros ante reintentos de red sobre una misma OT.
 * [x] **3. Órdenes en Estado Ejecutable:** Habilitadas órdenes en estado `Asignada` en la base de datos y conectada la vista `/tecnico` con Supabase y Dexie para recorrer el ciclo de ejecución real.
@@ -70,7 +70,7 @@ flowchart TD
 * [x] **5. Coordenada Real por Fotografía:** Captura georreferenciada en tiempo real en `CameraCapture` con estampa pericial y metadatos de ubicación.
 * [x] **6. Blindaje RLS (31 Políticas Pendientes):** Políticas RLS blindadas en las 28 tablas con aislamiento por sujeto y Unidad Funcional (`ASG_AsignacionZona`). Verificado con JWT simulado: Técnico Iván Salcedo ve 146 activos de UF1 y 23 OTs; Supervisor Fernand Bolívar ve 368 activos y 111 OTs; Administrador Diego Zúñiga ve todas las 368 y 111.
 * [x] **7. Formularios Dinámicos por Subsistema:** Motor dinámico de checklists conectado a los 27 formularios de `FRM_Preguntas` y `LST_ValoresLista`, agrupados por secciones (`FRM_Secciones`), con controles tipados para Sí/No/NA, listas desplegables, números con unidades, textos y fechas, y guardado tipado en `CHD_ChecklistDetalle`.
-* [ ] **8. Almacenamiento Seguro en Supabase Storage:** Flujo directo y autenticado al bucket privado `evidencias-sgmc`.
+* [x] **8. Almacenamiento Seguro en Supabase Storage:** Bucket `evidencias-sgmc` configurado con RLS en `storage.objects` e integrado con `storage-service.ts` y `sync-engine.ts` para subida automática de WebP y firmas a S3 antes del asentamiento en BD.
 
 ---
 
