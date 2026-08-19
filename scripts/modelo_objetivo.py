@@ -332,7 +332,8 @@ MODELO = {
             col("EstadoActivoID", "Ref", ref="EST_Activo", obligatoria=True, nueva=True,
                 nota="Estado en que queda el activo tras la intervencion. No existe en produccion: "
                      "se crea. El Excel local tiene 'Estado Final', que produccion no tiene"),
-            col("Coordenadas_Cierre_LatLong", "LatLong", obligatoria=True, valor_inicial="HERE()", editable=False,
+            col("Coordenadas_Cierre_LatLong", "LatLong", valor_inicial="HERE()", editable=False,
+                nota="Coordenadas GPS capturadas al cierre. Opcional cuando CierreConExcepcion es verdadero o no hay señal.",
                 valid_if="DISTANCE([Coordenadas_Cierre_LatLong], [OTID].[ActivoID].[Ubicacion_LatLong]) <= [OTID].[ActivoID].[TipoActivoID].[RadioGeofencingKm]",
                 mensaje_error="Ubicacion fuera de rango: debe estar junto al activo para cerrar."),
             col("CierreConExcepcion", "Yes/No",
@@ -422,7 +423,7 @@ MODELO = {
             col("Archivo", "Image", obligatoria=True,
                 nota="Calidad baja, 600 px. La camara debe forzarse en la app: si permite elegir "
                      "de la galeria, toda la cadena de evidencia pierde valor"),
-            col("Ubicacion_LatLong", "LatLong", obligatoria=True, valor_inicial="HERE()",
+            col("Ubicacion_LatLong", "LatLong", valor_inicial="HERE()",
                 editable=False,
                 nota="Coordenada de CADA fotografia. La compresion a 600 px descarta el EXIF, "
                      "asi que la geolocalizacion debe guardarse como dato, no confiarse a la imagen"),
