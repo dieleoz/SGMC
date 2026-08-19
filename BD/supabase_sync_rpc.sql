@@ -182,21 +182,32 @@ BEGIN
         TRUE
     );
 
-    -- 8. Insertar Detalles de Checklist
+    -- 8. Insertar Detalles de Checklist Tipados
     IF p_payload ? 'ChecklistRespuestas' THEN
         FOR v_chk_key, v_chk_val IN SELECT * FROM jsonb_each_text(p_payload -> 'ChecklistRespuestas') LOOP
-            SELECT "PreguntaID" INTO v_pregunta_id FROM public."FRM_Preguntas" WHERE "PreguntaID" = v_chk_key;
+            SELECT "PreguntaID", "TipoRespuestaID" INTO v_pregunta_id, v_formulario_id -- reuso variable
+            FROM public."FRM_Preguntas" 
+            WHERE "PreguntaID" = v_chk_key;
+
             IF v_pregunta_id IS NOT NULL THEN
                 INSERT INTO public."CHD_ChecklistDetalle" (
                     "DetalleID",
                     "ChecklistID",
                     "PreguntaID",
-                    "RespuestaTexto"
+                    "RespuestaTexto",
+                    "RespuestaNumero",
+                    "RespuestaBoolean",
+                    "RespuestaLista",
+                    "Contestada"
                 ) VALUES (
                     'CHD-' || SUBSTRING(MD5(RANDOM()::TEXT), 1, 8),
                     v_checklist_id,
                     v_pregunta_id,
-                    v_chk_val
+                    v_chk_val,
+                    CASE WHEN v_formulario_id = 'TPR-03' AND v_chk_val ~ '^[0-9]+(\.[0-9]+)?$' THEN v_chk_val::NUMERIC ELSE NULL END,
+                    CASE WHEN v_formulario_id = 'TPR-01' THEN (v_chk_val IN ('Conforme', 'Sí', 'SI', 'true', 'TRUE')) ELSE NULL END,
+                    CASE WHEN v_formulario_id = 'TPR-02' THEN v_chk_val ELSE NULL END,
+                    TRUE
                 );
             END IF;
         END LOOP;

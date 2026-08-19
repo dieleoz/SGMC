@@ -69,7 +69,7 @@ flowchart TD
 * [x] **4. Normalización de Estados GPS y Tolerancias:** Tres estados claros (Válido / Excepción Justificada / Fuera de Rango) con umbral de precisión estricto (fail-closed) y validación pericial sin bypass.
 * [x] **5. Coordenada Real por Fotografía:** Captura georreferenciada en tiempo real en `CameraCapture` con estampa pericial y metadatos de ubicación.
 * [x] **6. Blindaje RLS (31 Políticas Pendientes):** Políticas RLS blindadas en las 28 tablas con aislamiento por sujeto y Unidad Funcional (`ASG_AsignacionZona`). Verificado con JWT simulado: Técnico Iván Salcedo ve 146 activos de UF1 y 23 OTs; Supervisor Fernand Bolívar ve 368 activos y 111 OTs; Administrador Diego Zúñiga ve todas las 368 y 111.
-* [ ] **7. Formularios Dinámicos por Subsistema:** Asignación estricta de checklists según el `TipoActivoID` y versión de formulario.
+* [x] **7. Formularios Dinámicos por Subsistema:** Motor dinámico de checklists conectado a los 27 formularios de `FRM_Preguntas` y `LST_ValoresLista`, agrupados por secciones (`FRM_Secciones`), con controles tipados para Sí/No/NA, listas desplegables, números con unidades, textos y fechas, y guardado tipado en `CHD_ChecklistDetalle`.
 * [ ] **8. Almacenamiento Seguro en Supabase Storage:** Flujo directo y autenticado al bucket privado `evidencias-sgmc`.
 
 ---

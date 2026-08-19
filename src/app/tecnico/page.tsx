@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { 
   HardHat, 
   MapPin, 
@@ -15,7 +15,10 @@ import {
   Sparkles,
   AlertTriangle,
   Upload,
-  RefreshCw
+  RefreshCw,
+  Layers,
+  ChevronDown,
+  ChevronRight
 } from "lucide-react";
 import { dbLocal, OrdenTrabajoLocal, MantenimientoEnCola, PreguntaChecklist } from "@/lib/db-offline";
 import { syncEngine } from "@/lib/sync-engine";
@@ -34,7 +37,9 @@ export default function TecnicoPage() {
   
   // Preguntas dinámicas para la OT seleccionada
   const [preguntas, setPreguntas] = useState<PreguntaChecklist[]>([]);
+  const [loadingPreguntas, setLoadingPreguntas] = useState(false);
   const [checklist, setChecklist] = useState<Record<string, string>>({});
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   
   // GPS & Geofencing
   const [currentCoords, setCurrentCoords] = useState<{ lat: number; lng: number; accuracy: number } | null>(null);
@@ -79,12 +84,10 @@ export default function TecnicoPage() {
   const cargarDatos = useCallback(async () => {
     setLoadingOrdenes(true);
     try {
-      // 2.1 Obtener sesión actual
       const { data: { session } } = await supabase.auth.getSession();
       const email = session?.user?.email || "ivan.salcedo@concesiondelsisga.com.co";
       setUsuarioEmail(email);
 
-      // Obtener nombre desde USR_Usuarios si está online
       if (navigator.onLine) {
         const { data: usrData } = await supabase
           .from("USR_Usuarios")
@@ -96,7 +99,6 @@ export default function TecnicoPage() {
         }
       }
 
-      // 2.2 Intentar cargar órdenes desde Supabase
       if (navigator.onLine) {
         const { data: otsDb, error: otErr } = await supabase
           .from("OT_OrdenesTrabajo")
@@ -141,7 +143,6 @@ export default function TecnicoPage() {
             };
           });
 
-          // Guardar en Dexie para soporte offline
           await dbLocal.ordenes.clear();
           await dbLocal.ordenes.bulkPut(mapped);
           setOrdenes(mapped);
@@ -150,7 +151,6 @@ export default function TecnicoPage() {
         }
       }
 
-      // Fallback a Dexie (Modo Offline o sin conexión)
       const offlineOTs = await dbLocal.ordenes.toArray();
       setOrdenes(offlineOTs);
     } catch (err) {
@@ -166,7 +166,7 @@ export default function TecnicoPage() {
     cargarDatos();
   }, [cargarDatos]);
 
-  // 3. Cargar preguntas de checklist al seleccionar una OT
+  // 3. Cargar preguntas dinámicas de checklist con Secciones y Valores de Lista
   useEffect(() => {
     if (!selectedOT) {
       setPreguntas([]);
@@ -174,76 +174,128 @@ export default function TecnicoPage() {
       return;
     }
 
-    const cargarPreguntas = async () => {
+    const cargarFormularioDinamico = async () => {
+      setLoadingPreguntas(true);
       try {
         if (navigator.onLine) {
-          // Resolver FormularioID asociado al activo
+          // 3.1 Resolver FormularioID asociado al Tipo de Activo
           const { data: actData } = await supabase
             .from("ACT_Activos")
             .select("TipoActivoID, TIP_TiposActivo(FormularioID)")
             .eq("ActivoID", selectedOT.ActivoID)
             .single();
 
-          const formId = (actData as any)?.TIP_TiposActivo?.FormularioID || "FRM-01";
+          const formId = (actData as any)?.TIP_TiposActivo?.FormularioID || "FRM_SOS";
 
-          const { data: chkPreguntas } = await supabase
+          // 3.2 Traer preguntas con su sección
+          const { data: chkPreguntas, error: pregErr } = await supabase
             .from("FRM_Preguntas")
-            .select("PreguntaID, FormularioID, SeccionID, Pregunta, TipoRespuestaID, Orden")
+            .select(`
+              PreguntaID,
+              FormularioID,
+              SeccionID,
+              Orden,
+              Pregunta,
+              TipoRespuestaID,
+              Obligatoria,
+              Unidad,
+              ValorMinimo,
+              ValorMaximo,
+              FRM_Secciones (
+                Nombre
+              )
+            `)
             .eq("FormularioID", formId)
-            .order("Orden", { ascending: true })
-            .limit(10);
+            .order("Orden", { ascending: true });
 
-          if (chkPreguntas && chkPreguntas.length > 0) {
-            const mappedPreguntas: PreguntaChecklist[] = chkPreguntas.map((p) => ({
+          if (!pregErr && chkPreguntas && chkPreguntas.length > 0) {
+            // 3.3 Traer opciones de lista asociadas (LST_ValoresLista)
+            const preguntaIds = chkPreguntas.map((p) => p.PreguntaID);
+            const { data: listData } = await supabase
+              .from("LST_ValoresLista")
+              .select("PreguntaID, Valor, Orden")
+              .in("PreguntaID", preguntaIds)
+              .order("Orden", { ascending: true });
+
+            const opcionesMap: Record<string, string[]> = {};
+            if (listData) {
+              listData.forEach((item) => {
+                if (!opcionesMap[item.PreguntaID]) opcionesMap[item.PreguntaID] = [];
+                opcionesMap[item.PreguntaID].push(item.Valor);
+              });
+            }
+
+            const mappedPreguntas: PreguntaChecklist[] = chkPreguntas.map((p: any) => ({
               PreguntaID: p.PreguntaID,
               FormularioID: p.FormularioID,
               SeccionID: p.SeccionID,
+              SeccionNombre: p.FRM_Secciones?.Nombre || "Inspección General",
               TextoPregunta: p.Pregunta,
-              TipoRespuesta: "Si/No/NA",
+              TipoRespuestaID: p.TipoRespuestaID,
+              Obligatoria: p.Obligatoria,
+              Unidad: p.Unidad,
+              ValorMinimo: p.ValorMinimo,
+              ValorMaximo: p.ValorMaximo,
+              Opciones: opcionesMap[p.PreguntaID] || ["Operativo", "Operativo con observaciones", "Fuera de servicio", "No aplica"],
               Orden: p.Orden,
             }));
 
-            // Guardar en Dexie
+            // Cachear en Dexie
             await dbLocal.preguntas.bulkPut(mappedPreguntas);
             setPreguntas(mappedPreguntas);
 
-            // Inicializar respuestas en "Conforme"
+            // Inicializar respuestas por defecto
             const initResp: Record<string, string> = {};
+            const initialSections: Record<string, boolean> = {};
             mappedPreguntas.forEach((p) => {
-              initResp[p.PreguntaID] = "Conforme";
+              if (p.TipoRespuestaID === "TPR-01") initResp[p.PreguntaID] = "Conforme";
+              else if (p.TipoRespuestaID === "TPR-02") initResp[p.PreguntaID] = p.Opciones?.[0] || "Operativo";
+              else if (p.TipoRespuestaID === "TPR-03") initResp[p.PreguntaID] = "";
+              else initResp[p.PreguntaID] = "";
+
+              if (p.SeccionNombre) initialSections[p.SeccionNombre] = true;
             });
+
             setChecklist(initResp);
+            setOpenSections(initialSections);
+            setLoadingPreguntas(false);
             return;
           }
         }
 
-        // Fallback a Dexie o preguntas por defecto
+        // Fallback a Dexie si estamos offline
         const cached = await dbLocal.preguntas.toArray();
         if (cached.length > 0) {
           setPreguntas(cached);
           const initResp: Record<string, string> = {};
+          const initialSections: Record<string, boolean> = {};
           cached.forEach((p) => {
-            initResp[p.PreguntaID] = "Conforme";
+            initResp[p.PreguntaID] = p.TipoRespuestaID === "TPR-01" ? "Conforme" : (p.Opciones?.[0] || "Operativo");
+            if (p.SeccionNombre) initialSections[p.SeccionNombre] = true;
           });
           setChecklist(initResp);
-        } else {
-          // Fallback mínimo
-          const defaults: PreguntaChecklist[] = [
-            { PreguntaID: "CHK-01", FormularioID: "FRM-01", SeccionID: "SEC-01", TextoPregunta: "Estado físico de la estructura y anclajes", TipoRespuesta: "Si/No/NA", Orden: 1 },
-            { PreguntaID: "CHK-02", FormularioID: "FRM-01", SeccionID: "SEC-01", TextoPregunta: "Alimentación eléctrica y niveles de voltaje", TipoRespuesta: "Si/No/NA", Orden: 2 },
-            { PreguntaID: "CHK-03", FormularioID: "FRM-01", SeccionID: "SEC-01", TextoPregunta: "Conectividad y enlace de comunicaciones", TipoRespuesta: "Si/No/NA", Orden: 3 },
-            { PreguntaID: "CHK-04", FormularioID: "FRM-01", SeccionID: "SEC-01", TextoPregunta: "Limpieza y hermeticidad de gabinete", TipoRespuesta: "Si/No/NA", Orden: 4 },
-          ];
-          setPreguntas(defaults);
-          setChecklist({ "CHK-01": "Conforme", "CHK-02": "Conforme", "CHK-03": "Conforme", "CHK-04": "Conforme" });
+          setOpenSections(initialSections);
         }
       } catch (e) {
-        console.warn("Error cargando preguntas:", e);
+        console.warn("Error cargando formulario dinámico:", e);
+      } finally {
+        setLoadingPreguntas(false);
       }
     };
 
-    cargarPreguntas();
+    cargarFormularioDinamico();
   }, [selectedOT]);
+
+  // Agrupar preguntas por Sección
+  const preguntasPorSeccion = useMemo(() => {
+    const grupos: Record<string, PreguntaChecklist[]> = {};
+    preguntas.forEach((p) => {
+      const sec = p.SeccionNombre || "Inspección General";
+      if (!grupos[sec]) grupos[sec] = [];
+      grupos[sec].push(p);
+    });
+    return grupos;
+  }, [preguntas]);
 
   // 4. Captura de GPS Real
   const handleCaptureGPS = () => {
@@ -264,7 +316,6 @@ export default function TecnicoPage() {
         setCurrentCoords({ lat, lng, accuracy: acc });
         setIsLocating(false);
 
-        // Validar Geofencing contra el activo seleccionado
         if (selectedOT && selectedOT.Ubicacion_LatLong) {
           const [actLat, actLng] = selectedOT.Ubicacion_LatLong.split(",").map((s) => parseFloat(s.trim()));
           if (!isNaN(actLat) && !isNaN(actLng)) {
@@ -342,7 +393,6 @@ export default function TecnicoPage() {
       await dbLocal.mantenimientosCola.add(nuevoMantenimiento);
       setSavedSuccess(true);
       
-      // Sincronizar en segundo plano si hay red
       if (typeof navigator !== "undefined" && navigator.onLine) {
         syncEngine.sincronizarCola().then((res) => {
           console.log("[TecnicoPage] Auto-sync resultado:", res);
@@ -358,7 +408,7 @@ export default function TecnicoPage() {
         setFotos([]);
         setFirmaBase64(null);
         setObservaciones("");
-        cargarDatos(); // Recargar órdenes disponibles
+        cargarDatos();
       }, 2000);
     } catch (err) {
       console.error("Error guardando en cola offline:", err);
@@ -496,7 +546,7 @@ export default function TecnicoPage() {
           )}
         </div>
       ) : (
-        /* Vista 2: Formulario de Inspección de Campo */
+        /* Vista 2: Formulario de Inspección de Campo Dinámico */
         <div className="space-y-6 animate-in fade-in duration-300">
           <div className="flex items-center justify-between bg-slate-900 p-4 rounded-2xl border border-slate-800">
             <div>
@@ -600,31 +650,151 @@ export default function TecnicoPage() {
             )}
           </div>
 
-          {/* 2. Checklist Dinámico del Activo */}
-          <div className="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-4">
-            <h3 className="font-bold text-sm text-white flex items-center gap-2">
-              <FileCheck2 className="w-4 h-4 text-blue-400" />
-              2. Checklist de Inspección ({selectedOT.TipoActivoID})
-            </h3>
-
-            <div className="space-y-3 text-xs">
-              {preguntas.map((p, idx) => (
-                <div key={p.PreguntaID} className="p-3 rounded-xl bg-slate-800/60 border border-slate-700/50 flex items-center justify-between gap-3">
-                  <span className="text-slate-200 font-medium">
-                    {idx + 1}. {p.TextoPregunta}
-                  </span>
-                  <select
-                    value={checklist[p.PreguntaID] || "Conforme"}
-                    onChange={(e) => setChecklist({ ...checklist, [p.PreguntaID]: e.target.value })}
-                    className="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-100 font-semibold flex-shrink-0"
-                  >
-                    <option>Conforme</option>
-                    <option>No conforme</option>
-                    <option>N/A</option>
-                  </select>
-                </div>
-              ))}
+          {/* 2. Checklist Dinámico por Subsistema */}
+          <div className="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-5">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-sm text-white flex items-center gap-2">
+                <FileCheck2 className="w-4 h-4 text-blue-400" />
+                2. Checklist Dinámico de Inspección ({selectedOT.TipoActivoID})
+              </h3>
+              <span className="text-xs font-mono text-slate-400 bg-slate-800 px-2.5 py-1 rounded-lg">
+                {preguntas.length} Ítems
+              </span>
             </div>
+
+            {loadingPreguntas ? (
+              <div className="p-6 text-center text-xs text-slate-400 animate-pulse bg-slate-950 rounded-xl border border-slate-800">
+                Cargando formulario y preguntas por subsistema...
+              </div>
+            ) : Object.keys(preguntasPorSeccion).length === 0 ? (
+              <div className="p-6 text-center text-xs text-slate-400 bg-slate-950 rounded-xl border border-slate-800">
+                No hay preguntas configuradas para este tipo de activo.
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {Object.entries(preguntasPorSeccion).map(([seccionNombre, items]) => {
+                  const isOpen = openSections[seccionNombre] ?? true;
+                  return (
+                    <div key={seccionNombre} className="rounded-xl border border-slate-800 bg-slate-950/60 overflow-hidden">
+                      {/* Cabecera de Sección */}
+                      <button
+                        type="button"
+                        onClick={() => setOpenSections((prev) => ({ ...prev, [seccionNombre]: !isOpen }))}
+                        className="w-full p-3 bg-slate-850/80 hover:bg-slate-800/80 flex items-center justify-between text-left transition-colors border-b border-slate-800/60"
+                      >
+                        <span className="text-xs font-bold text-slate-200 flex items-center gap-2">
+                          <Layers className="w-3.5 h-3.5 text-emerald-400" />
+                          {seccionNombre} ({items.length})
+                        </span>
+                        {isOpen ? (
+                          <ChevronDown className="w-4 h-4 text-slate-400" />
+                        ) : (
+                          <ChevronRight className="w-4 h-4 text-slate-400" />
+                        )}
+                      </button>
+
+                      {/* Preguntas de la Sección */}
+                      {isOpen && (
+                        <div className="p-3.5 space-y-3">
+                          {items.map((p, idx) => (
+                            <div
+                              key={p.PreguntaID}
+                              className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-2 text-xs"
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <span className="text-slate-200 font-medium leading-tight">
+                                  {idx + 1}. {p.TextoPregunta}
+                                  {p.Obligatoria && <span className="text-rose-400 ml-1 font-bold">*</span>}
+                                </span>
+                                {p.Unidad && (
+                                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-emerald-400 border border-slate-700 flex-shrink-0">
+                                    {p.Unidad}
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Renderizador de Control según TipoRespuestaID */}
+                              {p.TipoRespuestaID === "TPR-01" ? (
+                                /* Sí / No / NA */
+                                <div className="flex items-center gap-2 pt-1">
+                                  {["Conforme", "No conforme", "N/A"].map((opt) => {
+                                    const isSelected = (checklist[p.PreguntaID] || "Conforme") === opt;
+                                    let activeClass = "bg-emerald-600 text-white font-bold border-emerald-500";
+                                    if (opt === "No conforme") activeClass = "bg-rose-600 text-white font-bold border-rose-500";
+                                    if (opt === "N/A") activeClass = "bg-slate-700 text-white font-bold border-slate-600";
+
+                                    return (
+                                      <button
+                                        key={opt}
+                                        type="button"
+                                        onClick={() => setChecklist({ ...checklist, [p.PreguntaID]: opt })}
+                                        className={`px-3 py-1 rounded-lg text-xs font-semibold border transition-all ${
+                                          isSelected
+                                            ? activeClass
+                                            : "bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700"
+                                        }`}
+                                      >
+                                        {opt}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              ) : p.TipoRespuestaID === "TPR-02" ? (
+                                /* Lista Desplegable (LST_ValoresLista) */
+                                <select
+                                  value={checklist[p.PreguntaID] || p.Opciones?.[0] || ""}
+                                  onChange={(e) => setChecklist({ ...checklist, [p.PreguntaID]: e.target.value })}
+                                  className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white font-medium focus:outline-none focus:border-emerald-500"
+                                >
+                                  {(p.Opciones || ["Operativo", "Operativo con observaciones", "Fuera de servicio", "No aplica"]).map((opc) => (
+                                    <option key={opc} value={opc}>
+                                      {opc}
+                                    </option>
+                                  ))}
+                                </select>
+                              ) : p.TipoRespuestaID === "TPR-03" ? (
+                                /* Número con Unidad */
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="number"
+                                    step="any"
+                                    min={p.ValorMinimo ?? undefined}
+                                    max={p.ValorMaximo ?? undefined}
+                                    placeholder={p.Unidad ? `Valor en ${p.Unidad}` : "Ingrese valor numérico..."}
+                                    value={checklist[p.PreguntaID] || ""}
+                                    onChange={(e) => setChecklist({ ...checklist, [p.PreguntaID]: e.target.value })}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500"
+                                  />
+                                  {p.Unidad && <span className="text-xs text-slate-400 font-mono">{p.Unidad}</span>}
+                                </div>
+                              ) : p.TipoRespuestaID === "TPR-05" ? (
+                                /* Texto Largo / Observación */
+                                <textarea
+                                  rows={2}
+                                  placeholder="Escriba detalle u observación..."
+                                  value={checklist[p.PreguntaID] || ""}
+                                  onChange={(e) => setChecklist({ ...checklist, [p.PreguntaID]: e.target.value })}
+                                  className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500"
+                                />
+                              ) : (
+                                /* Texto Corto / Fallback */
+                                <input
+                                  type="text"
+                                  placeholder="Escriba respuesta..."
+                                  value={checklist[p.PreguntaID] || ""}
+                                  onChange={(e) => setChecklist({ ...checklist, [p.PreguntaID]: e.target.value })}
+                                  className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500"
+                                />
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* 3. Captura Real de Fotografías WebP con Georreferenciación */}
