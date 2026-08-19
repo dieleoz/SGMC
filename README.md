@@ -145,6 +145,7 @@ El proyecto cuenta con cuatro instrumentos de verificación automatizados ejecut
 | [`ESPEC-017`](docs/sdd/ESPEC-017-generador-planes-mantenimiento.md) | [`PRUEBA-017`](docs/sdd/PRUEBA-017-generador-planes-mantenimiento.md) | [`ORDEN-017`](docs/sdd/ORDEN-017-generador-planes-mantenimiento.md) | 🟢 **APLICADA** | Programador y Generador Automático de Planes Preventivos (`PLA_PlanMantenimiento`). |
 | [`ESPEC-018`](docs/sdd/ESPEC-018-protocolo-piloto-en-via-y-acta-cierre.md) | [`PRUEBA-018`](docs/sdd/PRUEBA-018-protocolo-piloto-en-via-y-acta-cierre.md) | [`ORDEN-018`](docs/sdd/ORDEN-018-protocolo-piloto-en-via-y-acta-cierre.md) | 🟢 **APLICADA** | Protocolo de Prueba Piloto en Vía (10 activos UF1/UF2) y Acta de Cierre Operativo. |
 | [`ESPEC-020`](docs/ROADMAP.md) | `scripts/aplicar_espec020_coordenadas.py` | `BD/supabase_sync_rpc.sql` | 🟢 **APLICADA** | Corrección atómica de coordenadas de cierre (relajación NOT NULL, retiro de COALESCE inventado e idempotencia RPC). |
+| [`ESPEC-021`](docs/ROADMAP.md) | `src/lib/pdf-reporte-disponibilidad.ts` | `BD/supabase_fase5_rpc.sql` | 🟢 **APLICADA** | Módulo de Disponibilidad Contractual ($D_i \ge 98.5\%$), Parte Diario CCO y Generador de Informe Oficial PDF para ANI / Interventoría. |
 
 ---
 
@@ -152,18 +153,26 @@ El proyecto cuenta con cuatro instrumentos de verificación automatizados ejecut
 
 La base de datos en PostgreSQL cuenta con integridad referencial estricta (`ON DELETE RESTRICT`) e inmutabilidad temporal para respaldar cuatro niveles de reportería:
 
-* 📅 **Parte Diario de Operaciones:** Cuadro de mando diario de mantenimientos ejecutados en campo, técnicos en vía y cierres con excepción satelital.
-* 📆 **Avance Semanal de Cronograma:** Porcentaje de cumplimiento del plan preventivo agrupado por Unidad Funcional (`UF1` a `UF4`).
-* 🗓️ **Fichas e Informe Mensual de Interventoría:** Cálculo de **Disponibilidad Contractual ($D_i$)** de los 368 activos y exportación de Fichas Periciales en PDF con fotos WebP, geofencing y firmas.
+* 📅 **Parte Diario de Operaciones (`/reportes`):** Cuadro de mando diario de mantenimientos ejecutados en campo, técnicos en vía y cierres con excepción satelital.
+* 📆 **Avance Semanal de Cronograma (`/planes`):** Programación y porcentaje de cumplimiento preventivo agrupado por Unidad Funcional (`UF1` a `UF4`).
+* 🗓️ **Fichas e Informe Mensual de Interventoría (`/reportes`):** Cálculo de **Disponibilidad Contractual ($D_i$)** de los 368 activos y exportación oficial en PDF con membrete de la Concesión y bloques de firma.
+* ⚠️ **Gestión de Incidentes de Ruta (`/novedades`):** Registro inmediato de hallazgos imprevistos con foto georreferenciada y generación automática de OTs Correctivas.
 * 📈 **Confiabilidad Anual (MTBF / MTTR):** Análisis de modos de falla (`FAL_ModosFalla`), Tiempo Medio Entre Fallas y Tiempo Medio de Reparación para planes de reposición.
 
 ---
 
-## 9. Enlaces del Proyecto
+## 9. Enlaces y Módulos del Proyecto
 
-* **Repositorio GitHub:** [https://github.com/dieleoz/SISGA2](https://github.com/dieleoz/SISGA2)
+* **Repositorio GitHub:** [https://github.com/dieleoz/SGMC](https://github.com/dieleoz/SGMC)
 * **Despliegue en Vivo:** [https://sisga-2.vercel.app/](https://sisga-2.vercel.app/)
 * **Base de Datos:** Supabase PostgreSQL 16 con PostGIS (`dcrvobzicjxckeofqsjf.supabase.co`)
+* **Módulos Principales:**
+  * 📱 **App Técnico (PWA Offline):** `/tecnico`
+  * 🖥️ **Portal Supervisión:** `/supervisor`
+  * 📊 **Disponibilidad & Reportes ($D_i$):** `/reportes`
+  * ⚠️ **Novedades de Ruta:** `/novedades`
+  * 📅 **Planes Preventivos:** `/planes`
+  * 🗄️ **Inventario de Activos (368):** `/activos`
 
 ---
 Concesión Transversal del Sisga S.A.S. — SGMC v2
