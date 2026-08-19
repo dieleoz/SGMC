@@ -1,330 +1,146 @@
-# Manual de usuario y guía de operación — SGMC
+# Manual Funcional y Guía de Operación por Rol — SGMC v2
 
-**Sistema de Gestión de Mantenimiento en Campo**
-Concesión Transversal del Sisga S.A.S. · Google AppSheet **`_SISGA_-323965761`**
-
-Reescrito el 2026-08-07 contra [`docs/FUNCIONAL_SGMC.md`](../docs/FUNCIONAL_SGMC.md) y verificado
-sobre `scripts/modelo_objetivo.py`. **La versión anterior describía un sistema que no existe** —
-incluía escáner QR, que se retiró del alcance, e indicaba editar la tabla de respuestas para cambiar
-las preguntas, lo que corrompe el histórico.
-
-**Cabecera y recuadro de estado actualizados el 2026-08-10** contra [`ESTADO.md`](../ESTADO.md), que
-es el estado vigente. Ese día se fijó un punto de partida: la aplicación se reconstruyó desde cero
-sobre una hoja generada del modelo, `Modelo_Datos_10082026`. **Entre el 6 y el 10 de agosto el
-repositorio llegó a nombrar seis aplicaciones y tres hojas**; las **cinco** aplicaciones y las
-**dos** hojas que quedaron atrás están en la lista `SUPERADOS` de `scripts/sistema.py`, con el
-motivo de cada una. **Nunca copie el nombre de la aplicación de un documento: vuélquelo.**
-
-```bash
-python scripts/sistema.py
-```
-
-Si alguien le pasa un enlace que no sea el que sale de ahí, no es este sistema. **La cabecera de
-arriba se escribió a mano y por eso puede envejecer**; el volcado no.
-
-**Y el modelo de datos cambió el 2026-08-10.** Lo que usted ve en pantalla no cambia, pero sí
-cambian los nombres y los formatos que aparecen en este manual: **toda clave es alfanumérica con
-prefijo** —`ACT-0001`, `TIP-001`, `SED-001`, `USR-001`—, **la columna de coordenada se llama
-`Ubicacion_LatLong`**, **el usuario ya no tiene sede** —su zona de trabajo vive en la asignación de
-zona y solo ahí— y **el activo tiene ahora PK, tramo de INVÍAS y sede**. Está detallado en 5.1 y 5.2.
-
-> ## Antes de usar este manual
->
-> **El sistema está en construcción, y está menos avanzado de lo que decían las versiones anteriores
-> de este manual.** Lo que sigue describe cómo se opera; buena parte todavía no está montada. Cada
-> apartado afectado lo dice en su sitio, y el resumen es este:
->
-> | Función | Estado |
-> |---|---|
-> | Órdenes, checklist, fotografías, firmas, histórico | **Solo las tablas.** Las 28 dadas de alta sobre la hoja limpia, y nada más |
-> | Referencias entre tablas | **Sin poner.** Las **39** del modelo se reponen enteras: la aplicación se reconstruyó desde cero |
-> | Radio de cierre por tipo de activo | **Poblado en los 27 tipos** de la hoja vigente: 0,05 km en 18, 0,1 km en 8 y 1,5 km en la fibra. **Falta cablear la regla que lo lee** |
-> | Que la coordenada de cierre no se pueda mover a mano | **Pendiente.** `Editable_If = FALSE` está especificado y no puesto |
-> | Que no se pueda borrar una orden ni una ejecución | **Pendiente.** Falta retirar `Deletes` en las dos tablas |
-> | Que cada técnico solo descargue lo de sus zonas | **Pendiente.** Los dos filtros de seguridad —activos por unidad funcional, órdenes por técnico— están especificados y no puestos |
-> | Que el técnico no pueda cerrar su propia orden | **Pendiente.** Está definido en el catálogo de estados, no impuesto como regla |
-> | Coordenadas de los activos | **No hay ninguna.** `ACT_Activos.Ubicacion_LatLong` está **vacía en las 368 filas** de la hoja vigente. Las que hubo eran calculadas sobre el trazado, no medidas, y se perdieron al renombrar la columna el 2026-08-10 |
-> | Creación automática de las órdenes del mes | **No cabe en el plan actual** |
->
-> **Y aunque se cableara todo mañana, faltarían las coordenadas.** Con la columna vacía, `DISTANCE()`
-> no da error: **rechaza también el cierre legítimo**, así que no habría forma de cerrar una orden en
-> campo. Es la decisión D-01 y es el bloqueo del piloto.
->
-> **Lo que falta por cablear no se explica aquí.** El encargo entero, generado del modelo, está en
-> [`docs/PROMPT_CABLEADO.md`](../docs/PROMPT_CABLEADO.md), y es trabajo del Funcional, no del
-> usuario.
+**Sistema de Gestión de Mantenimiento en Campo**  
+**Cliente:** Concesión Transversal del Sisga S.A.S. (137 km)  
+**Versión:** 2.0 (PostgreSQL 16 + PostGIS + Next.js 14 PWA)  
+**Acceso en Producción:** [https://sisga-2.vercel.app/](https://sisga-2.vercel.app/)  
+**Fecha de Emisión:** Agosto 2026
 
 ---
 
-## 1. Para qué sirve
+## 1. Propósito y Alcance del SGMC v2
 
-Para saber **cuánto de lo planeado se ejecutó**, y poder demostrarlo.
+El **Sistema de Gestión de Mantenimiento en Campo (SGMC v2)** es la plataforma oficial de la Concesión Transversal del Sisga para la administración, planificación, ejecución técnica y certificación pericial del mantenimiento preventivo y correctivo sobre los **368 activos de infraestructura** distribuidos a lo largo de las cuatro Unidades Funcionales (`UF1` a `UF4`):
 
-Hoy esa cifra se lleva a mano: alguien recoge los partes, cuenta las tareas hechas contra las
-programadas y transcribe el porcentaje. Con el SGMC esa cuenta es una resta entre lo programado y
-lo cerrado, y sale del sistema.
+1. **UF1 — Sisga / Guateque (PK 00+000 al PK 49+000):** 146 activos (Postes SOS, Cámaras CCTV, Paneles PMV, Subestaciones).
+2. **UF2 — Guateque / Macanal (PK 49+000 al PK 72+000):** 53 activos (Túneles, Estaciones de Peaje, Cámaras de Monitoreo).
+3. **UF3 — Macanal / Santa María (PK 72+000 al PK 105+000):** 45 activos (Postes SOS, Radares de Velocidad, Luminarias).
+4. **UF4 — Santa María / Aguaclara (PK 105+000 al PK 137+000):** 124 activos (Sistemas de Comunicación, Estaciones Meteorológicas).
 
-Todo lo demás —fotografías, coordenadas, firmas, histórico— existe para que esa cifra sea
-**defendible ante la interventoría**, no solo cierta.
-
-## 2. Quién usa el sistema
-
-| Perfil | Dispositivo | Qué hace |
-|---|---|---|
-| **Técnico de campo** | Móvil, funciona sin cobertura | Ejecuta la orden, responde el checklist, toma fotografías, firma. **No cierra la orden** |
-| **Supervisor** | Web o tableta | Programa, asigna, revisa, **cierra** y suspende |
-| **Consulta / interventoría** | Web | Audita y exporta. No escribe |
-| **Administrador** | Web | Usuarios, activos, catálogos y plantillas de checklist |
-
-El Plan Maestro distingue además **doce especialidades** —técnico ITS, técnico de alturas, técnico
-de fibra, técnico de peaje, ayudante, ingenieros de ITS, redes, soporte y TI, auxiliar de TI,
-especialista y proveedor—. Hoy el sistema **no las usa para decidir quién puede hacer qué**: eso
-está previsto y no construido.
-
-## 3. Guía del técnico de campo
-
-### 3.1 Primer ingreso
-
-1. Instale la aplicación **AppSheet** desde Google Play o App Store.
-2. Inicie sesión con su **cuenta corporativa**, la misma que figura en su ficha de usuario.
-3. El sistema descarga a su teléfono **solo los activos y las órdenes de las unidades funcionales
-   que tiene asignadas**. Si no ve un activo que espera ver, el problema está en su asignación de
-   zona, no en la aplicación — ver 6.2.
-
-> **Estado:** ese recorte todavía no está puesto. Hasta que se cablee, la aplicación descarga el
-> inventario entero a todos los teléfonos.
-
-### 3.2 El día de trabajo
-
-```
-1. Abrir "Mis órdenes"
-2. Elegir la orden del día              → la orden pasa a "En ejecución"
-3. Responder el checklist               → las preguntas dependen de la tarea
-4. Tomar fotografías                    → cada una guarda su coordenada y su hora
-5. Firmar
-6. Cerrar en sitio                      → se comprueba la distancia al activo
-7. La orden queda "En revisión"         → el supervisor la recibe
-```
-
-**Usted no cierra la orden.** Al terminar, la deja **En revisión** y el supervisor decide si la
-acepta. Quien hace el trabajo no certifica que se hizo: es lo que da valor a la evidencia frente a
-un tercero.
-
-> **Estado:** hoy la aplicación **no impide** que un técnico ponga la orden en «Cerrada». La
-> separación está definida en el catálogo de estados pero todavía no se aplica como regla.
-
-### 3.3 Trabajo sin cobertura
-
-Buena parte del corredor no tiene señal. La aplicación guarda **todo** —respuestas, fotografías,
-firmas— en el teléfono, sin red.
-
-- Al recuperar cobertura o conectarse al wifi del peaje o del CCO, envía lo pendiente en segundo
-  plano.
-- Para forzarlo, use el icono de sincronización en la esquina superior derecha.
-- **No desinstale la aplicación ni borre sus datos con trabajo sin sincronizar.** No hay copia en
-  ningún otro sitio hasta que suba.
-
-### 3.4 Cierre con excepción, cuando el GPS no alcanza
-
-En túnel, corte de montaña o bajo vegetación densa, el teléfono puede no fijar posición con
-precisión suficiente.
-
-1. Espere unos segundos a que la antena busque posición.
-2. **La app no le muestra un número de precisión que pueda comparar solo.** La aplicación no tiene
-   forma de leer ni guardar la precisión del GPS del teléfono. Sea usted quien decide, a ojo, si la
-   señal fue mala: mire el ícono de precisión de la captura manual, o simplemente su propio juicio de
-   cuánto tardó en fijar posición y en qué condiciones (túnel, corte de montaña, vegetación densa).
-3. Si considera que la precisión no fue buena, marque **`Cierre con excepción`**.
-4. **Escriba el motivo** en `Motivo de excepción`. Es obligatorio en cuanto marca la casilla.
-
-La excepción **no es un rodeo: queda registrada y es auditable**. Hoy **no existe un reporte que
-cuente** cuántos cierres con excepción tiene cada técnico o cada activo (pendiente, D-12); mientras
-tanto el supervisor revisa `Observaciones`/`Motivo de excepción` uno por uno, al aprobar cada cierre.
-Un activo que se cierra con excepción con frecuencia señala que su coordenada está mal o que el
-sitio no tiene cobertura satelital, y eso se corrige.
-
-**El umbral de precisión (`PAR_Parametros.UMBRAL_GPS`, 40 m) es una referencia para su propio
-criterio, no una comparación que la app haga sola.** Ninguna regla lo lee ni lo compara contra nada;
-lo ajusta el administrador en la tabla de parámetros como cifra de referencia, y es usted quien
-decide si su caso la supera.
-
-> **No use** el campo de observaciones para justificar un problema de GPS. Ese texto no se puede
-> contar ni auditar. Para eso está el cierre con excepción.
-
-### 3.5 Distancia al activo
-
-Al cerrar se comprueba que usted esté cerca del activo. El radio **depende del tipo**: un poste SOS
-o una cámara admiten decenas de metros; un tramo de fibra, que es lineal, necesita kilómetros.
-
-Conviene saber qué prueba y qué no: **confirma que usted estaba cerca, no que estuviera
-trabajando**. Lo que sí aporta valor son las fotografías, porque cada una lleva su propia
-coordenada y su hora.
-
-Los radios están puestos por familia en la hoja vigente, en `TIP_TiposActivo.RadioGeofencingKm`:
-
-```
-0,05 km   18 tipos   poste SOS, cámaras, sensores, paso seguro y equipos de TI
-0,1  km    8 tipos   paneles de mensaje variable, básculas, peajes, generador y subestación
-1,5  km    1 tipo    el tramo de fibra, que es lineal
-```
-
-> **Estado: el radio está en la hoja, pero la regla que lo lee todavía no está puesta.** Los 27
-> tipos lo traen poblado —se comprueba sobre `BD/Modelo_Datos_PLANTILLA.xlsx`, que es el mismo
-> archivo publicado como `Modelo_Datos_10082026`—, y lo que falta es cablear el cierre en la
-> aplicación. **El radio no se ajusta en la tabla de parámetros:** ver 5.4.
->
-> Y aunque estuviera cableado, **el activo no tiene coordenada**: `Ubicacion_LatLong` está vacía en
-> las 368 filas. Hasta cargarlas, la comprobación de distancia no significa nada en campo.
-
-## 4. Guía del supervisor
-
-### 4.1 Programar y asignar
-
-1. Entre a **Órdenes de trabajo** desde el navegador.
-2. Cree la orden indicando **activo**, **tarea**, **técnico** y **fecha programada**.
-3. Al asignarla, la orden pasa a **Asignada**.
-
-La **periodicidad no se elige aquí**: viene de la tarea. Un poste SOS tiene prueba semanal, prueba
-mensual con interventoría y mantenimiento trimestral, y cada una es una tarea distinta con su propia
-frecuencia y su propio checklist.
-
-> **Estado:** las órdenes se crean **una a una o por carga en la hoja**. La generación automática
-> del mes no está disponible en el plan actual del servicio, y no es cuestión de tiempo: depende de
-> la decisión de licenciamiento.
-
-### 4.2 Recibir el trabajo
-
-Cuando el técnico termina, la orden queda **En revisión**. Usted:
-
-- Revisa el checklist, las fotografías y la firma.
-- Si está conforme, **aprueba la ejecución** y **cierra la orden**.
-- Si no, deja la **observación de rechazo**.
-
-> **Estado:** nadie le avisa de que hay trabajo por recibir. Tiene que entrar a mirar — las
-> notificaciones automáticas dependen de la misma decisión de licenciamiento.
->
-> **Y falta el camino de vuelta:** existe el campo de observación de rechazo, pero la orden **no
-> tiene un estado de rechazo** al que volver. Está pendiente de definir.
-
-### 4.3 Los estados de una orden
-
-| Estado | Quién lo pone |
-|---|---|
-| Programada | Sistema |
-| Asignada | Supervisor |
-| En ejecución | Técnico |
-| En revisión | Técnico |
-| Cerrada | **Supervisor** |
-| Suspendida | Supervisor |
-| Vencida | Sistema |
-
-## 5. Guía del administrador
-
-### 5.1 Usuarios
-
-Al crear un usuario diligencie nombres, correo —**exactamente el de su cuenta corporativa**—, cargo,
-iniciales, rol, teléfono y fecha de ingreso, y márquelo como activo. Su identificador es
-alfanumérico y con prefijo: `USR-001`.
-
-**El correo es lo que conecta la persona con la aplicación.** Si no coincide con la cuenta con la
-que inicia sesión, el usuario entra pero no ve nada.
-
-> **El usuario ya no tiene sede, y no es un olvido del formulario.** La columna se retiró el
-> 2026-08-10 porque decía dos cosas a la vez y ninguna bien: dónde trabaja la persona no es dónde
-> están los equipos que le tocan, y usarla para filtrar dejaba a usuarios y activos en conjuntos
-> disjuntos. **Dónde trabaja un técnico vive en un solo sitio: la tabla de asignación de zona.**
-> `SED_Sedes` sigue existiendo, pero para otra cosa: es la edificación en la que vive el equipo bajo
-> techo —servidores, NAS, impresoras, video wall—, y cuelga del activo, no de la persona.
-
-Después, **asígnele sus unidades funcionales** en la tabla de asignación de zona. **Eso, y nada más,
-determina qué descarga a su teléfono.** Un técnico sin fila en esa tabla abre la aplicación y no ve
-nada.
-
-### 5.2 Activos
-
-Diligencie código, nombre, tipo, unidad funcional, calzada, sentido, ubicación, estado y criticidad,
-más los cuatro campos de dónde está, que se explican abajo: **PK**, **PR**, **tramo de INVÍAS** y
-**sede**.
-
-- **La ubicación es un solo campo de coordenada**, `Ubicacion_LatLong`, no dos columnas de latitud y
-  longitud. El sufijo del nombre no es un capricho: es lo que hace que la plataforma la trate como
-  coordenada y no como texto, y `DISTANCE()` no opera sobre texto.
-- **El código del activo no es su identificador interno.** El identificador es `ACT-0001`. Puede
-  renombrar el código sin romper nada: las órdenes y el histórico apuntan al identificador.
-- Para dar de baja un activo, marque la fecha y el motivo de baja y desmárquelo como activo. **No lo
-  borre**: su histórico de mantenimientos tiene que seguir consultable.
-
-#### Dónde está el activo: cuatro campos, y ninguno sobra
-
-**El PR no identifica un punto, y esto no es teoría.** El corredor atraviesa **tres rutas de
-INVÍAS** y **hay dos sitios distintos llamados `PR 0+000`**, separados por unos 50 km. Un técnico
-enviado al «PR 0+000» no sabe a cuál de los dos.
-
-| Campo | Qué es | Cuándo se diligencia |
-|---|---|---|
-| **PK** | El punto kilométrico **del proyecto**: lineal y continuo desde el arranque hasta el final. **Es el único que identifica un punto sin ambigüedad en todo el corredor** | Siempre en el equipo de vía |
-| **PR** | El punto de referencia de INVÍAS. Pertenece a un tramo y **reinicia en cada uno** | Junto con el tramo, nunca solo |
-| **Tramo de INVÍAS** | La ruta a la que pertenece ese PR. **Sin él, el PR no dice nada** | Siempre que se diligencie un PR |
-| **Sede** | La edificación en la que vive el equipo **bajo techo** —servidores, NAS, impresoras, video wall— | Solo en ese equipo. Se deja vacía en el equipo de vía, que tiene su propio PK y su propia coordenada |
-
-**Un activo tiene sede o tiene punto en la vía, no las dos cosas.** Y cuando tiene sede, su unidad
-funcional debe ser la de esa edificación: la unidad funcional se guarda en un solo sitio, no en dos.
-
-> **Estado, contra `BD/Modelo_Datos_PLANTILLA.xlsx`:** de los 368 activos, el **PK** está poblado en
-> los 368; **PR**, **tramo de INVÍAS**, **sede** y **coordenada** están **vacíos en los 368**. Es
-> trabajo de carga, no de configuración.
-
-### 5.3 Cambiar las preguntas de una inspección
-
-Las preguntas viven en la estructura de plantillas:
-
-```
-Formulario  →  Sección  →  Pregunta  →  Tipo de respuesta
-```
-
-Para añadir o cambiar una pregunta, edite **la plantilla**. No hace falta tocar la configuración de
-la aplicación.
-
-> **Nunca edite la tabla de detalle del checklist para cambiar preguntas.** Esa tabla guarda las
-> **respuestas ya dadas** por los técnicos. Modificarla reescribe el histórico de mantenimientos
-> ejecutados. El manual anterior daba esta instrucción y era incorrecta.
-
-### 5.4 Parámetros
-
-El umbral de precisión de GPS (`UMBRAL_GPS`) se ajusta **en la tabla de parámetros**, sin abrir el
-editor de la aplicación. Hoy vale **40 metros**. **Ninguna regla de la aplicación lo lee ni lo
-compara**: la app no tiene forma de leer la precisión del GPS del teléfono, así que este número es
-solo la referencia que se le da al técnico para su propio criterio al decidir si marca `Cierre con
-excepción` (ver 3.4). Cambiarlo aquí no dispara ni evita nada automáticamente; solo cambia la cifra
-que el técnico ve como referencia.
-
-**El radio de cierre no está ahí: va por tipo de activo**, en el campo `RadioGeofencingKm` de la
-tabla de tipos, y está poblado en los 27 —los valores están en 3.5—. La tabla de parámetros
-conserva un `RADIO_GEOFENCING_KM` de 1 km, pero es un **valor provisional histórico que la regla de
-cierre no lee**. Cambiarlo ahí no cambia nada: si alguien le dice lo contrario, está describiendo
-el sistema anterior.
-
-## 6. Problemas frecuentes
-
-| Problema | Causa | Qué hacer |
-|---|---|---|
-| «Fuera de rango» al cerrar | Está lejos de la coordenada registrada, **o la coordenada del activo está mal** | Acérquese. Si está junto al activo y sigue fallando, ciérrelo con excepción y avise: la coordenada hay que corregirla |
-| No veo activos de otra zona | Es correcto: solo descarga los de sus unidades funcionales asignadas | El administrador revisa su asignación de zona |
-| No aparece una orden que me asignaron | Falta sincronizar, o la orden no está en una de sus zonas | Sincronice. Si persiste, avise al supervisor |
-| Las fotografías tardan en subir | Conexión lenta en montaña | No apague el teléfono. Suben en segundo plano |
-| Cambié una pregunta y desaparecieron respuestas anteriores | Se editó la tabla de respuestas en vez de la plantilla | Ver 5.3. Avise de inmediato: hay histórico afectado |
-
-## 7. Lo que el sistema no hace
-
-Conviene decirlo, porque de otro modo se descubre en campo:
-
-- **No prueba que usted estuviera trabajando**, solo que estaba cerca.
-- **No avisa a nadie automáticamente** de que hay trabajo por recibir.
-- **No genera las órdenes del mes solo.**
-- **No protege contra quien edite la hoja de cálculo directamente.** Todas las validaciones viven en
-  la aplicación; quien escriba en la hoja se las salta.
+El sistema garantiza **trazabilidad jurídica e inmutabilidad pericial** ante la **Agencia Nacional de Infraestructura (ANI)** y la **Interventoría**, mediante validación satelital fail-closed, almacenamiento de evidencias fotográficas WebP en S3, firma digital manuscrita y cálculo automatizado de la Disponibilidad Contractual ($D_i \ge 98.5\%$).
 
 ---
 
-*Documento derivado de [`docs/FUNCIONAL_SGMC.md`](../docs/FUNCIONAL_SGMC.md), que es la fuente. Si*
-*ambos discrepan, manda el funcional.*
+## 2. Matriz de Roles y Responsabilidades
+
+| Rol | Perfil / Usuarios | Interfaz de Acceso | Responsabilidades Funcionales |
+|:---:|---|:---:|---|
+| **`ROL-03` Técnico de Campo** | Iván Salcedo / Luis Gacha | [`/tecnico`](https://sisga-2.vercel.app/tecnico) | • Ejecutar inspecciones en modo 100% offline.<br>• Responder checklists dinámicos por tipo de equipo.<br>• Tomar fotos WebP georreferenciadas y firma digital.<br>• Reportar novedades de vía (`/novedades`). |
+| **`ROL-02` Supervisor de Zona** | Fernand Bolívar | [`/supervisor`](https://sisga-2.vercel.app/supervisor)<br>[`/planes`](https://sisga-2.vercel.app/planes) | • Auditar órdenes ejecutadas y coordenadas GPS.<br>• Aprobar o rechazar mantenimientos con observaciones.<br>• Generar Fichas Técnicas Periciales en PDF.<br>• Programar planes preventivos mensuales por UF. |
+| **`ROL-01` Director Técnico / CCO** | Diego Zúñiga / Operadores CCO | [`/`](https://sisga-2.vercel.app/)<br>[`/activos`](https://sisga-2.vercel.app/activos) | • Monitorear el estado general del corredor (137 km).<br>• Administrar el catálogo de 368 activos.<br>• Supervisar la asignación de técnicos por zona (`ASG_AsignacionZona`). |
+| **`ROL-04` Interventoría / ANI** | Consorcio Interventoría Sisga | [`/reportes`](https://sisga-2.vercel.app/reportes) | • Auditar la Disponibilidad Contractual ($D_i \ge 98.5\%$).<br>• Consultar el Parte Diario de Operaciones del CCO.<br>• Descargar el **Informe Oficial en PDF para la ANI**. |
+
+---
+
+## 3. Manual Funcional: Rol Técnico de Campo (`/tecnico`)
+
+### 3.1. Instalación de la Aplicación en Celular o Tablet (PWA)
+1. Abra el navegador Chrome (Android) o Safari (iOS) en su dispositivo móvil.
+2. Ingrese a la URL: `https://sisga-2.vercel.app/tecnico`.
+3. Presione el botón **"Instalar App"** en el banner superior (o en el menú del navegador: *Instalar aplicación* / *Agregar a pantalla de inicio*).
+4. La aplicación se ejecutará a pantalla completa con rendimiento nativo y caché sin conexión.
+
+### 3.2. Operación Offline en Túneles y Zonas de Montaña
+* La PWA almacena automáticamente el censo de órdenes y formularios en la base de datos local (IndexedDB).
+* Si pierde la señal celular (túneles o cañones de montaña), el indicador superior pasará a **"Modo Offline Activo (Túneles/Vía)"**.
+* **Contador de Cola Outbox:** Si tiene mantenimientos pendientes por sincronizar, verá un badge ámbar (ej. `⚠️ 2 pendientes`).
+* Al recuperar señal 4G o WiFi, el motor de sincronización subirá automáticamente los registros sin que deba reingresar información.
+
+### 3.3. Ciclo de Ejecución de una Orden de Trabajo:
+1. **Selección:** En la lista de órdenes asignadas, seleccione el equipo a intervenir (ej. *Poste SOS PK 14+200*).
+2. **Validación Satelital (GPS):**
+   * Presione **"Capturar Coordenadas GPS"**.
+   * Si está dentro de la tolerancia del activo (ej. 50 metros), el sistema mostrará: `¡Validación Conforme!`.
+   * **Cierre con Excepción (Túneles):** Si se encuentra en un túnel o recinto cerrado sin señal satelital, active la casilla **"Activar Cierre con Excepción Manual"** y seleccione el motivo (ej. *Túnel o zona sin cobertura satelital GPS*). El sistema no inventará coordenadas ficticias.
+3. **Diligenciamiento de Checklist Dinámico:**
+   * Responda las preguntas agrupadas por secciones según el tipo de activo (Conforme/No conforme, valores de lista, mediciones de voltaje en voltios, etc.).
+4. **Captura Fotográfica WebP:**
+   * Tome las fotografías de evidencia requeridas. La cámara estampará las coordenadas y la hora en el pie de foto, comprimiéndola a formato ligero WebP (<150 KB).
+5. **Firma Digital Manuscrita:**
+   * Dibuje su firma en el recuadro táctil del celular.
+6. **Guardar Mantenimiento:**
+   * Presione **"Guardar y Cerrar Mantenimiento"**. El botón se bloqueará contra doble clic y asentará la orden para revisión de supervisión.
+
+### 3.4. Reporte de Novedades en Ruta (`/novedades`)
+Si durante el recorrido en carretera detecta una falla imprevista o un daño por terceros:
+1. Presione el botón **"Reportar Novedad en Ruta"** en la cabecera.
+2. Ingrese la descripción del daño, adjunte la fotografía de evidencia y tome la ubicación GPS.
+3. Al enviar, el sistema genera automáticamente una **Orden de Trabajo Correctiva (`OT-CORR`)** en Supabase para su atención inmediata.
+
+---
+
+## 4. Manual Funcional: Rol Supervisor de Mantenimiento (`/supervisor` y `/planes`)
+
+### 4.1. Bandeja de Supervisión y Auditoría Pericial
+1. Ingrese a `https://sisga-2.vercel.app/supervisor`.
+2. Filtre las órdenes por Unidad Funcional (`UF1` a `UF4`), Estado (`En revision` o `Cerrada`) o técnico asignado.
+3. Presione **"Auditar Evidencias"** sobre la orden a certificar.
+
+### 4.2. Modal de Auditoría Pericial
+* **Auditoría GPS:** Contraste en el mapa la ubicación reportada por el técnico vs el punto kilométrico (PK) oficial del activo.
+* **Inspección de Evidencias:** Revise las fotos WebP almacenadas en Supabase Storage y verifique la firma digital manuscrita.
+* **Aprobación / Rechazo:**
+  * **Aprobar:** Presione **"Aprobar y Certificar"**. La orden pasa a estado `Cerrada`.
+  * **Rechazar:** Presione **"Rechazar / Solicitar Corrección"**, indicando el motivo para que el técnico reejecute la labor.
+* **Descarga de Ficha PDF:** Presione **"📄 Descargar Ficha PDF (Interventoría)"** para emitir el documento individual pericial con membrete oficial.
+
+### 4.3. Programación Masiva en el Generador de Planes (`/planes`)
+1. Ingrese a `https://sisga-2.vercel.app/planes`.
+2. Seleccione el mes de ejecución (ej. *Septiembre 2026*) y la Unidad Funcional (o *Todas las UFs*).
+3. Presione **"Generar OTs del Mes"**.
+4. El sistema ejecuta el procedimiento RPC `sgmc_generar_plan_mensual`, programa los 368 activos en `PLA_PlanMantenimiento` y genera las órdenes en `OT_OrdenesTrabajo` para cada técnico de zona.
+
+---
+
+## 5. Manual Funcional: Rol Director Técnico y CCO (`/` y `/activos`)
+
+### 5.1. Cuadro de Mando del Corredor Vial (`/`)
+* Monitoreo en tiempo real del porcentaje de avance preventivo y correctivo en los 137 km de vía.
+* Visualización rápida del estado de las cuadrillas técnicas y volumen de órdenes activas.
+
+### 5.2. Catálogo Maestro de Activos (`/activos`)
+* Búsqueda y filtrado del censo completo de **368 activos** por código (`ACT-0001`), PK (`PK 14+200`), Unidad Funcional y tipo de equipo.
+* Inspección de coordenadas geográficas, radio de tolerancia y formulario asignado.
+
+---
+
+## 6. Manual Funcional: Rol Interventoría y Auditoría ANI (`/reportes`)
+
+### 6.1. Tablero de Disponibilidad Contractual ($D_i$)
+1. Ingrese a `https://sisga-2.vercel.app/reportes`.
+2. Seleccione el mes y año a auditar.
+3. El sistema calcula en vivo la fórmula contractual del Apéndice Técnico 1 de la ANI:
+   $$D_i = \left[ 1 - \left( \frac{\text{Horas Indisponibles Totales}}{\text{Horas Programadas Totales}} \right) \right] \times 100\%$$
+4. **Semáforo de Conformidad ANI:**
+   * $\ge 98.5\% \longrightarrow$ 🟢 **CONFORME** (Cumplimiento de indicadores contractuales).
+   * $< 98.5\% \longrightarrow$ 🔴 **NO CONFORME** (Afecta retribución mensual).
+
+### 6.2. Parte Diario de Operaciones del CCO
+* Muestra el balance diario de órdenes programadas, mantenimientos ejecutados, cierres con excepción satelital y novedades atendidas.
+
+### 6.3. 📄 Emisión del Informe Oficial en PDF para Radicación ante la ANI
+1. En la vista `/reportes`, presione el botón verde **"Descargar Informe PDF (ANI)"**.
+2. El sistema compila automáticamente:
+   * Membrete institucional de la Concesión Transversal del Sisga.
+   * Código de documento `INF-DISP-YYYYMM` y versión PostGIS.
+   * Matriz detallada de los 27 subsistemas y 4 Unidades Funcionales.
+   * Resumen de operaciones del CCO.
+   * Bloques oficiales de firma para el **Director Técnico de la Concesión** y el **Ingeniero Residente de Interventoría**.
+3. Se abre el diálogo de impresión / guardado en PDF listo para radicación contractual.
+
+---
+
+## 7. Diccionario de Códigos y Módulos del Sistema
+
+| Módulo | Ruta URL | Roles Autorizados | Función Principal |
+|---|---|---|---|
+| **Centro de Control** | `/` | Todos | Resumen general del corredor (137 km). |
+| **App Técnico** | `/tecnico` | Técnico de Campo | Ejecución offline, checklists, fotos WebP, firmas. |
+| **Bandeja Supervisión** | `/supervisor` | Supervisor / Interventoría | Auditoría pericial, aprobación y fichas técnicas PDF. |
+| **Novedades de Ruta** | `/novedades` | Técnico / Supervisor | Reporte de imprevistos y OTs correctivas automáticas. |
+| **Planes Preventivos** | `/planes` | Supervisor / CCO | Generación masiva mensual de OTs preventivas por UF. |
+| **Disponibilidad ($D_i$)** | `/reportes` | Interventoría / Dirección | Cálculo de $D_i \ge 98.5\%$, Parte Diario e informe PDF ANI. |
+| **Inventario de Activos** | `/activos` | Todos | Consulta del censo georreferenciado de 368 activos. |
+
+---
+**Concesión Transversal del Sisga S.A.S.** — Sistema de Gestión de Mantenimiento en Campo (SGMC v2)
