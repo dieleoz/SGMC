@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import Link from "next/link";
 import { 
   HardHat, 
   MapPin, 
@@ -487,14 +488,23 @@ export default function TecnicoPage() {
             </button>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
               <HardHat className="w-5 h-5 text-emerald-400" />
               Órdenes de Trabajo Ejecutables ({ordenes.length})
             </h2>
-            <span className="text-xs px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
-              Estado: Asignada
-            </span>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/novedades"
+                className="text-xs px-3 py-1 rounded-xl bg-amber-600/20 text-amber-300 hover:bg-amber-600/30 border border-amber-500/30 font-bold flex items-center gap-1.5 transition-colors"
+              >
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                <span>Reportar Novedad en Ruta</span>
+              </Link>
+              <span className="text-xs px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700 hidden sm:inline">
+                Estado: Asignada
+              </span>
+            </div>
           </div>
 
           {loadingOrdenes ? (

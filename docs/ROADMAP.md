@@ -72,6 +72,11 @@ flowchart TD
 * [x] **7. Formularios Dinámicos por Subsistema:** Motor dinámico de checklists conectado a los 27 formularios de `FRM_Preguntas` y `LST_ValoresLista`, agrupados por secciones (`FRM_Secciones`), con controles tipados para Sí/No/NA, listas desplegables, números con unidades, textos y fechas, y guardado tipado en `CHD_ChecklistDetalle`.
 * [x] **8. Almacenamiento Seguro en Supabase Storage:** Bucket `evidencias-sgmc` configurado con RLS en `storage.objects` e integrado con `storage-service.ts` y `sync-engine.ts` para subida automática de WebP y firmas a S3 antes del asentamiento en BD.
 
+### Fase 5: Operación Avanzada y Reportería Contractual — **[COMPLETADA ✅]**
+* [x] **1. ESPEC-016 (Novedades de Ruta en Campo):** Módulo `/novedades` y botón en PWA técnica para reporte de fallas imprevistas con fotos WebP y generación automática de OTs Correctivas en `OT_OrdenesTrabajo`.
+* [x] **2. ESPEC-017 (Generador de Planes Preventivos Mensuales):** Módulo `/planes` y función RPC `sgmc_generar_plan_mensual` para programar los 368 activos y emitir lotes de OTs en `PLA_PlanMantenimiento`.
+* [x] **3. ESPEC-021 (Disponibilidad Contractual $D_i$ y Reportes ANI):** Módulo `/reportes` con cálculo automático de $D_i \ge 98.5\%$, Parte Diario de Operaciones del CCO y exportador de informes periciales.
+
 ---
 
 ## 4. Matriz de Componentes y Estado
